@@ -44,9 +44,9 @@ export default function PerfilPage() {
             <Card>
               <CardBody>
                 <HStack spacing={6} align="center">
-                  <Avatar size="xl" name={user?.nombre} />
+                  <Avatar size="xl" name={(user as any)?.nickname} />
                   <VStack align="start" spacing={2} flex="1">
-                    <Heading size="lg">{user?.nombre}</Heading>
+                    <Heading size="lg">{(user as any)?.nickname}</Heading>
                     <Text color="gray.600">{user?.email}</Text>
                     <Badge colorScheme="purple" fontSize="md" px={3} py={1}>
                       {user?.puntos?.toLocaleString()} puntos disponibles
@@ -126,8 +126,8 @@ export default function PerfilPage() {
                   <Heading size="md" mb={2}>Información de cuenta</Heading>
 
                   <HStack justify="space-between">
-                    <Text fontWeight="semibold">Nombre:</Text>
-                    <Text>{user?.nombre}</Text>
+                    <Text fontWeight="semibold">Nickname:</Text>
+                    <Text>{(user as any)?.nickname}</Text>
                   </HStack>
 
                   <HStack justify="space-between">
@@ -145,7 +145,7 @@ export default function PerfilPage() {
                   <HStack justify="space-between">
                     <Text fontWeight="semibold">Miembro desde:</Text>
                     <Text>
-                      {user?.created_at && new Date(user.created_at).toLocaleDateString('es-ES', {
+                      {(user as any)?.creado && new Date((user as any).creado).toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

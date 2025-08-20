@@ -69,8 +69,8 @@ export function Navbar() {
           <Menu>
             <MenuButton as={Button} variant="ghost" rightIcon={<ChevronDownIcon />} size="sm">
               <HStack spacing={2}>
-                <Avatar size="sm" name={user.nombre} />
-                <Text fontSize="sm">{user.nombre}</Text>
+                <Avatar size="sm" name={(user as any).nickname} />
+                <Text fontSize="sm">{(user as any).nickname}</Text>
               </HStack>
             </MenuButton>
             <MenuList bg="white" color="gray.800" border="1px" borderColor="gray.200">

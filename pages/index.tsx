@@ -1,17 +1,34 @@
 import { Layout } from '../components/Layout'
-import { Heading, Text, VStack } from '@chakra-ui/react'
+import { SimpleGrid, Spinner, Center } from '@chakra-ui/react'
+import { useProductos } from '../hooks/useProductos'
+import { ProductCard } from '../components/ProductCard'
 
 export default function Home() {
+  const { data: productos, isLoading, error } = useProductos()
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <Center mt={10}><Spinner size="xl" /></Center>
+      </Layout>
+    )
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <Center mt={10}>Error al cargar productos.</Center>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
-      <VStack spacing={6} align="center" textAlign="center">
-        <Heading size="xl" color="purple.600">
-          Bienvenido a Luisardito Shop
-        </Heading>
-        <Text fontSize="lg" color="gray.600">
-          Aquí aparecerá el catálogo de productos una vez tengas tu API de productos lista.
-        </Text>
-      </VStack>
+      <SimpleGrid columns={[1, 2, 3]} spacing={4} p={4}>
+        {productos?.map(producto => (
+          <ProductCard key={producto.id} producto={producto} />
+        ))}
+      </SimpleGrid>
     </Layout>
   )
 }

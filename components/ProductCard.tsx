@@ -116,18 +116,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           </Badge>
         )}
 
-        {/* ID del producto (solo para admin) */}
-        {isAdmin && (
-          <Badge
-            position="absolute"
-            top={2}
-            left={2}
-            colorScheme="gray"
-            zIndex={1}
-          >
-            #{producto.id}
-          </Badge>
-        )}
 
         {/* Imagen del producto */}
         {producto.imagen && (

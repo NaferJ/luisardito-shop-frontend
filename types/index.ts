@@ -71,7 +71,7 @@ export interface ProductoForm {
   precio: number
   stock: number
   imagen?: string
-  estado: 'borrador' | 'publicado'
+  estado: 'borrador' | 'publicado' | 'eliminado'
 }
 
 export interface UsuarioUpdateForm {

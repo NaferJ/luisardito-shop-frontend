@@ -132,7 +132,6 @@ export default function AdminProductosPage() {
                 <Table variant="simple">
                   <Thead>
                     <Tr>
-                      <Th>ID</Th>
                       <Th>Nombre</Th>
                       <Th>Descripción</Th>
                       <Th>Precio</Th>
@@ -142,50 +141,81 @@ export default function AdminProductosPage() {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {productos.map((producto) => (
-                      <Tr key={producto.id}>
-                        <Td>{producto.id}</Td>
-                        <Td fontWeight="semibold">{producto.nombre}</Td>
-                        <Td maxW="200px" isTruncated>{producto.descripcion}</Td>
-                        <Td>
-                          <Badge colorScheme="teal">
-                            {producto.precio} pts
-                          </Badge>
-                        </Td>
-                        <Td>
-                          <Badge 
-                            colorScheme={producto.stock > 0 ? 'green' : 'red'}
-                          >
-                            {producto.stock}
-                          </Badge>
-                        </Td>
-                        <Td>
-                          <Badge 
-                            colorScheme={producto.stock > 0 ? 'green' : 'gray'}
-                          >
-                            {producto.stock > 0 ? 'Disponible' : 'Sin stock'}
-                          </Badge>
-                        </Td>
-                        <Td>
-                          <HStack spacing={2}>
-                            <Link href={`/admin/productos/${producto.id}/editar`} passHref>
-                              <Button size="sm" colorScheme="blue" variant="outline">
-                                Editar
-                              </Button>
-                            </Link>
-                            <Button 
-                              size="sm" 
-                              colorScheme="red" 
-                              variant="outline"
-                              onClick={() => handleDeleteClick(producto.id)}
-                              isLoading={updateProductoMutation.isPending}
+                    {productos.map((producto) => {
+                      const getEstadoColor = (estado: string) => {
+                        switch (estado) {
+                          case 'publicado': return 'green'
+                          case 'borrador': return 'yellow'
+                          case 'eliminado': return 'red'
+                          default: return 'gray'
+                        }
+                      }
+
+                      const getEstadoText = (estado: string) => {
+                        switch (estado) {
+                          case 'publicado': return 'Publicado'
+                          case 'borrador': return 'Borrador'
+                          case 'eliminado': return 'Eliminado'
+                          default: return 'Desconocido'
+                        }
+                      }
+
+                      const isEliminado = producto.estado === 'eliminado'
+
+                      return (
+                        <Tr 
+                          key={producto.id} 
+                          opacity={producto.estado === 'borrador' ? 0.7 : isEliminado ? 0.5 : 1}
+                          bg={isEliminado ? 'red.50' : 'transparent'}
+                        >
+                          <Td fontWeight="semibold" textDecoration={isEliminado ? 'line-through' : 'none'}>
+                            {producto.nombre}
+                          </Td>
+                          <Td maxW="200px" isTruncated textDecoration={isEliminado ? 'line-through' : 'none'}>
+                            {producto.descripcion}
+                          </Td>
+                          <Td>
+                            <Badge colorScheme="teal">
+                              {producto.precio} pts
+                            </Badge>
+                          </Td>
+                          <Td>
+                            <Badge 
+                              colorScheme={producto.stock > 0 ? 'green' : 'red'}
                             >
-                              Eliminar
-                            </Button>
-                          </HStack>
-                        </Td>
-                      </Tr>
-                    ))}
+                              {producto.stock}
+                            </Badge>
+                          </Td>
+                          <Td>
+                            <Badge 
+                              colorScheme={getEstadoColor(producto.estado)}
+                            >
+                              {getEstadoText(producto.estado)}
+                            </Badge>
+                          </Td>
+                          <Td>
+                            <HStack spacing={2}>
+                              <Link href={`/admin/productos/${producto.id}/editar`} passHref>
+                                <Button size="sm" colorScheme="blue" variant="outline">
+                                  {isEliminado ? 'Recuperar' : 'Editar'}
+                                </Button>
+                              </Link>
+                              {!isEliminado && (
+                                <Button 
+                                  size="sm" 
+                                  colorScheme="red" 
+                                  variant="outline"
+                                  onClick={() => handleDeleteClick(producto.id)}
+                                  isLoading={updateProductoMutation.isPending}
+                                >
+                                  Eliminar
+                                </Button>
+                              )}
+                            </HStack>
+                          </Td>
+                        </Tr>
+                      )
+                    })}
                   </Tbody>
                 </Table>
               </Box>

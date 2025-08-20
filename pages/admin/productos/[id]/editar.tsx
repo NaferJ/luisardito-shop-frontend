@@ -38,7 +38,14 @@ export default function EditarProductoPage() {
   const { data: producto, isLoading: loadingProducto, error } = useProducto(id as string)
   const updateProductoMutation = useUpdateProducto()
 
-  const [formData, setFormData] = useState<ProductoForm>({
+  const [formData, setFormData] = useState<{
+    nombre: string
+    descripcion: string
+    precio: number
+    stock: number
+    imagen: string
+    estado: 'borrador' | 'publicado' | 'eliminado'
+  }>({
     nombre: '',
     descripcion: '',
     precio: 100,
@@ -154,7 +161,6 @@ export default function EditarProductoPage() {
             <VStack spacing={2} align="start">
               <HStack>
                 <Heading size="xl">Editar Producto</Heading>
-                <Badge colorScheme="gray">ID: {producto.id}</Badge>
                 <Badge colorScheme={getEstadoColor(producto.estado)}>
                   {producto.estado?.charAt(0).toUpperCase() + producto.estado?.slice(1) || 'Publicado'}
                 </Badge>
@@ -237,10 +243,11 @@ export default function EditarProductoPage() {
                       <FormLabel>Estado del producto</FormLabel>
                       <Select
                         value={formData.estado}
-                        onChange={(e) => handleInputChange('estado', e.target.value as 'borrador' | 'publicado')}
+                        onChange={(e) => handleInputChange('estado', e.target.value as 'borrador' | 'publicado' | 'eliminado')}
                       >
                         <option value="borrador">Borrador (no visible para usuarios)</option>
                         <option value="publicado">Publicado (visible en tienda)</option>
+                        <option value="eliminado">Eliminado (oculto, puede recuperarse)</option>
                       </Select>
                     </FormControl>
 
@@ -275,7 +282,7 @@ export default function EditarProductoPage() {
                 <VStack spacing={2} align="start">
                   <Text fontWeight="semibold" fontSize="sm">Información adicional:</Text>
                   <Text fontSize="xs" color="gray.600">
-                    ID: {producto.id} | Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
+                    Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
                     Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
                   </Text>
                 </VStack>

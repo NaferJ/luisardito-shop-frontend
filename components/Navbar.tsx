@@ -86,7 +86,7 @@ export function Navbar() {
               <MenuItem onClick={() => router.push('/')}>
                 Catálogo
               </MenuItem>
-              <MenuItem divider />
+              <hr />
               <MenuItem 
                 onClick={handleLogout}
                 color="red.500"

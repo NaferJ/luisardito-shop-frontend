@@ -1,20 +1,14 @@
 import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth.tsx'
+import { useKickAuth } from '../hooks/useKickAuth'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth()
+  const { connectWithKick } = useKickAuth()
   const router = useRouter()
-
-  const kickAuthUrl = [
-    'https://kick.com/oauth/authorize',
-    `?client_id=${process.env.NEXT_PUBLIC_KICK_CLIENT_ID}`,
-    `&redirect_uri=${encodeURIComponent(process.env.NEXT_PUBLIC_REDIRECT_URI || '')}`,
-    '&response_type=code',
-    '&scope=read:user'
-  ].join('')
 
   const handleLogout = () => {
     logout()
@@ -122,10 +116,9 @@ export function Navbar() {
               Registro
             </Button>
           </Link>
-          {/* Botón OAuth con Kick (temporal hasta que implementes OAuth) */}
+          {/* Botón OAuth con Kick */}
           <Button
-            as="a"
-            href={kickAuthUrl}
+            onClick={connectWithKick}
             colorScheme="yellow"
             variant="solid"
             size="sm"

@@ -1,8 +1,9 @@
-import { Box, Image, Text, Button, VStack, HStack, Badge, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useToast } from '@chakra-ui/react'
+import { Box, Image, Text, Button, VStack, HStack, Badge, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useToast, useColorModeValue } from '@chakra-ui/react'
 import { Producto } from '../types'
 import Link from 'next/link'
 import { useDeleteProducto, useUpdateProducto } from '../hooks/useProductosAdmin'
 import { useRef } from 'react'
+import { motion } from 'framer-motion'
 
 interface ProductCardProps {
   producto: Producto
@@ -97,11 +98,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   return (
     <>
       <Box 
+        as={motion.div}
         borderWidth="1px" 
+        borderColor="border.default"
+        bg="bg.canvas"
         borderRadius="lg" 
         overflow="hidden"
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
+        transition="transform 0.2s ease, box-shadow 0.2s ease"
+        _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
       >
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
@@ -130,9 +136,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
         <VStack spacing={2} p={4} align="start">
           <Text fontWeight="bold">{producto.nombre}</Text>
-          <Text fontSize="sm" color="gray.600">{producto.descripcion}</Text>
+          <Text fontSize="sm" color="text.muted">{producto.descripcion}</Text>
           <HStack justify="space-between" w="full">
-            <Text color="teal.600" fontWeight="semibold">{producto.precio} pts</Text>
+            <Text color="accent.fg" fontWeight="semibold">{producto.precio} pts</Text>
             <Badge colorScheme={producto.stock > 0 ? 'green' : 'red'}>
               Stock: {producto.stock}
             </Badge>
@@ -141,7 +147,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           {/* Botones para usuarios normales */}
           {!isAdmin && (
             <Link href={`/productos/${producto.id}`} passHref>
-              <Button size="sm" colorScheme="teal" w="full">Ver detalle</Button>
+              <Button size="sm" colorScheme="blue" w="full">Ver detalle</Button>
             </Link>
           )}
 
@@ -150,7 +156,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             <VStack spacing={2} w="full">
               <HStack spacing={2} w="full">
                 <Link href={`/productos/${producto.id}`} passHref>
-                  <Button size="sm" colorScheme="purple" flex="1">Ver</Button>
+                  <Button size="sm" variant="outline" colorScheme="gray" flex="1">Ver</Button>
                 </Link>
                 <Link href={`/admin/productos/${producto.id}/editar`} passHref>
                   <Button size="sm" colorScheme="blue" flex="1">Editar</Button>

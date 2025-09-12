@@ -51,11 +51,11 @@ export default function AuthCallbackPage() {
             </Alert>
 
             <VStack spacing={2}>
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="text.muted">
                 Puedes intentar conectar nuevamente o usar el login tradicional.
               </Text>
               <Button 
-                colorScheme="teal" 
+                colorScheme="blue" 
                 onClick={() => router.push('/login')}
               >
                 Ir a Login
@@ -71,12 +71,12 @@ export default function AuthCallbackPage() {
     <Layout>
       <Center minH="50vh">
         <VStack spacing={4}>
-          <Spinner size="xl" color="teal.500" />
+          <Spinner size="xl" color="accent.fg" />
           <VStack spacing={2} textAlign="center">
             <Text fontSize="lg" fontWeight="semibold">
               Conectando con Kick...
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="text.muted">
               Procesando tu autenticación, por favor espera un momento.
             </Text>
           </VStack>

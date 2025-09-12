@@ -1,4 +1,4 @@
-import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider } from '@chakra-ui/react'
+import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth.tsx'
 import { useKickAuth } from '../hooks/useKickAuth'
@@ -15,8 +15,12 @@ export function Navbar() {
     logout()
   }
 
+  const translucentBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(13, 17, 23, 0.6)')
+  const borderClr = useColorModeValue('rgba(208, 215, 222, 0.8)', 'rgba(66, 74, 83, 0.8)')
+  const shadow = useColorModeValue('0 4px 20px rgba(0,0,0,0.06)', '0 8px 30px rgba(0,0,0,0.35)')
+
   return (
-    <Box as="header" bg="bg.canvas" borderBottom="1px solid" borderColor="border.default" position="sticky" top={0} zIndex={10}>
+    <Box as="header" bg={translucentBg} sx={{ backdropFilter: 'saturate(160%) blur(8px)', WebkitBackdropFilter: 'saturate(160%) blur(8px)' }} borderBottom="1px solid" borderColor={borderClr} position="sticky" top={0} zIndex={10} boxShadow={shadow}>
       <Container maxW="6xl" px={4}>
         <Flex align="center" minH={14} gap={4}>
           {/* Logo */}

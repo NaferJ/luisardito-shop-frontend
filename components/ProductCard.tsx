@@ -123,15 +123,27 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         )}
 
 
-        {/* Imagen del producto */}
-        {producto.imagen && (
+        {/* Imagen del producto (soporta imagen_url o imagen) */}
+        {(producto.imagen_url || producto.imagen) ? (
           <Image 
-            src={producto.imagen} 
-            alt={producto.nombre} 
-            boxSize="200px" 
-            objectFit="cover" 
+            src={producto.imagen_url || producto.imagen}
+            alt={producto.nombre}
+            boxSize="200px"
+            objectFit="cover"
             w="full"
+            fallbackSrc="/no-image.png"
           />
+        ) : (
+          <Box
+            boxSize="200px"
+            w="full"
+            bg="gray.100"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Text color="gray.500" fontSize="sm">Sin imagen</Text>
+          </Box>
         )}
 
         <VStack spacing={2} p={4} align="start">

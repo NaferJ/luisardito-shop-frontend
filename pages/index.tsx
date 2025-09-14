@@ -11,7 +11,7 @@ export default function Home() {
   const { user } = useAuth()
   const router = useRouter()
 
-  const isAdmin = user?.rol_id && [3, 4].includes(user.rol_id)
+  const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))
 
   if (isLoading) {
     return (
@@ -52,6 +52,16 @@ export default function Home() {
               <Link href="/admin/productos" passHref>
                 <Button colorScheme="blue" variant="outline" size="sm">
                   Vista Tabla
+                </Button>
+              </Link>
+              <Link href="/admin/usuarios" passHref>
+                <Button colorScheme="purple" variant="outline" size="sm">
+                  Usuarios
+                </Button>
+              </Link>
+              <Link href="/admin/canjes" passHref>
+                <Button colorScheme="orange" variant="outline" size="sm">
+                  Canjes
                 </Button>
               </Link>
             </HStack>

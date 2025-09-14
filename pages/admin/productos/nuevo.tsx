@@ -24,6 +24,7 @@ import {
 } from '@chakra-ui/react'
 import { useCreateProducto } from '../../../hooks/useProductosAdmin'
 import { ProductoForm } from '../../../types'
+import ImageUpload from '../../../components/ImageUpload'
 
 export default function NuevoProductoPage() {
   const router = useRouter()
@@ -38,6 +39,7 @@ export default function NuevoProductoPage() {
     imagen: '',
     estado: 'borrador'
   })
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +56,17 @@ export default function NuevoProductoPage() {
     }
 
     try {
-      await createProductoMutation.mutateAsync(formData)
+      const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
+      const payload: any = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        precio: formData.precio,
+        stock: formData.stock,
+        estado: formData.estado,
+        ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {})
+      }
+
+      await createProductoMutation.mutateAsync(payload)
 
       toast({
         title: 'Producto creado',
@@ -149,6 +161,14 @@ export default function NuevoProductoPage() {
                       </FormControl>
                     </HStack>
 
+                    {/* Subida de imagen a Cloudinary */}
+                    <ImageUpload
+                      label="Imagen del producto (sube desde tu dispositivo)"
+                      value={uploadedImageUrl}
+                      onChange={setUploadedImageUrl}
+                    />
+
+                    {/* Alternativa: pegar una URL directa */}
                     <FormControl>
                       <FormLabel>URL de imagen (opcional)</FormLabel>
                       <Input

@@ -31,6 +31,7 @@ export default function CanjesPage() {
       case 'pendiente': return 'yellow'
       case 'entregado': return 'green'
       case 'cancelado': return 'red'
+      case 'devuelto': return 'purple'
       default: return 'gray'
     }
   }
@@ -40,6 +41,7 @@ export default function CanjesPage() {
       case 'pendiente': return 'Pendiente'
       case 'entregado': return 'Entregado'
       case 'cancelado': return 'Cancelado'
+      case 'devuelto': return 'Devuelto'
       default: return estado
     }
   }

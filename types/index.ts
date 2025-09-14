@@ -16,6 +16,7 @@ export interface Producto {
   precio: number
   stock: number
   imagen?: string
+  imagen_url?: string
   estado: 'borrador' | 'publicado' | 'eliminado'
   created_at: string
   updated_at: string
@@ -25,7 +26,7 @@ export interface Canje {
   id: number
   usuario_id: number
   producto_id: number
-  estado: 'pendiente' | 'entregado' | 'cancelado'
+  estado: 'pendiente' | 'entregado' | 'cancelado' | 'devuelto'
   fecha: string
   producto?: Producto
   usuario?: Usuario

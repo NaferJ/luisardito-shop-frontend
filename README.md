@@ -1,5 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
 
+## Image uploads (Cloudinary)
+
+This project supports product images uploaded directly from the browser to Cloudinary (no files stored in the repo or backend). Only the resulting URL is sent to the backend and saved as `imagen_url`.
+
+Setup steps:
+- Create a free account at https://cloudinary.com/
+- In Cloudinary: Settings → Upload → Upload presets → Add upload preset
+  - Preset name: `luisardito_shop_preset`
+  - Signing mode: Unsigned
+  - Folder: `luisardito-shop/productos`
+  - Save
+- Add the following to your `.env.local`:
+```
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=luisardito_shop_preset
+```
+
+How it works:
+- Admin pages for creating and editing products include an ImageUpload component.
+- You can upload from your device (uploads to Cloudinary) or paste a direct image URL.
+- The frontend sends `imagen_url` to the backend when creating/updating products.
+- Product cards and detail pages will render `imagen_url` first, falling back to legacy `imagen`.
+
 ## Getting Started
 
 First, run the development server:

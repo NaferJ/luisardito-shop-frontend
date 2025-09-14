@@ -29,6 +29,7 @@ import {
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
 import { ProductoForm } from '../../../../types'
+import ImageUpload from '../../../../components/ImageUpload'
 
 export default function EditarProductoPage() {
   const router = useRouter()
@@ -53,6 +54,7 @@ export default function EditarProductoPage() {
     imagen: '',
     estado: 'borrador'
   })
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
   // Cargar datos del producto cuando esté disponible
   useEffect(() => {
@@ -62,9 +64,10 @@ export default function EditarProductoPage() {
         descripcion: producto.descripcion,
         precio: producto.precio,
         stock: producto.stock,
-        imagen: producto.imagen || '',
+        imagen: (producto as any).imagen_url || producto.imagen || '',
         estado: producto.estado || 'publicado' // Fallback para productos existentes
       })
+      setUploadedImageUrl((producto as any).imagen_url || producto.imagen || null)
     }
   }, [producto])
 
@@ -83,9 +86,19 @@ export default function EditarProductoPage() {
     }
 
     try {
+      const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
+      const payload: any = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        precio: formData.precio,
+        stock: formData.stock,
+        estado: formData.estado,
+        ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {})
+      }
+
       await updateProductoMutation.mutateAsync({
         id: producto!.id,
-        productoData: formData
+        productoData: payload
       })
 
       toast({
@@ -229,6 +242,14 @@ export default function EditarProductoPage() {
                       </FormControl>
                     </HStack>
 
+                    {/* Subida de imagen a Cloudinary */}
+                    <ImageUpload
+                      label="Imagen del producto (sube desde tu dispositivo)"
+                      value={uploadedImageUrl}
+                      onChange={setUploadedImageUrl}
+                    />
+
+                    {/* Alternativa: pegar una URL directa */}
                     <FormControl>
                       <FormLabel>URL de imagen (opcional)</FormLabel>
                       <Input

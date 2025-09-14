@@ -1,5 +1,5 @@
 import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue } from '@chakra-ui/react'
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth.tsx'
 import { useKickAuth } from '../hooks/useKickAuth'
 import { useRouter } from 'next/router'
@@ -34,11 +34,22 @@ export function Navbar() {
           {isAuthenticated && (
             <HStack spacing={1} ml={4}>
               <Link href="/" passHref>
-                <Button variant="ghost" size="sm">Tienda</Button>
+                <Button variant="ghost" size="sm" leftIcon={<ViewIcon boxSize={4} />}>Tienda</Button>
               </Link>
               <Link href="/canjes" passHref>
-                <Button variant="ghost" size="sm">Mis Canjes</Button>
+                <Button variant="ghost" size="sm" leftIcon={<RepeatIcon boxSize={4} />}>Mis Canjes</Button>
               </Link>
+              {/* Accesos de administrador */}
+              {(user?.rol_id && [3,4,5].includes(user.rol_id)) && (
+                <>
+                  <Link href="/admin/usuarios" passHref>
+                    <Button variant="ghost" size="sm" leftIcon={<AtSignIcon boxSize={4} />}>Usuarios</Button>
+                  </Link>
+                  <Link href="/admin/canjes" passHref>
+                    <Button variant="ghost" size="sm" leftIcon={<RepeatIcon boxSize={4} />}>Canjes</Button>
+                  </Link>
+                </>
+              )}
             </HStack>
           )}
 

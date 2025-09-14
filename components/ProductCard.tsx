@@ -1,9 +1,11 @@
-import { Box, Image, Text, Button, VStack, HStack, Badge, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useToast, useColorModeValue } from '@chakra-ui/react'
+import { Box, Image, Text, Button, VStack, HStack, Badge, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useToast, useColorModeValue, IconButton, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Tooltip, Flex } from '@chakra-ui/react'
+import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Producto } from '../types'
 import Link from 'next/link'
 import { useDeleteProducto, useUpdateProducto } from '../hooks/useProductosAdmin'
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/router'
 
 interface ProductCardProps {
   producto: Producto
@@ -14,6 +16,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement>(null)
   const toast = useToast()
+  const router = useRouter()
 
   const deleteProductoMutation = useDeleteProducto()
   const updateProductoMutation = useUpdateProducto()
@@ -95,6 +98,43 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     }
   }
 
+  // UI theme helpers (light/dark aware)
+  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
+  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const menuColor = useColorModeValue('gray.800', 'gray.100')
+  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const overlayBg = useColorModeValue('blackAlpha.400', 'blackAlpha.600')
+  // Gradient overlay (bottom → top) to enhance text readability on hover
+  const overlayGradient = useColorModeValue(
+    'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
+    'linear-gradient(to top, rgba(0,0,0,0.975) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0) 100%)'
+  )
+  // Settings icon theming per color mode
+  const gearBg = useColorModeValue('white', 'gray.700')
+  const gearColor = useColorModeValue('blue.600', 'cyan.300')
+  const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
+
+  const estadoThemeMap: Record<string, { light: { bg: string; color: string; border: string }, dark: { bg: string; color: string; border: string } }> = {
+    publicado: {
+      light: { bg: 'green.50', color: 'green.700', border: 'green.200' },
+      dark: { bg: 'green.700', color: 'green.50', border: 'green.600' }
+    },
+    borrador: {
+      light: { bg: 'yellow.50', color: 'yellow.800', border: 'yellow.200' },
+      dark: { bg: 'yellow.700', color: 'gray.900', border: 'yellow.600' }
+    },
+    eliminado: {
+      light: { bg: 'red.50', color: 'red.700', border: 'red.200' },
+      dark: { bg: 'red.700', color: 'red.50', border: 'red.600' }
+    },
+    default: {
+      light: { bg: 'gray.100', color: 'gray.700', border: 'gray.300' },
+      dark: { bg: 'gray.700', color: 'gray.100', border: 'gray.600' }
+    }
+  }
+  const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
+
   return (
     <>
       <Box 
@@ -106,37 +146,49 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         overflow="hidden"
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
-        transition="transform 0.2s ease, box-shadow 0.2s ease"
+        transition="transform 0.45s ease, box-shadow 0.45s ease"
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+        role="group"
+        cursor="pointer"
+        onClick={() => router.push(`/productos/${producto.id}`)}
+        onKeyDown={(e: any) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/productos/${producto.id}`) } }}
+        tabIndex={0}
       >
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
-          <Badge
-            position="absolute"
-            top={2}
-            right={2}
-            colorScheme={getEstadoColor(producto.estado)}
-            zIndex={1}
-          >
-            {getEstadoText(producto.estado)}
-          </Badge>
+          <Box position="absolute" top={2} left={2} zIndex={2}>
+            <Box
+              as="span"
+              px={2.5}
+              py={1}
+              borderRadius="full"
+              fontSize="xs"
+              fontWeight="semibold"
+              bg={useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)}
+              color={useColorModeValue(estadoColors.light.color, estadoColors.dark.color)}
+              border="1px solid"
+              borderColor={useColorModeValue(estadoColors.light.border, estadoColors.dark.border)}
+              boxShadow={useColorModeValue('0 2px 6px rgba(0,0,0,0.12)', '0 4px 10px rgba(0,0,0,0.35)')}
+            >
+              {getEstadoText(producto.estado)}
+            </Box>
+          </Box>
         )}
 
-
-        {/* Imagen del producto (soporta imagen_url o imagen) */}
+        {/* Imagen del producto (ocupa toda la tarjeta) */}
         {(producto.imagen_url || producto.imagen) ? (
           <Image 
             src={producto.imagen_url || producto.imagen}
             alt={producto.nombre}
-            boxSize="200px"
-            objectFit="cover"
             w="full"
+            h="260px"
+            objectFit="cover"
             fallbackSrc="/no-image.png"
           />
         ) : (
           <Box
-            boxSize="200px"
             w="full"
+            h="260px"
             bg="gray.100"
             display="flex"
             alignItems="center"
@@ -146,59 +198,124 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           </Box>
         )}
 
-        <VStack spacing={2} p={4} align="start">
-          <Text fontWeight="bold">{producto.nombre}</Text>
-          <Text fontSize="sm" color="text.muted">{producto.descripcion}</Text>
-          <HStack justify="space-between" w="full">
-            <Text color="accent.fg" fontWeight="semibold">{producto.precio} pts</Text>
-            <Badge colorScheme={producto.stock > 0 ? 'green' : 'red'}>
-              Stock: {producto.stock}
-            </Badge>
-          </HStack>
-
-          {/* Botones para usuarios normales */}
-          {!isAdmin && (
-            <Link href={`/productos/${producto.id}`} passHref>
-              <Button size="sm" colorScheme="blue" w="full">Ver detalle</Button>
-            </Link>
-          )}
-
-          {/* Controles de admin */}
+        {/* Overlay con info y acciones al hover */}
+        <Box
+          position="absolute"
+          inset={0}
+          bgImage={overlayGradient}
+          bgRepeat="no-repeat"
+          bgSize="cover"
+          color="white"
+          opacity={0}
+          transition="opacity 0.45s ease"
+          _groupHover={{ opacity: 1 }}
+          _focusWithin={{ opacity: 1 }}
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          p={3}
+        >
+          {/* Esquina superior derecha: menú de configuración (solo admin) */}
           {isAdmin && (
-            <VStack spacing={2} w="full">
-              <HStack spacing={2} w="full">
-                <Link href={`/productos/${producto.id}`} passHref>
-                  <Button size="sm" variant="outline" colorScheme="gray" flex="1">Ver</Button>
-                </Link>
-                <Link href={`/admin/productos/${producto.id}/editar`} passHref>
-                  <Button size="sm" colorScheme="blue" flex="1">Editar</Button>
-                </Link>
-              </HStack>
-
-              <HStack spacing={2} w="full">
-                <Button 
-                  size="sm" 
-                  colorScheme={producto.estado === 'publicado' ? 'yellow' : 'green'}
-                  flex="1"
-                  onClick={toggleEstado}
-                  isLoading={updateProductoMutation.isPending}
+            <Flex justify="flex-end">
+              <Menu isLazy placement="bottom-end">
+                <Tooltip label="Opciones" hasArrow>
+                  <MenuButton
+                    as={IconButton}
+                    aria-label="Opciones de producto"
+                    icon={<SettingsIcon boxSize={5} />}
+                    variant="solid"
+                    bg={gearBg}
+                    color={gearColor}
+                    size="sm"
+                    borderRadius="full"
+                    border="1px solid"
+                    borderColor={gearBorder}
+                    boxShadow={useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')}
+                    _hover={{ bg: gearHoverBg, filter: 'brightness(1.05)' }}
+                    _active={{ bg: gearHoverBg }}
+                    _expanded={{ bg: gearHoverBg }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </Tooltip>
+                <MenuList
+                  bg={menuBg}
+                  color={menuColor}
+                  borderColor={menuBorder}
+                  boxShadow={useColorModeValue('0 8px 24px rgba(0,0,0,0.18)', '0 12px 32px rgba(0,0,0,0.65)')}
+                  sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
-                </Button>
-
-                <Button 
-                  size="sm" 
-                  colorScheme="red" 
-                  flex="1"
-                  onClick={onOpen}
-                  isLoading={deleteProductoMutation.isPending}
-                >
-                  Eliminar
-                </Button>
-              </HStack>
-            </VStack>
+                  <MenuItem
+                    icon={<ViewIcon />}
+                    bg="transparent"
+                    _hover={{ bg: menuHoverBg }}
+                    _focus={{ bg: menuHoverBg }}
+                    onClick={() => router.push(`/productos/${producto.id}`)}
+                  >
+                    Ver
+                  </MenuItem>
+                  <MenuItem
+                    icon={<EditIcon />}
+                    bg="transparent"
+                    _hover={{ bg: menuHoverBg }}
+                    _focus={{ bg: menuHoverBg }}
+                    onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
+                  >
+                    Editar
+                  </MenuItem>
+                  <MenuItem
+                    icon={<CheckCircleIcon />}
+                    bg="transparent"
+                    _hover={{ bg: menuHoverBg }}
+                    _focus={{ bg: menuHoverBg }}
+                    onClick={toggleEstado}
+                  >
+                    {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem
+                    icon={<DeleteIcon />}
+                    onClick={onOpen}
+                    bg="transparent"
+                    color={useColorModeValue('red.600', 'red.300')}
+                    _hover={{ bg: useColorModeValue('red.50', 'red.700'), color: useColorModeValue('red.700', 'red.200') }}
+                    _focus={{ bg: useColorModeValue('red.50', 'red.700') }}
+                  >
+                    Eliminar
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Flex>
           )}
-        </VStack>
+
+          {/* Contenido inferior: título, descripción y acciones */}
+          <VStack align="start" spacing={2}>
+            <Text fontWeight="bold" fontSize="lg" noOfLines={1}>
+              {producto.nombre}
+            </Text>
+            <Text fontSize="sm" noOfLines={2} opacity={0.9}>
+              {producto.descripcion}
+            </Text>
+            <HStack justify="space-between" w="full">
+              <HStack>
+                <Badge colorScheme="teal">{producto.precio} pts</Badge>
+                <Badge colorScheme={producto.stock > 0 ? 'green' : 'red'}>
+                  Stock: {producto.stock}
+                </Badge>
+              </HStack>
+              {!isAdmin && (
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={() => router.push(`/productos/${producto.id}`)}
+                >
+                  Ver detalle
+                </Button>
+              )}
+            </HStack>
+          </VStack>
+        </Box>
       </Box>
 
       {/* Dialog de confirmación */}

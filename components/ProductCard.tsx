@@ -155,7 +155,13 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     }
   }
   const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
-
+  const estadoBg = useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)
+  const estadoColor = useColorModeValue(estadoColors.light.color, estadoColors.dark.color)
+  const estadoBorder = useColorModeValue(estadoColors.light.border, estadoColors.dark.border)
+  const deleteColor = useColorModeValue('red.600', 'red.300')
+  const deleteHoverBg = useColorModeValue('red.50', 'red.700')
+  const deleteHoverColor = useColorModeValue('red.700', 'red.200')
+  
   return (
     <>
       <Box 
@@ -185,10 +191,10 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               borderRadius="full"
               fontSize="xs"
               fontWeight="semibold"
-              bg={useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)}
-              color={useColorModeValue(estadoColors.light.color, estadoColors.dark.color)}
+              bg={estadoBg}
+              color={estadoColor}
               border="1px solid"
-              borderColor={useColorModeValue(estadoColors.light.border, estadoColors.dark.border)}
+              borderColor={estadoBorder}
               boxShadow={useColorModeValue('0 2px 6px rgba(0,0,0,0.12)', '0 4px 10px rgba(0,0,0,0.35)')}
             >
               {getEstadoText(producto.estado)}
@@ -301,9 +307,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     icon={<DeleteIcon />}
                     onClick={onOpen}
                     bg="transparent"
-                    color={useColorModeValue('red.600', 'red.300')}
-                    _hover={{ bg: useColorModeValue('red.50', 'red.700'), color: useColorModeValue('red.700', 'red.200') }}
-                    _focus={{ bg: useColorModeValue('red.50', 'red.700') }}
+                    color={deleteColor}
+                    _hover={{ bg: deleteHoverBg, color: deleteHoverColor }}
+                    _focus={{ bg: deleteHoverBg }}
                   >
                     Eliminar
                   </MenuItem>

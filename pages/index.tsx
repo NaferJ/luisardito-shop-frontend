@@ -14,7 +14,22 @@ export default function Home() {
   const router = useRouter()
 
   const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))
-
+  const adminBannerBg = useColorModeValue('rgba(219, 234, 254, 0.6)', 'rgba(13, 17, 23, 0.6)')
+  const adminBannerBorderColor = useColorModeValue('blue.200', 'whiteAlpha.300')
+  const adminBannerShadow = useColorModeValue('0 6px 20px rgba(59,130,246,0.15)', '0 10px 28px rgba(0,0,0,0.55)')
+  const headingColor = useColorModeValue('blue.900', 'blue.100')
+  const subtextColor = useColorModeValue('blue.700', 'blue.300')
+  const gearBg = useColorModeValue('white', 'gray.700')
+  const gearColor = useColorModeValue('blue.600', 'cyan.300')
+  const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
+  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
+  const menuColor = useColorModeValue('gray.800', 'gray.100')
+  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const menuShadow = useColorModeValue('0 8px 24px rgba(0,0,0,0.18)', '0 12px 32px rgba(0,0,0,0.65)')
+  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const gearShadow = useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')
+  
   if (isLoading) {
     return (
       <Layout>
@@ -42,9 +57,9 @@ export default function Home() {
           overflow="hidden"
           borderRadius="lg"
           border="1px solid"
-          bg={useColorModeValue('rgba(219, 234, 254, 0.6)', 'rgba(13, 17, 23, 0.6)')}
-          borderColor={useColorModeValue('blue.200', 'whiteAlpha.300')}
-          boxShadow={useColorModeValue('0 6px 20px rgba(59,130,246,0.15)', '0 10px 28px rgba(0,0,0,0.55)')}
+          bg={adminBannerBg}
+          borderColor={adminBannerBorderColor}
+          boxShadow={adminBannerShadow}
           sx={{ backdropFilter: 'saturate(160%) blur(8px)', WebkitBackdropFilter: 'saturate(160%) blur(8px)' }}
         >
           {/* Liquid gradient decorative blobs */}
@@ -78,10 +93,10 @@ export default function Home() {
           {/* Content */}
           <HStack justify="space-between" align="center" position="relative" zIndex={1}>
             <Box>
-              <Text fontWeight="bold" color={useColorModeValue('blue.900', 'blue.100')}>
+              <Text fontWeight="bold" color={headingColor}>
                 🔧 Modo Administrador
               </Text>
-              <Text fontSize="sm" color={useColorModeValue('blue.700', 'blue.300')}>
+              <Text fontSize="sm" color={subtextColor}>
                 Puedes editar, eliminar y crear productos desde esta vista
               </Text>
             </Box>
@@ -95,37 +110,37 @@ export default function Home() {
                     aria-label="Accesos de administrador"
                     icon={<SettingsIcon boxSize={5} />}
                     variant="solid"
-                    bg={useColorModeValue('white', 'gray.700')}
-                    color={useColorModeValue('blue.600', 'cyan.300')}
+                    bg={gearBg}
+                    color={gearColor}
                     size="sm"
                     borderRadius="full"
                     border="1px solid"
-                    borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
-                    boxShadow={useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')}
-                    _hover={{ bg: useColorModeValue('gray.50', 'gray.600'), filter: 'brightness(1.05)' }}
-                    _active={{ bg: useColorModeValue('gray.50', 'gray.600') }}
-                    _expanded={{ bg: useColorModeValue('gray.50', 'gray.600') }}
+                    borderColor={gearBorder}
+                    boxShadow={gearShadow}
+                    _hover={{ bg: gearHoverBg, filter: 'brightness(1.05)' }}
+                    _active={{ bg: gearHoverBg }}
+                    _expanded={{ bg: gearHoverBg }}
                   />
                 </Tooltip>
                 <Portal>
                   <MenuList
                     zIndex={1400}
-                    bg={useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')}
-                    color={useColorModeValue('gray.800', 'gray.100')}
-                    borderColor={useColorModeValue('blackAlpha.300', 'whiteAlpha.300')}
-                    boxShadow={useColorModeValue('0 8px 24px rgba(0,0,0,0.18)', '0 12px 32px rgba(0,0,0,0.65)')}
+                    bg={menuBg}
+                    color={menuColor}
+                    borderColor={menuBorder}
+                    boxShadow={menuShadow}
                     sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
                   >
-                    <MenuItem bg="transparent" _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }} _focus={{ bg: useColorModeValue('gray.100', 'gray.700') }} onClick={() => router.push('/admin/productos/nuevo')}>
+                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos/nuevo')}>
                       + Nuevo Producto
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }} _focus={{ bg: useColorModeValue('gray.100', 'gray.700') }} onClick={() => router.push('/admin/productos')}>
+                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos')}>
                       Vista Tabla
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }} _focus={{ bg: useColorModeValue('gray.100', 'gray.700') }} onClick={() => router.push('/admin/usuarios')}>
+                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/usuarios')}>
                       Usuarios
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }} _focus={{ bg: useColorModeValue('gray.100', 'gray.700') }} onClick={() => router.push('/admin/canjes')}>
+                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/canjes')}>
                       Canjes
                     </MenuItem>
                   </MenuList>

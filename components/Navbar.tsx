@@ -1,4 +1,4 @@
-import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink } from '@chakra-ui/react'
+import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image } from '@chakra-ui/react'
 import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useKickAuth } from '../hooks/useKickAuth'
@@ -24,7 +24,8 @@ export function Navbar() {
       <Container maxW="6xl" px={4}>
         <Flex align="center" minH={14} gap={4}>
           {/* Logo */}
-          <ChakraLink as={NextLink} href="/" fontWeight="bold" fontSize="lg" _hover={{ opacity: 0.8 }}>
+          <ChakraLink as={NextLink} href="/" display="flex" alignItems="center" gap={2} fontWeight="bold" fontSize="lg" _hover={{ opacity: 0.8 }}>
+            <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={6} rounded="md" objectFit="cover" />
             Luisardito Shop
           </ChakraLink>
 

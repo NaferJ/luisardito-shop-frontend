@@ -6,6 +6,7 @@ import { useDeleteProducto, useUpdateProducto } from '../hooks/useProductosAdmin
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
+import { useAuth } from '../hooks/useAuth.tsx'
 
 interface ProductCardProps {
   producto: Producto
@@ -17,6 +18,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const cancelRef = useRef<HTMLButtonElement>(null)
   const toast = useToast()
   const router = useRouter()
+  const { user } = useAuth()
 
   const deleteProductoMutation = useDeleteProducto()
   const updateProductoMutation = useUpdateProducto()
@@ -115,6 +117,25 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
   const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
 
+  // Affordance/stock based hover border colors (light/dark aware)
+  const affordGreen = useColorModeValue('green.400', 'green.300')
+  const outOfStockYellow = useColorModeValue('yellow.400', 'yellow.300')
+  const notEnoughRed = useColorModeValue('red.400', 'red.300')
+
+  const outOfStock = producto.stock <= 0
+  const canAfford = !!user && user.puntos >= producto.precio
+
+  const derivedHoverBorder = outOfStock
+    ? outOfStockYellow
+    : (!!user ? (canAfford ? affordGreen : notEnoughRed) : undefined)
+  
+  const ringColorVar = derivedHoverBorder ? `var(--chakra-colors-${derivedHoverBorder.replace('.', '-')})` : undefined
+
+  const hoverStyles: any = {
+    transform: 'translateY(-2px)',
+    boxShadow: ringColorVar ? `var(--chakra-shadows-md), 0 0 0 3px ${ringColorVar}` : 'md'
+  }
+
   const estadoThemeMap: Record<string, { light: { bg: string; color: string; border: string }, dark: { bg: string; color: string; border: string } }> = {
     publicado: {
       light: { bg: 'green.50', color: 'green.700', border: 'green.200' },
@@ -147,7 +168,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
         transition="transform 0.45s ease, box-shadow 0.45s ease"
-        _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+        _hover={hoverStyles}
         role="group"
         cursor="pointer"
         onClick={() => router.push(`/productos/${producto.id}`)}

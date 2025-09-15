@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../lib/api'
+import { useAuth } from './useAuth'
 
 // Tipos para admin de usuarios
 export interface UsuarioAdmin {
@@ -37,6 +38,7 @@ export function useAdminUsuarios(params?: { limit?: number; offset?: number }) {
 // Hook para actualizar puntos de usuario (admin)
 export function useUpdateUsuarioPuntos() {
   const queryClient = useQueryClient()
+  const { refreshUser } = useAuth()
 
   return useMutation({
     mutationFn: async ({ 
@@ -54,10 +56,10 @@ export function useUpdateUsuarioPuntos() {
       })
       return data
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['admin-usuarios'] })
       // también refrescar datos del usuario actual por si edita sus propios puntos
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      await refreshUser()
     }
   })
 }

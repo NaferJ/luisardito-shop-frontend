@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../lib/api'
 import { Canje } from '../types'
+import { useAuth } from './useAuth'
 
 // Hook para listar canjes (admin ve todos; usuarios ven los propios según backend)
 export function useAdminCanjes() {
@@ -40,6 +41,7 @@ export function useUpdateCanjeEstado() {
 // Hook para devolver canje (devuelve puntos y aumenta stock)
 export function useDevolverCanje() {
   const queryClient = useQueryClient()
+  const { refreshUser } = useAuth()
 
   return useMutation({
     mutationFn: async ({
@@ -52,12 +54,12 @@ export function useDevolverCanje() {
       const { data } = await api.put(`/api/canjes/${canjeId}/devolver`, { motivo })
       return data
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalida múltiples caches relevantes
       queryClient.invalidateQueries({ queryKey: ['admin-canjes'] })
       queryClient.invalidateQueries({ queryKey: ['canjes'] })
       queryClient.invalidateQueries({ queryKey: ['productos'] })
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      await refreshUser()
     }
   })
 }

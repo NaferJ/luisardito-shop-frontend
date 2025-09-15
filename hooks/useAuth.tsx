@@ -11,6 +11,7 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   isLoading: boolean
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -38,10 +39,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = async () => {
     try {
-      const { data } = await api.get('/api/usuarios/me')
+      const { data } = await api.get('/api/usuarios/me', { headers: { 'Cache-Control': 'no-cache' } })
       setUser(data)
     } catch (error) {
       throw error
+    }
+  }
+
+  const refreshUser = async () => {
+    try {
+      await fetchUser()
+    } catch (error) {
+      // opcional: manejar error silencioso
     }
   }
 
@@ -85,7 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         isAuthenticated: !!token,
-        isLoading
+        isLoading,
+        refreshUser
       }}
     >
       {children}

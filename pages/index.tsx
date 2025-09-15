@@ -132,7 +132,7 @@ export default function Home() {
                     sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
                   >
                     <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos/nuevo')}>
-                      + Nuevo Producto
+                      Nuevo Producto
                     </MenuItem>
                     <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos')}>
                       Vista Tabla

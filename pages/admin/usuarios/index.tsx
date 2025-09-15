@@ -4,12 +4,6 @@ import {
   Box,
   Container,
   Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Button,
   Badge,
   HStack,
@@ -27,10 +21,19 @@ import {
   NumberInputField,
   useToast,
   Text,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  useColorModeValue,
+  Portal,
 } from '@chakra-ui/react'
-import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useRouter } from 'next/router'
 import { useAdminUsuarios, useUpdateUsuarioPuntos, UsuarioAdmin } from '../../../hooks/useAdminUsuarios'
+import AdminDynamicTable, { ColumnConfig } from '../../../components/AdminDynamicTable'
+import { SettingsIcon } from '@chakra-ui/icons'
 
 export default function AdminUsuariosPage() {
   const { data: usuarios, isLoading, error } = useAdminUsuarios({ limit: 50, offset: 0 })
@@ -39,6 +42,7 @@ export default function AdminUsuariosPage() {
   const [puntos, setPuntos] = useState<number>(0)
   const updatePuntos = useUpdateUsuarioPuntos()
   const toast = useToast()
+  const router = useRouter()
 
   const openModal = (u: UsuarioAdmin) => {
     setSelectedUser({ id: u.id, nickname: (u as any).nickname || u.nombre, puntos: u.puntos })
@@ -56,6 +60,46 @@ export default function AdminUsuariosPage() {
       toast({ title: 'Error', description: e?.response?.data?.error || 'No se pudo actualizar', status: 'error' })
     }
   }
+
+  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
+  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const menuColor = useColorModeValue('gray.800', 'gray.100')
+  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
+
+  const rows = useMemo(() => {
+    return (usuarios || []).map((u: any) => ({
+      id: u.id,
+      nickname: u?.nickname || u?.nombre || '-',
+      email: u.email,
+      puntos: u.puntos,
+      total_canjes: u.total_canjes ?? null,
+      canjes_pendientes: u.canjes_pendientes ?? null,
+      _raw: u,
+    }))
+  }, [usuarios])
+
+  const columns: ColumnConfig<any>[] = useMemo(() => [
+    { key: 'id', label: 'ID', type: 'number' },
+    { key: 'nickname', label: 'Nickname', type: 'string' },
+    { key: 'email', label: 'Email', type: 'string' },
+    { key: 'puntos', label: 'Puntos', type: 'number', render: (row) => (<Badge colorScheme="teal">{row.puntos}</Badge>) },
+    { key: 'total_canjes', label: 'Canjes', type: 'number' },
+    { key: 'canjes_pendientes', label: 'Pendientes', type: 'number' },
+    {
+      key: 'acciones', label: 'Acciones', sortable: false, filterable: false,
+      render: (row) => (
+        <Menu isLazy placement="bottom-end">
+          <MenuButton as={IconButton} aria-label="Acciones" icon={<SettingsIcon boxSize={4} />} size="sm" variant="ghost" onClick={(e) => e.stopPropagation()} />
+          <Portal>
+            <MenuList zIndex={1400} bg={menuBg} color={menuColor} borderColor={menuBorder} boxShadow={useColorModeValue('0 8px 24px rgba(0,0,0,0.18)', '0 12px 32px rgba(0,0,0,0.65)')} sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}>
+              <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} onClick={() => openModal(row._raw)}>Editar puntos</MenuItem>
+              <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} onClick={() => router.push(`/admin/usuarios/${row.id}`)}>Ver canjes</MenuItem>
+            </MenuList>
+          </Portal>
+        </Menu>
+      )
+    }
+  ], [menuBg, menuBorder, menuColor, menuHoverBg, router])
 
   if (isLoading) return (
     <RequireAdmin>
@@ -77,44 +121,10 @@ export default function AdminUsuariosPage() {
       <Layout>
         <Container maxW="container.xl" py={2}>
           <Heading mb={6}>Usuarios</Heading>
-          {!usuarios?.length ? (
+          {!rows?.length ? (
             <Center py={10}><Text color="text.muted">No hay usuarios</Text></Center>
           ) : (
-            <Box overflowX="auto">
-              <Table size="sm">
-                <Thead>
-                  <Tr>
-                    <Th>ID</Th>
-                    <Th>Nickname</Th>
-                    <Th>Email</Th>
-                    <Th>Puntos</Th>
-                    <Th>Canjes</Th>
-                    <Th>Pendientes</Th>
-                    <Th>Acciones</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {usuarios.map((u) => (
-                    <Tr key={u.id}>
-                      <Td>{u.id}</Td>
-                      <Td>{(u as any).nickname || (u as any).nombre || '-'}</Td>
-                      <Td>{u.email}</Td>
-                      <Td><Badge colorScheme="teal">{u.puntos}</Badge></Td>
-                      <Td>{u.total_canjes ?? '-'}</Td>
-                      <Td>{u.canjes_pendientes ?? '-'}</Td>
-                      <Td>
-                        <HStack>
-                          <Button size="xs" onClick={() => openModal(u)}>Editar puntos</Button>
-                          <Link href={`/admin/usuarios/${u.id}`} passHref>
-                            <Button size="xs" colorScheme="blue" variant="outline">Ver canjes</Button>
-                          </Link>
-                        </HStack>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
+            <AdminDynamicTable data={rows} columns={columns} defaultPageSize={20} searchable showFilters />
           )}
         </Container>
 

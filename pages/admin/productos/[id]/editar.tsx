@@ -24,7 +24,8 @@ import {
   Spinner,
   Center,
   Badge,
-  Text
+  Text,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
@@ -298,11 +299,17 @@ export default function EditarProductoPage() {
             </Card>
 
             {/* Información adicional */}
-            <Card bg="gray.50">
+            <Card
+              bg={useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')}
+              border="1px solid"
+              borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
+            >
               <CardBody>
                 <VStack spacing={2} align="start">
-                  <Text fontWeight="semibold" fontSize="sm">Información adicional:</Text>
-                  <Text fontSize="xs" color="gray.600">
+                  <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.700', 'gray.200')}>
+                    Información adicional:
+                  </Text>
+                  <Text fontSize="xs" color={useColorModeValue('gray.600', 'gray.300')}>
                     Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
                     Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
                   </Text>

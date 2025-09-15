@@ -60,7 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (userData: { nombre: string; email: string; password: string }) => {
     try {
-      const { data } = await api.post('/api/auth/register', userData)
+      // Mapear el campo de UI "nombre" al campo que espera el backend: "nickname"
+      const payload = {
+        nickname: userData.nombre,
+        email: userData.email,
+        password: userData.password,
+      }
+      const { data } = await api.post('/api/auth/register', payload)
       setToken(data.token)
       setUser(data.usuario)
       localStorage.setItem('auth_token', data.token)

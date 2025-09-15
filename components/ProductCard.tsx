@@ -161,7 +161,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
       <Box 
         as={motion.div}
         borderWidth="1px" 
-        borderColor="border.default"
+        borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
         bg="bg.canvas"
         borderRadius="lg" 
         overflow="hidden"
@@ -235,12 +235,12 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           _focusWithin={{ opacity: 1 }}
           display="flex"
           flexDirection="column"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           p={3}
         >
           {/* Esquina superior derecha: menú de configuración (solo admin) */}
           {isAdmin && (
-            <Flex justify="flex-end">
+            <Box position="absolute" top={2} right={2}>
               <Menu isLazy placement="bottom-end">
                 <Tooltip label="Opciones" hasArrow>
                   <MenuButton
@@ -309,7 +309,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                   </MenuItem>
                 </MenuList>
               </Menu>
-            </Flex>
+            </Box>
           )}
 
           {/* Contenido inferior: título, descripción y acciones */}
@@ -327,15 +327,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                   Stock: {producto.stock}
                 </Badge>
               </HStack>
-              {!isAdmin && (
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() => router.push(`/productos/${producto.id}`)}
-                >
-                  Ver detalle
-                </Button>
-              )}
             </HStack>
           </VStack>
         </Box>

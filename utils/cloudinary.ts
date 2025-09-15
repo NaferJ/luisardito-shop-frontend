@@ -36,12 +36,19 @@ export async function uploadImageToCloudinary(
   formData.append('upload_preset', uploadPreset)
   if (options?.folder) formData.append('folder', options.folder)
 
-  // Use XMLHttpRequest for progress support when provided
+  // If progress callback provided, use XHR and return parsed JSON from response
   if (typeof window !== 'undefined' && options?.onProgress) {
-    await new Promise<void>((resolve, reject) => {
+    return await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open('POST', endpoint)
-      xhr.onload = () => resolve()
+      xhr.onload = () => {
+        try {
+          const json = JSON.parse(xhr.responseText) as CloudinaryUploadResult
+          resolve(json)
+        } catch (e) {
+          reject(new Error('Respuesta inválida de Cloudinary'))
+        }
+      }
       xhr.onerror = () => reject(new Error('Error subiendo imagen a Cloudinary'))
       if (xhr.upload && options.onProgress) {
         xhr.upload.onprogress = (e) => {
@@ -55,6 +62,7 @@ export async function uploadImageToCloudinary(
     })
   }
 
+  // Fallback: simple fetch without progress
   const res = await fetch(endpoint, {
     method: 'POST',
     body: formData

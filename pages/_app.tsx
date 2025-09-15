@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AuthProvider } from '../hooks/useAuth.tsx'
+import { AuthProvider } from '../hooks/useAuth'
 import type { AppProps } from "next/app";
 import theme from '../theme/theme'
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Layout } from '../../components/Layout'
 import { useProducto } from '../../hooks/useProducto'
-import { useAuth } from '../../hooks/useAuth.tsx'
+import { useAuth } from '../../hooks/useAuth'
 import { useCreateCanje } from '../../hooks/useCanjes'
 import {
   Box,

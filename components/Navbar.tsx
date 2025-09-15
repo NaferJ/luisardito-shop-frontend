@@ -1,6 +1,6 @@
 import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue } from '@chakra-ui/react'
 import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon } from '@chakra-ui/icons'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 import { useKickAuth } from '../hooks/useKickAuth'
 import { useRouter } from 'next/router'
 import Link from 'next/link'

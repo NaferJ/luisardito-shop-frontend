@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 import { Box, Button, FormControl, FormLabel, Input, VStack, Heading, Card, CardBody } from '@chakra-ui/react'
 import { Layout } from '../components/Layout'
 

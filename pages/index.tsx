@@ -2,7 +2,7 @@ import { Layout } from '../components/Layout'
 import { SimpleGrid, Spinner, Center, Box, HStack, Text, Button } from '@chakra-ui/react'
 import { useProductos } from '../hooks/useProductos'
 import { ProductCard } from '../components/ProductCard'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 

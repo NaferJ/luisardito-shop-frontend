@@ -6,7 +6,7 @@ import { useDeleteProducto, useUpdateProducto } from '../hooks/useProductosAdmin
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 
 interface ProductCardProps {
   producto: Producto

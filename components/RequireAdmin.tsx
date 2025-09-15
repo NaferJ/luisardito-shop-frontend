@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 import { Center, Spinner } from '@chakra-ui/react'
 
 export function RequireAdmin({ children }: { children: ReactNode }) {

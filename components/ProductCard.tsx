@@ -205,6 +205,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             h="260px"
             objectFit="cover"
             fallbackSrc="/no-image.png"
+            transition="filter 0.3s ease"
+            sx={{ filter: outOfStock ? 'grayscale(100%)' : 'none' }}
           />
         ) : (
           <Box

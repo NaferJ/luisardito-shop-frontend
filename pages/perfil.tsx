@@ -1,6 +1,6 @@
 import { Layout } from '../components/Layout'
 import { RequireAuth } from '../components/RequireAuth'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 import {
   Box,
   Container,

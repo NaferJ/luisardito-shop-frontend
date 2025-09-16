@@ -31,6 +31,7 @@ export default function CanjesPage() {
       case 'pendiente': return 'yellow'
       case 'entregado': return 'green'
       case 'cancelado': return 'red'
+      case 'devuelto': return 'purple'
       default: return 'gray'
     }
   }
@@ -40,6 +41,7 @@ export default function CanjesPage() {
       case 'pendiente': return 'Pendiente'
       case 'entregado': return 'Entregado'
       case 'cancelado': return 'Cancelado'
+      case 'devuelto': return 'Devuelto'
       default: return estado
     }
   }
@@ -55,10 +57,10 @@ export default function CanjesPage() {
           {!canjes || canjes.length === 0 ? (
             <Center py={10}>
               <VStack spacing={4}>
-                <Text fontSize="lg" color="gray.500">
+                <Text fontSize="lg" color="text.muted">
                   No tienes canjes realizados
                 </Text>
-                <Text fontSize="sm" color="gray.400">
+                <Text fontSize="sm" color="text.muted">
                   Ve al catálogo y canjea productos con tus puntos
                 </Text>
               </VStack>
@@ -69,9 +71,10 @@ export default function CanjesPage() {
                 <Box
                   key={canje.id}
                   borderWidth="1px"
+                  borderColor="border.default"
                   borderRadius="lg"
                   p={4}
-                  bg="white"
+                  bg="bg.canvas"
                   shadow="sm"
                 >
                   <HStack spacing={4} align="start">
@@ -97,15 +100,15 @@ export default function CanjesPage() {
                         </Badge>
                       </HStack>
 
-                      <Text color="gray.600">
+                      <Text color="text.muted">
                         {(canje as any).Producto?.descripcion}
                       </Text>
 
                       <HStack spacing={4}>
-                        <Text fontSize="sm" color="teal.600" fontWeight="semibold">
+                        <Text fontSize="sm" color="accent.fg" fontWeight="semibold">
                           {(canje as any).Producto?.precio} puntos
                         </Text>
-                        <Text fontSize="sm" color="gray.500">
+                        <Text fontSize="sm" color="text.muted">
                           Fecha: {new Date(canje.fecha).toLocaleDateString('es-ES', {
                             year: 'numeric',
                             month: 'long',
@@ -135,7 +138,7 @@ export default function CanjesPage() {
 
           <Divider my={6} />
 
-          <Text fontSize="sm" color="gray.500" textAlign="center">
+          <Text fontSize="sm" color="text.muted" textAlign="center">
             Los canjes pendientes serán procesados en las próximas 24-48 horas
           </Text>
         </Box>

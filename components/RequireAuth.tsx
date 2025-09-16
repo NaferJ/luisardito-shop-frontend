@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useAuth } from '../hooks/useAuth.tsx'
+import { useAuth } from '../hooks/useAuth'
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()

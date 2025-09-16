@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Layout } from '../../components/Layout'
 import { useProducto } from '../../hooks/useProducto'
-import { useAuth } from '../../hooks/useAuth.tsx'
+import { useAuth } from '../../hooks/useAuth'
 import { useCreateCanje } from '../../hooks/useCanjes'
 import {
   Box,
@@ -142,9 +142,9 @@ export default function ProductoDetallePage() {
         <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={8}>
           <GridItem>
             <Box borderRadius="lg" overflow="hidden" bg="white" boxShadow="sm">
-              {producto.imagen ? (
+              {(producto.imagen_url || producto.imagen) ? (
                 <Image
-                  src={producto.imagen}
+                  src={producto.imagen_url || producto.imagen}
                   alt={producto.nombre}
                   w="100%"
                   h="400px"

@@ -24,11 +24,13 @@ import {
   Spinner,
   Center,
   Badge,
-  Text
+  Text,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
 import { ProductoForm } from '../../../../types'
+import ImageUpload from '../../../../components/ImageUpload'
 
 export default function EditarProductoPage() {
   const router = useRouter()
@@ -53,6 +55,7 @@ export default function EditarProductoPage() {
     imagen: '',
     estado: 'borrador'
   })
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
   // Cargar datos del producto cuando esté disponible
   useEffect(() => {
@@ -62,9 +65,10 @@ export default function EditarProductoPage() {
         descripcion: producto.descripcion,
         precio: producto.precio,
         stock: producto.stock,
-        imagen: producto.imagen || '',
+        imagen: (producto as any).imagen_url || producto.imagen || '',
         estado: producto.estado || 'publicado' // Fallback para productos existentes
       })
+      setUploadedImageUrl((producto as any).imagen_url || producto.imagen || null)
     }
   }, [producto])
 
@@ -83,9 +87,19 @@ export default function EditarProductoPage() {
     }
 
     try {
+      const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
+      const payload: any = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        precio: formData.precio,
+        stock: formData.stock,
+        estado: formData.estado,
+        ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {})
+      }
+
       await updateProductoMutation.mutateAsync({
         id: producto!.id,
-        productoData: formData
+        productoData: payload
       })
 
       toast({
@@ -229,6 +243,14 @@ export default function EditarProductoPage() {
                       </FormControl>
                     </HStack>
 
+                    {/* Subida de imagen a Cloudinary */}
+                    <ImageUpload
+                      label="Imagen del producto (sube desde tu dispositivo)"
+                      value={uploadedImageUrl}
+                      onChange={setUploadedImageUrl}
+                    />
+
+                    {/* Alternativa: pegar una URL directa */}
                     <FormControl>
                       <FormLabel>URL de imagen (opcional)</FormLabel>
                       <Input
@@ -277,11 +299,17 @@ export default function EditarProductoPage() {
             </Card>
 
             {/* Información adicional */}
-            <Card bg="gray.50">
+            <Card
+              bg={useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')}
+              border="1px solid"
+              borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
+            >
               <CardBody>
                 <VStack spacing={2} align="start">
-                  <Text fontWeight="semibold" fontSize="sm">Información adicional:</Text>
-                  <Text fontSize="xs" color="gray.600">
+                  <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.700', 'gray.200')}>
+                    Información adicional:
+                  </Text>
+                  <Text fontSize="xs" color={useColorModeValue('gray.600', 'gray.300')}>
                     Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
                     Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
                   </Text>

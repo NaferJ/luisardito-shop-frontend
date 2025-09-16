@@ -1,8 +1,9 @@
 import "@/styles/globals.css";
 import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AuthProvider } from '../hooks/useAuth.tsx'
+import { AuthProvider } from '../hooks/useAuth'
 import type { AppProps } from "next/app";
+import theme from '../theme/theme'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Component {...pageProps} />

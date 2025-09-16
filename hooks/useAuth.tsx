@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (nickname: string, password: string) => Promise<void>
   register: (userData: { nombre: string; email: string; password: string }) => Promise<void>
   logout: () => void
+  refreshUser: () => Promise<void>
   isAuthenticated: boolean
   isLoading: boolean
 }
@@ -16,7 +17,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Usuario | null>(null)
-  const [token, setToken] = useState<string | null>(null)
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      return localStorage.getItem('auth_token')
+    } catch {
+      return null
+    }
+  })
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
@@ -59,7 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (userData: { nombre: string; email: string; password: string }) => {
     try {
-      const { data } = await api.post('/api/auth/register', userData)
+      // Mapear el campo de UI "nombre" al campo que espera el backend: "nickname"
+      const payload = {
+        nickname: userData.nombre,
+        email: userData.email,
+        password: userData.password,
+      }
+      const { data } = await api.post('/api/auth/register', payload)
       setToken(data.token)
       setUser(data.usuario)
       localStorage.setItem('auth_token', data.token)
@@ -84,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        refreshUser: fetchUser,
         isAuthenticated: !!token,
         isLoading
       }}

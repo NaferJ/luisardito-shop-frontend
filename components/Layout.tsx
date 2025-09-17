@@ -3,7 +3,6 @@ import { Box, Container } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import Footer from './Footer'
 
-// Render Navbar only on the client to avoid SSR/CSR auth state mismatches
 const NavbarClient = dynamic(() => import('./Navbar').then(m => m.Navbar), { ssr: false })
 
 export function Layout({ children }: { children: ReactNode }) {

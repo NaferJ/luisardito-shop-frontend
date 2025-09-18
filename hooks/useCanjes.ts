@@ -29,7 +29,6 @@ export function useCreateCanje() {
       // Actualizar la lista de canjes y refrescar datos del usuario (puntos)
       queryClient.invalidateQueries({ queryKey: ['canjes'] }) // también cubre ['canjes','me', id]
       queryClient.invalidateQueries({ queryKey: ['productos'] })
-      // Refrescar el usuario para actualizar los puntos en el Navbar sin recargar
       try {
         await refreshUser()
       } catch (_) {

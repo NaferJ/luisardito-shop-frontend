@@ -31,7 +31,6 @@ export function useCreateCanje() {
       try {
         await refreshUser()
       } catch (_) {
-        // fallback: mantener invalidación por si en el futuro se usa React Query para el usuario
         queryClient.invalidateQueries({ queryKey: ['user'] })
       }
     }

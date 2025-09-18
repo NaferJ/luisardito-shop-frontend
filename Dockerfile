@@ -21,9 +21,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install only production deps
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# Use full node_modules (including dev deps like TypeScript) to allow loading next.config.ts at runtime
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy built app
 COPY --from=builder /app/.next ./.next

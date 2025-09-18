@@ -1,5 +1,5 @@
-import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image } from '@chakra-ui/react'
-import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon } from '@chakra-ui/icons'
+import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton } from '@chakra-ui/react'
+import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useKickAuth } from '../hooks/useKickAuth'
 import { useRouter } from 'next/router'
@@ -10,9 +10,11 @@ export function Navbar() {
   const { user, isAuthenticated, logout, isLoading } = useAuth()
   const { connectWithKick } = useKickAuth()
   const router = useRouter()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const handleLogout = () => {
     logout()
+    onClose()
   }
 
   const translucentBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(13, 17, 23, 0.6)')
@@ -29,9 +31,9 @@ export function Navbar() {
             Luisardito Shop
           </ChakraLink>
 
-          {/* Enlaces de navegación */}
+          {/* Enlaces de navegación (desktop) */}
           {isAuthenticated && (
-            <HStack spacing={1} ml={4}>
+            <HStack spacing={1} ml={4} display={{ base: 'none', md: 'flex' }}>
               <ChakraLink as={NextLink} href="/">
                 <Button variant="ghost" size="sm" leftIcon={<ViewIcon boxSize={4} />}>Tienda</Button>
               </ChakraLink>
@@ -57,12 +59,15 @@ export function Navbar() {
           {/* Toggle de modo */}
           <ColorModeToggle />
 
-          {/* Menú de usuario autenticado o placeholder durante carga */}
+          {/* Botón hamburguesa (mobile) */}
+          <IconButton aria-label="Abrir menú" icon={<HamburgerIcon />} variant="ghost" onClick={onOpen} display={{ base: 'inline-flex', md: 'none' }} />
+
+          {/* Menú de usuario (desktop) o placeholder durante carga */}
           {(() => {
             // Mostrar placeholder mientras se resuelve el estado de autenticación o cuando hay token pero el user aún no está cargado
             if (isLoading || (isAuthenticated && !user)) {
               return (
-                <HStack spacing={3} minW={{ base: '180px', sm: '240px' }} justify="flex-end">
+                <HStack spacing={3} minW={{ base: '180px', sm: '240px' }} justify="flex-end" display={{ base: 'none', md: 'flex' }}>
                   <Skeleton height="24px" width="72px" rounded="md" />
                   <SkeletonCircle size="8" />
                   <Skeleton height="28px" width="120px" rounded="md" />
@@ -72,7 +77,7 @@ export function Navbar() {
 
             if (isAuthenticated && user) {
               return (
-                <HStack spacing={3}>
+                <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
                   {/* Badge de puntos */}
                   <Badge colorScheme="yellow" fontSize="sm" px={2} py={1}>
                     {user.puntos?.toLocaleString()} pts
@@ -101,7 +106,7 @@ export function Navbar() {
 
             // Usuarios no autenticados
             return (
-              <HStack spacing={2}>
+              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
                 <ChakraLink as={NextLink} href="/login">
                   <Button variant="outline" size="sm">Iniciar Sesión</Button>
                 </ChakraLink>
@@ -117,6 +122,105 @@ export function Navbar() {
           })()}
         </Flex>
       </Container>
+
+      {/* Drawer móvil */}
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader display="flex" alignItems="center" justifyContent="space-between">
+            <ChakraLink as={NextLink} href="/" display="flex" alignItems="center" gap={2} onClick={onClose}>
+              <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={6} rounded="md" objectFit="cover" />
+              <Text fontWeight="bold">Luisardito Shop</Text>
+            </ChakraLink>
+            <CloseButton onClick={onClose} />
+          </DrawerHeader>
+          <DrawerBody>
+            {(() => {
+              if (isLoading || (isAuthenticated && !user)) {
+                return (
+                  <VStack align="stretch" spacing={3}>
+                    <Skeleton height="20px" />
+                    <Skeleton height="20px" />
+                    <Skeleton height="20px" />
+                  </VStack>
+                )
+              }
+
+              if (isAuthenticated && user) {
+                return (
+                  <VStack align="stretch" spacing={2}>
+                    <HStack justify="space-between">
+                      <HStack>
+                        <Avatar size="sm" name={(user as any).nickname} />
+                        <Text fontWeight="medium">{(user as any).nickname}</Text>
+                      </HStack>
+                      <Badge colorScheme="yellow">{user.puntos?.toLocaleString()} pts</Badge>
+                    </HStack>
+
+                    <Divider my={2} />
+
+                    <ChakraLink as={NextLink} href="/" onClick={onClose}>
+                      <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<ViewIcon />}>Tienda</Button>
+                    </ChakraLink>
+                    <ChakraLink as={NextLink} href="/canjes" onClick={onClose}>
+                      <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<RepeatIcon />}>Mis Canjes</Button>
+                    </ChakraLink>
+
+                    {(user?.rol_id && [3,4,5].includes(user.rol_id)) && (
+                      <>
+                        <ChakraLink as={NextLink} href="/admin/usuarios" onClick={onClose}>
+                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<AtSignIcon />}>Usuarios</Button>
+                        </ChakraLink>
+                        <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose}>
+                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<RepeatIcon />}>Canjes</Button>
+                        </ChakraLink>
+                      </>
+                    )}
+
+                    <Divider my={2} />
+
+                    <ChakraLink as={NextLink} href="/perfil" onClick={onClose}>
+                      <Button variant="ghost" width="full" justifyContent="flex-start">Mi Perfil</Button>
+                    </ChakraLink>
+                    <ChakraLink as={NextLink} href="/historial" onClick={onClose}>
+                      <Button variant="ghost" width="full" justifyContent="flex-start">Historial de Puntos</Button>
+                    </ChakraLink>
+                    <ChakraLink as={NextLink} href="/" onClick={onClose}>
+                      <Button variant="ghost" width="full" justifyContent="flex-start">Catálogo</Button>
+                    </ChakraLink>
+
+                    <Divider my={2} />
+
+                    <Button colorScheme="red" onClick={handleLogout}>Cerrar Sesión</Button>
+
+                    <Divider my={2} />
+
+                    <ColorModeToggle />
+                  </VStack>
+                )
+              }
+
+              return (
+                <VStack align="stretch" spacing={3}>
+                  <ChakraLink as={NextLink} href="/login" onClick={onClose}>
+                    <Button variant="outline" width="full">Iniciar Sesión</Button>
+                  </ChakraLink>
+                  <ChakraLink as={NextLink} href="/register" onClick={onClose}>
+                    <Button colorScheme="blue" width="full">Registro</Button>
+                  </ChakraLink>
+                  <Button onClick={() => { connectWithKick(); onClose(); }} colorScheme="yellow" width="full">
+                    Conectar con Kick
+                  </Button>
+
+                  <Divider my={2} />
+
+                  <ColorModeToggle />
+                </VStack>
+              )
+            })()}
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   )
 }

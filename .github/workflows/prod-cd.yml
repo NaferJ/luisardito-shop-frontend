@@ -13,7 +13,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t app:${{ github.sha }} .
+          docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }} -t app:${{ github.sha }} .
           docker save app:${{ github.sha }} -o app-image.tar
           chmod 644 app-image.tar
 

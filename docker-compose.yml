@@ -4,7 +4,7 @@ services:
     image: node:20-bookworm-slim
     working_dir: /app
     ports:
-      - "3000:3000"
+      - "3002:3000"
     volumes:
       - ./:/app
       - /app/node_modules

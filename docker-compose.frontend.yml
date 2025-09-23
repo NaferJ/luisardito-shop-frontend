@@ -5,7 +5,7 @@ services:
     image: app:frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     env_file:
       # We pass ENV=production or ENV=staging from the workflow to select the file
       - ${HOME}/.env.frontend.${ENV}

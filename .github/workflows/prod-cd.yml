@@ -57,6 +57,6 @@ jobs:
             echo "PORT=3000" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }}" >> ~/.env.frontend.production
             chmod 600 ~/.env.frontend.production
-            # Compose down/up with ENV=production
-            ENV=production docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml down --remove-orphans || true
-            ENV=production docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml up -d
+            # Compose using production compose file (env file is fixed to .env.frontend.production)
+            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml down --remove-orphans || true
+            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml up -d

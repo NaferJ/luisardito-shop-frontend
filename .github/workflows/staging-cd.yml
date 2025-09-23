@@ -32,8 +32,8 @@ jobs:
           host: ${{ secrets.STG_SSH_HOST }}
           username: ${{ secrets.STG_SSH_USER }}
           key: ${{ secrets.STG_SSH_KEY }}
-          source: "docker-compose.frontend.yml"
-          target: "~/apps/luisardito-frontend/"
+          source: "docker-compose.frontend.staging.yml"
+          target: "~/"
 
       - name: Deploy on staging via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -44,7 +44,7 @@ jobs:
           script: |
             set -e
             mkdir -p ~/apps/luisardito-frontend
-            mv -f ~/docker-compose.frontend.yml ~/apps/luisardito-frontend/docker-compose.frontend.yml || true
+            mv -f ~/docker-compose.frontend.staging.yml ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml || true
             docker load -i ~/app-image.tar
             rm -f ~/app-image.tar
             # Tag the loaded image to a stable name used by Compose
@@ -57,6 +57,6 @@ jobs:
             echo "PORT=3000" >> ~/.env.frontend.staging
             echo "NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_STG }}" >> ~/.env.frontend.staging
             chmod 600 ~/.env.frontend.staging
-            # Compose down/up with ENV=staging
-            ENV=staging docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml down --remove-orphans || true
-            ENV=staging docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml up -d
+            # Compose using staging compose file (env file is fixed to .env.frontend.staging)
+            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml down --remove-orphans || true
+            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml up -d

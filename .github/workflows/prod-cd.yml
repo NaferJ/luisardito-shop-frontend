@@ -15,6 +15,7 @@ jobs:
         run: |
           docker build -t app:${{ github.sha }} .
           docker save app:${{ github.sha }} -o app-image.tar
+          chmod 644 app-image.tar
 
       - name: Copy image to production droplet
         uses: appleboy/scp-action@v0.1.7

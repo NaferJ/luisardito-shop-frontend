@@ -23,6 +23,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Use full node_modules (including dev deps like TypeScript) to allow loading next.config.ts at runtime
 COPY --from=deps /app/node_modules ./node_modules
+# Copy package metadata for npm start
+COPY --from=builder /app/package*.json ./
 
 # Copy built app
 COPY --from=builder /app/.next ./.next

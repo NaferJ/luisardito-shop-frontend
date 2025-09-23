@@ -21,7 +21,8 @@
     "framer-motion": "^6.5.1",
     "next": "15.4.7",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "typescript": "^5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -30,7 +31,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.7",
-    "prettier": "^3.3.3",
-    "typescript": "^5"
+    "prettier": "^3.3.3"
   }
 }

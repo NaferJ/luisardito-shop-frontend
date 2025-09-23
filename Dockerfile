@@ -10,6 +10,9 @@ RUN npm ci
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# Accept API base URL at build time for correct client-side inlining
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
@@ -21,9 +24,10 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install only production deps
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# Use full node_modules (including dev deps like TypeScript) to allow loading next.config.ts at runtime
+COPY --from=deps /app/node_modules ./node_modules
+# Copy package metadata for npm start
+COPY --from=builder /app/package*.json ./
 
 # Copy built app
 COPY --from=builder /app/.next ./.next

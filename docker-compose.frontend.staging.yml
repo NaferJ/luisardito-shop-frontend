@@ -1,0 +1,10 @@
+services:
+  luisardito-shop-frontend:
+    container_name: luisardito-shop-frontend
+    # The image tag is managed by the workflow. We tag the loaded image as "app:frontend" before compose up.
+    image: app:frontend
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    env_file:
+      - ${HOME}/.env.frontend.staging

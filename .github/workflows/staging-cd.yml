@@ -43,8 +43,8 @@ jobs:
           key: ${{ secrets.STG_SSH_KEY }}
           script: |
             set -e
-            mkdir -p ~/apps/luisardito-frontend
-            mv -f ~/docker-compose.frontend.staging.yml ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml || true
+            mkdir -p ~/apps/luisardito-shop-frontend
+            mv -f ~/docker-compose.frontend.staging.yml ~/apps/luisardito-shop-frontend/docker-compose.frontend.staging.yml || true
             docker load -i ~/app-image.tar
             rm -f ~/app-image.tar
             # Tag the loaded image to a stable name used by Compose
@@ -58,5 +58,5 @@ jobs:
             echo "NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_STG }}" >> ~/.env.frontend.staging
             chmod 600 ~/.env.frontend.staging
             # Compose using staging compose file (env file is fixed to .env.frontend.staging)
-            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml down --remove-orphans || true
-            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.staging.yml up -d
+            docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.staging.yml down --remove-orphans || true
+            docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.staging.yml up -d

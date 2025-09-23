@@ -1,6 +1,6 @@
 services:
-  luisardito-frontend:
-    container_name: luisardito-frontend
+  luisardito-shop-frontend:
+    container_name: luisardito-shop-frontend
     # The image tag is managed by the workflow. We tag the loaded image as "app:frontend" before compose up.
     image: app:frontend
     restart: unless-stopped

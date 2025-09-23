@@ -43,8 +43,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -e
-            mkdir -p ~/apps/luisardito-frontend
-            mv -f ~/docker-compose.frontend.yml ~/apps/luisardito-frontend/docker-compose.frontend.yml || true
+            mkdir -p ~/apps/luisardito-shop-frontend
+            mv -f ~/docker-compose.frontend.yml ~/apps/luisardito-shop-frontend/docker-compose.frontend.yml || true
             docker load -i ~/app-image.tar
             rm -f ~/app-image.tar
             # Tag the loaded image to a stable name used by Compose
@@ -58,5 +58,5 @@ jobs:
             echo "NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }}" >> ~/.env.frontend.production
             chmod 600 ~/.env.frontend.production
             # Compose using production compose file (env file is fixed to .env.frontend.production)
-            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml down --remove-orphans || true
-            docker compose -f ~/apps/luisardito-frontend/docker-compose.frontend.yml up -d
+            docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.yml down --remove-orphans || true
+            docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.yml up -d

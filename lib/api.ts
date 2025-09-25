@@ -14,7 +14,8 @@ api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('auth_token')
     if (token) {
-      (config.headers as any).Authorization = `Bearer ${token}`
+      if (!config.headers) config.headers = {}
+      ;(config.headers as Record<string, string>).Authorization = `Bearer ${token}`
     }
   }
   return config
@@ -26,7 +27,9 @@ api.interceptors.response.use(
   (error) => {
     if (typeof window !== 'undefined' && error.response?.status === 401) {
       // Token expirado o inválido
-      try { localStorage.removeItem('auth_token') } catch {}
+      try {
+        localStorage.removeItem('auth_token')
+      } catch {}
       window.location.href = '/login'
     }
     return Promise.reject(error)

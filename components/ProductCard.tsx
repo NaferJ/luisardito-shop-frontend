@@ -1,9 +1,33 @@
-import { Box, Image, Text, Button, VStack, HStack, Badge, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useToast, useColorModeValue, IconButton, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Tooltip, Flex } from '@chakra-ui/react'
+import {
+  Box,
+  Image,
+  Text,
+  Button,
+  VStack,
+  HStack,
+  Badge,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  useToast,
+  useColorModeValue,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  Tooltip
+} from '@chakra-ui/react'
 import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Producto } from '../types'
-import Link from 'next/link'
-import { useDeleteProducto, useUpdateProducto } from '../hooks/useProductosAdmin'
+import { useUpdateProducto } from '../hooks/useProductosAdmin'
 import { useRef } from 'react'
+import type { KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
@@ -20,7 +44,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const router = useRouter()
   const { user } = useAuth()
 
-  const deleteProductoMutation = useDeleteProducto()
   const updateProductoMutation = useUpdateProducto()
 
   // Solo mostrar productos publicados a usuarios normales
@@ -41,16 +64,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         description: 'El producto se movió a eliminados',
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
       onClose()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo eliminar el producto',
         status: 'error',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
     }
   }
@@ -69,34 +92,42 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         description: `Producto cambiado a ${nuevoEstado}`,
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo actualizar el estado',
         status: 'error',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
     }
   }
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'publicado': return 'green'
-      case 'borrador': return 'yellow'
-      case 'eliminado': return 'red'
-      default: return 'gray'
+      case 'publicado':
+        return 'green'
+      case 'borrador':
+        return 'yellow'
+      case 'eliminado':
+        return 'red'
+      default:
+        return 'gray'
     }
   }
 
   const getEstadoText = (estado: string) => {
     switch (estado) {
-      case 'publicado': return 'Publicado'
-      case 'borrador': return 'Borrador'
-      case 'eliminado': return 'Eliminado'
-      default: return estado
+      case 'publicado':
+        return 'Publicado'
+      case 'borrador':
+        return 'Borrador'
+      case 'eliminado':
+        return 'Eliminado'
+      default:
+        return estado
     }
   }
 
@@ -105,7 +136,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const menuColor = useColorModeValue('gray.800', 'gray.100')
   const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
-  const overlayBg = useColorModeValue('blackAlpha.400', 'blackAlpha.600')
   // Gradient overlay (bottom → top) to enhance text readability on hover
   const overlayGradient = useColorModeValue(
     'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
@@ -117,6 +147,18 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
   const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
 
+  // Precomputed shadows/borders to avoid conditional hook calls in JSX
+  const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  const adminBadgeShadow = useColorModeValue(
+    '0 2px 6px rgba(0,0,0,0.12)',
+    '0 4px 10px rgba(0,0,0,0.35)'
+  )
+  const gearShadow = useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')
+  const menuShadow = useColorModeValue(
+    '0 8px 24px rgba(0,0,0,0.18)',
+    '0 12px 32px rgba(0,0,0,0.65)'
+  )
+
   // Affordance/stock based hover border colors (light/dark aware)
   const affordGreen = useColorModeValue('green.400', 'green.300')
   const outOfStockYellow = useColorModeValue('yellow.400', 'yellow.300')
@@ -127,16 +169,28 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const derivedHoverBorder = outOfStock
     ? outOfStockYellow
-    : (!!user ? (canAfford ? affordGreen : notEnoughRed) : undefined)
-  
-  const ringColorVar = derivedHoverBorder ? `var(--chakra-colors-${derivedHoverBorder.replace('.', '-')})` : undefined
+    : !!user
+      ? canAfford
+        ? affordGreen
+        : notEnoughRed
+      : undefined
 
-  const hoverStyles: any = {
+  const ringColorVar = derivedHoverBorder
+    ? `var(--chakra-colors-${derivedHoverBorder.replace('.', '-')})`
+    : undefined
+
+  const hoverStyles = {
     transform: 'translateY(-2px)',
     boxShadow: ringColorVar ? `var(--chakra-shadows-md), 0 0 0 3px ${ringColorVar}` : 'md'
   }
 
-  const estadoThemeMap: Record<string, { light: { bg: string; color: string; border: string }, dark: { bg: string; color: string; border: string } }> = {
+  const estadoThemeMap: Record<
+    string,
+    {
+      light: { bg: string; color: string; border: string }
+      dark: { bg: string; color: string; border: string }
+    }
+  > = {
     publicado: {
       light: { bg: 'green.50', color: 'green.700', border: 'green.200' },
       dark: { bg: 'green.700', color: 'green.50', border: 'green.600' }
@@ -161,15 +215,15 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const deleteColor = useColorModeValue('red.600', 'red.300')
   const deleteHoverBg = useColorModeValue('red.50', 'red.700')
   const deleteHoverColor = useColorModeValue('red.700', 'red.200')
-  
+
   return (
     <>
-      <Box 
+      <Box
         as={motion.div}
-        borderWidth="1px" 
-        borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
+        borderWidth="1px"
+        borderColor={cardBorder}
         bg="bg.canvas"
-        borderRadius="lg" 
+        borderRadius="lg"
         overflow="hidden"
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
@@ -178,7 +232,12 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         role="group"
         cursor="pointer"
         onClick={() => router.push(`/productos/${producto.id}`)}
-        onKeyDown={(e: any) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/productos/${producto.id}`) } }}
+        onKeyDown={(e: any) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            router.push(`/productos/${producto.id}`)
+          }
+        }}
         tabIndex={0}
       >
         {/* Badge de estado (solo para admin) */}
@@ -195,7 +254,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               color={estadoColor}
               border="1px solid"
               borderColor={estadoBorder}
-              boxShadow={useColorModeValue('0 2px 6px rgba(0,0,0,0.12)', '0 4px 10px rgba(0,0,0,0.35)')}
+              boxShadow={adminBadgeShadow}
             >
               {getEstadoText(producto.estado)}
             </Box>
@@ -203,8 +262,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         )}
 
         {/* Imagen del producto (ocupa toda la tarjeta) */}
-        {(producto.imagen_url || producto.imagen) ? (
-          <Image 
+        {producto.imagen_url || producto.imagen ? (
+          <Image
             src={producto.imagen_url || producto.imagen}
             alt={producto.nombre}
             w="full"
@@ -223,7 +282,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color="gray.500" fontSize="sm">Sin imagen</Text>
+            <Text color="gray.500" fontSize="sm">
+              Sin imagen
+            </Text>
           </Box>
         )}
 
@@ -260,7 +321,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     borderRadius="full"
                     border="1px solid"
                     borderColor={gearBorder}
-                    boxShadow={useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')}
+                    boxShadow={gearShadow}
                     _hover={{ bg: gearHoverBg, filter: 'brightness(1.05)' }}
                     _active={{ bg: gearHoverBg }}
                     _expanded={{ bg: gearHoverBg }}
@@ -271,7 +332,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                   bg={menuBg}
                   color={menuColor}
                   borderColor={menuBorder}
-                  boxShadow={useColorModeValue('0 8px 24px rgba(0,0,0,0.18)', '0 12px 32px rgba(0,0,0,0.65)')}
+                  boxShadow={menuShadow}
                   sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -339,11 +400,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
       </Box>
 
       {/* Dialog de confirmación */}
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
@@ -351,16 +408,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              ¿Estás seguro de que quieres eliminar "{producto.nombre}"? 
-              El producto se moverá a eliminados y no será visible para los usuarios.
+              ¿Estás seguro de que quieres eliminar &quot;{producto.nombre}&quot;? El producto se
+              moverá a eliminados y no será visible para los usuarios.
             </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancelar
               </Button>
-              <Button 
-                colorScheme="red" 
+              <Button
+                colorScheme="red"
                 onClick={handleDelete}
                 ml={3}
                 isLoading={updateProductoMutation.isPending}

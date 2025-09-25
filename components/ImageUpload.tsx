@@ -1,5 +1,18 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Box, Button, HStack, Image, Input, Progress, Text, VStack, useToast, useColorModeValue, Icon } from '@chakra-ui/react'
+import type { KeyboardEvent } from 'react'
+import {
+  Box,
+  Button,
+  HStack,
+  Image,
+  Input,
+  Progress,
+  Text,
+  VStack,
+  useToast,
+  useColorModeValue,
+  Icon
+} from '@chakra-ui/react'
 import { uploadImageToCloudinary } from '../utils/cloudinary'
 import { ArrowUpIcon } from '@chakra-ui/icons'
 
@@ -36,16 +49,25 @@ export default function ImageUpload({
   const bgDragging = useColorModeValue('blue.50', 'whiteAlpha.200')
   const hintColor = useColorModeValue('gray.600', 'gray.300')
   const mutedColor = useColorModeValue('gray.500', 'gray.400')
+  const previewBg = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const validateFile = (file: File) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!validTypes.includes(file.type)) {
-      toast({ title: 'Formato no soportado', description: 'Usa JPG, PNG, WEBP o GIF', status: 'error' })
+      toast({
+        title: 'Formato no soportado',
+        description: 'Usa JPG, PNG, WEBP o GIF',
+        status: 'error'
+      })
       return false
     }
     const maxBytes = maxSizeMB * 1024 * 1024
     if (file.size > maxBytes) {
-      toast({ title: 'Archivo demasiado grande', description: `Máximo ${maxSizeMB}MB`, status: 'error' })
+      toast({
+        title: 'Archivo demasiado grande',
+        description: `Máximo ${maxSizeMB}MB`,
+        status: 'error'
+      })
       return false
     }
     return true
@@ -61,8 +83,8 @@ export default function ImageUpload({
       setPreview(url)
       onChange(url)
       toast({ title: 'Imagen subida', status: 'success' })
-    } catch (err: any) {
-      const msg = err?.message || 'No se pudo subir la imagen'
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'No se pudo subir la imagen'
       toast({ title: 'Error al subir', description: msg, status: 'error' })
     } finally {
       setIsUploading(false)
@@ -76,23 +98,35 @@ export default function ImageUpload({
     if (file) startUpload(file)
   }
 
-  const onDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    if (!isUploading) setIsDragging(true)
-  }, [isUploading])
+  const onDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!isUploading) setIsDragging(true)
+    },
+    [isUploading]
+  )
 
-  const onDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    if (isDragging) setIsDragging(false)
-  }, [isDragging])
+  const onDragLeave = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (isDragging) setIsDragging(false)
+    },
+    [isDragging]
+  )
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setIsDragging(false)
-    if (isUploading) return
-    const file = e.dataTransfer.files?.[0]
-    if (file) startUpload(file)
-  }, [isUploading])
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragging(false)
+      if (isUploading) return
+      const file = e.dataTransfer.files?.[0]
+      if (file) startUpload(file)
+    },
+    [isUploading, startUpload]
+  )
 
   const triggerFile = () => {
     if (!isUploading) fileInputRef.current?.click()
@@ -110,13 +144,39 @@ export default function ImageUpload({
       {/* Dropzone / Preview */}
       {preview ? (
         <VStack align="stretch" spacing={2}>
-          <Box borderRadius="md" overflow="hidden" borderWidth="1px" borderColor={borderColor} bg={useColorModeValue('gray.100','whiteAlpha.100')}>
-            <Image src={preview} alt="Preview" w="100%" h="200px" objectFit="contain" objectPosition="center" fallbackSrc="/no-image.png" />
+          <Box
+            borderRadius="md"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor={borderColor}
+            bg={previewBg}
+          >
+            <Image
+              src={preview}
+              alt="Preview"
+              w="100%"
+              h="200px"
+              objectFit="contain"
+              objectPosition="center"
+              fallbackSrc="/no-image.png"
+            />
           </Box>
-          <Text fontSize="xs" color={hintColor} isTruncated title={preview}>{preview}</Text>
+          <Text fontSize="xs" color={hintColor} isTruncated title={preview}>
+            {preview}
+          </Text>
           <HStack>
-            <Button size="sm" variant="outline" onClick={triggerFile} isDisabled={isUploading}>Reemplazar</Button>
-            <Button size="sm" variant="ghost" colorScheme="red" onClick={handleRemove} isDisabled={isUploading}>Quitar</Button>
+            <Button size="sm" variant="outline" onClick={triggerFile} isDisabled={isUploading}>
+              Reemplazar
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              colorScheme="red"
+              onClick={handleRemove}
+              isDisabled={isUploading}
+            >
+              Quitar
+            </Button>
           </HStack>
         </VStack>
       ) : (
@@ -124,7 +184,12 @@ export default function ImageUpload({
           role="button"
           tabIndex={0}
           onClick={triggerFile}
-          onKeyDown={(e:any)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); triggerFile() } }}
+          onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              triggerFile()
+            }
+          }}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
@@ -142,11 +207,22 @@ export default function ImageUpload({
           <VStack spacing={2}>
             <Icon as={ArrowUpIcon} boxSize={10} color={mutedColor} />
             <Text fontSize="sm" color={hintColor}>
-              <Text as="span" fontWeight="semibold">Haz clic para subir</Text> o arrastra y suelta
+              <Text as="span" fontWeight="semibold">
+                Haz clic para subir
+              </Text>{' '}
+              o arrastra y suelta
             </Text>
-            <Text fontSize="xs" color={mutedColor}>Formatos: JPG, PNG, WEBP, GIF. Tamaño máx: {maxSizeMB}MB</Text>
+            <Text fontSize="xs" color={mutedColor}>
+              Formatos: JPG, PNG, WEBP, GIF. Tamaño máx: {maxSizeMB}MB
+            </Text>
           </VStack>
-          <Input ref={fileInputRef} type="file" accept="image/*" onChange={onInputChange} display="none" />
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={onInputChange}
+            display="none"
+          />
         </Box>
       )}
 
@@ -154,7 +230,9 @@ export default function ImageUpload({
       {isUploading && (
         <Box pt={1}>
           <Progress value={progress} size="sm" colorScheme="blue" borderRadius="full" />
-          <Text fontSize="xs" color={mutedColor} mt={1}>{progress}%</Text>
+          <Text fontSize="xs" color={mutedColor} mt={1}>
+            {progress}%
+          </Text>
         </Box>
       )}
     </VStack>

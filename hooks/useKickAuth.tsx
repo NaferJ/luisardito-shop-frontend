@@ -38,7 +38,8 @@ export function useKickAuth() {
       response_type: 'code',
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
-      state: state
+      state: state,
+      scope: process.env.NEXT_PUBLIC_KICK_SCOPE || 'user:read'
     })
 
     return `${process.env.NEXT_PUBLIC_KICK_OAUTH_URL}?${params.toString()}`

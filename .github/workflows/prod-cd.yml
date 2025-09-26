@@ -27,6 +27,7 @@ jobs:
             --build-arg NEXT_PUBLIC_KICK_USER_URL=${{ secrets.KICK_USER_URL_PROD }} \
             --build-arg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME_PROD }} \
             --build-arg NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_SCOPE=${{ secrets.KICK_SCOPE_PROD }} \
             -t app:${{ github.sha }} .
           docker save app:${{ github.sha }} -o app-image.tar
           chmod 644 app-image.tar
@@ -82,6 +83,7 @@ jobs:
             echo "NEXT_PUBLIC_KICK_USER_URL=${{ secrets.KICK_USER_URL_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_SCOPE=${{ secrets.KICK_SCOPE_PROD }}" >> ~/.env.frontend.production
             chmod 600 ~/.env.frontend.production
             # Compose using production compose file (env file is fixed to .env.frontend.production)
             docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.yml down --remove-orphans || true

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from './useAuth'
 import api from '../lib/api'
@@ -46,7 +46,7 @@ export function useKickAuth() {
   }
 
   // Intercambiar código por token con PKCE
-  const handleKickCallback = async (code: string, state: string) => {
+  const handleKickCallback = useCallback(async (code: string, state: string) => {
     setIsLoading(true)
 
     try {
@@ -91,7 +91,7 @@ export function useKickAuth() {
       localStorage.removeItem('kick_oauth_state')
       localStorage.removeItem('kick_code_verifier')
     }
-  }
+  }, [router])
 
   // Iniciar flujo OAuth con PKCE
   const connectWithKick = async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Center, Spinner, VStack, Text, Alert, AlertIcon, Button } from '@chakra-ui/react'
 import { Layout } from '../../components/Layout'
@@ -9,15 +9,19 @@ export default function AuthCallbackPage() {
   const { handleKickCallback } = useKickAuth()
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(true)
+  const hasProcessedRef = useRef(false)
 
   useEffect(() => {
     const processCallback = async () => {
+      if (hasProcessedRef.current) return
+
       const { code, state, error: oauthError } = router.query
 
       // Si hay error de OAuth
       if (oauthError) {
         setError(`Error de autorización: ${oauthError}`)
         setIsProcessing(false)
+        hasProcessedRef.current = true
         return
       }
 
@@ -25,6 +29,8 @@ export default function AuthCallbackPage() {
       if (!code || !state) {
         return
       }
+
+      hasProcessedRef.current = true // Evitar doble ejecución
 
       try {
         await handleKickCallback(code as string, state as string)

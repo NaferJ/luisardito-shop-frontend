@@ -45,7 +45,7 @@ export function useKickAuth() {
     return `${process.env.NEXT_PUBLIC_KICK_OAUTH_URL}?${params.toString()}`
   }
 
-  // Intercambiar código por token con PKCE
+  // Intercambiar código por token con PKCE (token exchange desde el frontend)
   const handleKickCallback = useCallback(async (code: string, state: string) => {
     setIsLoading(true)
 
@@ -62,11 +62,42 @@ export function useKickAuth() {
         throw new Error('Code verifier no encontrado')
       }
 
-      // Intercambiar código por datos del usuario con PKCE
-      const response = await api.post('/api/auth/kick-callback', {
-        code,
-        redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
-        code_verifier: codeVerifier // Agregar code_verifier para PKCE
+      // 1) Intercambiar el código por tokens directamente contra Kick (PKCE)
+      const tokenRes = await fetch(process.env.NEXT_PUBLIC_KICK_TOKEN_URL!, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI!,
+          code_verifier: codeVerifier,
+          client_id: process.env.NEXT_PUBLIC_KICK_CLIENT_ID!
+        }) as any
+      })
+
+      const tokenJson: any = await tokenRes.json().catch(() => ({}))
+      if (!tokenRes.ok) {
+        const errMsg = tokenJson?.error || 'token_exchange_failed'
+        throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg))
+      }
+
+      const { access_token, refresh_token, expires_in, token_type, scope } = tokenJson
+      if (!access_token) {
+        throw new Error('No se recibió access_token de Kick')
+      }
+
+      // 2) Enviar tokens al backend para crear/vincular usuario y emitir sesión local
+      const response = await api.post('/api/auth/store-tokens', {
+        provider: 'kick',
+        tokens: {
+          access_token,
+          refresh_token,
+          expires_in,
+          token_type,
+          scope
+        }
       })
 
       const { token, usuario, isNewUser } = response.data
@@ -84,7 +115,8 @@ export function useKickAuth() {
       return { success: true, isNewUser }
     } catch (error: any) {
       console.error('Error en callback de Kick:', error)
-      throw new Error(error.response?.data?.error || 'Error al conectar con Kick')
+      const msg = error?.message || error?.response?.data?.error || 'Error al conectar con Kick'
+      throw new Error(msg)
     } finally {
       setIsLoading(false)
       // Limpiar estado temporal

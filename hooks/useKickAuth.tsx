@@ -62,42 +62,11 @@ export function useKickAuth() {
         throw new Error('Code verifier no encontrado')
       }
 
-      // 1) Intercambiar el código por tokens directamente contra Kick (PKCE)
-      const tokenRes = await fetch(process.env.NEXT_PUBLIC_KICK_TOKEN_URL!, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI!,
-          code_verifier: codeVerifier,
-          client_id: process.env.NEXT_PUBLIC_KICK_CLIENT_ID!
-        }) as any
-      })
-
-      const tokenJson: any = await tokenRes.json().catch(() => ({}))
-      if (!tokenRes.ok) {
-        const errMsg = tokenJson?.error || 'token_exchange_failed'
-        throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg))
-      }
-
-      const { access_token, refresh_token, expires_in, token_type, scope } = tokenJson
-      if (!access_token) {
-        throw new Error('No se recibió access_token de Kick')
-      }
-
-      // 2) Enviar tokens al backend para crear/vincular usuario y emitir sesión local
-      const response = await api.post('/api/auth/store-tokens', {
-        provider: 'kick',
-        tokens: {
-          access_token,
-          refresh_token,
-          expires_in,
-          token_type,
-          scope
-        }
+      // Token exchange vía backend para evitar CORS y bloqueos de Cloudflare
+      const response = await api.post('/api/auth/kick-callback', {
+        code,
+        redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+        code_verifier: codeVerifier
       })
 
       const { token, usuario, isNewUser } = response.data

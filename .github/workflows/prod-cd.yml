@@ -13,7 +13,21 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }} -t app:${{ github.sha }} .
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }} \
+            --build-arg NEXT_PUBLIC_API_TIMEOUT=${{ secrets.FRONTEND_API_TIMEOUT_PROD }} \
+            --build-arg NEXT_PUBLIC_APP_NAME=${{ secrets.FRONTEND_APP_NAME_PROD }} \
+            --build-arg NEXT_PUBLIC_APP_VERSION=${{ secrets.FRONTEND_APP_VERSION_PROD }} \
+            --build-arg NEXT_PUBLIC_ENABLE_DEBUG=${{ secrets.FRONTEND_ENABLE_DEBUG_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_CLIENT_ID=${{ secrets.KICK_CLIENT_ID_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_CLIENT_SECRET=${{ secrets.KICK_CLIENT_SECRET_PROD }} \
+            --build-arg NEXT_PUBLIC_REDIRECT_URI=${{ secrets.KICK_REDIRECT_URI_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_OAUTH_URL=${{ secrets.KICK_OAUTH_URL_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_TOKEN_URL=${{ secrets.KICK_TOKEN_URL_PROD }} \
+            --build-arg NEXT_PUBLIC_KICK_USER_URL=${{ secrets.KICK_USER_URL_PROD }} \
+            --build-arg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME_PROD }} \
+            --build-arg NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET_PROD }} \
+            -t app:${{ github.sha }} .
           docker save app:${{ github.sha }} -o app-image.tar
           chmod 644 app-image.tar
 
@@ -53,9 +67,21 @@ jobs:
             docker rm -f app-prod || true
             # Create frontend production env file
             rm -f ~/.env.frontend.production
-            echo "NODE_ENV=production" >> ~/.env.frontend.production
-            echo "PORT=3000" >> ~/.env.frontend.production
+            echo "NODE_ENV=${{ secrets.FRONTEND_NODE_ENV_PROD }}" >> ~/.env.frontend.production
+            echo "PORT=${{ secrets.FRONTEND_PORT_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_API_URL_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_API_TIMEOUT=${{ secrets.FRONTEND_API_TIMEOUT_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_APP_NAME=${{ secrets.FRONTEND_APP_NAME_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_APP_VERSION=${{ secrets.FRONTEND_APP_VERSION_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_ENABLE_DEBUG=${{ secrets.FRONTEND_ENABLE_DEBUG_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_CLIENT_ID=${{ secrets.KICK_CLIENT_ID_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_CLIENT_SECRET=${{ secrets.KICK_CLIENT_SECRET_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_REDIRECT_URI=${{ secrets.KICK_REDIRECT_URI_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_OAUTH_URL=${{ secrets.KICK_OAUTH_URL_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_TOKEN_URL=${{ secrets.KICK_TOKEN_URL_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_KICK_USER_URL=${{ secrets.KICK_USER_URL_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME_PROD }}" >> ~/.env.frontend.production
+            echo "NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET_PROD }}" >> ~/.env.frontend.production
             chmod 600 ~/.env.frontend.production
             # Compose using production compose file (env file is fixed to .env.frontend.production)
             docker compose -f ~/apps/luisardito-shop-frontend/docker-compose.frontend.yml down --remove-orphans || true

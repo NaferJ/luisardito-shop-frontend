@@ -20,7 +20,6 @@ jobs:
             --build-arg NEXT_PUBLIC_APP_VERSION=${{ secrets.FRONTEND_APP_VERSION_PROD }} \
             --build-arg NEXT_PUBLIC_ENABLE_DEBUG=${{ secrets.FRONTEND_ENABLE_DEBUG_PROD }} \
             --build-arg NEXT_PUBLIC_KICK_CLIENT_ID=${{ secrets.KICK_CLIENT_ID_PROD }} \
-            --build-arg NEXT_PUBLIC_KICK_CLIENT_SECRET=${{ secrets.KICK_CLIENT_SECRET_PROD }} \
             --build-arg NEXT_PUBLIC_REDIRECT_URI=${{ secrets.KICK_REDIRECT_URI_PROD }} \
             --build-arg NEXT_PUBLIC_KICK_OAUTH_URL=${{ secrets.KICK_OAUTH_URL_PROD }} \
             --build-arg NEXT_PUBLIC_KICK_TOKEN_URL=${{ secrets.KICK_TOKEN_URL_PROD }} \
@@ -76,7 +75,6 @@ jobs:
             echo "NEXT_PUBLIC_APP_VERSION=${{ secrets.FRONTEND_APP_VERSION_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_ENABLE_DEBUG=${{ secrets.FRONTEND_ENABLE_DEBUG_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_KICK_CLIENT_ID=${{ secrets.KICK_CLIENT_ID_PROD }}" >> ~/.env.frontend.production
-            echo "NEXT_PUBLIC_KICK_CLIENT_SECRET=${{ secrets.KICK_CLIENT_SECRET_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_REDIRECT_URI=${{ secrets.KICK_REDIRECT_URI_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_KICK_OAUTH_URL=${{ secrets.KICK_OAUTH_URL_PROD }}" >> ~/.env.frontend.production
             echo "NEXT_PUBLIC_KICK_TOKEN_URL=${{ secrets.KICK_TOKEN_URL_PROD }}" >> ~/.env.frontend.production

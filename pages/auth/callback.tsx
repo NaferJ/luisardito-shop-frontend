@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Center, Spinner, VStack, Text, Alert, AlertIcon, Button } from '@chakra-ui/react'
 import { Layout } from '../../components/Layout'
-import { useKickAuth } from '../../hooks/useKickAuth'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
-  const { handleKickCallback } = useKickAuth()
   const [error, setError] = useState<string | null>(null)
-  const [isProcessing, setIsProcessing] = useState(true)
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
@@ -20,31 +17,26 @@ export default function AuthCallbackPage() {
       // Si hay error de OAuth
       if (oauthError) {
         setError(`Error de autorización: ${oauthError}`)
-        setIsProcessing(false)
         hasProcessedRef.current = true
         return
       }
 
-      // Si no tenemos código, esperar a que se cargue
-      if (!code || !state) {
-        return
-      }
+      // Si no tenemos parámetros aún, esperar
+      if (!code || !state) return
 
-      hasProcessedRef.current = true // Evitar doble ejecución
+      hasProcessedRef.current = true
 
-      try {
-        await handleKickCallback(code as string, state as string)
-      } catch (err: any) {
-        setError(err.message)
-        setIsProcessing(false)
-      }
+      // Delegar el manejo del callback al backend vía GET con code y state intactos
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || ''
+      const base = apiBase.replace(/\/$/, '')
+      const url = `${base}/api/auth/kick-callback?code=${encodeURIComponent(String(code))}&state=${encodeURIComponent(String(state))}`
+      window.location.href = url
     }
 
-    // Solo procesar si tenemos los query params
     if (router.isReady) {
       processCallback()
     }
-  }, [router.isReady, router.query, handleKickCallback])
+  }, [router.isReady, router.query])
 
   if (error) {
     return (

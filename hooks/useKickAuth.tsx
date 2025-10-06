@@ -1,30 +1,56 @@
 import { useState } from 'react'
 
 export function useKickAuth() {
-  const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState(null)
 
-  // Iniciar flujo OAuth delegando 100% al backend
-  const connectWithKick = async () => {
-    try {
-      setIsLoading(true)
-      const apiBase = process.env.NEXT_PUBLIC_API_URL
-      if (!apiBase) {
-        console.error('NEXT_PUBLIC_API_URL no está configurado')
-        return
-      }
-      // Redirigimos al endpoint del backend que firma el state y gestiona PKCE
-      window.location.href = `${apiBase.replace(/\/$/, '')}/api/auth/kick`
-    } catch (error) {
-      console.error('Error iniciando flujo OAuth con Kick:', error)
-    } finally {
-      // No se limpia isLoading aquí porque la navegación reemplazará la página
-      // Si falla antes de navegar, mostramos de nuevo el botón
-      setIsLoading(false)
+    // Nuevo método para login con credenciales
+    const loginWithCredentials = async (username: any, password: any) => {
+        try {
+            setIsLoading(true)
+            setError(null)
+
+            const apiBase = process.env.NEXT_PUBLIC_API_URL
+            if (!apiBase) {
+                throw new Error('NEXT_PUBLIC_API_URL no está configurado')
+            }
+
+            const response = await fetch(`${apiBase}/api/auth/kick/web`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error en autenticación')
+            }
+
+            // Guardar token en localStorage o cookies
+            localStorage.setItem('authToken', data.token)
+
+            return data
+
+        } catch (error) {
+            setError(error.message)
+            throw error
+        } finally {
+            setIsLoading(false)
+        }
     }
-  }
 
-  return {
-    connectWithKick,
-    isLoading,
-  }
+    // Método deprecado - mantener para compatibilidad
+    const connectWithKick = async () => {
+        throw new Error('OAuth no disponible. Usa loginWithCredentials')
+    }
+
+    return {
+        loginWithCredentials,
+        connectWithKick, // Deprecado
+        isLoading,
+        error
+    }
 }

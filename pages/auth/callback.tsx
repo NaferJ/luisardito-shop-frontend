@@ -13,7 +13,7 @@ export default function AuthCallbackPage() {
     const processCallback = async () => {
       if (hasProcessedRef.current) return
 
-      const { code, state, error: oauthError } = router.query
+      const { code, state, data: encodedData, error: oauthError } = router.query
 
       // Si hay error de OAuth
       if (oauthError) {
@@ -22,13 +22,25 @@ export default function AuthCallbackPage() {
         return
       }
 
-      // Si no tenemos parámetros aún, esperar
-      if (!code || !state) return
-
       hasProcessedRef.current = true
 
       try {
-        // Hacer petición API al backend para intercambiar el código por el token
+        // Caso 1: El backend ya procesó todo y envió los datos codificados
+        if (encodedData) {
+          const decodedData = JSON.parse(atob(String(encodedData)))
+
+          if (decodedData.token) {
+            localStorage.setItem('auth_token', decodedData.token)
+            router.push('/')
+          } else {
+            setError('No se recibió token del servidor')
+          }
+          return
+        }
+
+        // Caso 2: Flujo original - intercambiar code/state por token
+        if (!code || !state) return
+
         const { data } = await api.get('/api/auth/kick-callback', {
           params: {
             code: String(code),
@@ -36,10 +48,8 @@ export default function AuthCallbackPage() {
           }
         })
 
-        // Guardar el token en localStorage
         if (data.token) {
           localStorage.setItem('auth_token', data.token)
-          // Redirigir al home, donde el AuthProvider cargará el usuario automáticamente
           router.push('/')
         } else {
           setError('No se recibió token del servidor')

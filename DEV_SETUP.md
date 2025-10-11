@@ -82,3 +82,4 @@ No necesitas cambiar nada en el código para desarrollo local.
 ### Performance en Windows
 - La configuración nativa es significativamente más rápida
 - Docker en Windows puede ser lento para desarrollo
+

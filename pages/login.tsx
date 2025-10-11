@@ -65,9 +65,9 @@ export default function LoginPage() {
                   <FormControl>
                     <HStack justify="space-between" mb={1}>
                       <FormLabel m={0}>Contraseña</FormLabel>
-                      <ChakraLink as={NextLink} href="#" fontSize="sm" textDecor="underline" _hover={{ textDecor: 'none' }}>
-                        ¿Olvidaste tu contraseña?
-                      </ChakraLink>
+                      {/*<ChakraLink as={NextLink} href="#" fontSize="sm" textDecor="underline" _hover={{ textDecor: 'none' }}>*/}
+                      {/*  ¿Olvidaste tu contraseña?*/}
+                      {/*</ChakraLink>*/}
                     </HStack>
                     <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
                   </FormControl>

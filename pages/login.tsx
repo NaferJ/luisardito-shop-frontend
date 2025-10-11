@@ -85,12 +85,12 @@ export default function LoginPage() {
                   </Button>
                 </VStack>
 
-                <Text textAlign="center" fontSize="sm">
-                  ¿No tienes una cuenta?{' '}
-                  <ChakraLink as={NextLink} href="/register" textDecor="underline" _hover={{ textDecor: 'none' }}>
-                    Regístrate
-                  </ChakraLink>
-                </Text>
+                {/*<Text textAlign="center" fontSize="sm">*/}
+                {/*  ¿No tienes una cuenta?{' '}*/}
+                {/*  <ChakraLink as={NextLink} href="/register" textDecor="underline" _hover={{ textDecor: 'none' }}>*/}
+                {/*    Regístrate*/}
+                {/*  </ChakraLink>*/}
+                {/*</Text>*/}
               </VStack>
             </form>
           </Box>

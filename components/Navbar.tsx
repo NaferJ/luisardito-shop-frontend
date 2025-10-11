@@ -1,14 +1,12 @@
 import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton } from '@chakra-ui/react'
 import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth'
-import { useKickAuth } from '../hooks/useKickAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
 import ColorModeToggle from './ColorModeToggle'
 
 export function Navbar() {
   const { user, isAuthenticated, logout, isLoading } = useAuth()
-  const { connectWithKick } = useKickAuth()
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -113,10 +111,6 @@ export function Navbar() {
                 <ChakraLink as={NextLink} href="/register">
                   <Button colorScheme="blue" size="sm">Registro</Button>
                 </ChakraLink>
-                {/* Botón OAuth con Kick */}
-                <Button onClick={connectWithKick} colorScheme="yellow" variant="solid" size="sm">
-                  Conectar con Kick
-                </Button>
               </HStack>
             )
           })()}
@@ -208,9 +202,6 @@ export function Navbar() {
                   <ChakraLink as={NextLink} href="/register" onClick={onClose}>
                     <Button colorScheme="blue" width="full">Registro</Button>
                   </ChakraLink>
-                  <Button onClick={() => { connectWithKick(); onClose(); }} colorScheme="yellow" width="full">
-                    Conectar con Kick
-                  </Button>
 
                   <Divider my={2} />
 

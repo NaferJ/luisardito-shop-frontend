@@ -10,7 +10,7 @@ import { SettingsIcon } from '@chakra-ui/icons'
 
 export default function Home() {
   const { data: productos, isLoading, error } = useProductos()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const router = useRouter()
 
   const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))

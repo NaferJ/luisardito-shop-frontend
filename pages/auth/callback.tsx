@@ -22,6 +22,9 @@ export default function AuthCallbackPage() {
         return
       }
 
+      // Si no hay parámetros aún, esperar
+      if (!encodedData && !code && !state) return
+
       hasProcessedRef.current = true
 
       try {
@@ -31,7 +34,8 @@ export default function AuthCallbackPage() {
 
           if (decodedData.token) {
             localStorage.setItem('auth_token', decodedData.token)
-            router.push('/')
+            // Forzar recarga para que el AuthProvider detecte el token
+            window.location.href = '/'
           } else {
             setError('No se recibió token del servidor')
           }
@@ -39,20 +43,21 @@ export default function AuthCallbackPage() {
         }
 
         // Caso 2: Flujo original - intercambiar code/state por token
-        if (!code || !state) return
+        if (code && state) {
+          const { data } = await api.get('/api/auth/kick-callback', {
+            params: {
+              code: String(code),
+              state: String(state)
+            }
+          })
 
-        const { data } = await api.get('/api/auth/kick-callback', {
-          params: {
-            code: String(code),
-            state: String(state)
+          if (data.token) {
+            localStorage.setItem('auth_token', data.token)
+            // Forzar recarga para que el AuthProvider detecte el token
+            window.location.href = '/'
+          } else {
+            setError('No se recibió token del servidor')
           }
-        })
-
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token)
-          router.push('/')
-        } else {
-          setError('No se recibió token del servidor')
         }
       } catch (err: any) {
         console.error('Error procesando callback de Kick:', err)

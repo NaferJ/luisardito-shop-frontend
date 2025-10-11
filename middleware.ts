@@ -3,7 +3,13 @@ import { NextRequest, NextResponse } from 'next/server'
 // This middleware ensures the public images folder is read-only from the web.
 // It blocks any non-GET/HEAD requests to /images/* with 405 Method Not Allowed.
 export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
   const method = req.method
+
+  // Redirect home to login
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
 
   // Allow safe methods only for static assets
   if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
@@ -23,7 +29,7 @@ export function middleware(req: NextRequest) {
   return NextResponse.next()
 }
 
-// Apply only to requests for static images served from public/images
+// Apply to home route and static images
 export const config = {
-  matcher: ['/images/:path*'],
+  matcher: ['/', '/images/:path*'],
 }

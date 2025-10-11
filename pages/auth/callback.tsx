@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Center, Spinner, VStack, Text, Alert, AlertIcon, Button } from '@chakra-ui/react'
 import { Layout } from '../../components/Layout'
+import api from '../../lib/api'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -26,11 +27,27 @@ export default function AuthCallbackPage() {
 
       hasProcessedRef.current = true
 
-      // Delegar el manejo del callback al backend vía GET con code y state intactos
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || ''
-      const base = apiBase.replace(/\/$/, '')
-      const url = `${base}/api/auth/kick-callback?code=${encodeURIComponent(String(code))}&state=${encodeURIComponent(String(state))}`
-      window.location.href = url
+      try {
+        // Hacer petición API al backend para intercambiar el código por el token
+        const { data } = await api.get('/api/auth/kick-callback', {
+          params: {
+            code: String(code),
+            state: String(state)
+          }
+        })
+
+        // Guardar el token en localStorage
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token)
+          // Redirigir al home, donde el AuthProvider cargará el usuario automáticamente
+          router.push('/')
+        } else {
+          setError('No se recibió token del servidor')
+        }
+      } catch (err: any) {
+        console.error('Error procesando callback de Kick:', err)
+        setError(err.response?.data?.error || 'Error al procesar la autenticación')
+      }
     }
 
     if (router.isReady) {

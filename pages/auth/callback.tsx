@@ -32,8 +32,15 @@ export default function AuthCallbackPage() {
         if (encodedData) {
           const decodedData = JSON.parse(atob(String(encodedData)))
 
-          if (decodedData.token) {
-            localStorage.setItem('auth_token', decodedData.token)
+          // Guardar tokens (access y refresh)
+          if (decodedData.accessToken || decodedData.token) {
+            const accessToken = decodedData.accessToken || decodedData.token
+            localStorage.setItem('auth_token', accessToken)
+
+            if (decodedData.refreshToken) {
+              localStorage.setItem('refresh_token', decodedData.refreshToken)
+            }
+
             // Forzar recarga para que el AuthProvider detecte el token
             window.location.href = '/'
           } else {
@@ -51,8 +58,15 @@ export default function AuthCallbackPage() {
             }
           })
 
-          if (data.token) {
-            localStorage.setItem('auth_token', data.token)
+          // Guardar tokens (access y refresh)
+          if (data.accessToken || data.token) {
+            const accessToken = data.accessToken || data.token
+            localStorage.setItem('auth_token', accessToken)
+
+            if (data.refreshToken) {
+              localStorage.setItem('refresh_token', data.refreshToken)
+            }
+
             // Forzar recarga para que el AuthProvider detecte el token
             window.location.href = '/'
           } else {

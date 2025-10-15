@@ -54,8 +54,12 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string
-  usuario: Usuario
+  token?: string
+  accessToken?: string
+  refreshToken?: string
+  usuario?: Usuario
+  user?: Usuario
+  expiresIn?: number
 }
 
 export interface ApiResponse<T> {
@@ -78,4 +82,43 @@ export interface ProductoForm {
 export interface UsuarioUpdateForm {
   nombre: string
   email: string
+}
+
+// Tipos para Kick Integration
+export interface KickConnectionStatus {
+  connected: boolean
+  broadcaster?: {
+    kick_user_id: string
+    kick_username: string
+    connected_at: string
+  }
+  token?: {
+    expires_at: string
+    is_expired: boolean
+  }
+  subscriptions?: {
+    auto_subscribed: boolean
+    total_active: number
+    events: Array<{
+      event_type: string
+      status: string
+      created_at: string
+    }>
+  }
+}
+
+export interface KickPointsConfig {
+  config_key: string
+  config_value: number
+  enabled: boolean
+  description?: string
+  updated_at: string
+}
+
+export interface KickSubscription {
+  id: string
+  event_type: string
+  broadcaster_user_id: string
+  status: string
+  created_at: string
 }

@@ -1,0 +1,289 @@
+import { useState, useEffect } from 'react'
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Card,
+  CardBody,
+  Button,
+  FormControl,
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Switch,
+  Alert,
+  AlertIcon,
+  Spinner,
+  useToast,
+  Divider,
+  Badge,
+  IconButton,
+  Tooltip,
+} from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import { useRouter } from 'next/router'
+import { Layout } from '../../../components/Layout'
+import { RequireAdmin } from '../../../components/RequireAdmin'
+import { useKickPointsConfig } from '../../../hooks/useKickPointsConfig'
+
+const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
+  chat_points_regular: {
+    label: 'Puntos por Mensaje (Usuario Regular)',
+    description: 'Puntos otorgados por cada mensaje en el chat de usuarios no suscritos',
+  },
+  chat_points_subscriber: {
+    label: 'Puntos por Mensaje (Suscriptor)',
+    description: 'Puntos otorgados por cada mensaje en el chat de suscriptores',
+  },
+  follow_points: {
+    label: 'Puntos por Follow',
+    description: 'Puntos otorgados cuando un usuario sigue el canal',
+  },
+  subscription_new_points: {
+    label: 'Puntos por Nueva Suscripción',
+    description: 'Puntos otorgados cuando un usuario se suscribe por primera vez',
+  },
+  subscription_renewal_points: {
+    label: 'Puntos por Renovación',
+    description: 'Puntos otorgados cuando un usuario renueva su suscripción',
+  },
+  gift_given_points: {
+    label: 'Puntos por Regalar Suscripción',
+    description: 'Puntos por cada suscripción regalada (multiplicado por cantidad)',
+  },
+  gift_received_points: {
+    label: 'Puntos por Recibir Suscripción Regalo',
+    description: 'Puntos otorgados a quien recibe una suscripción regalada',
+  },
+}
+
+export default function KickPointsConfigPage() {
+  const router = useRouter()
+  const toast = useToast()
+  const { config, loading, error, updateConfig, initializeConfig } = useKickPointsConfig()
+  const [saving, setSaving] = useState(false)
+  const [initializing, setInitializing] = useState(false)
+
+  const [formData, setFormData] = useState<Record<string, { value: number; enabled: boolean }>>({})
+
+  // Inicializar formData cuando se carga la config
+  useEffect(() => {
+    if (config.length > 0) {
+      const newFormData: Record<string, { value: number; enabled: boolean }> = {}
+      config.forEach((item) => {
+        newFormData[item.config_key] = {
+          value: item.config_value,
+          enabled: item.enabled,
+        }
+      })
+      setFormData(newFormData)
+    }
+  }, [config])
+
+  const handleValueChange = (key: string, value: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        value,
+      },
+    }))
+  }
+
+  const handleEnabledChange = (key: string, enabled: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        enabled,
+      },
+    }))
+  }
+
+  const handleSave = async (key: string) => {
+    try {
+      setSaving(true)
+      const data = formData[key]
+      await updateConfig(key, data.value, data.enabled)
+      toast({
+        title: 'Configuración actualizada',
+        status: 'success',
+        duration: 2000,
+      })
+    } catch (err) {
+      toast({
+        title: 'Error al guardar',
+        status: 'error',
+        duration: 3000,
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleInitialize = async () => {
+    if (!confirm('¿Estás seguro de inicializar la configuración con valores por defecto?')) {
+      return
+    }
+
+    try {
+      setInitializing(true)
+      await initializeConfig()
+      toast({
+        title: 'Configuración inicializada',
+        description: 'Se han establecido los valores por defecto',
+        status: 'success',
+        duration: 3000,
+      })
+    } catch (err) {
+      toast({
+        title: 'Error al inicializar',
+        status: 'error',
+        duration: 3000,
+      })
+    } finally {
+      setInitializing(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8}>
+            <Spinner size="xl" />
+            <Text>Cargando configuración...</Text>
+          </VStack>
+        </Container>
+      </Layout>
+    )
+  }
+
+  return (
+    <Layout>
+      <Container maxW="container.lg" py={8}>
+        <VStack spacing={8} align="stretch">
+          {/* Header */}
+          <HStack>
+            <IconButton
+              aria-label="Volver"
+              icon={<ArrowBackIcon />}
+              onClick={() => router.push('/admin/kick')}
+            />
+            <Box flex={1}>
+              <Heading size="xl" mb={2}>
+                Configuración de Puntos
+              </Heading>
+              <Text color="gray.600">Define cuántos puntos se otorgan por cada tipo de evento</Text>
+            </Box>
+          </HStack>
+
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
+          {config.length === 0 ? (
+            <Card>
+              <CardBody>
+                <VStack spacing={4}>
+                  <Alert status="info">
+                    <AlertIcon />
+                    No hay configuración establecida. Inicializa la configuración para empezar.
+                  </Alert>
+                  <Button colorScheme="purple" onClick={handleInitialize} isLoading={initializing}>
+                    Inicializar Configuración
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
+          ) : (
+            <VStack spacing={4} align="stretch">
+              {Object.keys(CONFIG_LABELS).map((key) => {
+                const configItem = config.find((c) => c.config_key === key)
+                if (!configItem) return null
+
+                const formValue = formData[key] || { value: configItem.config_value, enabled: configItem.enabled }
+
+                return (
+                  <Card key={key}>
+                    <CardBody>
+                      <VStack spacing={4} align="stretch">
+                        <HStack justify="space-between">
+                          <Box flex={1}>
+                            <HStack mb={1}>
+                              <Heading size="sm">{CONFIG_LABELS[key].label}</Heading>
+                              <Badge colorScheme={formValue.enabled ? 'green' : 'gray'}>
+                                {formValue.enabled ? 'Activo' : 'Inactivo'}
+                              </Badge>
+                            </HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              {CONFIG_LABELS[key].description}
+                            </Text>
+                          </Box>
+                        </HStack>
+
+                        <Divider />
+
+                        <HStack spacing={4}>
+                          <FormControl flex={1}>
+                            <FormLabel>Puntos</FormLabel>
+                            <NumberInput
+                              value={formValue.value}
+                              onChange={(_, value) => handleValueChange(key, value)}
+                              min={0}
+                              max={10000}
+                            >
+                              <NumberInputField />
+                              <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                              </NumberInputStepper>
+                            </NumberInput>
+                          </FormControl>
+
+                          <FormControl display="flex" alignItems="center" width="auto">
+                            <FormLabel mb={0} mr={2}>
+                              Activar
+                            </FormLabel>
+                            <Switch
+                              isChecked={formValue.enabled}
+                              onChange={(e) => handleEnabledChange(key, e.target.checked)}
+                              colorScheme="green"
+                            />
+                          </FormControl>
+
+                          <Tooltip label="Guardar cambios">
+                            <Button colorScheme="purple" onClick={() => handleSave(key)} isLoading={saving}>
+                              Guardar
+                            </Button>
+                          </Tooltip>
+                        </HStack>
+                      </VStack>
+                    </CardBody>
+                  </Card>
+                )
+              })}
+
+              <Divider my={4} />
+
+              <Button colorScheme="gray" onClick={handleInitialize} isLoading={initializing}>
+                Restablecer a Valores por Defecto
+              </Button>
+            </VStack>
+          )}
+        </VStack>
+      </Container>
+    </Layout>
+  )
+}
+
+KickPointsConfigPage.getLayout = (page: React.ReactElement) => <RequireAdmin>{page}</RequireAdmin>

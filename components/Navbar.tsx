@@ -1,5 +1,5 @@
 import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton } from '@chakra-ui/react'
-import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon, SettingsIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -46,6 +46,9 @@ export function Navbar() {
                   </ChakraLink>
                   <ChakraLink as={NextLink} href="/admin/canjes">
                     <Button variant="ghost" size="sm" leftIcon={<RepeatIcon boxSize={4} />}>Canjes</Button>
+                  </ChakraLink>
+                  <ChakraLink as={NextLink} href="/admin/kick">
+                    <Button variant="ghost" size="sm" leftIcon={<SettingsIcon boxSize={4} />}>Kick</Button>
                   </ChakraLink>
                 </>
               )}
@@ -167,6 +170,9 @@ export function Navbar() {
                         </ChakraLink>
                         <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose}>
                           <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<RepeatIcon />}>Canjes</Button>
+                        </ChakraLink>
+                        <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose}>
+                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<SettingsIcon />}>Kick</Button>
                         </ChakraLink>
                       </>
                     )}

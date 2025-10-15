@@ -56,9 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (nickname: string, password: string) => {
     try {
       const { data } = await api.post('/api/auth/login', { nickname, password })
-      setToken(data.token)
-      setUser(data.usuario)
-      localStorage.setItem('auth_token', data.token)
+
+      // El backend ahora devuelve accessToken y refreshToken
+      const accessToken = data.accessToken || data.token
+      const refreshToken = data.refreshToken
+
+      setToken(accessToken)
+      setUser(data.user || data.usuario)
+
+      localStorage.setItem('auth_token', accessToken)
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken)
+      }
+
       router.push('/')
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Error en el login')
@@ -74,20 +84,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password: userData.password,
       }
       const { data } = await api.post('/api/auth/register', payload)
-      setToken(data.token)
-      setUser(data.usuario)
-      localStorage.setItem('auth_token', data.token)
+
+      // El backend ahora devuelve accessToken y refreshToken
+      const accessToken = data.accessToken || data.token
+      const refreshToken = data.refreshToken
+
+      setToken(accessToken)
+      setUser(data.user || data.usuario)
+
+      localStorage.setItem('auth_token', accessToken)
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken)
+      }
+
       router.push('/')
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Error en el registro')
     }
   }
 
-  const logout = () => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('auth_token')
-    router.push('/login')
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token')
+      if (refreshToken) {
+        // Llamar al endpoint de logout para revocar el refresh token
+        await api.post('/api/auth/logout', { refreshToken }).catch(() => {
+          // Ignorar errores del logout en el backend
+        })
+      }
+    } finally {
+      setToken(null)
+      setUser(null)
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('refresh_token')
+      router.push('/login')
+    }
   }
 
   return (

@@ -623,12 +623,14 @@ export default function AdminProductosPage() {
                                     border="1px solid"
                                     borderColor={borderColor}
                                     shadow="xl"
+                                    p={2}
+                                    minW="180px"
                                   >
                                     <MenuItem
                                       icon={<EditIcon />}
                                       onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
                                       borderRadius="lg"
-                                      mx={1}
+                                      whiteSpace="nowrap"
                                     >
                                       {isEliminado ? 'Recuperar' : 'Editar'}
                                     </MenuItem>
@@ -636,7 +638,7 @@ export default function AdminProductosPage() {
                                       icon={<ViewIcon />}
                                       onClick={() => router.push(`/productos/${producto.id}`)}
                                       borderRadius="lg"
-                                      mx={1}
+                                      whiteSpace="nowrap"
                                     >
                                       Ver en tienda
                                     </MenuItem>
@@ -645,8 +647,8 @@ export default function AdminProductosPage() {
                                         icon={<DeleteIcon />}
                                         onClick={() => handleDeleteClick(producto.id)}
                                         borderRadius="lg"
-                                        mx={1}
                                         color="red.500"
+                                        whiteSpace="nowrap"
                                       >
                                         Eliminar
                                       </MenuItem>

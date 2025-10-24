@@ -462,12 +462,14 @@ export default function AdminUsuariosPage() {
                                 border="1px solid"
                                 borderColor={borderColor}
                                 shadow="xl"
+                                p={2}
+                                minW="160px"
                               >
                                 <MenuItem
                                   icon={<EditIcon />}
                                   onClick={() => openModal(user)}
                                   borderRadius="lg"
-                                  mx={1}
+                                  whiteSpace="nowrap"
                                 >
                                   Editar puntos
                                 </MenuItem>
@@ -475,7 +477,7 @@ export default function AdminUsuariosPage() {
                                   icon={<ViewIcon />}
                                   onClick={() => router.push(`/admin/usuarios/${user.id}`)}
                                   borderRadius="lg"
-                                  mx={1}
+                                  whiteSpace="nowrap"
                                 >
                                   Ver canjes
                                 </MenuItem>

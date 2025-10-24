@@ -38,6 +38,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
+  // Todos los hooks DEBEN ejecutarse primero, antes de cualquier return condicional
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement>(null)
   const toast = useToast()
@@ -46,7 +47,22 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const updateProductoMutation = useUpdateProducto()
 
-  // Solo mostrar productos publicados a usuarios normales
+  // UI theme helpers (light/dark aware) - todos los hooks useColorModeValue
+  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
+  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const menuColor = useColorModeValue('gray.800', 'gray.100')
+  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const overlayGradient = useColorModeValue(
+    'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
+    'linear-gradient(to top, rgba(0,0,0,0.975) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0) 100%)'
+  )
+  const gearBg = useColorModeValue('white', 'gray.700')
+  const gearColor = useColorModeValue('blue.600', 'cyan.300')
+  const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
+  const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+
+  // Solo mostrar productos publicados a usuarios normales (después de todos los hooks)
   if (!isAdmin && producto.estado !== 'publicado') {
     return null
   }
@@ -131,24 +147,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     }
   }
 
-  // UI theme helpers (light/dark aware)
-  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
-  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
-  const menuColor = useColorModeValue('gray.800', 'gray.100')
-  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
-  // Gradient overlay (bottom → top) to enhance text readability on hover
-  const overlayGradient = useColorModeValue(
-    'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
-    'linear-gradient(to top, rgba(0,0,0,0.975) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0) 100%)'
-  )
-  // Settings icon theming per color mode
-  const gearBg = useColorModeValue('white', 'gray.700')
-  const gearColor = useColorModeValue('blue.600', 'cyan.300')
-  const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
-
-  // Precomputed shadows/borders to avoid conditional hook calls in JSX
-  const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  // Precomputed shadows/borders
   const adminBadgeShadow = useColorModeValue(
     '0 2px 6px rgba(0,0,0,0.12)',
     '0 4px 10px rgba(0,0,0,0.35)'

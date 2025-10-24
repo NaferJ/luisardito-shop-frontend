@@ -20,9 +20,32 @@ export function Navbar() {
   const shadow = useColorModeValue('0 4px 20px rgba(0,0,0,0.15)', '0 8px 30px rgba(0,0,0,0.4)')
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
+  const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
 
   return (
-    <Box position="fixed" top={4} left="50%" transform="translateX(-50%)" zIndex={50} w="auto" maxW="90vw">
+    <Box
+      position="fixed"
+      top={4}
+      left="50%"
+      transform="translateX(-50%)"
+      zIndex={50}
+      w="auto"
+      maxW={{
+        base: "95vw",    // < 480px
+        sm: "92vw",      // 480px - 768px
+        md: "88vw",      // 768px - 992px (tablet portrait como 768x1024)
+        lg: "85vw",      // 992px - 1200px
+        xl: "80vw",      // 1200px - 1536px (como 1393x990)
+        "2xl": "75vw"    // > 1536px
+      }}
+      minW={{
+        base: "300px",   // mínimo más pequeño para móvil
+        sm: "380px",     // tablet pequeña
+        md: "480px",     // tablet
+        lg: "580px",     // desktop pequeño
+        xl: "650px"      // desktop
+      }}
+    >
       <Box
         bg={floatingBg}
         sx={{
@@ -33,33 +56,65 @@ export function Navbar() {
         borderColor={borderClr}
         borderRadius="2xl"
         boxShadow={shadow}
-        px={4}
-        py={2}
+        px={{ base: 2, sm: 3, md: 4, lg: 5, xl: 6 }}
+        py={{ base: 2, sm: 2.5, md: 0.5 }}
       >
-        <Flex align="center" gap={{ base: 2, sm: 4, md: 6 }} justify="space-between" w="full">
+        <Flex
+          align="center"
+          gap={{ base: 1, sm: 1.5, md: 2, lg: 3, xl: 4 }}
+          justify="space-between"
+          w="full"
+          minH={{ base: "36px", sm: "40px", md: "44px" }}
+          maxH="50px"
+        >
           {/* Logo con badge beta */}
           <ChakraLink
             as={NextLink}
             href="/"
             display="flex"
             alignItems="center"
-            gap={2}
+            gap={{ base: 1, sm: 2 }}
             fontWeight="bold"
-            fontSize={{ base: "md", sm: "lg" }}
+            fontSize={{ base: "sm", sm: "md", md: "lg" }}
             flexShrink={0}
+            minW="fit-content"
             _hover={{
               opacity: 0.8,
               transform: 'scale(1.05)',
               transition: 'all 0.2s'
             }}
           >
-            <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={{ base: 6, sm: 8 }} rounded="lg" objectFit="cover" />
-            <HStack spacing={1} display={{ base: 'none', sm: 'flex' }}>
-              <Text whiteSpace="nowrap">Luisardito Shop</Text>
-              <Badge colorScheme="blue" fontSize="xs" px={2} py={0.5} borderRadius="md">beta</Badge>
+            <Image
+              src="/images/logo2.jpg"
+              alt="Luisardito Shop logo"
+              boxSize={{ base: 5, sm: 6, md: 7, lg: 8 }}
+              rounded="lg"
+              objectFit="cover"
+              flexShrink={0}
+            />
+            <HStack spacing={1} display={{ base: 'none', sm: 'flex', lg: 'flex' }}>
+              <Text whiteSpace="nowrap" fontSize={{ sm: "sm", md: "md", lg: "lg" }}>
+                Luisardito Shop
+              </Text>
+              <Badge
+                colorScheme="blue"
+                fontSize={{ base: "xx-small", sm: "xs" }}
+                px={{ base: 1, sm: 2 }}
+                py={0.5}
+                borderRadius="md"
+              >
+                beta
+              </Badge>
             </HStack>
-            {/* Logo solo para móvil */}
-            <Badge colorScheme="blue" fontSize="xs" px={1} py={0.5} borderRadius="md" display={{ base: 'block', sm: 'none' }}>
+            {/* Logo compacto para móvil */}
+            <Badge
+              colorScheme="blue"
+              fontSize="xx-small"
+              px={1}
+              py={0.5}
+              borderRadius="md"
+              display={{ base: 'block', sm: 'none' }}
+            >
               LS
             </Badge>
           </ChakraLink>
@@ -165,45 +220,69 @@ export function Navbar() {
           )}
 
           {/* Controles del lado derecho */}
-          <HStack spacing={2} flexShrink={0}>
+          <HStack
+            spacing={{ base: 1, sm: 2, md: 3 }}
+            flexShrink={0}
+            align="center"
+            minW="fit-content"
+          >
             {/* Toggle de modo - Solo en tablet y desktop */}
-            <Box display={{ base: 'none', md: 'block' }}>
+            <Box display={{ base: 'none', md: 'block' }} flexShrink={0}>
               <ColorModeToggle />
             </Box>
 
             {/* Badge de puntos y botón de perfil para usuarios autenticados - Solo tablet y desktop */}
             {isAuthenticated && user && (
-              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+              <HStack
+                spacing={{ base: 1, md: 2 }}
+                display={{ base: 'none', md: 'flex' }}
+                align="center"
+                flexShrink={0}
+              >
                 {/* Badge de puntos */}
-                <Badge colorScheme="yellow" fontSize="sm" px={3} py={1} borderRadius="full">
+                <Badge
+                  colorScheme="yellow"
+                  fontSize={{ base: "xs", md: "sm" }}
+                  px={{ base: 2, md: 3 }}
+                  py={1}
+                  borderRadius="full"
+                  flexShrink={0}
+                  whiteSpace="nowrap"
+                >
                   {user.puntos?.toLocaleString()} pts
                 </Badge>
 
                 {/* Menú de usuario */}
                 <Menu placement="bottom-end" gutter={8}>
-                  <MenuButton>
-                    <Tooltip label="Perfil de Usuario" placement="bottom">
-                      <IconButton
-                        aria-label="Perfil de Usuario"
-                        icon={
-                          <Avatar
-                            size="sm"
-                            name={user.kick_username || user.nickname || user.nombre || user.email}
-                            src={user.kick_avatar || undefined}
-                          />
-                        }
-                        variant="ghost"
+                  <Tooltip label="Perfil de Usuario" placement="bottom">
+                    <MenuButton
+                      as={Button}
+                      variant="ghost"
+                      size="sm"
+                      borderRadius="xl"
+                      px="0"
+                      py="0"
+                      minW="auto"
+                      h="auto"
+                      flexShrink={0}
+                      _hover={{
+                        bg: hoverBg,
+                        boxShadow: hoverShadow,
+                        transform: 'translateY(-2px)',
+                      }}
+                      _active={{
+                        bg: activeBg,
+                        transform: 'translateY(0)',
+                      }}
+                      transition="all 0.3s ease"
+                    >
+                      <Avatar
                         size="sm"
-                        borderRadius="xl"
-                        _hover={{
-                          bg: hoverBg,
-                          boxShadow: hoverShadow,
-                          transform: 'translateY(-2px)',
-                          transition: 'all 0.2s ease-in-out'
-                        }}
+                        name={user.kick_username || user.nickname || user.nombre || user.email}
+                        src={user.kick_avatar || undefined}
                       />
-                    </Tooltip>
-                  </MenuButton>
+                    </MenuButton>
+                  </Tooltip>
                   <MenuList
                     borderRadius="xl"
                     border="1px solid"
@@ -238,12 +317,14 @@ export function Navbar() {
 
             {/* Botones de login/registro para usuarios no autenticados - Solo tablet y desktop */}
             {!isAuthenticated && !isLoading && (
-              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+              <HStack spacing={{ base: 1, md: 2 }} display={{ base: 'none', md: 'flex' }} align="center">
                 <ChakraLink as={NextLink} href="/login">
                   <Button
                     variant="outline"
                     size="sm"
                     borderRadius="xl"
+                    fontSize="xs"
+                    px={{ base: 2, md: 3 }}
                     _hover={{
                       bg: hoverBg,
                       boxShadow: hoverShadow,
@@ -259,6 +340,8 @@ export function Navbar() {
                     colorScheme="blue"
                     size="sm"
                     borderRadius="xl"
+                    fontSize="xs"
+                    px={{ base: 2, md: 3 }}
                     _hover={{
                       transform: 'translateY(-2px)',
                       boxShadow: '0 0 25px rgba(66, 153, 225, 0.6)',
@@ -273,22 +356,24 @@ export function Navbar() {
 
             {/* Skeleton durante carga - Solo tablet y desktop */}
             {isLoading && (
-              <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
-                <Skeleton height="24px" width="72px" rounded="md" />
-                <SkeletonCircle size="8" />
-                <Skeleton height="28px" width="120px" rounded="md" />
+              <HStack spacing={{ base: 1, md: 2 }} display={{ base: 'none', md: 'flex' }} align="center">
+                <Skeleton height="20px" width="60px" rounded="md" flexShrink={0} />
+                <SkeletonCircle size="6" flexShrink={0} />
               </HStack>
             )}
 
             {/* Botón hamburguesa - Siempre visible en móvil y tablet */}
             <IconButton
               aria-label="Abrir menú"
-              icon={<HamburgerIcon />}
+              icon={<HamburgerIcon boxSize={4} />}
               variant="ghost"
               onClick={onOpen}
               display={{ base: 'inline-flex', lg: 'none' }}
               borderRadius="xl"
               size="sm"
+              minW="auto"
+              h="auto"
+              p={2}
               _hover={{
                 bg: hoverBg,
                 boxShadow: hoverShadow,

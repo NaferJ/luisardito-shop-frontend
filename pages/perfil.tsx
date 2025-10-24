@@ -15,13 +15,26 @@ import {
   GridItem,
   Card,
   CardBody,
-  Heading
+  Heading,
+  useColorModeValue,
+  Flex,
+  Icon,
+  Stack,
+  SimpleGrid
 } from '@chakra-ui/react'
+import { ViewIcon, RepeatIcon, AtSignIcon, CalendarIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 
 export default function PerfilPage() {
   const { user, logout } = useAuth()
   const router = useRouter()
+
+  const bgGradient = useColorModeValue(
+    'linear(to-br, blue.50, purple.50)',
+    'linear(to-br, blue.900, purple.900)'
+  )
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const shadowColor = useColorModeValue('rgba(0,0,0,0.1)', 'rgba(0,0,0,0.3)')
 
   const handleLogout = () => {
     logout()
@@ -35,127 +48,293 @@ export default function PerfilPage() {
     router.push('/canjes')
   }
 
+  if (!user) {
+    return (
+      <RequireAuth>
+        <Layout>
+          <Container maxW="container.lg" py={8}>
+            <Text>Cargando...</Text>
+          </Container>
+        </Layout>
+      </RequireAuth>
+    )
+  }
+
+  // Determinar qué avatar y nombre usar
+  const avatarSrc = user.kick_avatar || undefined
+  const displayName = user.kick_username || user.nickname || user.nombre || user.email
+
   return (
     <RequireAuth>
       <Layout>
-        <Container maxW="container.lg" py={8}>
-          <VStack spacing={6} align="stretch">
-            {/* Encabezado de perfil */}
-            <Card>
-              <CardBody>
-                <HStack spacing={6} align="center">
-                  <Avatar size="xl" name={(user as any)?.nickname} />
-                  <VStack align="start" spacing={2} flex="1">
-                    <Heading size="lg">{(user as any)?.nickname}</Heading>
-                    <Text color="gray.600">{user?.email}</Text>
-                    <Badge colorScheme="purple" fontSize="md" px={3} py={1}>
-                      {user?.puntos?.toLocaleString()} puntos disponibles
+        <Container maxW="container.lg" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
+          <VStack spacing={{ base: 4, md: 6 }} align="stretch">
+            {/* Encabezado de perfil con diseño responsive */}
+            <Card
+              bg={cardBg}
+              shadow="lg"
+              borderRadius="2xl"
+              overflow="hidden"
+            >
+              <Box bgGradient={bgGradient} p={{ base: 4, md: 6 }}>
+                <Stack
+                  direction={{ base: 'column', sm: 'row' }}
+                  spacing={{ base: 4, sm: 6 }}
+                  align="center"
+                  textAlign={{ base: 'center', sm: 'left' }}
+                >
+                  <Avatar
+                    size={{ base: 'xl', md: '2xl' }}
+                    name={displayName}
+                    src={avatarSrc}
+                    border="4px solid"
+                    borderColor="white"
+                    shadow="xl"
+                  />
+                  <VStack align={{ base: 'center', sm: 'start' }} spacing={2} flex="1">
+                    <Heading
+                      size={{ base: 'md', md: 'lg' }}
+                      color="black.900"
+                      textShadow="0 2px 4px rgba(0,0,0,0.3)"
+                    >
+                      {displayName}
+                    </Heading>
+                    <Text
+                      color="black.900"
+                      fontSize={{ base: 'sm', md: 'md' }}
+                      textShadow="0 1px 2px rgba(0,0,0,0.3)"
+                    >
+                      {user.email}
+                    </Text>
+                    <Badge
+                      colorScheme="yellow"
+                      fontSize={{ base: 'sm', md: 'md' }}
+                      px={4}
+                      py={2}
+                      borderRadius="full"
+                      textTransform="none"
+                      fontWeight="bold"
+                    >
+                      🏆 {user.puntos?.toLocaleString()} puntos
                     </Badge>
+
+                    {/* Indicador de usuario de Kick */}
+                    {user.kick_username && (
+                      <Badge
+                        colorScheme="green"
+                        fontSize="xs"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        ✓ Conectado con Kick
+                      </Badge>
+                    )}
                   </VStack>
-                </HStack>
-              </CardBody>
+                </Stack>
+              </Box>
             </Card>
 
-            {/* Acciones rápidas */}
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
-              <GridItem>
-                <Card>
-                  <CardBody textAlign="center">
-                    <Text fontSize="2xl" fontWeight="bold" color="teal.600">
-                      {user?.puntos?.toLocaleString()}
-                    </Text>
-                    <Text color="gray.600">Puntos totales</Text>
-                    <Button
-                      mt={3}
-                      size="sm"
-                      colorScheme="teal"
-                      variant="outline"
-                      onClick={goToHistorial}
-                    >
-                      Ver historial
-                    </Button>
-                  </CardBody>
-                </Card>
-              </GridItem>
+            {/* Estadísticas rápidas - Responsive */}
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4}>
+              <Card
+                bg={cardBg}
+                shadow="md"
+                borderRadius="xl"
+                transition="all 0.2s"
+                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
+                cursor="pointer"
+                onClick={goToHistorial}
+              >
+                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
+                  <Icon as={CalendarIcon} boxSize={8} color="teal.500" mb={3} />
+                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="teal.600">
+                    {user.puntos?.toLocaleString()}
+                  </Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Puntos totales</Text>
+                  <Button
+                    mt={3}
+                    size="sm"
+                    colorScheme="teal"
+                    variant="ghost"
+                    rightIcon={<ViewIcon />}
+                    fontSize="xs"
+                  >
+                    Ver historial
+                  </Button>
+                </CardBody>
+              </Card>
 
-              <GridItem>
-                <Card>
-                  <CardBody textAlign="center">
-                    <Text fontSize="2xl" fontWeight="bold" color="blue.600">
-                      Canjes
-                    </Text>
-                    <Text color="gray.600">Mis canjes realizados</Text>
-                    <Button
-                      mt={3}
-                      size="sm"
-                      colorScheme="blue"
-                      variant="outline"
-                      onClick={goToCanjes}
-                    >
-                      Ver canjes
-                    </Button>
-                  </CardBody>
-                </Card>
-              </GridItem>
+              <Card
+                bg={cardBg}
+                shadow="md"
+                borderRadius="xl"
+                transition="all 0.2s"
+                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
+                cursor="pointer"
+                onClick={goToCanjes}
+              >
+                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
+                  <Icon as={RepeatIcon} boxSize={8} color="blue.500" mb={3} />
+                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="blue.600">
+                    Canjes
+                  </Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Mis canjes realizados</Text>
+                  <Button
+                    mt={3}
+                    size="sm"
+                    colorScheme="blue"
+                    variant="ghost"
+                    rightIcon={<RepeatIcon />}
+                    fontSize="xs"
+                  >
+                    Ver canjes
+                  </Button>
+                </CardBody>
+              </Card>
 
-              <GridItem>
-                <Card>
-                  <CardBody textAlign="center">
-                    <Text fontSize="2xl" fontWeight="bold" color="purple.600">
-                      Tienda
-                    </Text>
-                    <Text color="gray.600">Catálogo de productos</Text>
-                    <Button
-                      mt={3}
-                      size="sm"
-                      colorScheme="purple"
-                      variant="outline"
-                      onClick={() => router.push('/')}
-                    >
-                      Ir a la tienda
-                    </Button>
-                  </CardBody>
-                </Card>
-              </GridItem>
-            </Grid>
+              <Card
+                bg={cardBg}
+                shadow="md"
+                borderRadius="xl"
+                transition="all 0.2s"
+                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
+                cursor="pointer"
+                onClick={() => router.push('/')}
+                gridColumn={{ base: 'span 1', sm: 'span 2', md: 'span 1' }}
+              >
+                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
+                  <Icon as={AtSignIcon} boxSize={8} color="purple.500" mb={3} />
+                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
+                    Tienda
+                  </Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Catálogo de productos</Text>
+                  <Button
+                    mt={3}
+                    size="sm"
+                    colorScheme="purple"
+                    variant="ghost"
+                    rightIcon={<ViewIcon />}
+                    fontSize="xs"
+                  >
+                    Ir a la tienda
+                  </Button>
+                </CardBody>
+              </Card>
+            </SimpleGrid>
 
-            {/* Información de cuenta */}
-            <Card>
-              <CardBody>
+            {/* Información de cuenta - Responsive */}
+            <Card bg={cardBg} shadow="md" borderRadius="xl">
+              <CardBody p={{ base: 4, md: 6 }}>
                 <VStack spacing={4} align="stretch">
-                  <Heading size="md" mb={2}>Información de cuenta</Heading>
+                  <Heading size={{ base: 'sm', md: 'md' }} mb={2} color="black.700">
+                    📋 Información de cuenta
+                  </Heading>
 
-                  <HStack justify="space-between">
-                    <Text fontWeight="semibold">Nickname:</Text>
-                    <Text>{(user as any)?.nickname}</Text>
-                  </HStack>
+                  <VStack spacing={3} align="stretch">
+                    <Flex
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify="space-between"
+                      align={{ base: 'start', sm: 'center' }}
+                      gap={2}
+                    >
+                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                        👤 Nombre de usuario:
+                      </Text>
+                      <Text fontSize={{ base: 'sm', md: 'md' }} fontFamily="mono">
+                        {displayName}
+                      </Text>
+                    </Flex>
 
-                  <HStack justify="space-between">
-                    <Text fontWeight="semibold">Email:</Text>
-                    <Text>{user?.email}</Text>
-                  </HStack>
+                    <Flex
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify="space-between"
+                      align={{ base: 'start', sm: 'center' }}
+                      gap={2}
+                    >
+                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                        📧 Email:
+                      </Text>
+                      <Text fontSize={{ base: 'sm', md: 'md' }} color="blue.600">
+                        {user.email}
+                      </Text>
+                    </Flex>
 
-                  <HStack justify="space-between">
-                    <Text fontWeight="semibold">Puntos disponibles:</Text>
-                    <Badge colorScheme="green" fontSize="sm">
-                      {user?.puntos?.toLocaleString()} puntos
-                    </Badge>
-                  </HStack>
+                    <Flex
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify="space-between"
+                      align={{ base: 'start', sm: 'center' }}
+                      gap={2}
+                    >
+                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                        💰 Puntos disponibles:
+                      </Text>
+                      <Badge
+                        colorScheme="green"
+                        fontSize={{ base: 'sm', md: 'md' }}
+                        px={3}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {user.puntos?.toLocaleString()} puntos
+                      </Badge>
+                    </Flex>
 
-                  <HStack justify="space-between">
-                    <Text fontWeight="semibold">Miembro desde:</Text>
-                    <Text>
-                      {(user as any)?.creado && new Date((user as any).creado).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </Text>
-                  </HStack>
+                    {user.kick_username && (
+                      <Flex
+                        direction={{ base: 'column', sm: 'row' }}
+                        justify="space-between"
+                        align={{ base: 'start', sm: 'center' }}
+                        gap={2}
+                      >
+                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                          🎮 Kick Username:
+                        </Text>
+                        <Badge
+                          colorScheme="green"
+                          fontSize={{ base: 'sm', md: 'md' }}
+                          px={3}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          {user.kick_username}
+                        </Badge>
+                      </Flex>
+                    )}
 
-                  <Divider />
+                    <Flex
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify="space-between"
+                      align={{ base: 'start', sm: 'center' }}
+                      gap={2}
+                    >
+                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                        📅 Miembro desde:
+                      </Text>
+                      <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
+                        {user.created_at && new Date(user.created_at).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </Text>
+                    </Flex>
+                  </VStack>
 
-                  <Button colorScheme="red" variant="outline" onClick={handleLogout}>
+                  <Divider my={4} />
+
+                  <Button
+                    colorScheme="red"
+                    variant="outline"
+                    onClick={handleLogout}
+                    size={{ base: 'md', md: 'lg' }}
+                    borderRadius="xl"
+                    fontWeight="bold"
+                    _hover={{
+                      transform: 'translateY(-1px)',
+                      shadow: 'md'
+                    }}
+                  >
                     Cerrar sesión
                   </Button>
                 </VStack>

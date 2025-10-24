@@ -222,12 +222,20 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         borderWidth="1px"
         borderColor={cardBorder}
         bg="bg.canvas"
-        borderRadius="lg"
+        borderRadius="2xl"
         overflow="hidden"
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
-        transition="transform 0.45s ease, box-shadow 0.45s ease"
-        _hover={hoverStyles}
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        _hover={{
+          ...hoverStyles,
+          transform: 'translateY(-8px) scale(1.02)',
+          boxShadow: useColorModeValue(
+            '0 20px 40px rgba(0,0,0,0.15)',
+            '0 20px 40px rgba(0,0,0,0.4)'
+          ),
+          borderColor: useColorModeValue('blue.200', 'blue.600'),
+        }}
         role="group"
         cursor="pointer"
         onClick={() => router.push(`/productos/${producto.id}`)}
@@ -238,22 +246,27 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           }
         }}
         tabIndex={0}
+        boxShadow={useColorModeValue(
+          '0 4px 12px rgba(0,0,0,0.1)',
+          '0 4px 12px rgba(0,0,0,0.3)'
+        )}
       >
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
           <Box position="absolute" top={2} left={2} zIndex={2}>
             <Box
               as="span"
-              px={2.5}
-              py={1}
-              borderRadius="full"
+              px={3}
+              py={1.5}
+              borderRadius="xl"
               fontSize="xs"
-              fontWeight="semibold"
+              fontWeight="bold"
               bg={estadoBg}
               color={estadoColor}
               border="1px solid"
               borderColor={estadoBorder}
-              boxShadow={adminBadgeShadow}
+              boxShadow="0 4px 12px rgba(0,0,0,0.2)"
+              backdropFilter="blur(8px)"
             >
               {getEstadoText(producto.estado)}
             </Box>
@@ -269,20 +282,29 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             h="260px"
             objectFit="cover"
             fallbackSrc="/no-image.png"
-            transition="filter 0.3s ease"
-            sx={{ filter: outOfStock ? 'grayscale(100%)' : 'none' }}
+            transition="all 0.3s ease"
+            sx={{
+              filter: outOfStock ? 'grayscale(100%)' : 'none',
+            }}
+            _groupHover={{
+              transform: 'scale(1.05)',
+            }}
           />
         ) : (
           <Box
             w="full"
             h="260px"
-            bg="gray.100"
+            bg={useColorModeValue('gray.100', 'gray.700')}
             display="flex"
             alignItems="center"
             justifyContent="center"
+            transition="all 0.3s ease"
+            _groupHover={{
+              bg: useColorModeValue('gray.200', 'gray.600'),
+            }}
           >
-            <Text color="gray.500" fontSize="sm">
-              Sin imagen
+            <Text color="gray.500" fontSize="sm" fontWeight="medium">
+              📦 Sin imagen
             </Text>
           </Box>
         )}
@@ -317,23 +339,32 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     bg={gearBg}
                     color={gearColor}
                     size="sm"
-                    borderRadius="full"
+                    borderRadius="xl"
                     border="1px solid"
                     borderColor={gearBorder}
-                    boxShadow={gearShadow}
-                    _hover={{ bg: gearHoverBg, filter: 'brightness(1.05)' }}
-                    _active={{ bg: gearHoverBg }}
+                    boxShadow="0 4px 12px rgba(0,0,0,0.2)"
+                    backdropFilter="blur(8px)"
+                    _hover={{
+                      bg: gearHoverBg,
+                      transform: 'scale(1.1)',
+                      boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)'
+                    }}
+                    _active={{ bg: gearHoverBg, transform: 'scale(1.05)' }}
                     _expanded={{ bg: gearHoverBg }}
                     onClick={(e) => e.stopPropagation()}
+                    transition="all 0.2s ease"
                   />
                 </Tooltip>
                 <MenuList
                   bg={menuBg}
                   color={menuColor}
                   borderColor={menuBorder}
-                  boxShadow={menuShadow}
-                  sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
+                  boxShadow="0 12px 28px rgba(0,0,0,0.25)"
+                  borderRadius="xl"
+                  sx={{ backdropFilter: 'saturate(160%) blur(12px)' }}
                   onClick={(e) => e.stopPropagation()}
+                  p={2}
+                  minW="180px"
                 >
                   <MenuItem
                     icon={<ViewIcon />}
@@ -341,6 +372,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     _hover={{ bg: menuHoverBg }}
                     _focus={{ bg: menuHoverBg }}
                     onClick={() => router.push(`/productos/${producto.id}`)}
+                    borderRadius="lg"
+                    whiteSpace="nowrap"
                   >
                     Ver
                   </MenuItem>
@@ -350,6 +383,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     _hover={{ bg: menuHoverBg }}
                     _focus={{ bg: menuHoverBg }}
                     onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
+                    borderRadius="lg"
+                    whiteSpace="nowrap"
                   >
                     Editar
                   </MenuItem>
@@ -359,6 +394,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     _hover={{ bg: menuHoverBg }}
                     _focus={{ bg: menuHoverBg }}
                     onClick={toggleEstado}
+                    borderRadius="lg"
+                    whiteSpace="nowrap"
                   >
                     {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
                   </MenuItem>
@@ -370,6 +407,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     color={deleteColor}
                     _hover={{ bg: deleteHoverBg, color: deleteHoverColor }}
                     _focus={{ bg: deleteHoverBg }}
+                    borderRadius="lg"
+                    whiteSpace="nowrap"
                   >
                     Eliminar
                   </MenuItem>
@@ -387,9 +426,24 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               {producto.descripcion}
             </Text>
             <HStack justify="space-between" w="full">
-              <HStack>
-                <Badge colorScheme="teal">{producto.precio} pts</Badge>
-                <Badge colorScheme={producto.stock > 0 ? 'green' : 'red'}>
+              <HStack spacing={2}>
+                <Badge
+                  colorScheme="blue"
+                  fontSize="sm"
+                  px={3}
+                  py={1}
+                  borderRadius="xl"
+                  fontWeight="bold"
+                >
+                  {producto.precio} pts
+                </Badge>
+                <Badge
+                  colorScheme={producto.stock > 0 ? 'green' : 'red'}
+                  fontSize="xs"
+                  px={2}
+                  py={1}
+                  borderRadius="lg"
+                >
                   Stock: {producto.stock}
                 </Badge>
               </HStack>

@@ -1,5 +1,5 @@
 import { Layout } from '../components/Layout'
-import { SimpleGrid, Spinner, Center, Box, HStack, Text, Button, useColorModeValue, IconButton, Menu, MenuButton, MenuList, MenuItem, Tooltip, Portal } from '@chakra-ui/react'
+import { SimpleGrid, Spinner, Center, Box, HStack, Text, Button, useColorModeValue, IconButton, Menu, MenuButton, MenuList, MenuItem, Tooltip, Portal, Badge } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { useProductos } from '../hooks/useProductos'
 import { ProductCard } from '../components/ProductCard'
@@ -52,15 +52,15 @@ export default function Home() {
       {isAdmin && (
         <Box
           mb={6}
-          p={4}
+          p={5}
           position="relative"
           overflow="hidden"
-          borderRadius="lg"
+          borderRadius="2xl"
           border="1px solid"
           bg={adminBannerBg}
           borderColor={adminBannerBorderColor}
           boxShadow={adminBannerShadow}
-          sx={{ backdropFilter: 'saturate(160%) blur(8px)', WebkitBackdropFilter: 'saturate(160%) blur(8px)' }}
+          sx={{ backdropFilter: 'saturate(160%) blur(12px)', WebkitBackdropFilter: 'saturate(160%) blur(12px)' }}
         >
           {/* Liquid gradient decorative blobs */}
           <Box position="absolute" inset={-6} pointerEvents="none" zIndex={0}>
@@ -92,35 +92,59 @@ export default function Home() {
 
           {/* Content */}
           <HStack justify="space-between" align="center" position="relative" zIndex={1}>
-            <Box>
-              <Text fontWeight="bold" color={headingColor}>
-                🔧 Modo Administrador
-              </Text>
-              <Text fontSize="sm" color={subtextColor}>
-                Puedes editar, eliminar y crear productos desde esta vista
-              </Text>
-            </Box>
+            <HStack spacing={4}>
+              <Box
+                p={3}
+                borderRadius="xl"
+                bg="blue.500"
+                color="white"
+                shadow="lg"
+                animation={`${keyframes`0%,100%{transform:rotate(0deg)}25%{transform:rotate(5deg)}75%{transform:rotate(-5deg)}`} 4s ease-in-out infinite`}
+              >
+                <SettingsIcon boxSize={6} />
+              </Box>
+              <Box>
+                <HStack spacing={2} mb={1}>
+                  <Text fontWeight="black" fontSize="lg" color={headingColor}>
+                    Modo Administrador
+                  </Text>
+                  <Badge colorScheme="blue" fontSize="xs" px={2} py={1} borderRadius="md">
+                    ADMIN
+                  </Badge>
+                </HStack>
+                <Text fontSize="sm" color={subtextColor} fontWeight="medium">
+                  Gestiona productos, usuarios y canjes con herramientas avanzadas
+                </Text>
+              </Box>
+            </HStack>
 
-            {/* Mini menú (igual al de las tarjetas) */}
-            <HStack spacing={2}>
+            {/* Mini menú mejorado */}
+            <HStack spacing={3}>
               <Menu isLazy placement="bottom-end">
                 <Tooltip label="Accesos de administrador" hasArrow>
                   <MenuButton
-                    as={IconButton}
-                    aria-label="Accesos de administrador"
-                    icon={<SettingsIcon boxSize={5} />}
+                    as={Button}
+                    leftIcon={<SettingsIcon />}
+                    rightIcon={<Box as="span" transform="rotate(90deg)">⚡</Box>}
                     variant="solid"
                     bg={gearBg}
                     color={gearColor}
-                    size="sm"
-                    borderRadius="full"
+                    size="md"
+                    borderRadius="xl"
                     border="1px solid"
                     borderColor={gearBorder}
                     boxShadow={gearShadow}
-                    _hover={{ bg: gearHoverBg, filter: 'brightness(1.05)' }}
-                    _active={{ bg: gearHoverBg }}
-                    _expanded={{ bg: gearHoverBg }}
-                  />
+                    _hover={{
+                      bg: gearHoverBg,
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)'
+                    }}
+                    _active={{ bg: gearHoverBg, transform: 'translateY(0)' }}
+                    fontWeight="bold"
+                    fontSize="sm"
+                  >
+                    Panel Admin
+                  </MenuButton>
                 </Tooltip>
                 <Portal>
                   <MenuList
@@ -129,19 +153,50 @@ export default function Home() {
                     color={menuColor}
                     borderColor={menuBorder}
                     boxShadow={menuShadow}
+                    borderRadius="xl"
                     sx={{ backdropFilter: 'saturate(160%) blur(8px)' }}
+                    p={2}
+                    minW="200px"
                   >
-                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos/nuevo')}>
+                    <MenuItem
+                      bg="transparent"
+                      _hover={{ bg: menuHoverBg }}
+                      _focus={{ bg: menuHoverBg }}
+                      onClick={() => router.push('/admin/productos/nuevo')}
+                      borderRadius="lg"
+                      icon="➕"
+                    >
                       Nuevo Producto
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/productos')}>
-                      Vista Tabla
+                    <MenuItem
+                      bg="transparent"
+                      _hover={{ bg: menuHoverBg }}
+                      _focus={{ bg: menuHoverBg }}
+                      onClick={() => router.push('/admin/productos')}
+                      borderRadius="lg"
+                      icon="📋"
+                    >
+                      Gestionar Productos
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/usuarios')}>
-                      Usuarios
+                    <MenuItem
+                      bg="transparent"
+                      _hover={{ bg: menuHoverBg }}
+                      _focus={{ bg: menuHoverBg }}
+                      onClick={() => router.push('/admin/usuarios')}
+                      borderRadius="lg"
+                      icon="👥"
+                    >
+                      Gestionar Usuarios
                     </MenuItem>
-                    <MenuItem bg="transparent" _hover={{ bg: menuHoverBg }} _focus={{ bg: menuHoverBg }} onClick={() => router.push('/admin/canjes')}>
-                      Canjes
+                    <MenuItem
+                      bg="transparent"
+                      _hover={{ bg: menuHoverBg }}
+                      _focus={{ bg: menuHoverBg }}
+                      onClick={() => router.push('/admin/canjes')}
+                      borderRadius="lg"
+                      icon="🔄"
+                    >
+                      Gestionar Canjes
                     </MenuItem>
                   </MenuList>
                 </Portal>
@@ -152,13 +207,46 @@ export default function Home() {
       )}
 
       {/* Grid de productos */}
-      <SimpleGrid columns={[1, 2, 3]} spacing={4} p={4}>
-        {productos?.map(producto => (
-          <ProductCard 
-            key={producto.id} 
-            producto={producto} 
-            isAdmin={isAdmin}
-          />
+      <SimpleGrid
+        columns={[1, 2, 3, 4]}
+        spacing={6}
+        p={6}
+        sx={{
+          '& > *': {
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            _hover: {
+              transform: 'translateY(-8px) scale(1.02)',
+              zIndex: 2,
+              filter: 'drop-shadow(0 20px 35px rgba(0, 0, 0, 0.15))'
+            }
+          }
+        }}
+      >
+        {productos?.map((producto, index) => (
+          <Box
+            key={producto.id}
+            style={{
+              animationDelay: `${index * 0.1}s`,
+              animation: 'fadeInUp 0.6s ease-out forwards',
+            }}
+            sx={{
+              '@keyframes fadeInUp': {
+                '0%': {
+                  opacity: 0,
+                  transform: 'translateY(30px)'
+                },
+                '100%': {
+                  opacity: 1,
+                  transform: 'translateY(0)'
+                }
+              }
+            }}
+          >
+            <ProductCard
+              producto={producto}
+              isAdmin={isAdmin}
+            />
+          </Box>
         ))}
       </SimpleGrid>
     </Layout>

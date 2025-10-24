@@ -7,6 +7,11 @@ export interface Usuario {
   user_id_ext?: string
   created_at: string
   updated_at: string
+  // Campos específicos de Kick
+  nickname?: string
+  kick_user_id?: string
+  kick_username?: string
+  kick_avatar?: string
 }
 
 export interface Producto {

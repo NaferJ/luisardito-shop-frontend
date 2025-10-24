@@ -36,7 +36,7 @@ export function Navbar() {
         px={4}
         py={2}
       >
-        <Flex align="center" gap={20}>
+        <Flex align="center" gap={{ base: 2, sm: 4, md: 6 }} justify="space-between" w="full">
           {/* Logo con badge beta */}
           <ChakraLink
             as={NextLink}
@@ -45,23 +45,28 @@ export function Navbar() {
             alignItems="center"
             gap={2}
             fontWeight="bold"
-            fontSize="lg"
+            fontSize={{ base: "md", sm: "lg" }}
+            flexShrink={0}
             _hover={{
               opacity: 0.8,
               transform: 'scale(1.05)',
               transition: 'all 0.2s'
             }}
           >
-            <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={8} rounded="lg" objectFit="cover" />
-            <HStack spacing={2}>
+            <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={{ base: 6, sm: 8 }} rounded="lg" objectFit="cover" />
+            <HStack spacing={1} display={{ base: 'none', sm: 'flex' }}>
               <Text whiteSpace="nowrap">Luisardito Shop</Text>
               <Badge colorScheme="blue" fontSize="xs" px={2} py={0.5} borderRadius="md">beta</Badge>
             </HStack>
+            {/* Logo solo para móvil */}
+            <Badge colorScheme="blue" fontSize="xs" px={1} py={0.5} borderRadius="md" display={{ base: 'block', sm: 'none' }}>
+              LS
+            </Badge>
           </ChakraLink>
 
-          {/* Enlaces de navegación con iconos flotantes */}
+          {/* Enlaces de navegación con iconos flotantes - Solo desktop */}
           {isAuthenticated && (
-            <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+            <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} flex="1" justify="center">
               <Tooltip label="Tienda" placement="bottom">
                 <ChakraLink as={NextLink} href="/">
                   <IconButton
@@ -159,79 +164,80 @@ export function Navbar() {
             </HStack>
           )}
 
-          {/* Toggle de modo */}
-          <ColorModeToggle />
+          {/* Controles del lado derecho */}
+          <HStack spacing={2} flexShrink={0}>
+            {/* Toggle de modo - Solo en tablet y desktop */}
+            <Box display={{ base: 'none', md: 'block' }}>
+              <ColorModeToggle />
+            </Box>
 
-          {/* Botón hamburguesa (mobile) */}
-          <IconButton
-            aria-label="Abrir menú"
-            icon={<HamburgerIcon />}
-            variant="ghost"
-            onClick={onOpen}
-            display={{ base: 'inline-flex', md: 'none' }}
-            borderRadius="xl"
-            _hover={{
-              bg: hoverBg,
-              boxShadow: hoverShadow,
-              transform: 'translateY(-2px)',
-              transition: 'all 0.2s ease-in-out'
-            }}
-          />
+            {/* Badge de puntos y botón de perfil para usuarios autenticados - Solo tablet y desktop */}
+            {isAuthenticated && user && (
+              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+                {/* Badge de puntos */}
+                <Badge colorScheme="yellow" fontSize="sm" px={3} py={1} borderRadius="full">
+                  {user.puntos?.toLocaleString()} pts
+                </Badge>
 
-          {/* Menú de usuario (desktop) o placeholder durante carga */}
-          {(() => {
-            if (isLoading || (isAuthenticated && !user)) {
-              return (
-                <HStack spacing={3} minW="180px" justify="flex-end" display={{ base: 'none', md: 'flex' }}>
-                  <Skeleton height="24px" width="72px" rounded="md" />
-                  <SkeletonCircle size="8" />
-                  <Skeleton height="28px" width="120px" rounded="md" />
-                </HStack>
-              )
-            }
+                {/* Menú de usuario */}
+                <Menu placement="bottom-end" gutter={8}>
+                  <MenuButton>
+                    <Tooltip label="Perfil de Usuario" placement="bottom">
+                      <IconButton
+                        aria-label="Perfil de Usuario"
+                        icon={
+                          <Avatar
+                            size="sm"
+                            name={user.kick_username || user.nickname || user.nombre || user.email}
+                            src={user.kick_avatar || undefined}
+                          />
+                        }
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="xl"
+                        _hover={{
+                          bg: hoverBg,
+                          boxShadow: hoverShadow,
+                          transform: 'translateY(-2px)',
+                          transition: 'all 0.2s ease-in-out'
+                        }}
+                      />
+                    </Tooltip>
+                  </MenuButton>
+                  <MenuList
+                    borderRadius="xl"
+                    border="1px solid"
+                    borderColor={borderClr}
+                    boxShadow={shadow}
+                    maxW="250px"
+                    minW="200px"
+                    zIndex={1000}
+                    p={2}
+                  >
+                    <VStack spacing={1} p={2} borderBottom="1px solid" borderColor={borderClr} mb={1}>
+                      <Avatar
+                        size="md"
+                        name={user.kick_username || user.nickname || user.nombre || user.email}
+                        src={user.kick_avatar || undefined}
+                      />
+                      <Text fontWeight="medium" fontSize="sm" whiteSpace="nowrap">
+                        {user.kick_username || user.nickname || user.nombre || user.email}
+                      </Text>
+                      <Badge colorScheme="yellow" fontSize="xs">{user.puntos?.toLocaleString()} pts</Badge>
+                    </VStack>
+                    <MenuItem onClick={() => router.push('/perfil')} borderRadius="lg" whiteSpace="nowrap">Mi Perfil</MenuItem>
+                    <MenuItem onClick={() => router.push('/historial')} borderRadius="lg" whiteSpace="nowrap">Historial de Puntos</MenuItem>
+                    <MenuItem onClick={() => router.push('/canjes')} borderRadius="lg" whiteSpace="nowrap">Mis Canjes</MenuItem>
+                    <MenuItem onClick={() => router.push('/')} borderRadius="lg" whiteSpace="nowrap">Catálogo</MenuItem>
+                    <Divider my={1} />
+                    <MenuItem onClick={handleLogout} color="red.500" borderRadius="lg" whiteSpace="nowrap">Cerrar Sesión</MenuItem>
+                  </MenuList>
+                </Menu>
+              </HStack>
+            )}
 
-            if (isAuthenticated && user) {
-              return (
-                <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
-                  {/* Badge de puntos */}
-                  <Badge colorScheme="yellow" fontSize="sm" px={3} py={1} borderRadius="full">
-                    {user.puntos?.toLocaleString()} pts
-                  </Badge>
-
-                  {/* Menú de usuario */}
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      variant="ghost"
-                      rightIcon={<ChevronDownIcon />}
-                      size="sm"
-                      borderRadius="xl"
-                      _hover={{
-                        bg: hoverBg,
-                        boxShadow: hoverShadow,
-                        transform: 'translateY(-2px)',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                    >
-                      <HStack spacing={2}>
-                        <Avatar size="sm" name={(user as any).nickname} />
-                        <Text fontSize="sm">{(user as any).nickname}</Text>
-                      </HStack>
-                    </MenuButton>
-                    <MenuList borderRadius="xl" border="1px solid" borderColor={borderClr} boxShadow={shadow}>
-                      <MenuItem onClick={() => router.push('/perfil')} borderRadius="lg" mx={1}>Mi Perfil</MenuItem>
-                      <MenuItem onClick={() => router.push('/historial')} borderRadius="lg" mx={1}>Historial de Puntos</MenuItem>
-                      <MenuItem onClick={() => router.push('/canjes')} borderRadius="lg" mx={1}>Mis Canjes</MenuItem>
-                      <MenuItem onClick={() => router.push('/')} borderRadius="lg" mx={1}>Catálogo</MenuItem>
-                      <Divider />
-                      <MenuItem onClick={handleLogout} color="red.500" borderRadius="lg" mx={1}>Cerrar Sesión</MenuItem>
-                    </MenuList>
-                  </Menu>
-                </HStack>
-              )
-            }
-
-            return (
+            {/* Botones de login/registro para usuarios no autenticados - Solo tablet y desktop */}
+            {!isAuthenticated && !isLoading && (
               <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
                 <ChakraLink as={NextLink} href="/login">
                   <Button
@@ -263,15 +269,41 @@ export function Navbar() {
                   </Button>
                 </ChakraLink>
               </HStack>
-            )
-          })()}
+            )}
+
+            {/* Skeleton durante carga - Solo tablet y desktop */}
+            {isLoading && (
+              <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
+                <Skeleton height="24px" width="72px" rounded="md" />
+                <SkeletonCircle size="8" />
+                <Skeleton height="28px" width="120px" rounded="md" />
+              </HStack>
+            )}
+
+            {/* Botón hamburguesa - Siempre visible en móvil y tablet */}
+            <IconButton
+              aria-label="Abrir menú"
+              icon={<HamburgerIcon />}
+              variant="ghost"
+              onClick={onOpen}
+              display={{ base: 'inline-flex', lg: 'none' }}
+              borderRadius="xl"
+              size="sm"
+              _hover={{
+                bg: hoverBg,
+                boxShadow: hoverShadow,
+                transform: 'translateY(-2px)',
+                transition: 'all 0.2s ease-in-out'
+              }}
+            />
+          </HStack>
         </Flex>
       </Box>
 
       {/* Drawer móvil */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size={{ base: "full", sm: "xs" }}>
         <DrawerOverlay />
-        <DrawerContent borderRadius="xl" mr={2} mt={2} mb={2} maxH="95vh">
+        <DrawerContent borderRadius={{ base: "0", sm: "xl" }} mr={{ base: 0, sm: 2 }} mt={{ base: 0, sm: 2 }} mb={{ base: 0, sm: 2 }} maxH={{ base: "100vh", sm: "95vh" }}>
           <DrawerHeader display="flex" alignItems="center" justifyContent="space-between">
             <ChakraLink as={NextLink} href="/" display="flex" alignItems="center" gap={2} onClick={onClose}>
               <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={6} rounded="md" objectFit="cover" />
@@ -290,17 +322,27 @@ export function Navbar() {
                     <Skeleton height="20px" />
                     <Skeleton height="20px" />
                     <Skeleton height="20px" />
+                    <Divider my={2} />
+                    <ColorModeToggle />
                   </VStack>
                 )
               }
 
               if (isAuthenticated && user) {
+                // Determinar qué avatar usar: Kick si está disponible, sino inicial del nombre
+                const avatarSrc = user.kick_avatar || undefined
+                const avatarName = user.kick_username || user.nickname || user.nombre || user.email
+
                 return (
                   <VStack align="stretch" spacing={2}>
                     <HStack justify="space-between">
                       <HStack>
-                        <Avatar size="sm" name={(user as any).nickname} />
-                        <Text fontWeight="medium">{(user as any).nickname}</Text>
+                        <Avatar
+                          size="sm"
+                          name={avatarName}
+                          src={avatarSrc}
+                        />
+                        <Text fontWeight="medium">{avatarName}</Text>
                       </HStack>
                       <Badge colorScheme="yellow">{user.puntos?.toLocaleString()} pts</Badge>
                     </HStack>

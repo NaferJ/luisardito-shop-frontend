@@ -20,7 +20,8 @@ import {
   SimpleGrid,
   useToast
 } from '@chakra-ui/react'
-import { ViewIcon, RepeatIcon, AtSignIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons'
+import { DownloadIcon } from '@chakra-ui/icons'
+import { MdShoppingCart, MdSwapHoriz, MdShoppingBag, MdHistory, MdPerson } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
@@ -196,7 +197,7 @@ export default function PerfilPage() {
                 onClick={goToHistorial}
               >
                 <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={CalendarIcon} boxSize={8} color="teal.500" mb={3} />
+                  <Icon as={MdHistory} boxSize={8} color="teal.500" mb={3} />
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="teal.600">
                     {user.puntos?.toLocaleString()}
                   </Text>
@@ -206,7 +207,7 @@ export default function PerfilPage() {
                     size="sm"
                     colorScheme="teal"
                     variant="ghost"
-                    rightIcon={<ViewIcon />}
+                    rightIcon={<Icon as={MdHistory} />}
                     fontSize="xs"
                   >
                     Ver historial
@@ -224,7 +225,7 @@ export default function PerfilPage() {
                 onClick={goToCanjes}
               >
                 <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={RepeatIcon} boxSize={8} color="blue.500" mb={3} />
+                  <Icon as={MdSwapHoriz} boxSize={8} color="blue.500" mb={3} />
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="blue.600">
                     Canjes
                   </Text>
@@ -234,7 +235,7 @@ export default function PerfilPage() {
                     size="sm"
                     colorScheme="blue"
                     variant="ghost"
-                    rightIcon={<RepeatIcon />}
+                    rightIcon={<Icon as={MdSwapHoriz} />}
                     fontSize="xs"
                   >
                     Ver canjes
@@ -253,7 +254,7 @@ export default function PerfilPage() {
                 gridColumn={{ base: 'span 1', sm: 'span 2', md: 'span 1' }}
               >
                 <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={AtSignIcon} boxSize={8} color="purple.500" mb={3} />
+                  <Icon as={MdShoppingBag} boxSize={8} color="purple.500" mb={3} />
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
                     Tienda
                   </Text>
@@ -263,7 +264,7 @@ export default function PerfilPage() {
                     size="sm"
                     colorScheme="purple"
                     variant="ghost"
-                    rightIcon={<ViewIcon />}
+                    rightIcon={<Icon as={MdShoppingBag} />}
                     fontSize="xs"
                   >
                     Ir a la tienda

@@ -1,5 +1,6 @@
-import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip } from '@chakra-ui/react'
-import { ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon, SettingsIcon } from '@chakra-ui/icons'
+import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip, Icon } from '@chakra-ui/react'
+import { HamburgerIcon } from '@chakra-ui/icons'
+import { MdShoppingCart, MdSwapHoriz, MdGroup, MdFlashOn, MdPerson, MdHistory, MdShoppingBag } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -136,7 +137,7 @@ export default function Navbar() {
                 <ChakraLink as={NextLink} href="/">
                   <IconButton
                     aria-label="Tienda"
-                    icon={<ViewIcon boxSize={5} />}
+                    icon={<Icon as={MdShoppingCart} boxSize={5} />}
                     variant="ghost"
                     size="sm"
                     borderRadius="xl"
@@ -158,7 +159,7 @@ export default function Navbar() {
                 <ChakraLink as={NextLink} href="/canjes">
                   <IconButton
                     aria-label="Mis Canjes"
-                    icon={<RepeatIcon boxSize={5} />}
+                    icon={<Icon as={MdSwapHoriz} boxSize={5} />}
                     variant="ghost"
                     size="sm"
                     borderRadius="xl"
@@ -183,7 +184,7 @@ export default function Navbar() {
                     <ChakraLink as={NextLink} href="/admin/usuarios">
                       <IconButton
                         aria-label="Usuarios"
-                        icon={<AtSignIcon boxSize={5} />}
+                        icon={<Icon as={MdGroup} boxSize={5} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
@@ -205,7 +206,7 @@ export default function Navbar() {
                     <ChakraLink as={NextLink} href="/admin/canjes">
                       <IconButton
                         aria-label="Canjes Admin"
-                        icon={<RepeatIcon boxSize={5} />}
+                        icon={<Icon as={MdSwapHoriz} boxSize={5} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
@@ -227,7 +228,7 @@ export default function Navbar() {
                     <ChakraLink as={NextLink} href="/admin/kick">
                       <IconButton
                         aria-label="Configuración Kick"
-                        icon={<SettingsIcon boxSize={5} />}
+                        icon={<Icon as={MdFlashOn} boxSize={5} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
@@ -469,7 +470,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
-                        leftIcon={<ViewIcon />}
+                        leftIcon={<Icon as={MdShoppingCart} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/') ? 'md' : 'none'}
@@ -488,7 +489,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
-                        leftIcon={<RepeatIcon />}
+                        leftIcon={<Icon as={MdSwapHoriz} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/canjes') ? 'md' : 'none'}
@@ -510,7 +511,7 @@ export default function Navbar() {
                             variant="ghost"
                             width="full"
                             justifyContent="flex-start"
-                            leftIcon={<AtSignIcon />}
+                            leftIcon={<Icon as={MdGroup} />}
                             borderRadius="xl"
                             bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
                             boxShadow={isActiveRoute('/admin/usuarios') ? 'md' : 'none'}
@@ -529,7 +530,7 @@ export default function Navbar() {
                             variant="ghost"
                             width="full"
                             justifyContent="flex-start"
-                            leftIcon={<RepeatIcon />}
+                            leftIcon={<Icon as={MdSwapHoriz} />}
                             borderRadius="xl"
                             bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
                             boxShadow={isActiveRoute('/admin/canjes') ? 'md' : 'none'}
@@ -548,7 +549,7 @@ export default function Navbar() {
                             variant="ghost"
                             width="full"
                             justifyContent="flex-start"
-                            leftIcon={<SettingsIcon />}
+                            leftIcon={<Icon as={MdFlashOn} />}
                             borderRadius="xl"
                             bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
                             boxShadow={isActiveRoute('/admin/kick') ? 'md' : 'none'}
@@ -572,6 +573,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
+                        leftIcon={<Icon as={MdPerson} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/perfil') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/perfil') ? 'md' : 'none'}
@@ -590,6 +592,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
+                        leftIcon={<Icon as={MdHistory} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/historial') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/historial') ? 'md' : 'none'}
@@ -608,6 +611,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
+                        leftIcon={<Icon as={MdShoppingBag} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/') ? 'md' : 'none'}

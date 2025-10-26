@@ -1,7 +1,12 @@
 import { ReactNode } from 'react'
 import { Box, Container } from '@chakra-ui/react'
-import Navbar from './Navbar'
+import dynamic from 'next/dynamic'
 import Footer from './Footer'
+
+// Import dinámico sin SSR para evitar problemas de hidratación
+const Navbar = dynamic(() => import('./Navbar'), {
+  ssr: false
+})
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

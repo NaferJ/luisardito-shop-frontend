@@ -6,6 +6,7 @@ import { ProductCard } from '../components/ProductCard'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 import { SettingsIcon, AddIcon, ViewIcon, EditIcon, RepeatIcon } from '@chakra-ui/icons'
 
 export default function Home() {
@@ -47,7 +48,12 @@ export default function Home() {
   }
 
   return (
-    <Layout>
+    <>
+      <Head>
+        <title>Tienda - Luisardito Shop</title>
+        <meta name="description" content="Explora nuestro catálogo de productos y canjea tus puntos por increíbles recompensas" />
+      </Head>
+      <Layout>
       {/* Banner de modo administrador */}
       {isAdmin && (
         <Box
@@ -285,5 +291,6 @@ export default function Home() {
         ))}
       </SimpleGrid>
     </Layout>
+    </>
   )
 }

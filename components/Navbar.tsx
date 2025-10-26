@@ -17,9 +17,18 @@ export default function Navbar() {
     onClose()
   }
 
-  const floatingBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(13, 17, 23, 0.95)')
-  const borderClr = useColorModeValue('rgba(208, 215, 222, 0.8)', 'rgba(66, 74, 83, 0.8)')
-  const shadow = useColorModeValue('0 4px 20px rgba(0,0,0,0.15)', '0 8px 30px rgba(0,0,0,0.4)')
+  const floatingBg = useColorModeValue(
+    'rgba(255, 255, 255, 0.75)',
+    'rgba(13, 17, 23, 0.75)'
+  )
+  const borderClr = useColorModeValue(
+    'rgba(208, 215, 222, 0.6)',
+    'rgba(66, 74, 83, 0.6)'
+  )
+  const shadow = useColorModeValue(
+    '0 8px 32px rgba(0,0,0,0.12)',
+    '0 8px 32px rgba(0,0,0,0.5)'
+  )
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
   const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
@@ -60,8 +69,13 @@ export default function Navbar() {
       <Box
         bg={floatingBg}
         sx={{
-          backdropFilter: 'saturate(160%) blur(12px)',
-          WebkitBackdropFilter: 'saturate(160%) blur(12px)'
+          backdropFilter: 'saturate(180%) blur(20px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+          // Fallback para navegadores que no soportan backdrop-filter
+          background: useColorModeValue(
+            'rgba(255, 255, 255, 0.85)',
+            'rgba(13, 17, 23, 0.85)'
+          )
         }}
         border="1px solid"
         borderColor={borderClr}
@@ -318,11 +332,22 @@ export default function Navbar() {
                     borderRadius="xl"
                     border="1px solid"
                     borderColor={borderClr}
-                    boxShadow={shadow}
+                    boxShadow={useColorModeValue(
+                      '0 20px 40px rgba(0,0,0,0.15)',
+                      '0 20px 40px rgba(0,0,0,0.5)'
+                    )}
                     maxW="250px"
                     minW="200px"
                     zIndex={1000}
                     p={2}
+                    bg={useColorModeValue(
+                      'rgba(255, 255, 255, 0.95)',
+                      'rgba(13, 17, 23, 0.95)'
+                    )}
+                    sx={{
+                      backdropFilter: 'saturate(180%) blur(20px)',
+                      WebkitBackdropFilter: 'saturate(180%) blur(20px)'
+                    }}
                   >
                     <VStack spacing={1} p={2} borderBottom="1px solid" borderColor={borderClr} mb={1}>
                       <Avatar
@@ -335,12 +360,92 @@ export default function Navbar() {
                       </Text>
                       <Badge colorScheme="yellow" fontSize="xs">{user.puntos?.toLocaleString()} pts</Badge>
                     </VStack>
-                    <MenuItem onClick={() => router.push('/perfil')} borderRadius="lg" whiteSpace="nowrap">Mi Perfil</MenuItem>
-                    <MenuItem onClick={() => router.push('/historial')} borderRadius="lg" whiteSpace="nowrap">Historial de Puntos</MenuItem>
-                    <MenuItem onClick={() => router.push('/canjes')} borderRadius="lg" whiteSpace="nowrap">Mis Canjes</MenuItem>
-                    <MenuItem onClick={() => router.push('/')} borderRadius="lg" whiteSpace="nowrap">Catálogo</MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/perfil')}
+                      borderRadius="lg"
+                      whiteSpace="nowrap"
+                      bg="transparent"
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      _focus={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      color={useColorModeValue('gray.700', 'gray.100')}
+                    >
+                      Mi Perfil
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/historial')}
+                      borderRadius="lg"
+                      whiteSpace="nowrap"
+                      bg="transparent"
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      _focus={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      color={useColorModeValue('gray.700', 'gray.100')}
+                    >
+                      Historial de Puntos
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/canjes')}
+                      borderRadius="lg"
+                      whiteSpace="nowrap"
+                      bg="transparent"
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      _focus={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      color={useColorModeValue('gray.700', 'gray.100')}
+                    >
+                      Mis Canjes
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/')}
+                      borderRadius="lg"
+                      whiteSpace="nowrap"
+                      bg="transparent"
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      _focus={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
+                        color: useColorModeValue('gray.900', 'white')
+                      }}
+                      color={useColorModeValue('gray.700', 'gray.100')}
+                    >
+                      Catálogo
+                    </MenuItem>
                     <Divider my={1} />
-                    <MenuItem onClick={handleLogout} color="red.500" borderRadius="lg" whiteSpace="nowrap">Cerrar Sesión</MenuItem>
+                    <MenuItem
+                      onClick={handleLogout}
+                      borderRadius="lg"
+                      whiteSpace="nowrap"
+                      bg="transparent"
+                      color="red.500"
+                      _hover={{
+                        bg: useColorModeValue('rgba(239, 68, 68, 0.1)', 'rgba(248, 113, 113, 0.15)'),
+                        color: useColorModeValue('red.600', 'red.400')
+                      }}
+                      _focus={{
+                        bg: useColorModeValue('rgba(239, 68, 68, 0.1)', 'rgba(248, 113, 113, 0.15)'),
+                        color: useColorModeValue('red.600', 'red.400')
+                      }}
+                    >
+                      Cerrar Sesión
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               </HStack>
@@ -418,8 +523,32 @@ export default function Navbar() {
 
       {/* Drawer móvil */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size={{ base: "full", sm: "xs" }}>
-        <DrawerOverlay />
-        <DrawerContent borderRadius={{ base: "0", sm: "xl" }} mr={{ base: 0, sm: 2 }} mt={{ base: 0, sm: 2 }} mb={{ base: 0, sm: 2 }} maxH={{ base: "100vh", sm: "95vh" }}>
+        <DrawerOverlay
+          bg="rgba(0, 0, 0, 0.4)"
+          sx={{
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)'
+          }}
+        />
+        <DrawerContent
+          borderRadius={{ base: "0", sm: "xl" }}
+          mr={{ base: 0, sm: 2 }}
+          mt={{ base: 0, sm: 2 }}
+          mb={{ base: 0, sm: 2 }}
+          maxH={{ base: "100vh", sm: "95vh" }}
+          bg={useColorModeValue(
+            'rgba(255, 255, 255, 0.95)',
+            'rgba(13, 17, 23, 0.95)'
+          )}
+          sx={{
+            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)'
+          }}
+          boxShadow={useColorModeValue(
+            '0 20px 40px rgba(0,0,0,0.15)',
+            '0 20px 40px rgba(0,0,0,0.6)'
+          )}
+        >
           <DrawerHeader display="flex" alignItems="center" justifyContent="space-between">
             <ChakraLink as={NextLink} href="/" display="flex" alignItems="center" gap={2} onClick={onClose}>
               <Image src="/images/logo2.jpg" alt="Luisardito Shop logo" boxSize={6} rounded="md" objectFit="cover" />

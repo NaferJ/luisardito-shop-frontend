@@ -28,6 +28,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
+  // Función para refrescar el token proactivamente
+  const refreshTokenIfNeeded = async () => {
+    const refreshToken = localStorage.getItem('refresh_token')
+    if (!refreshToken) return
+
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Refrescando token proactivamente...')
+      }
+
+      const { data } = await api.post('/api/auth/refresh', { refreshToken })
+
+      const accessToken = data.accessToken || data.token
+      const newRefreshToken = data.refreshToken
+
+      if (accessToken) {
+        localStorage.setItem('auth_token', accessToken)
+        setToken(accessToken)
+
+        if (newRefreshToken) {
+          localStorage.setItem('refresh_token', newRefreshToken)
+        }
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Token refrescado proactivamente')
+        }
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error al refrescar token proactivamente:', error)
+      }
+      // Si falla el refresh proactivo, no hacer logout automático
+      // Dejar que el interceptor maneje los 401
+    }
+  }
+
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = localStorage.getItem('auth_token')
@@ -35,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(savedToken)
         try {
           await fetchUser()
+          // Intentar refrescar el token al inicializar
+          await refreshTokenIfNeeded()
         } catch (error) {
           logout()
         }
@@ -43,6 +81,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     initAuth()
   }, [])
+
+  // Configurar refresh automático cada 30 minutos
+  useEffect(() => {
+    if (!token) return
+
+    const interval = setInterval(() => {
+      refreshTokenIfNeeded()
+    }, 30 * 60 * 1000) // 30 minutos
+
+    return () => clearInterval(interval)
+  }, [token])
 
   const fetchUser = async () => {
     try {
@@ -60,6 +109,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // El backend ahora devuelve accessToken y refreshToken
       const accessToken = data.accessToken || data.token
       const refreshToken = data.refreshToken
+      const expiresIn = data.expiresIn
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Login exitoso:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          expiresIn
+        })
+      }
 
       setToken(accessToken)
       setUser(data.user || data.usuario)
@@ -67,10 +125,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('auth_token', accessToken)
       if (refreshToken) {
         localStorage.setItem('refresh_token', refreshToken)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Refresh token guardado')
+        }
+      } else if (process.env.NODE_ENV === 'development') {
+        console.warn('No se recibió refresh token del backend')
       }
 
       router.push('/')
     } catch (error: any) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error en login:', error.response?.data)
+      }
       throw new Error(error.response?.data?.error || 'Error en el login')
     }
   }

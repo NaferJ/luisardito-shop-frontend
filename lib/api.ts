@@ -41,20 +41,21 @@ api.interceptors.response.use(
     if (response.data && typeof response.data === 'object') {
       return response
     }
-    console.warn('Respuesta con formato inesperado:', response.data)
     return response
   },
   async (error) => {
     const originalRequest = error.config
 
-    // Log del error para debugging
-    console.error('Error en API:', {
-      url: originalRequest?.url,
-      method: originalRequest?.method,
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    })
+    // Log del error solo en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error en API:', {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      })
+    }
 
     // Si no estamos en el cliente, rechazar el error directamente
     if (typeof window === 'undefined') {
@@ -90,15 +91,33 @@ api.interceptors.response.use(
 
       try {
         // Intentar refrescar el token
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Intentando refrescar token...')
+        }
+
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
           refreshToken
         })
 
-        const { accessToken, refreshToken: newRefreshToken } = data
+        const { accessToken, refreshToken: newRefreshToken, expiresIn } = data
+
+        if (!accessToken) {
+          throw new Error('No se recibió access token del servidor')
+        }
 
         // Guardar nuevos tokens
         localStorage.setItem('auth_token', accessToken)
-        localStorage.setItem('refresh_token', newRefreshToken)
+        if (newRefreshToken) {
+          localStorage.setItem('refresh_token', newRefreshToken)
+        }
+
+        // Log para debugging solo en desarrollo
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Token refrescado exitosamente', {
+            hasNewRefreshToken: !!newRefreshToken,
+            expiresIn
+          })
+        }
 
         // Actualizar header del request original
         originalRequest.headers['Authorization'] = 'Bearer ' + accessToken
@@ -108,12 +127,23 @@ api.interceptors.response.use(
 
         // Reintentar request original
         return api(originalRequest)
-      } catch (refreshError) {
+      } catch (refreshError: any) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error al refrescar token:', {
+            error: refreshError.response?.data || refreshError.message,
+            status: refreshError.response?.status
+          })
+        }
+
         // Error al refrescar, limpiar y redirigir
         processQueue(refreshError, null)
         localStorage.removeItem('auth_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/login'
+
+        // Solo redirigir si no estamos ya en login
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

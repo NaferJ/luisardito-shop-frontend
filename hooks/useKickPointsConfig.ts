@@ -15,7 +15,6 @@ export function useKickPointsConfig() {
 
       // Validar que la respuesta tenga el formato esperado
       const data = response.data
-      console.log('Datos recibidos de configuración:', data)
 
       // El backend retorna {config: Array, total: number}
       if (data && Array.isArray(data.config)) {
@@ -38,12 +37,10 @@ export function useKickPointsConfig() {
         )
         setConfig(validData)
       } else {
-        console.warn('Formato inesperado de datos:', data)
         setConfig([])
         setError('Formato de datos no válido recibido del servidor')
       }
     } catch (err: any) {
-      console.error('Error al cargar configuración:', err)
       setError(err.response?.data?.error || err.message || 'Error al cargar configuración')
       setConfig([])
     } finally {
@@ -54,7 +51,6 @@ export function useKickPointsConfig() {
   const updateConfig = async (configKey: string, configValue: number, enabled?: boolean) => {
     try {
       setError(null)
-      console.log('Actualizando configuración:', { configKey, configValue, enabled })
       await kickPointsConfigApi.updateConfig({
         config_key: configKey,
         config_value: configValue,
@@ -62,7 +58,6 @@ export function useKickPointsConfig() {
       })
       await fetchConfig()
     } catch (err: any) {
-      console.error('Error al actualizar configuración:', err)
       setError(err.response?.data?.error || err.message || 'Error al actualizar configuración')
       throw err
     }
@@ -73,11 +68,9 @@ export function useKickPointsConfig() {
   ) => {
     try {
       setError(null)
-      console.log('Actualizando múltiples configuraciones:', configs)
       await kickPointsConfigApi.updateMultipleConfigs(configs)
       await fetchConfig()
     } catch (err: any) {
-      console.error('Error al actualizar configuraciones:', err)
       setError(err.response?.data?.error || err.message || 'Error al actualizar configuraciones')
       throw err
     }
@@ -86,11 +79,9 @@ export function useKickPointsConfig() {
   const initializeConfig = async () => {
     try {
       setError(null)
-      console.log('Inicializando configuración...')
       await kickPointsConfigApi.initializeConfig()
       await fetchConfig()
     } catch (err: any) {
-      console.error('Error al inicializar configuración:', err)
       setError(err.response?.data?.error || err.message || 'Error al inicializar configuración')
       throw err
     }

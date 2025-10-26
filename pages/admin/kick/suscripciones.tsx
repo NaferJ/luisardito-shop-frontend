@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -22,12 +22,14 @@ import {
   Th,
   Td,
   TableContainer,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickSubscriptions } from '../../../hooks/useKickSubscriptions'
+import { useAuth } from '../../../hooks/useAuth'
 
 const EVENT_LABELS: Record<string, string> = {
   'chat.message.sent': 'Mensajes de Chat',
@@ -42,8 +44,35 @@ const EVENT_LABELS: Record<string, string> = {
 export default function KickSubscriptionsPage() {
   const router = useRouter()
   const toast = useToast()
+  const { user } = useAuth()
   const { subscriptions, loading, error, refresh } = useKickSubscriptions()
   const [refreshing, setRefreshing] = useState(false)
+
+  // Solo desarrolladores (rol_id 5) pueden acceder
+  const isDeveloper = user?.rol_id === 5
+
+  // Redirigir si no es desarrollador
+  useEffect(() => {
+    if (user && !isDeveloper) {
+      router.push('/admin/kick')
+    }
+  }, [user, isDeveloper, router])
+
+  // Color mode values
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBorder = useColorModeValue('gray.100', 'gray.600')
+  const headerBg = useColorModeValue('purple.50', 'purple.900')
+  const headerBorder = useColorModeValue('purple.100', 'purple.700')
+  const tableHeaderBg = useColorModeValue('gray.50', 'gray.700')
+  const tableBorder = useColorModeValue('gray.200', 'gray.600')
+  const tableHoverBg = useColorModeValue('purple.25', 'purple.800')
+  const infoAlertBg = useColorModeValue('blue.50', 'blue.900')
+  const infoAlertBorder = useColorModeValue('blue.200', 'blue.700')
+  const infoAlertTextColor = useColorModeValue('blue.800', 'blue.200')
+  const infoAlertDescColor = useColorModeValue('blue.700', 'blue.300')
+  const textColor = useColorModeValue('gray.800', 'gray.200')
+  const textSecondaryColor = useColorModeValue('gray.500', 'gray.400')
+  const textMutedColor = useColorModeValue('gray.700', 'gray.300')
 
   const handleRefresh = async () => {
     try {
@@ -72,6 +101,28 @@ export default function KickSubscriptionsPage() {
           <VStack spacing={8}>
             <Spinner size="xl" />
             <Text>Cargando suscripciones...</Text>
+          </VStack>
+        </Container>
+      </Layout>
+    )
+  }
+
+  // Si no es desarrollador, mostrar mensaje de acceso restringido
+  if (user && !isDeveloper) {
+    return (
+      <Layout>
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8}>
+            <Alert status="warning" borderRadius="xl">
+              <AlertIcon />
+              <Box>
+                <Text fontWeight="bold">Acceso Restringido</Text>
+                <Text fontSize="sm">Esta sección está disponible solo para desarrolladores.</Text>
+              </Box>
+            </Alert>
+            <Button onClick={() => router.push('/admin/kick')} colorScheme="purple">
+              Volver a Administración de Kick
+            </Button>
           </VStack>
         </Container>
       </Layout>
@@ -139,15 +190,15 @@ export default function KickSubscriptionsPage() {
             </Alert>
           )}
 
-          <Card borderRadius="xl" overflow="hidden">
+          <Card borderRadius="xl" overflow="hidden" bg={cardBg} border="1px solid" borderColor={cardBorder}>
             <CardBody p={0}>
               {!Array.isArray(subscriptions) || subscriptions.length === 0 ? (
                 <Box p={8}>
-                  <Alert status="info" borderRadius="lg" bg="blue.50" border="1px solid" borderColor="blue.200">
+                  <Alert status="info" borderRadius="lg" bg={infoAlertBg} border="1px solid" borderColor={infoAlertBorder}>
                     <AlertIcon />
                     <Box>
-                      <Text fontWeight="bold" color="blue.800" mb={1}>Sin suscripciones activas</Text>
-                      <Text fontSize="sm" color="blue.700">
+                      <Text fontWeight="bold" color={infoAlertTextColor} mb={1}>Sin suscripciones activas</Text>
+                      <Text fontSize="sm" color={infoAlertDescColor}>
                         No hay suscripciones activas. Conecta tu cuenta de Kick en la página principal para
                         auto-suscribirte a los eventos necesarios.
                       </Text>
@@ -157,7 +208,7 @@ export default function KickSubscriptionsPage() {
               ) : (
                 <VStack spacing={0} align="stretch">
                   {/* Header de la tabla */}
-                  <Box bg="purple.50" p={6} borderBottom="1px solid" borderColor="purple.100">
+                  <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={headerBorder}>
                     <HStack justify="space-between" mb={2}>
                       <Heading size="lg" color="purple.700">Eventos Activos</Heading>
                       <Badge colorScheme="green" fontSize="md" px={4} py={2} borderRadius="full">
@@ -172,40 +223,40 @@ export default function KickSubscriptionsPage() {
                   {/* Tabla mejorada */}
                   <TableContainer>
                     <Table variant="simple" size="md">
-                      <Thead bg="gray.50">
+                      <Thead bg={tableHeaderBg}>
                         <Tr>
-                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Evento</Th>
-                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Tipo</Th>
-                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Estado</Th>
-                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Broadcaster</Th>
-                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Fecha de Creación</Th>
+                          <Th borderColor={tableBorder} color={textMutedColor} fontWeight="bold">Evento</Th>
+                          <Th borderColor={tableBorder} color={textMutedColor} fontWeight="bold">Tipo</Th>
+                          <Th borderColor={tableBorder} color={textMutedColor} fontWeight="bold">Estado</Th>
+                          <Th borderColor={tableBorder} color={textMutedColor} fontWeight="bold">Broadcaster</Th>
+                          <Th borderColor={tableBorder} color={textMutedColor} fontWeight="bold">Fecha de Creación</Th>
                         </Tr>
                       </Thead>
                       <Tbody>
                         {subscriptions.filter(sub => sub && typeof sub === 'object').map((sub, index) => (
                           <Tr
                             key={sub.id || `sub-${index}`}
-                            _hover={{ bg: "purple.25" }}
+                            _hover={{ bg: tableHoverBg }}
                             transition="background-color 0.2s"
                           >
-                            <Td borderColor="gray.100" py={4}>
+                            <Td borderColor={tableBorder} py={4}>
                               <VStack align="start" spacing={1}>
-                                <Text fontWeight="semibold" color="gray.800">
+                                <Text fontWeight="semibold" color={textColor}>
                                   {EVENT_LABELS[sub.event_type] || 'Evento desconocido'}
                                 </Text>
-                                <Text fontSize="xs" color="gray.500">
+                                <Text fontSize="xs" color={textSecondaryColor}>
                                   ID: {sub.subscription_id || 'N/A'}
                                 </Text>
                               </VStack>
                             </Td>
-                            <Td borderColor="gray.100">
+                            <Td borderColor={tableBorder}>
                               <Badge colorScheme="purple" fontSize="xs" px={2} py={1} borderRadius="md">
                                 {sub.event_type || 'N/A'}
                               </Badge>
                             </Td>
-                            <Td borderColor="gray.100">
+                            <Td borderColor={tableBorder}>
                               <Badge
-                                colorScheme={sub.status === 'active' ? 'green' : sub.status === 'enabled' ? 'green' : 'gray'}
+                                colorScheme={sub.status === 'active' || sub.status === 'enabled' ? 'green' : 'gray'}
                                 fontSize="xs"
                                 px={2}
                                 py={1}
@@ -214,13 +265,13 @@ export default function KickSubscriptionsPage() {
                                 {sub.status === 'active' || sub.status === 'enabled' ? 'Activo' : 'Inactivo'}
                               </Badge>
                             </Td>
-                            <Td borderColor="gray.100">
-                              <Text fontSize="sm" color="gray.700">
+                            <Td borderColor={tableBorder}>
+                              <Text fontSize="sm" color={textColor}>
                                 {sub.broadcaster_user_id || 'N/A'}
                               </Text>
                             </Td>
-                            <Td borderColor="gray.100">
-                              <Text fontSize="sm" color="gray.700">
+                            <Td borderColor={tableBorder}>
+                              <Text fontSize="sm" color={textColor}>
                                 {sub.created_at
                                   ? new Date(sub.created_at).toLocaleDateString('es-ES', {
                                       year: 'numeric',

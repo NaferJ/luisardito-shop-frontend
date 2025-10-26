@@ -15,7 +15,6 @@ export function useKickSubscriptions() {
 
       // Validar que la respuesta tenga el formato esperado
       const data = response.data
-      console.log('Datos recibidos de suscripciones:', data)
 
       // El backend retorna {subscriptions: Array, total: number}
       if (data && Array.isArray(data.subscriptions)) {
@@ -40,12 +39,10 @@ export function useKickSubscriptions() {
         )
         setSubscriptions(validData)
       } else {
-        console.warn('Formato inesperado de datos de suscripciones:', data)
         setSubscriptions([])
         setError('Formato de datos no válido recibido del servidor')
       }
     } catch (err: any) {
-      console.error('Error al cargar suscripciones:', err)
       setError(err.response?.data?.error || err.message || 'Error al cargar suscripciones')
       setSubscriptions([])
     } finally {

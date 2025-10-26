@@ -25,6 +25,7 @@ import {
   Badge,
   IconButton,
   SimpleGrid,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
@@ -69,6 +70,22 @@ export default function KickPointsConfigPage() {
   const { config, loading, error, updateConfig, initializeConfig } = useKickPointsConfig()
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
+
+  // Color mode values
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBorder = useColorModeValue('gray.200', 'gray.600')
+  const enabledCardBg = useColorModeValue('purple.50', 'purple.900')
+  const enabledCardBorder = useColorModeValue('purple.200', 'purple.600')
+  const disabledCardBg = useColorModeValue('gray.50', 'gray.700')
+  const disabledCardBorder = useColorModeValue('gray.200', 'gray.600')
+  const enabledCardHoverBorder = useColorModeValue('purple.300', 'purple.500')
+  const disabledCardHoverBorder = useColorModeValue('gray.300', 'gray.500')
+  const headingEnabledColor = useColorModeValue('purple.700', 'purple.200')
+  const headingDisabledColor = useColorModeValue('gray.600', 'gray.400')
+  const labelColor = useColorModeValue('gray.700', 'gray.300')
+  const descriptionColor = useColorModeValue('gray.600', 'gray.400')
+  const initCardBg = useColorModeValue('white', 'gray.800')
+  const resetCardBg = useColorModeValue('gray.50', 'gray.700')
 
   const [formData, setFormData] = useState<Record<string, { value: number; enabled: boolean }>>({})
 
@@ -220,14 +237,14 @@ export default function KickPointsConfigPage() {
           )}
 
           {!Array.isArray(config) || config.length === 0 ? (
-            <Card borderRadius="xl" bg="gradient-to-br" bgGradient="linear(to-br, purple.50, blue.50)">
+            <Card borderRadius="xl" bg={initCardBg} border="1px solid" borderColor={cardBorder}>
               <CardBody p={8}>
                 <VStack spacing={6}>
-                  <Alert status="info" borderRadius="lg" bg="white" boxShadow="sm">
+                  <Alert status="info" borderRadius="lg" bg={initCardBg} boxShadow="sm">
                     <AlertIcon />
                     <Box>
                       <Text fontWeight="bold" mb={1}>Configuración no encontrada</Text>
-                      <Text fontSize="sm">
+                      <Text fontSize="sm" color={descriptionColor}>
                         No hay configuración establecida. Inicializa la configuración para empezar a otorgar puntos.
                       </Text>
                     </Box>
@@ -257,14 +274,13 @@ export default function KickPointsConfigPage() {
 
                   const configItem = config.find((c) => c && typeof c === 'object' && c.config_key === key)
                   if (!configItem) {
-                    console.warn(`No se encontró configuración para la clave: ${key}`)
                     return null
                   }
 
                   // Validar que formData[key] existe o crear valores por defecto
                   const formValue = formData[key] || {
-                    value: typeof configItem.config_value === 'number' ? configItem.config_value : 0,
-                    enabled: typeof configItem.enabled === 'boolean' ? configItem.enabled : false
+                    value: configItem.config_value,
+                    enabled: configItem.enabled
                   }
 
                 return (
@@ -272,12 +288,12 @@ export default function KickPointsConfigPage() {
                     key={key}
                     borderRadius="xl"
                     border="1px solid"
-                    borderColor={formValue.enabled ? "purple.200" : "gray.200"}
-                    bg={formValue.enabled ? "purple.50" : "gray.50"}
+                    borderColor={formValue.enabled ? enabledCardBorder : disabledCardBorder}
+                    bg={formValue.enabled ? enabledCardBg : disabledCardBg}
                     _hover={{
                       transform: "translateY(-2px)",
                       boxShadow: "lg",
-                      borderColor: formValue.enabled ? "purple.300" : "gray.300"
+                      borderColor: formValue.enabled ? enabledCardHoverBorder : disabledCardHoverBorder
                     }}
                     transition="all 0.2s"
                   >
@@ -287,7 +303,7 @@ export default function KickPointsConfigPage() {
                         <HStack justify="space-between" align="start">
                           <VStack align="start" spacing={2} flex={1}>
                             <HStack>
-                              <Heading size="md" color={formValue.enabled ? "purple.700" : "gray.600"}>
+                              <Heading size="md" color={formValue.enabled ? headingEnabledColor : headingDisabledColor}>
                                 {CONFIG_LABELS[key].label}
                               </Heading>
                               <Badge
@@ -300,7 +316,7 @@ export default function KickPointsConfigPage() {
                                 {formValue.enabled ? 'Activo' : 'Inactivo'}
                               </Badge>
                             </HStack>
-                            <Text fontSize="sm" color="gray.600" lineHeight={1.5}>
+                            <Text fontSize="sm" color={descriptionColor} lineHeight={1.5}>
                               {CONFIG_LABELS[key].description}
                             </Text>
                           </VStack>
@@ -311,7 +327,7 @@ export default function KickPointsConfigPage() {
                         {/* Controles */}
                         <HStack spacing={4} align="end">
                           <FormControl flex={1}>
-                            <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                            <FormLabel fontSize="sm" fontWeight="medium" color={labelColor}>
                               Puntos otorgados
                             </FormLabel>
                             <NumberInput
@@ -333,7 +349,7 @@ export default function KickPointsConfigPage() {
                           </FormControl>
 
                           <FormControl display="flex" alignItems="center" width="auto">
-                            <FormLabel mb={0} mr={3} fontSize="sm" fontWeight="medium" color="gray.700">
+                            <FormLabel mb={0} mr={3} fontSize="sm" fontWeight="medium" color={labelColor}>
                               Habilitado
                             </FormLabel>
                             <Switch
@@ -360,7 +376,6 @@ export default function KickPointsConfigPage() {
                   </Card>
                 )
                 } catch (error) {
-                  console.error(`Error procesando configuración para ${key}:`, error)
                   return (
                     <Alert key={key} status="warning">
                       <AlertIcon />
@@ -372,12 +387,12 @@ export default function KickPointsConfigPage() {
               </SimpleGrid>
 
               {/* Botón de reinicio mejorado */}
-              <Card borderRadius="xl" bg="gray.50">
+              <Card borderRadius="xl" bg={resetCardBg} border="1px solid" borderColor={cardBorder}>
                 <CardBody p={6}>
                   <VStack spacing={4}>
                     <VStack spacing={2}>
-                      <Heading size="md" color="gray.700">Restablecer Configuración</Heading>
-                      <Text fontSize="sm" color="gray.600" textAlign="center">
+                      <Heading size="md" color={labelColor}>Restablecer Configuración</Heading>
+                      <Text fontSize="sm" color={descriptionColor} textAlign="center">
                         Esto restablecerá todas las configuraciones a sus valores por defecto
                       </Text>
                     </VStack>

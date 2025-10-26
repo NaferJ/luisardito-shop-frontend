@@ -82,86 +82,154 @@ export default function KickSubscriptionsPage() {
     <Layout>
       <Container maxW="container.xl" py={8}>
         <VStack spacing={8} align="stretch">
-          {/* Header */}
-          <HStack>
-            <IconButton
-              aria-label="Volver"
-              icon={<ArrowBackIcon />}
-              onClick={() => router.push('/admin/kick')}
-            />
-            <Box flex={1}>
-              <Heading size="xl" mb={2}>
-                Suscripciones de Eventos
-              </Heading>
-              <Text color="gray.600">Eventos de Kick a los que estás suscrito</Text>
-            </Box>
-            <Button onClick={handleRefresh} isLoading={refreshing}>
-              Refrescar
-            </Button>
-          </HStack>
+          {/* Header mejorado */}
+          <Box>
+            <HStack mb={4}>
+              <IconButton
+                aria-label="Volver"
+                icon={<ArrowBackIcon />}
+                onClick={() => router.push('/admin/kick')}
+                variant="ghost"
+                size="lg"
+              />
+              <VStack align="start" spacing={1} flex={1}>
+                <Heading size="xl" color="purple.600">
+                  Suscripciones de Eventos
+                </Heading>
+                <Text color="gray.600" fontSize="lg">
+                  Eventos de Kick a los que estás suscrito para recibir notificaciones
+                </Text>
+              </VStack>
+              <Button
+                onClick={handleRefresh}
+                isLoading={refreshing}
+                colorScheme="purple"
+                variant="outline"
+                borderRadius="lg"
+              >
+                Refrescar
+              </Button>
+            </HStack>
+
+            {/* Stats rápidas */}
+            {Array.isArray(subscriptions) && subscriptions.length > 0 && (
+              <HStack spacing={4} flexWrap="wrap">
+                <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+                  {subscriptions.length} suscripciones
+                </Badge>
+                <Badge
+                  colorScheme={subscriptions.filter(s => s.status === 'active').length > 0 ? "green" : "gray"}
+                  fontSize="sm"
+                  px={3}
+                  py={1}
+                >
+                  {subscriptions.filter(s => s.status === 'active').length} activas
+                </Badge>
+              </HStack>
+            )}
+          </Box>
 
           {error && (
-            <Alert status="error">
+            <Alert status="error" borderRadius="xl">
               <AlertIcon />
-              {error}
+              <Box>
+                <Text fontWeight="bold">Error al cargar suscripciones</Text>
+                <Text fontSize="sm">{error}</Text>
+              </Box>
             </Alert>
           )}
 
-          <Card>
-            <CardBody>
+          <Card borderRadius="xl" overflow="hidden">
+            <CardBody p={0}>
               {!Array.isArray(subscriptions) || subscriptions.length === 0 ? (
-                <Alert status="info">
-                  <AlertIcon />
-                  No hay suscripciones activas. Conecta tu cuenta de Kick en la página principal para
-                  auto-suscribirte a los eventos necesarios.
-                </Alert>
+                <Box p={8}>
+                  <Alert status="info" borderRadius="lg" bg="blue.50" border="1px solid" borderColor="blue.200">
+                    <AlertIcon />
+                    <Box>
+                      <Text fontWeight="bold" color="blue.800" mb={1}>Sin suscripciones activas</Text>
+                      <Text fontSize="sm" color="blue.700">
+                        No hay suscripciones activas. Conecta tu cuenta de Kick en la página principal para
+                        auto-suscribirte a los eventos necesarios.
+                      </Text>
+                    </Box>
+                  </Alert>
+                </Box>
               ) : (
-                <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" mb={2}>
-                    <Heading size="md">Eventos Activos</Heading>
-                    <Badge colorScheme="green" fontSize="md" px={3} py={1}>
-                      {subscriptions.length} {subscriptions.length === 1 ? 'evento' : 'eventos'}
-                    </Badge>
-                  </HStack>
+                <VStack spacing={0} align="stretch">
+                  {/* Header de la tabla */}
+                  <Box bg="purple.50" p={6} borderBottom="1px solid" borderColor="purple.100">
+                    <HStack justify="space-between" mb={2}>
+                      <Heading size="lg" color="purple.700">Eventos Activos</Heading>
+                      <Badge colorScheme="green" fontSize="md" px={4} py={2} borderRadius="full">
+                        {subscriptions.length} {subscriptions.length === 1 ? 'evento' : 'eventos'}
+                      </Badge>
+                    </HStack>
+                    <Text color="purple.600" fontSize="sm">
+                      Lista de todos los eventos de Kick a los que estás suscrito
+                    </Text>
+                  </Box>
 
+                  {/* Tabla mejorada */}
                   <TableContainer>
-                    <Table variant="simple">
-                      <Thead>
+                    <Table variant="simple" size="md">
+                      <Thead bg="gray.50">
                         <Tr>
-                          <Th>Evento</Th>
-                          <Th>Tipo</Th>
-                          <Th>Estado</Th>
-                          <Th>Broadcaster</Th>
-                          <Th>Fecha de Creación</Th>
+                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Evento</Th>
+                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Tipo</Th>
+                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Estado</Th>
+                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Broadcaster</Th>
+                          <Th borderColor="gray.200" color="gray.700" fontWeight="bold">Fecha de Creación</Th>
                         </Tr>
                       </Thead>
                       <Tbody>
-                        {subscriptions.filter(sub => sub && typeof sub === 'object').map((sub) => (
-                          <Tr key={sub.id || `sub-${Math.random()}`}>
-                            <Td>
-                              <Text fontWeight="medium">
-                                {EVENT_LABELS[sub.event_type] || sub.event_type || 'Evento desconocido'}
-                              </Text>
+                        {subscriptions.filter(sub => sub && typeof sub === 'object').map((sub, index) => (
+                          <Tr
+                            key={sub.id || `sub-${index}`}
+                            _hover={{ bg: "purple.25" }}
+                            transition="background-color 0.2s"
+                          >
+                            <Td borderColor="gray.100" py={4}>
+                              <VStack align="start" spacing={1}>
+                                <Text fontWeight="semibold" color="gray.800">
+                                  {EVENT_LABELS[sub.event_type] || 'Evento desconocido'}
+                                </Text>
+                                <Text fontSize="xs" color="gray.500">
+                                  ID: {sub.subscription_id || 'N/A'}
+                                </Text>
+                              </VStack>
                             </Td>
-                            <Td>
-                              <Badge colorScheme="purple" fontSize="xs">
+                            <Td borderColor="gray.100">
+                              <Badge colorScheme="purple" fontSize="xs" px={2} py={1} borderRadius="md">
                                 {sub.event_type || 'N/A'}
                               </Badge>
                             </Td>
-                            <Td>
+                            <Td borderColor="gray.100">
                               <Badge
-                                colorScheme={sub.status === 'enabled' ? 'green' : 'gray'}
+                                colorScheme={sub.status === 'active' ? 'green' : sub.status === 'enabled' ? 'green' : 'gray'}
                                 fontSize="xs"
+                                px={2}
+                                py={1}
+                                borderRadius="md"
                               >
-                                {sub.status === 'enabled' ? 'Activo' : 'Inactivo'}
+                                {sub.status === 'active' || sub.status === 'enabled' ? 'Activo' : 'Inactivo'}
                               </Badge>
                             </Td>
-                            <Td>{sub.broadcaster_user_id || 'N/A'}</Td>
-                            <Td>
-                              {sub.created_at
-                                ? new Date(sub.created_at).toLocaleDateString('es-ES')
-                                : 'N/A'
-                              }
+                            <Td borderColor="gray.100">
+                              <Text fontSize="sm" color="gray.700">
+                                {sub.broadcaster_user_id || 'N/A'}
+                              </Text>
+                            </Td>
+                            <Td borderColor="gray.100">
+                              <Text fontSize="sm" color="gray.700">
+                                {sub.created_at
+                                  ? new Date(sub.created_at).toLocaleDateString('es-ES', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })
+                                  : 'N/A'
+                                }
+                              </Text>
                             </Td>
                           </Tr>
                         ))}
@@ -173,16 +241,17 @@ export default function KickSubscriptionsPage() {
             </CardBody>
           </Card>
 
-          {/* Información adicional */}
-          <Alert status="info">
-            <AlertIcon />
+          {/* Información adicional mejorada */}
+          <Alert status="info" borderRadius="xl" bg="blue.50" border="1px solid" borderColor="blue.200">
+            <AlertIcon color="blue.500" />
             <Box>
-              <Text fontWeight="bold" mb={1}>
-                Suscripciones Automáticas
+              <Text fontWeight="bold" mb={2} color="blue.800">
+                📡 Suscripciones Automáticas
               </Text>
-              <Text fontSize="sm">
+              <Text fontSize="sm" color="blue.700" lineHeight={1.6}>
                 Cuando el broadcaster conecta su cuenta de Kick, se suscriben automáticamente a todos los eventos
-                necesarios para otorgar puntos. No es necesario gestionarlas manualmente.
+                necesarios para otorgar puntos. Las suscripciones se gestionan automáticamente y no requieren
+                intervención manual.
               </Text>
             </Box>
           </Alert>

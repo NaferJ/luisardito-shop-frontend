@@ -17,24 +17,25 @@ export function useKickSubscriptions() {
       const data = response.data
       console.log('Datos recibidos de suscripciones:', data)
 
-      if (Array.isArray(data)) {
-        // Validar cada elemento del array
-        const validData = data.filter((item: any) =>
+      // El backend retorna {subscriptions: Array, total: number}
+      if (data && Array.isArray(data.subscriptions)) {
+        const validData = data.subscriptions.filter((item: any) =>
           item &&
           typeof item === 'object' &&
-          typeof item.id === 'string' &&
+          (typeof item.id === 'string' || typeof item.id === 'number') &&
           typeof item.event_type === 'string' &&
-          typeof item.broadcaster_user_id === 'string' &&
+          (typeof item.broadcaster_user_id === 'string' || typeof item.broadcaster_user_id === 'number') &&
           typeof item.status === 'string'
         )
         setSubscriptions(validData)
-      } else if (data && Array.isArray(data.data)) {
-        const validData = data.data.filter((item: any) =>
+      } else if (Array.isArray(data)) {
+        // Fallback por si cambia el formato
+        const validData = data.filter((item: any) =>
           item &&
           typeof item === 'object' &&
-          typeof item.id === 'string' &&
+          (typeof item.id === 'string' || typeof item.id === 'number') &&
           typeof item.event_type === 'string' &&
-          typeof item.broadcaster_user_id === 'string' &&
+          (typeof item.broadcaster_user_id === 'string' || typeof item.broadcaster_user_id === 'number') &&
           typeof item.status === 'string'
         )
         setSubscriptions(validData)

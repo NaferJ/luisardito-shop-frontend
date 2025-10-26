@@ -17,9 +17,9 @@ export function useKickPointsConfig() {
       const data = response.data
       console.log('Datos recibidos de configuración:', data)
 
-      if (Array.isArray(data)) {
-        // Validar cada elemento del array
-        const validData = data.filter((item: any) =>
+      // El backend retorna {config: Array, total: number}
+      if (data && Array.isArray(data.config)) {
+        const validData = data.config.filter((item: any) =>
           item &&
           typeof item === 'object' &&
           typeof item.config_key === 'string' &&
@@ -27,8 +27,9 @@ export function useKickPointsConfig() {
           typeof item.enabled === 'boolean'
         )
         setConfig(validData)
-      } else if (data && Array.isArray(data.data)) {
-        const validData = data.data.filter((item: any) =>
+      } else if (Array.isArray(data)) {
+        // Fallback por si cambia el formato
+        const validData = data.filter((item: any) =>
           item &&
           typeof item === 'object' &&
           typeof item.config_key === 'string' &&

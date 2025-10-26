@@ -5,10 +5,11 @@ import { useRouter } from 'next/router'
 import NextLink from 'next/link'
 import ColorModeToggle from './ColorModeToggle'
 
-export function Navbar() {
-  const { user, isAuthenticated, logout, isLoading } = useAuth()
+export default function Navbar() {
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
+
 
   const handleLogout = () => {
     logout()

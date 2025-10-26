@@ -5,14 +5,11 @@ import {
   Box,
   Container,
   VStack,
-  HStack,
   Text,
   Button,
   Avatar,
   Badge,
   Divider,
-  Grid,
-  GridItem,
   Card,
   CardBody,
   Heading,
@@ -20,21 +17,24 @@ import {
   Flex,
   Icon,
   Stack,
-  SimpleGrid
+  SimpleGrid,
+  useToast
 } from '@chakra-ui/react'
-import { ViewIcon, RepeatIcon, AtSignIcon, CalendarIcon } from '@chakra-ui/icons'
+import { ViewIcon, RepeatIcon, AtSignIcon, CalendarIcon, DownloadIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
 
 export default function PerfilPage() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUserKickInfo } = useAuth()
   const router = useRouter()
+  const toast = useToast()
+  const [isUpdatingKickInfo, setIsUpdatingKickInfo] = useState(false)
 
   const bgGradient = useColorModeValue(
     'linear(to-br, blue.50, purple.50)',
     'linear(to-br, blue.900, purple.900)'
   )
   const cardBg = useColorModeValue('white', 'gray.800')
-  const shadowColor = useColorModeValue('rgba(0,0,0,0.1)', 'rgba(0,0,0,0.3)')
 
   const handleLogout = () => {
     logout()
@@ -46,6 +46,30 @@ export default function PerfilPage() {
 
   const goToCanjes = () => {
     router.push('/canjes')
+  }
+
+  const handleUpdateKickInfo = async () => {
+    setIsUpdatingKickInfo(true)
+    try {
+      await updateUserKickInfo()
+      toast({
+        title: 'Información actualizada',
+        description: 'La información de Kick se ha sincronizado correctamente',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error al actualizar',
+        description: 'No se pudo sincronizar la información de Kick',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    } finally {
+      setIsUpdatingKickInfo(false)
+    }
   }
 
   if (!user) {
@@ -60,9 +84,34 @@ export default function PerfilPage() {
     )
   }
 
-  // Determinar qué avatar y nombre usar
-  const avatarSrc = user.kick_avatar || undefined
+  // Determinar qué avatar y nombre usar con debugging
+  let avatarSrc = user.kick_avatar || undefined
   const displayName = user.kick_username || user.nickname || user.nombre || user.email
+
+  // Si el usuario está conectado con Kick pero no tiene avatar, usar un fallback
+  if (user.kick_username && !user.kick_avatar) {
+    // Podrías usar la API de Kick para obtener el avatar si es necesario
+    // Por ahora, usar undefined para que se muestre la inicial
+    avatarSrc = undefined
+  }
+
+  // Debugging del avatar en desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Perfil - Usuario completo:', {
+      id: user.id,
+      kick_avatar: user.kick_avatar,
+      kick_username: user.kick_username,
+      nickname: user.nickname,
+      nombre: user.nombre,
+      email: user.email,
+      created_at: user.created_at,
+      puntos: user.puntos,
+      avatarSrc,
+      displayName,
+      isCloudinaryAvatar: user.kick_avatar?.includes('cloudinary.com'),
+      hasKickConnection: !!user.kick_username
+    })
+  }
 
   return (
     <RequireAuth>
@@ -115,7 +164,7 @@ export default function PerfilPage() {
                       textTransform="none"
                       fontWeight="bold"
                     >
-                      🏆 {user.puntos?.toLocaleString()} puntos
+                      {user.puntos?.toLocaleString()} puntos
                     </Badge>
 
                     {/* Indicador de usuario de Kick */}
@@ -127,7 +176,7 @@ export default function PerfilPage() {
                         py={1}
                         borderRadius="md"
                       >
-                        ✓ Conectado con Kick
+                        Conectado con Kick
                       </Badge>
                     )}
                   </VStack>
@@ -228,7 +277,7 @@ export default function PerfilPage() {
               <CardBody p={{ base: 4, md: 6 }}>
                 <VStack spacing={4} align="stretch">
                   <Heading size={{ base: 'sm', md: 'md' }} mb={2} color="black.700">
-                    📋 Información de cuenta
+                    Información de cuenta
                   </Heading>
 
                   <VStack spacing={3} align="stretch">
@@ -239,7 +288,7 @@ export default function PerfilPage() {
                       gap={2}
                     >
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        👤 Nombre de usuario:
+                        Nombre de usuario:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} fontFamily="mono">
                         {displayName}
@@ -253,7 +302,7 @@ export default function PerfilPage() {
                       gap={2}
                     >
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        📧 Email:
+                        Email:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} color="blue.600">
                         {user.email}
@@ -267,7 +316,7 @@ export default function PerfilPage() {
                       gap={2}
                     >
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        💰 Puntos disponibles:
+                        Puntos disponibles:
                       </Text>
                       <Badge
                         colorScheme="green"
@@ -288,7 +337,7 @@ export default function PerfilPage() {
                         gap={2}
                       >
                         <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                          🎮 Kick Username:
+                          Kick Username:
                         </Text>
                         <Badge
                           colorScheme="green"
@@ -309,7 +358,7 @@ export default function PerfilPage() {
                       gap={2}
                     >
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        📅 Miembro desde:
+                        Miembro desde:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
                         {user.created_at && new Date(user.created_at).toLocaleDateString('es-ES', {
@@ -322,6 +371,30 @@ export default function PerfilPage() {
                   </VStack>
 
                   <Divider my={4} />
+
+                  {/* Botón para actualizar información de Kick */}
+                  {user.kick_username && (
+                    <>
+                      <Button
+                        leftIcon={<DownloadIcon />}
+                        colorScheme="blue"
+                        variant="outline"
+                        onClick={handleUpdateKickInfo}
+                        isLoading={isUpdatingKickInfo}
+                        loadingText="Sincronizando..."
+                        size={{ base: 'md', md: 'lg' }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        _hover={{
+                          transform: 'translateY(-1px)',
+                          shadow: 'md'
+                        }}
+                      >
+                        Sincronizar información de Kick
+                      </Button>
+                      <Divider my={4} />
+                    </>
+                  )}
 
                   <Button
                     colorScheme="red"

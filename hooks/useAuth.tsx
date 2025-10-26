@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (userData: { nombre: string; email: string; password: string }) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
+  updateUserKickInfo: () => Promise<void>
   isAuthenticated: boolean
   isLoading: boolean
 }
@@ -82,6 +83,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth()
   }, [])
 
+  // Actualizar información de Kick automáticamente si el usuario está conectado con Kick
+  useEffect(() => {
+    if (user && user.kick_username && !user.kick_avatar) {
+      // Si tiene kick_username pero no kick_avatar, intentar actualizar
+      updateUserKickInfo()
+    }
+  }, [user?.kick_username, user?.kick_avatar])
+
   // Configurar refresh automático cada 30 minutos
   useEffect(() => {
     if (!token) return
@@ -98,6 +107,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = await api.get('/api/usuarios/me')
       setUser(data)
     } catch (error) {
+      throw error
+    }
+  }
+
+  // Función para actualizar la información del usuario incluyendo avatar de Kick
+  const updateUserKickInfo = async () => {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Sincronizando información de Kick...')
+      }
+
+      // Llamar al endpoint que sincroniza la info de Kick con Cloudinary
+      const response = await api.post('/api/usuarios/sync-kick-info')
+
+      // Actualizar el estado del usuario con los datos sincronizados
+      if (response.data) {
+        setUser(response.data)
+      } else {
+        // Si no hay datos en la respuesta, refrescar manualmente
+        await fetchUser()
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Información de Kick sincronizada exitosamente')
+      }
+    } catch (error: any) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error al sincronizar información de Kick:', error)
+      }
       throw error
     }
   }
@@ -196,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         refreshUser: fetchUser,
+        updateUserKickInfo,
         isAuthenticated: !!token,
         isLoading
       }}

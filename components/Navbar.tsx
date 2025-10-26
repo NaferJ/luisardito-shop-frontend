@@ -1,5 +1,5 @@
-import { Flex, Box, Spacer, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Container, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip } from '@chakra-ui/react'
-import { ChevronDownIcon, ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon, SettingsIcon } from '@chakra-ui/icons'
+import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip } from '@chakra-ui/react'
+import { ViewIcon, RepeatIcon, AtSignIcon, HamburgerIcon, SettingsIcon } from '@chakra-ui/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -21,6 +21,15 @@ export function Navbar() {
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
   const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
+  const activeShadow = useColorModeValue('0 0 25px rgba(59, 130, 246, 0.6)', '0 0 30px rgba(96, 165, 250, 0.7)')
+
+  // Función para verificar si una ruta está activa
+  const isActiveRoute = (path: string) => {
+    if (path === '/') {
+      return router.pathname === '/'
+    }
+    return router.pathname.startsWith(path)
+  }
 
   return (
     <Box
@@ -130,12 +139,16 @@ export function Navbar() {
                     variant="ghost"
                     size="sm"
                     borderRadius="xl"
+                    bg={isActiveRoute('/') ? activeBg : 'transparent'}
+                    boxShadow={isActiveRoute('/') ? activeShadow : 'none'}
+                    transform={isActiveRoute('/') ? 'translateY(-2px)' : 'none'}
                     _hover={{
                       bg: hoverBg,
                       boxShadow: hoverShadow,
                       transform: 'translateY(-2px)',
                       transition: 'all 0.2s ease-in-out'
                     }}
+                    transition="all 0.2s ease-in-out"
                   />
                 </ChakraLink>
               </Tooltip>
@@ -148,12 +161,16 @@ export function Navbar() {
                     variant="ghost"
                     size="sm"
                     borderRadius="xl"
+                    bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
+                    boxShadow={isActiveRoute('/canjes') ? activeShadow : 'none'}
+                    transform={isActiveRoute('/canjes') ? 'translateY(-2px)' : 'none'}
                     _hover={{
                       bg: hoverBg,
                       boxShadow: hoverShadow,
                       transform: 'translateY(-2px)',
                       transition: 'all 0.2s ease-in-out'
                     }}
+                    transition="all 0.2s ease-in-out"
                   />
                 </ChakraLink>
               </Tooltip>
@@ -169,12 +186,16 @@ export function Navbar() {
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
+                        bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/admin/usuarios') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/admin/usuarios') ? 'translateY(-2px)' : 'none'}
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
                           transform: 'translateY(-2px)',
                           transition: 'all 0.2s ease-in-out'
                         }}
+                        transition="all 0.2s ease-in-out"
                       />
                     </ChakraLink>
                   </Tooltip>
@@ -187,12 +208,16 @@ export function Navbar() {
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
+                        bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/admin/canjes') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/admin/canjes') ? 'translateY(-2px)' : 'none'}
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
                           transform: 'translateY(-2px)',
                           transition: 'all 0.2s ease-in-out'
                         }}
+                        transition="all 0.2s ease-in-out"
                       />
                     </ChakraLink>
                   </Tooltip>
@@ -205,12 +230,16 @@ export function Navbar() {
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
+                        bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/admin/kick') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/admin/kick') ? 'translateY(-2px)' : 'none'}
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
                           transform: 'translateY(-2px)',
                           transition: 'all 0.2s ease-in-out'
                         }}
+                        transition="all 0.2s ease-in-out"
                       />
                     </ChakraLink>
                   </Tooltip>
@@ -435,22 +464,102 @@ export function Navbar() {
                     <Divider my={2} />
 
                     <ChakraLink as={NextLink} href="/" onClick={onClose}>
-                      <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<ViewIcon />} borderRadius="xl">Tienda</Button>
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        leftIcon={<ViewIcon />}
+                        borderRadius="xl"
+                        bg={isActiveRoute('/') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        Tienda
+                      </Button>
                     </ChakraLink>
                     <ChakraLink as={NextLink} href="/canjes" onClick={onClose}>
-                      <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<RepeatIcon />} borderRadius="xl">Mis Canjes</Button>
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        leftIcon={<RepeatIcon />}
+                        borderRadius="xl"
+                        bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/canjes') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        Mis Canjes
+                      </Button>
                     </ChakraLink>
 
                     {(user?.rol_id && [3,4,5].includes(user.rol_id)) && (
                       <>
                         <ChakraLink as={NextLink} href="/admin/usuarios" onClick={onClose}>
-                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<AtSignIcon />} borderRadius="xl">Usuarios</Button>
+                          <Button
+                            variant="ghost"
+                            width="full"
+                            justifyContent="flex-start"
+                            leftIcon={<AtSignIcon />}
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/usuarios') ? 'md' : 'none'}
+                            _hover={{
+                              bg: hoverBg,
+                              transform: 'translateX(4px)',
+                              transition: 'all 0.2s'
+                            }}
+                            transition="all 0.2s"
+                          >
+                            Usuarios
+                          </Button>
                         </ChakraLink>
                         <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose}>
-                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<RepeatIcon />} borderRadius="xl">Canjes</Button>
+                          <Button
+                            variant="ghost"
+                            width="full"
+                            justifyContent="flex-start"
+                            leftIcon={<RepeatIcon />}
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/canjes') ? 'md' : 'none'}
+                            _hover={{
+                              bg: hoverBg,
+                              transform: 'translateX(4px)',
+                              transition: 'all 0.2s'
+                            }}
+                            transition="all 0.2s"
+                          >
+                            Canjes
+                          </Button>
                         </ChakraLink>
                         <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose}>
-                          <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<SettingsIcon />} borderRadius="xl">Kick</Button>
+                          <Button
+                            variant="ghost"
+                            width="full"
+                            justifyContent="flex-start"
+                            leftIcon={<SettingsIcon />}
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/kick') ? 'md' : 'none'}
+                            _hover={{
+                              bg: hoverBg,
+                              transform: 'translateX(4px)',
+                              transition: 'all 0.2s'
+                            }}
+                            transition="all 0.2s"
+                          >
+                            Kick
+                          </Button>
                         </ChakraLink>
                       </>
                     )}
@@ -458,13 +567,58 @@ export function Navbar() {
                     <Divider my={2} />
 
                     <ChakraLink as={NextLink} href="/perfil" onClick={onClose}>
-                      <Button variant="ghost" width="full" justifyContent="flex-start" borderRadius="xl">Mi Perfil</Button>
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        borderRadius="xl"
+                        bg={isActiveRoute('/perfil') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/perfil') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        Mi Perfil
+                      </Button>
                     </ChakraLink>
                     <ChakraLink as={NextLink} href="/historial" onClick={onClose}>
-                      <Button variant="ghost" width="full" justifyContent="flex-start" borderRadius="xl">Historial de Puntos</Button>
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        borderRadius="xl"
+                        bg={isActiveRoute('/historial') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/historial') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        Historial de Puntos
+                      </Button>
                     </ChakraLink>
                     <ChakraLink as={NextLink} href="/" onClick={onClose}>
-                      <Button variant="ghost" width="full" justifyContent="flex-start" borderRadius="xl">Catálogo</Button>
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        borderRadius="xl"
+                        bg={isActiveRoute('/') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        Catálogo
+                      </Button>
                     </ChakraLink>
 
                     <Divider my={2} />

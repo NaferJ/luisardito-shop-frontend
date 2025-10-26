@@ -17,18 +17,18 @@ export default function Navbar() {
     onClose()
   }
 
-  const floatingBg = useColorModeValue(
-    'rgba(255, 255, 255, 0.75)',
-    'rgba(13, 17, 23, 0.75)'
-  )
-  const borderClr = useColorModeValue(
-    'rgba(208, 215, 222, 0.6)',
-    'rgba(66, 74, 83, 0.6)'
-  )
-  const shadow = useColorModeValue(
-    '0 8px 32px rgba(0,0,0,0.12)',
-    '0 8px 32px rgba(0,0,0,0.5)'
-  )
+    const floatingBg = useColorModeValue(
+        'rgba(255, 255, 255, 0.40)',
+        'rgba(13, 17, 23, 0.40)'
+    )
+    const borderClr = useColorModeValue(
+        'rgba(208, 215, 222, 0.28)',
+        'rgba(66, 74, 83, 0.28)'
+    )
+    const shadow = useColorModeValue(
+        '0 8px 32px rgba(0,0,0,0.086)',
+        '0 8px 32px rgba(0,0,0,0.20)'
+    )
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
   const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')

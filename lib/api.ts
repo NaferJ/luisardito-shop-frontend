@@ -36,9 +36,25 @@ api.interceptors.request.use((config) => {
 
 // Interceptor para manejar respuestas y errores con auto-refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Validar que la respuesta tenga el formato esperado
+    if (response.data && typeof response.data === 'object') {
+      return response
+    }
+    console.warn('Respuesta con formato inesperado:', response.data)
+    return response
+  },
   async (error) => {
     const originalRequest = error.config
+
+    // Log del error para debugging
+    console.error('Error en API:', {
+      url: originalRequest?.url,
+      method: originalRequest?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    })
 
     // Si no estamos en el cliente, rechazar el error directamente
     if (typeof window === 'undefined') {

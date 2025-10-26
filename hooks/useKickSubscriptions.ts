@@ -11,10 +11,42 @@ export function useKickSubscriptions() {
     try {
       setLoading(true)
       setError(null)
-      const { data } = await kickSubscriptionApi.getLocalSubscriptions()
-      setSubscriptions(data)
+      const response = await kickSubscriptionApi.getLocalSubscriptions()
+
+      // Validar que la respuesta tenga el formato esperado
+      const data = response.data
+      console.log('Datos recibidos de suscripciones:', data)
+
+      if (Array.isArray(data)) {
+        // Validar cada elemento del array
+        const validData = data.filter((item: any) =>
+          item &&
+          typeof item === 'object' &&
+          typeof item.id === 'string' &&
+          typeof item.event_type === 'string' &&
+          typeof item.broadcaster_user_id === 'string' &&
+          typeof item.status === 'string'
+        )
+        setSubscriptions(validData)
+      } else if (data && Array.isArray(data.data)) {
+        const validData = data.data.filter((item: any) =>
+          item &&
+          typeof item === 'object' &&
+          typeof item.id === 'string' &&
+          typeof item.event_type === 'string' &&
+          typeof item.broadcaster_user_id === 'string' &&
+          typeof item.status === 'string'
+        )
+        setSubscriptions(validData)
+      } else {
+        console.warn('Formato inesperado de datos de suscripciones:', data)
+        setSubscriptions([])
+        setError('Formato de datos no válido recibido del servidor')
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al cargar suscripciones')
+      console.error('Error al cargar suscripciones:', err)
+      setError(err.response?.data?.error || err.message || 'Error al cargar suscripciones')
+      setSubscriptions([])
     } finally {
       setLoading(false)
     }

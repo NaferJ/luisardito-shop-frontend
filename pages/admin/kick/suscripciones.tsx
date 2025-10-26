@@ -109,7 +109,7 @@ export default function KickSubscriptionsPage() {
 
           <Card>
             <CardBody>
-              {subscriptions.length === 0 ? (
+              {!Array.isArray(subscriptions) || subscriptions.length === 0 ? (
                 <Alert status="info">
                   <AlertIcon />
                   No hay suscripciones activas. Conecta tu cuenta de Kick en la página principal para
@@ -136,16 +136,16 @@ export default function KickSubscriptionsPage() {
                         </Tr>
                       </Thead>
                       <Tbody>
-                        {subscriptions.map((sub) => (
-                          <Tr key={sub.id}>
+                        {subscriptions.filter(sub => sub && typeof sub === 'object').map((sub) => (
+                          <Tr key={sub.id || `sub-${Math.random()}`}>
                             <Td>
                               <Text fontWeight="medium">
-                                {EVENT_LABELS[sub.event_type] || sub.event_type}
+                                {EVENT_LABELS[sub.event_type] || sub.event_type || 'Evento desconocido'}
                               </Text>
                             </Td>
                             <Td>
                               <Badge colorScheme="purple" fontSize="xs">
-                                {sub.event_type}
+                                {sub.event_type || 'N/A'}
                               </Badge>
                             </Td>
                             <Td>
@@ -156,8 +156,13 @@ export default function KickSubscriptionsPage() {
                                 {sub.status === 'enabled' ? 'Activo' : 'Inactivo'}
                               </Badge>
                             </Td>
-                            <Td>{sub.broadcaster_user_id}</Td>
-                            <Td>{new Date(sub.created_at).toLocaleDateString('es-ES')}</Td>
+                            <Td>{sub.broadcaster_user_id || 'N/A'}</Td>
+                            <Td>
+                              {sub.created_at
+                                ? new Date(sub.created_at).toLocaleDateString('es-ES')
+                                : 'N/A'
+                              }
+                            </Td>
                           </Tr>
                         ))}
                       </Tbody>

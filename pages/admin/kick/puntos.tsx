@@ -74,12 +74,14 @@ export default function KickPointsConfigPage() {
 
   // Inicializar formData cuando se carga la config
   useEffect(() => {
-    if (config.length > 0) {
+    if (Array.isArray(config) && config.length > 0) {
       const newFormData: Record<string, { value: number; enabled: boolean }> = {}
       config.forEach((item) => {
-        newFormData[item.config_key] = {
-          value: item.config_value,
-          enabled: item.enabled,
+        if (item && item.config_key) {
+          newFormData[item.config_key] = {
+            value: item.config_value || 0,
+            enabled: item.enabled || false,
+          }
         }
       })
       setFormData(newFormData)
@@ -191,7 +193,7 @@ export default function KickPointsConfigPage() {
             </Alert>
           )}
 
-          {config.length === 0 ? (
+          {!Array.isArray(config) || config.length === 0 ? (
             <Card>
               <CardBody>
                 <VStack spacing={4}>
@@ -208,10 +210,23 @@ export default function KickPointsConfigPage() {
           ) : (
             <VStack spacing={4} align="stretch">
               {Object.keys(CONFIG_LABELS).map((key) => {
-                const configItem = config.find((c) => c.config_key === key)
-                if (!configItem) return null
+                try {
+                  // Validar que config sea un array y contenga elementos válidos
+                  if (!Array.isArray(config) || config.length === 0) {
+                    return null
+                  }
 
-                const formValue = formData[key] || { value: configItem.config_value, enabled: configItem.enabled }
+                  const configItem = config.find((c) => c && typeof c === 'object' && c.config_key === key)
+                  if (!configItem) {
+                    console.warn(`No se encontró configuración para la clave: ${key}`)
+                    return null
+                  }
+
+                  // Validar que formData[key] existe o crear valores por defecto
+                  const formValue = formData[key] || {
+                    value: typeof configItem.config_value === 'number' ? configItem.config_value : 0,
+                    enabled: typeof configItem.enabled === 'boolean' ? configItem.enabled : false
+                  }
 
                 return (
                   <Card key={key}>
@@ -271,6 +286,15 @@ export default function KickPointsConfigPage() {
                     </CardBody>
                   </Card>
                 )
+                } catch (error) {
+                  console.error(`Error procesando configuración para ${key}:`, error)
+                  return (
+                    <Alert key={key} status="warning">
+                      <AlertIcon />
+                      Error al cargar configuración para {CONFIG_LABELS[key]?.label || key}
+                    </Alert>
+                  )
+                }
               })}
 
               <Divider my={4} />

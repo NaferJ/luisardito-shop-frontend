@@ -2,6 +2,14 @@ import { useState, useEffect, useContext, createContext, ReactNode } from 'react
 import { useRouter } from 'next/router'
 import api from '../lib/api'
 import { Usuario } from '../types'
+import {
+  getAuthCookie,
+  setAuthCookie,
+  getRefreshCookie,
+  setRefreshCookie,
+  clearAuthCookies,
+  CookieManager
+} from '../lib/cookies'
 
 interface AuthContextType {
   user: Usuario | null
@@ -21,7 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null
     try {
-      return localStorage.getItem('auth_token')
+      // Primero intentar migrar desde localStorage si existe
+      CookieManager.migrateFromLocalStorage()
+
+      // Luego obtener el token desde cookies
+      return getAuthCookie()
     } catch {
       return null
     }
@@ -31,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Función para refrescar el token proactivamente
   const refreshTokenIfNeeded = async () => {
-    const refreshToken = localStorage.getItem('refresh_token')
+    const refreshToken = getRefreshCookie()
     if (!refreshToken) return
 
     try {
@@ -45,11 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const newRefreshToken = data.refreshToken
 
       if (accessToken) {
-        localStorage.setItem('auth_token', accessToken)
+        setAuthCookie(accessToken)
         setToken(accessToken)
 
         if (newRefreshToken) {
-          localStorage.setItem('refresh_token', newRefreshToken)
+          setRefreshCookie(newRefreshToken)
         }
 
         if (process.env.NODE_ENV === 'development') {
@@ -67,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const savedToken = localStorage.getItem('auth_token')
+      const savedToken = getAuthCookie()
       if (savedToken) {
         setToken(savedToken)
         try {
@@ -160,11 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(data.user || data.usuario)
 
-      localStorage.setItem('auth_token', accessToken)
+      // Guardar tokens en cookies cross-domain
+      setAuthCookie(accessToken)
       if (refreshToken) {
-        localStorage.setItem('refresh_token', refreshToken)
+        setRefreshCookie(refreshToken)
         if (process.env.NODE_ENV === 'development') {
-          console.log('Refresh token guardado')
+          console.log('Refresh token guardado en cookies')
         }
       } else if (process.env.NODE_ENV === 'development') {
         console.warn('No se recibió refresh token del backend')
@@ -196,9 +209,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(data.user || data.usuario)
 
-      localStorage.setItem('auth_token', accessToken)
+      // Guardar tokens en cookies cross-domain
+      setAuthCookie(accessToken)
       if (refreshToken) {
-        localStorage.setItem('refresh_token', refreshToken)
+        setRefreshCookie(refreshToken)
       }
 
       router.push('/')
@@ -209,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const refreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = getRefreshCookie()
       if (refreshToken) {
         // Llamar al endpoint de logout para revocar el refresh token
         await api.post('/api/auth/logout', { refreshToken }).catch(() => {
@@ -219,8 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setToken(null)
       setUser(null)
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('refresh_token')
+      clearAuthCookies()
       router.push('/login')
     }
   }

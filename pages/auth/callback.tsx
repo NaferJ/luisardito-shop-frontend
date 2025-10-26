@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Center, Spinner, VStack, Text, Alert, AlertIcon, Button } from '@chakra-ui/react'
 import { Layout } from '../../components/Layout'
 import api from '../../lib/api'
+import { setAuthCookie, setRefreshCookie } from '../../lib/cookies'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -32,13 +33,13 @@ export default function AuthCallbackPage() {
         if (encodedData) {
           const decodedData = JSON.parse(atob(String(encodedData)))
 
-          // Guardar tokens (access y refresh)
+          // Guardar tokens en cookies cross-domain
           if (decodedData.accessToken || decodedData.token) {
             const accessToken = decodedData.accessToken || decodedData.token
-            localStorage.setItem('auth_token', accessToken)
+            setAuthCookie(accessToken)
 
             if (decodedData.refreshToken) {
-              localStorage.setItem('refresh_token', decodedData.refreshToken)
+              setRefreshCookie(decodedData.refreshToken)
             }
 
             // Forzar recarga para que el AuthProvider detecte el token
@@ -58,13 +59,13 @@ export default function AuthCallbackPage() {
             }
           })
 
-          // Guardar tokens (access y refresh)
+          // Guardar tokens en cookies cross-domain
           if (data.accessToken || data.token) {
             const accessToken = data.accessToken || data.token
-            localStorage.setItem('auth_token', accessToken)
+            setAuthCookie(accessToken)
 
             if (data.refreshToken) {
-              localStorage.setItem('refresh_token', data.refreshToken)
+              setRefreshCookie(data.refreshToken)
             }
 
             // Forzar recarga para que el AuthProvider detecte el token

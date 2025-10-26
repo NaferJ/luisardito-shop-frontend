@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { Box, Container } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import Footer from './Footer'
+import { CrossDomainDebugger } from './CrossDomainDebugger'
 
 // Import dinámico sin SSR para evitar problemas de hidratación
 const Navbar = dynamic(() => import('./Navbar'), {
@@ -16,6 +17,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {children}
       </Container>
       <Footer />
+      <CrossDomainDebugger />
     </Box>
   )
 }

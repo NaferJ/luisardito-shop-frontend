@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getAuthCookie, getRefreshCookie, setAuthCookie, setRefreshCookie, clearAuthCookies } from './cookies'
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -26,7 +27,7 @@ const processQueue = (error: any, token: string | null = null) => {
 // Interceptor para agregar token automáticamente (solo en cliente)
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('auth_token')
+    const token = getAuthCookie()
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -79,12 +80,11 @@ api.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
-      const refreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = getRefreshCookie()
 
       if (!refreshToken) {
-        // No hay refresh token, redirigir a login
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('refresh_token')
+        // No hay refresh token, limpiar cookies y redirigir a login
+        clearAuthCookies()
         window.location.href = '/login'
         return Promise.reject(error)
       }
@@ -105,10 +105,10 @@ api.interceptors.response.use(
           throw new Error('No se recibió access token del servidor')
         }
 
-        // Guardar nuevos tokens
-        localStorage.setItem('auth_token', accessToken)
+        // Guardar nuevos tokens en cookies
+        setAuthCookie(accessToken)
         if (newRefreshToken) {
-          localStorage.setItem('refresh_token', newRefreshToken)
+          setRefreshCookie(newRefreshToken)
         }
 
         // Log para debugging solo en desarrollo
@@ -135,10 +135,9 @@ api.interceptors.response.use(
           })
         }
 
-        // Error al refrescar, limpiar y redirigir
+        // Error al refrescar, limpiar cookies y redirigir
         processQueue(refreshError, null)
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('refresh_token')
+        clearAuthCookies()
 
         // Solo redirigir si no estamos ya en login
         if (window.location.pathname !== '/login') {

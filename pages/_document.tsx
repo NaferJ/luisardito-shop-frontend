@@ -20,6 +20,9 @@ export default function Document() {
         <meta name="author" content="Luisardito Shop" />
         <meta name="theme-color" content="#6366f1" />
 
+        {/* Configuración para cross-origin y cookies */}
+        <meta httpEquiv="Access-Control-Allow-Credentials" content="true" />
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
 

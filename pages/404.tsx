@@ -85,7 +85,7 @@ export default function Custom404() {
                       boxShadow: 'lg',
                     }}
                   >
-                    🏠 Ir al inicio
+                    Ir al inicio
                   </Button>
                   <Button
                     onClick={() => window.history.back()}
@@ -109,15 +109,6 @@ export default function Custom404() {
                     ¿Necesitas ayuda? Prueba estos enlaces:
                   </Text>
                   <HStack spacing={4} justify="center" wrap="wrap">
-                    <Button
-                      as={NextLink}
-                      href="/productos"
-                      variant="link"
-                      colorScheme="blue"
-                      size="sm"
-                    >
-                      Ver Productos
-                    </Button>
                     <Button
                       as={NextLink}
                       href="/canjes"

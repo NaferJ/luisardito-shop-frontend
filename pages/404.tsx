@@ -25,7 +25,6 @@ export default function Custom404() {
     <Layout>
       <Box
         minH="70vh"
-        bgGradient={bgGradient}
         display="flex"
         alignItems="center"
         justifyContent="center"

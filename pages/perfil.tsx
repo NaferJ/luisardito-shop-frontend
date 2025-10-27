@@ -362,7 +362,7 @@ export default function PerfilPage() {
                         Miembro desde:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
-                        {user.created_at && new Date(user.created_at).toLocaleDateString('es-ES', {
+                        {user.creado && new Date(user.creado).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'

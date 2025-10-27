@@ -5,13 +5,19 @@ export interface Usuario {
   puntos: number
   rol_id: number
   user_id_ext?: string
-  created_at: string
-  updated_at: string
+  created_at?: string  // Campo legacy, puede existir en algunos lugares
+  updated_at?: string  // Campo legacy, puede existir en algunos lugares
+  creado: string       // Campo real del backend
+  actualizado: string  // Campo real del backend
   // Campos específicos de Kick
   nickname?: string
   kick_user_id?: string
   kick_username?: string
   kick_avatar?: string
+  kick_data?: {
+    username: string
+    avatar_url: string
+  }
 }
 
 export interface Producto {

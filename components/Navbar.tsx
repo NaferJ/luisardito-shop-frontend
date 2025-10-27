@@ -451,43 +451,26 @@ export default function Navbar() {
               </HStack>
             )}
 
-            {/* Botones de login/registro para usuarios no autenticados - Solo tablet y desktop */}
+            {/* Botón de login para usuarios no autenticados - Solo tablet y desktop */}
             {!isAuthenticated && !isLoading && (
-              <HStack spacing={{ base: 1, md: 2 }} display={{ base: 'none', md: 'flex' }} align="center">
-                <ChakraLink as={NextLink} href="/login">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    borderRadius="xl"
-                    fontSize="xs"
-                    px={{ base: 2, md: 3 }}
-                    _hover={{
-                      bg: hoverBg,
-                      boxShadow: hoverShadow,
-                      transform: 'translateY(-2px)',
-                      transition: 'all 0.2s ease-in-out'
-                    }}
-                  >
-                    Iniciar Sesión
-                  </Button>
-                </ChakraLink>
-                <ChakraLink as={NextLink} href="/register">
-                  <Button
-                    colorScheme="blue"
-                    size="sm"
-                    borderRadius="xl"
-                    fontSize="xs"
-                    px={{ base: 2, md: 3 }}
-                    _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 0 25px rgba(66, 153, 225, 0.6)',
-                      transition: 'all 0.2s ease-in-out'
-                    }}
-                  >
-                    Registro
-                  </Button>
-                </ChakraLink>
-              </HStack>
+              <ChakraLink as={NextLink} href="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  borderRadius="xl"
+                  fontSize="xs"
+                  px={{ base: 2, md: 3 }}
+                  display={{ base: 'none', md: 'inline-flex' }}
+                  _hover={{
+                    bg: hoverBg,
+                    boxShadow: hoverShadow,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  Iniciar Sesión
+                </Button>
+              </ChakraLink>
             )}
 
             {/* Skeleton durante carga - Solo tablet y desktop */}
@@ -770,9 +753,6 @@ export default function Navbar() {
                 <VStack align="stretch" spacing={3}>
                   <ChakraLink as={NextLink} href="/login" onClick={onClose}>
                     <Button variant="outline" width="full" borderRadius="xl">Iniciar Sesión</Button>
-                  </ChakraLink>
-                  <ChakraLink as={NextLink} href="/register" onClick={onClose}>
-                    <Button colorScheme="blue" width="full" borderRadius="xl">Registro</Button>
                   </ChakraLink>
 
                   <Divider my={2} />

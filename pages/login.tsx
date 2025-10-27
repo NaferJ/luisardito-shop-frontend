@@ -1,40 +1,20 @@
-import { useState, FormEvent } from 'react'
 import NextLink from 'next/link'
-import { useAuth } from '../hooks/useAuth'
 import { useKickAuth } from '../hooks/useKickAuth'
 import {
   Box,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
   VStack,
   Heading,
   Text,
   Link as ChakraLink,
   Grid,
   Flex,
-  Divider,
-  HStack,
   Image,
   useColorModeValue,
 } from '@chakra-ui/react'
 
 export default function LoginPage() {
-  const { login } = useAuth()
   const { connectWithKick, isLoading: isKickLoading } = useKickAuth()
-  const [nickname, setNickname] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    try {
-      await login(nickname, password)
-    } catch (err: any) {
-      setError(err.message)
-    }
-  }
 
   const mutedBg = useColorModeValue('gray.100', 'gray.700')
 
@@ -50,49 +30,35 @@ export default function LoginPage() {
         </Flex>
         <Flex flex="1" align="center" justify="center">
           <Box w="full" maxW="xs">
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={6} align="stretch">
-                <Box textAlign="center">
-                  <Heading size="md" mb={1}>Inicia sesión en tu cuenta</Heading>
-                  <Text fontSize="sm" color="gray.500">Ingresa tu nickname para acceder</Text>
-                </Box>
+            <VStack spacing={6} align="stretch">
+              <Box textAlign="center">
+                <Heading size="md" mb={1}>Inicia sesión en tu cuenta</Heading>
+                <Text fontSize="sm" color="gray.500">Conecta con tu cuenta de Kick para acceder</Text>
+              </Box>
 
-                <VStack spacing={4} align="stretch">
-                  <FormControl>
-                    <FormLabel>Nickname</FormLabel>
-                    <Input value={nickname} onChange={e => setNickname(e.target.value)} required placeholder="tu_nickname" />
-                  </FormControl>
-                  <FormControl>
-                    <HStack justify="space-between" mb={1}>
-                      <FormLabel m={0}>Contraseña</FormLabel>
-                      {/*<ChakraLink as={NextLink} href="#" fontSize="sm" textDecor="underline" _hover={{ textDecor: 'none' }}>*/}
-                      {/*  ¿Olvidaste tu contraseña?*/}
-                      {/*</ChakraLink>*/}
-                    </HStack>
-                    <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-                  </FormControl>
-                  {error && <Text color="red.500" fontSize="sm">{error}</Text>}
-                  <Button type="submit" colorScheme="blue" w="full">Entrar</Button>
-
-                  <HStack my={2} align="center" spacing={4}>
-                    <Divider />
-                    <Text fontSize="sm" color="gray.500" whiteSpace="nowrap">O continuar con</Text>
-                    <Divider />
-                  </HStack>
-
-                  <Button variant="outline" w="full" onClick={connectWithKick} isLoading={isKickLoading}>
-                    Conectar con Kick
-                  </Button>
-                </VStack>
-
-                {/*<Text textAlign="center" fontSize="sm">*/}
-                {/*  ¿No tienes una cuenta?{' '}*/}
-                {/*  <ChakraLink as={NextLink} href="/register" textDecor="underline" _hover={{ textDecor: 'none' }}>*/}
-                {/*    Regístrate*/}
-                {/*  </ChakraLink>*/}
-                {/*</Text>*/}
+              <VStack spacing={4} align="stretch">
+                <Button
+                  colorScheme="green"
+                  size="lg"
+                  w="full"
+                  onClick={connectWithKick}
+                  isLoading={isKickLoading}
+                  borderRadius="xl"
+                  py={6}
+                  fontSize="md"
+                  fontWeight="semibold"
+                  _hover={{
+                    bg: 'green.600',
+                    boxShadow: '0 0 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(34, 197, 94, 0.4)',
+                    transform: 'translateY(-1px)',
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                  leftIcon={<Image src="/images/logokick.png" alt="Kick logo" boxSize={5} />}
+                >
+                  Iniciar Sesión con Kick
+                </Button>
               </VStack>
-            </form>
+            </VStack>
           </Box>
         </Flex>
       </Flex>

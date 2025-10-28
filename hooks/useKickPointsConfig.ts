@@ -77,7 +77,7 @@ export const useKickPointsConfig = () => {
     }
   }
 
-  const updateConfig = async (configKey: string, value: number | boolean) => {
+  const updateConfig = async (configKey: string, value: number | boolean, skipReload = false) => {
     try {
       // Preparar el payload según kickApi.ts
       let payload: any = {}
@@ -94,7 +94,12 @@ export const useKickPointsConfig = () => {
 
       // Usar la API definida en kickApi.ts
       await kickPointsConfigApi.updateConfig(payload)
-      await fetchConfigs() // Recargar configuración
+
+      // Solo recargar si no se especifica skipReload
+      if (!skipReload) {
+        await fetchConfigs() // Recargar configuración
+      }
+
       return true
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al actualizar configuración')
@@ -111,33 +116,39 @@ export const useKickPointsConfig = () => {
     } catch (err: any) {
       // Si el endpoint no existe, intentar crear configuraciones manualmente
       if (err.response?.status === 404) {
-        console.warn('Endpoint de inicialización no disponible, creando configuraciones manualmente')
+        console.warn('Endpoint de inicialización no disponible, creando configuraciones en lote')
 
-        // Crear configuraciones básicas una por una
+        // Crear todas las configuraciones en una sola llamada
         const defaultConfigs = [
-          { key: 'chat_points_regular', value: 10 },
-          { key: 'chat_points_subscriber', value: 20 },
-          { key: 'follow_points', value: 50 },
-          { key: 'subscription_new_points', value: 500 },
-          { key: 'subscription_renewal_points', value: 300 },
-          { key: 'gift_given_points', value: 300 },
-          { key: 'gift_received_points', value: 200 }
+          { config_key: 'chat_points_regular', config_value: 10, enabled: true },
+          { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
+          { config_key: 'follow_points', config_value: 50, enabled: true },
+          { config_key: 'subscription_new_points', config_value: 500, enabled: true },
+          { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },
+          { config_key: 'gift_given_points', config_value: 300, enabled: true },
+          { config_key: 'gift_received_points', config_value: 200, enabled: true }
         ]
 
-        for (const config of defaultConfigs) {
-          try {
-            await kickPointsConfigApi.updateConfig({
-              config_key: config.key,
-              config_value: config.value,
-              enabled: true
-            })
-          } catch (createErr) {
-            console.warn(`Error creando configuración ${config.key}:`, createErr)
-          }
-        }
+        try {
+          // Usar updateMultipleConfigs para hacer todo en una sola llamada
+          await kickPointsConfigApi.updateMultipleConfigs(defaultConfigs)
+          await fetchConfigs() // Solo una recarga al final
+          return true
+        } catch (bulkErr) {
+          console.warn('Error con actualización en lote, intentando una por una:', bulkErr)
 
-        await fetchConfigs()
-        return true
+          // Fallback: crear una por una pero sin recargar hasta el final
+          for (const config of defaultConfigs) {
+            try {
+              await kickPointsConfigApi.updateConfig(config)
+            } catch (createErr) {
+              console.warn(`Error creando configuración ${config.config_key}:`, createErr)
+            }
+          }
+
+          await fetchConfigs() // Solo una recarga al final
+          return true
+        }
       }
 
       setError(err.response?.data?.message || 'Error al inicializar configuración')

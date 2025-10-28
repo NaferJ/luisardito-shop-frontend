@@ -142,14 +142,16 @@ export default function KickPointsConfigPage() {
     try {
       setSaving(true)
       const data = formData[key]
-      await updateConfig(key, data.value)
-      await updateConfig(`${key}_enabled`, data.enabled)
+
+      // Hacer ambas actualizaciones sin recargar hasta el final
+      await updateConfig(key, data.value, true) // skipReload = true
+      await updateConfig(`${key}_enabled`, data.enabled, false) // Solo la última recarga
+
       toast({
         title: 'Configuración actualizada',
         status: 'success',
         duration: 2000,
       })
-      await fetchConfigs()
     } catch (err) {
       toast({
         title: 'Error al guardar',
@@ -168,26 +170,13 @@ export default function KickPointsConfigPage() {
 
     try {
       setInitializing(true)
-      // Crear configuraciones por defecto
-      const defaultConfigs = [
-        { key: 'chat_points_regular', value: 1, enabled: true },
-        { key: 'chat_points_subscriber', value: 2, enabled: true },
-        { key: 'follow_points', value: 10, enabled: true },
-        { key: 'subscription_new_points', value: 50, enabled: true },
-        { key: 'subscription_renewal_points', value: 25, enabled: true },
-        { key: 'gift_given_points', value: 30, enabled: true },
-        { key: 'gift_received_points', value: 50, enabled: true },
-      ]
 
-      for (const config of defaultConfigs) {
-        await updateConfig(config.key, config.value)
-        await updateConfig(`${config.key}_enabled`, config.enabled)
-      }
+      // Usar la función initializeConfig del hook que ya está optimizada
+      await initializeConfig()
 
-      await fetchConfigs()
       toast({
         title: 'Configuración inicializada',
-        description: 'Se han establecido los valores por defecto',
+        description: 'Se han establecido los valores por defecto en una sola operación',
         status: 'success',
         duration: 3000,
       })

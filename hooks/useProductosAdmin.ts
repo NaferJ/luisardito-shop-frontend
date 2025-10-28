@@ -2,6 +2,38 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../lib/api'
 import { Producto } from '../types'
 
+// Hook para obtener todos los productos (incluyendo borradores) - SOLO ADMINISTRADORES
+export function useProductosAdmin() {
+  return useQuery<{ total: number, productos: Producto[] }, Error>({
+    queryKey: ['productos-admin'],
+    queryFn: async () => {
+      try {
+        // Intentar el endpoint de admin primero
+        const { data } = await api.get('/api/productos/admin')
+        return data
+      } catch (error: any) {
+        // Si falla (404), usar el endpoint debug como fallback
+        if (error?.response?.status === 404) {
+          const { data } = await api.get('/api/productos/debug/all')
+          return data
+        }
+        throw error
+      }
+    }
+  })
+}
+
+// Hook usando directamente el endpoint debug (más directo)
+export function useProductosAdminDebug() {
+  return useQuery<{ total: number, productos: Producto[] }, Error>({
+    queryKey: ['productos-admin-debug'],
+    queryFn: async () => {
+      const { data } = await api.get('/api/productos/debug/all')
+      return data
+    }
+  })
+}
+
 // Hook para crear producto
 export function useCreateProducto() {
   const queryClient = useQueryClient()
@@ -12,7 +44,10 @@ export function useCreateProducto() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productos'] })
+      // Invalidar todas las queries de productos (públicos y admin)
+      queryClient.invalidateQueries({ queryKey: ['productos'] }) // Incluye tanto 'public' como 'all'
+      queryClient.invalidateQueries({ queryKey: ['productos-admin'] })
+      queryClient.invalidateQueries({ queryKey: ['productos-admin-debug'] })
     }
   })
 }
@@ -27,7 +62,10 @@ export function useUpdateProducto() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productos'] })
+      // Invalidar todas las queries de productos (públicos y admin)
+      queryClient.invalidateQueries({ queryKey: ['productos'] }) // Incluye tanto 'public' como 'all'
+      queryClient.invalidateQueries({ queryKey: ['productos-admin'] })
+      queryClient.invalidateQueries({ queryKey: ['productos-admin-debug'] })
     }
   })
 }
@@ -42,7 +80,10 @@ export function useDeleteProducto() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productos'] })
+      // Invalidar todas las queries de productos (públicos y admin)
+      queryClient.invalidateQueries({ queryKey: ['productos'] }) // Incluye tanto 'public' como 'all'
+      queryClient.invalidateQueries({ queryKey: ['productos-admin'] })
+      queryClient.invalidateQueries({ queryKey: ['productos-admin-debug'] })
     }
   })
 }

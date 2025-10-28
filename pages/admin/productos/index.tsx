@@ -68,8 +68,7 @@ import {
 } from '@chakra-ui/react'
 import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { useProductos } from '../../../hooks/useProductos'
-import { useDeleteProducto, useUpdateProducto } from '../../../hooks/useProductosAdmin'
+import { useProductosAdminDebug, useDeleteProducto, useUpdateProducto } from '../../../hooks/useProductosAdmin'
 import {
   SettingsIcon,
   SearchIcon,
@@ -83,7 +82,11 @@ import {
 import NextLink from 'next/link'
 
 export default function AdminProductosPage() {
-  const { data: productos, isLoading, error } = useProductos()
+  const { data: productosData, isLoading, error } = useProductosAdminDebug()
+
+  // Extraer productos del response del backend
+  const productos = productosData?.productos || []
+  const totalProductos = productosData?.total || 0
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
     isOpen: isDeleteOpen,

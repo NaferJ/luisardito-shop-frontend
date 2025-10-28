@@ -41,8 +41,8 @@ export const useKickAdminConfig = () => {
 
   const updateMigrationConfig = async (enabled: boolean) => {
     try {
-      // Usar la estructura real del backend: { enabled: boolean }
-      const payload = { enabled: enabled }
+      // El backend espera migration_enabled, no enabled
+      const payload = { migration_enabled: enabled }
 
       console.log('🔄 updateMigrationConfig: Enviando payload:', payload)
       console.log('🔄 updateMigrationConfig: Endpoint:', '/api/kick-admin/migration')
@@ -59,7 +59,7 @@ export const useKickAdminConfig = () => {
         statusText: err.response?.statusText,
         data: err.response?.data,
         message: err.message,
-        payload: { enabled }
+        payload: { migration_enabled: enabled }
       })
 
       setError(err.response?.data?.message || 'Error al actualizar migración')
@@ -69,10 +69,22 @@ export const useKickAdminConfig = () => {
 
   const updateVipConfig = async (vipConfig: Partial<VipConfig>) => {
     try {
-      console.log('🔄 updateVipConfig: Enviando payload:', vipConfig)
+      // El backend parece esperar vip_points_enabled en lugar de points_enabled
+      let payload: any = {}
+
+      if (vipConfig.points_enabled !== undefined) {
+        payload.vip_points_enabled = vipConfig.points_enabled
+      }
+
+      // Incluir otros campos si los hay
+      if (vipConfig.chat_points !== undefined) payload.vip_chat_points = vipConfig.chat_points
+      if (vipConfig.follow_points !== undefined) payload.vip_follow_points = vipConfig.follow_points
+      if (vipConfig.sub_points !== undefined) payload.vip_sub_points = vipConfig.sub_points
+
+      console.log('🔄 updateVipConfig: Enviando payload:', payload)
       console.log('🔄 updateVipConfig: Endpoint:', '/api/kick-admin/vip-config')
 
-      const response = await api.put('/api/kick-admin/vip-config', vipConfig)
+      const response = await api.put('/api/kick-admin/vip-config', payload)
 
       console.log('✅ updateVipConfig: Respuesta exitosa:', response.data)
 

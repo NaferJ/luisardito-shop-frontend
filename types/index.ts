@@ -155,9 +155,10 @@ export interface KickSubscription {
   created_at: string
 }
 
-// Tipos para configuración VIP y migración (estructura REAL del backend confirmada)
+// Tipos para configuración VIP y migración
+// NOTA: El backend devuelve ciertos nombres en GET pero espera otros en PUT
 export interface VipConfig {
-  points_enabled: boolean  // Confirmado: el backend usa points_enabled
+  points_enabled: boolean  // GET devuelve points_enabled
   chat_points: number
   follow_points: number
   sub_points: number
@@ -168,11 +169,23 @@ export interface VipConfig {
 }
 
 export interface MigrationConfig {
-  enabled: boolean  // Confirmado: el backend usa enabled
+  enabled: boolean  // GET devuelve enabled, pero PUT espera migration_enabled
   stats: {
     migrated_users: number
     total_points_migrated: number
   }
+}
+
+// Tipos para las requests PUT (lo que el backend espera)
+export interface VipConfigUpdateRequest {
+  vip_points_enabled?: boolean
+  vip_chat_points?: number
+  vip_follow_points?: number
+  vip_sub_points?: number
+}
+
+export interface MigrationConfigUpdateRequest {
+  migration_enabled: boolean
 }
 
 export interface KickAdminConfig {

@@ -41,7 +41,7 @@ export const useKickAdminConfig = () => {
 
   const updateMigrationConfig = async (enabled: boolean) => {
     try {
-      await api.put('/api/kick-admin/migration', { migration_enabled: enabled })
+      await api.put('/api/kick-admin/migration', { enabled: enabled })
       await fetchConfig() // Recargar configuración
       return true
     } catch (err: any) {

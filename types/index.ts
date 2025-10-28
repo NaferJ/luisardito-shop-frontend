@@ -153,23 +153,28 @@ export interface KickSubscription {
   created_at: string
 }
 
-// Tipos para configuración VIP y migración
+// Tipos para configuración VIP y migración (estructura real del backend)
 export interface VipConfig {
-  vip_points_enabled: boolean
-  vip_chat_points: number
-  vip_follow_points: number
-  vip_sub_points: number
+  points_enabled: boolean
+  chat_points: number
+  follow_points: number
+  sub_points: number
+  stats: {
+    active_vips: number
+    expired_vips: number
+  }
 }
 
 export interface MigrationConfig {
-  migration_enabled: boolean
-  stats?: {
+  enabled: boolean
+  stats: {
     migrated_users: number
-    total_points: number
+    total_points_migrated: number
   }
 }
 
 export interface KickAdminConfig {
+  success: boolean
   migration: MigrationConfig
   vip: VipConfig
 }

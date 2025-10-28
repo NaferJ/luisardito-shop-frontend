@@ -131,7 +131,7 @@ export default function KickAdminPage() {
   const handleVipToggle = async (enabled: boolean) => {
     try {
       setUpdatingVip(true)
-      await updateVipConfig({ vip_points_enabled: enabled })
+      await updateVipConfig({ points_enabled: enabled })
       toast({
         title: 'Sistema VIP actualizado',
         description: `Puntos VIP ${enabled ? 'activados' : 'desactivados'}`,
@@ -227,11 +227,13 @@ export default function KickAdminPage() {
     )
   }
 
-  // Determinar estados actuales de la configuración con valores por defecto
-  const migrationEnabled = config?.migration?.migration_enabled ?? false
-  const vipEnabled = config?.vip?.vip_points_enabled ?? false
+  // Determinar estados actuales de la configuración con nombres correctos del backend
+  const migrationEnabled = config?.migration?.enabled ?? false
+  const vipEnabled = config?.vip?.points_enabled ?? false
   const migratedUsers = config?.migration?.stats?.migrated_users ?? 0
-  const totalPointsMigrated = config?.migration?.stats?.total_points ?? 0
+  const totalPointsMigrated = config?.migration?.stats?.total_points_migrated ?? 0
+  const activeVips = config?.vip?.stats?.active_vips ?? 0
+  const expiredVips = config?.vip?.stats?.expired_vips ?? 0
 
   // Si no hay configuración disponible pero tampoco hay error crítico,
   // mostrar interfaz con valores por defecto
@@ -430,6 +432,26 @@ export default function KickAdminPage() {
                         : 'Funcionalidad no disponible - endpoint no configurado'
                       }
                     </Text>
+
+                    {vipEnabled && hasConfig && (
+                      <>
+                        <Divider />
+                        <SimpleGrid columns={2} spacing={4}>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>VIPs activos</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="yellow.500">
+                              {activeVips}
+                            </Text>
+                          </Box>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>VIPs expirados</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="orange.500">
+                              {expiredVips}
+                            </Text>
+                          </Box>
+                        </SimpleGrid>
+                      </>
+                    )}
 
                     {vipEnabled && (
                       <>

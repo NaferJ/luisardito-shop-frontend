@@ -31,11 +31,24 @@ export const useKickPointsConfig = () => {
           data: response.data,
           dataType: typeof response.data,
           isArray: Array.isArray(response.data),
-          length: Array.isArray(response.data) ? response.data.length : 'N/A'
+          hasConfigArray: response.data && Array.isArray(response.data.config),
+          configLength: response.data?.config?.length || 'N/A',
+          total: response.data?.total,
+          initialized: response.data?.initialized
         })
       }
 
-      setConfigs(response.data)
+      // El backend devuelve { config: [...], total: X, initialized: boolean }
+      // Necesitamos extraer el array de config
+      if (response.data && response.data.config && Array.isArray(response.data.config)) {
+        setConfigs(response.data.config)
+      } else if (Array.isArray(response.data)) {
+        // Fallback en caso de que devuelva directamente el array
+        setConfigs(response.data)
+      } else {
+        console.warn('Estructura de respuesta inesperada:', response.data)
+        setConfigs([])
+      }
     } catch (err: any) {
       console.warn('Error al cargar configuración de puntos:', err)
 

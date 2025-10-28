@@ -138,10 +138,12 @@ export interface KickConnectionStatus {
 }
 
 export interface KickPointsConfig {
+  id: number
   config_key: string
   config_value: number
   enabled: boolean
   description?: string
+  created_at: string
   updated_at: string
 }
 

@@ -71,6 +71,19 @@ export default function KickPointsConfigPage() {
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
 
+  // Debug logging para ver el estado actual
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Estado de configs en página puntos:', {
+        configs,
+        isArray: Array.isArray(configs),
+        length: Array.isArray(configs) ? configs.length : 'N/A',
+        loading,
+        error
+      })
+    }
+  }, [configs, loading, error])
+
   // Color mode values
   const cardBg = useColorModeValue('white', 'gray.800')
   const cardBorder = useColorModeValue('gray.200', 'gray.600')
@@ -257,7 +270,7 @@ export default function KickPointsConfigPage() {
               </Alert>
             )}
 
-            {!Array.isArray(configs) || configs.length === 0 ? (
+            {!loading && (!Array.isArray(configs) || configs.length === 0) ? (
               <Card borderRadius="xl" bg={initCardBg} border="1px solid" borderColor={cardBorder}>
                 <CardBody p={8}>
                   <VStack spacing={6}>

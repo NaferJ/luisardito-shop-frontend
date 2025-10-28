@@ -9,18 +9,18 @@ interface RequireAdminProps {
   permissions?: string[] // Permisos específicos requeridos
 }
 
-// Solo streamer (rol_id: 3) y developer (rol_id: 4) pueden acceder a admin
-const DEFAULT_ADMIN_ROLES = [3, 4]
+// Solo streamer (rol_id: 3), developer (rol_id: 4) y moderador (rol_id: 5) pueden acceder a admin
+const DEFAULT_ADMIN_ROLES = [3, 4, 5]
 
 export function RequireAdmin({
   children,
   allowedRoles = DEFAULT_ADMIN_ROLES,
   permissions = []
 }: RequireAdminProps) {
-  const { user, loading } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Container maxW="container.md" py={8}>
         <VStack spacing={4}>
@@ -62,8 +62,8 @@ export function RequireAdmin({
           <VStack align="start" spacing={2}>
             <Text fontWeight="bold">Acceso denegado</Text>
             <Text>
-              No tienes permisos para acceder a esta página. Solo streamers y desarrolladores
-              pueden acceder al panel de administración.
+              No tienes permisos para acceder a esta página. Solo streamers, desarrolladores
+              y moderadores pueden acceder al panel de administración.
             </Text>
             <Button
               colorScheme="purple"

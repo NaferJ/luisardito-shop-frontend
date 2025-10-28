@@ -545,6 +545,11 @@ export default function AdminCanjesPage() {
                                 <Text fontSize="xs" color="gray.500">
                                   {canje?.Usuario?.email || canje?.usuario?.email}
                                 </Text>
+                                {(canje?.Usuario?.discord_username || canje?.usuario?.discord_username) && (
+                                  <Text fontSize="xs" color="purple.500">
+                                    Discord: {canje?.Usuario?.discord_username || canje?.usuario?.discord_username}
+                                  </Text>
+                                )}
                               </VStack>
                             </HStack>
                           </Td>

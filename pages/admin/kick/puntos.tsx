@@ -67,7 +67,7 @@ const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
 export default function KickPointsConfigPage() {
   const router = useRouter()
   const toast = useToast()
-  const { configs, loading, error, updateConfig, fetchConfigs } = useKickPointsConfig()
+  const { configs, loading, error, updateConfig, fetchConfigs, initializeConfig } = useKickPointsConfig()
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
 

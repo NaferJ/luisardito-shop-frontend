@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { KickPointsConfig } from '../types'
 import { getAuthCookie } from '../lib/cookies'
-import api from '../lib/api'
+import { kickPointsConfigApi } from '../lib/kickApi'
 
 export const useKickPointsConfig = () => {
   const [configs, setConfigs] = useState<KickPointsConfig[] | null>(null)
@@ -21,8 +21,8 @@ export const useKickPointsConfig = () => {
     try {
       setLoading(true)
       setError(null)
-      // Usar la ruta correcta del backend
-      const response = await api.get('/api/kick/points-config')
+      // Usar la API definida en kickApi.ts
+      const response = await kickPointsConfigApi.getConfig()
 
       // Logging detallado para diagnosticar el problema
       if (process.env.NODE_ENV === 'development') {
@@ -79,22 +79,21 @@ export const useKickPointsConfig = () => {
 
   const updateConfig = async (configKey: string, value: number | boolean) => {
     try {
-      let endpoint = '/api/kick/points-config'
+      // Preparar el payload según kickApi.ts
       let payload: any = {}
 
-      // Determinar si es valor numérico o boolean (enabled)
       if (typeof value === 'boolean') {
         // Es un toggle de enabled
         payload.config_key = configKey.replace('_enabled', '')
         payload.enabled = value
-        endpoint += '/toggle'
       } else {
         // Es un valor numérico
         payload.config_key = configKey
         payload.config_value = value
       }
 
-      await api.put(endpoint, payload)
+      // Usar la API definida en kickApi.ts
+      await kickPointsConfigApi.updateConfig(payload)
       await fetchConfigs() // Recargar configuración
       return true
     } catch (err: any) {
@@ -105,8 +104,8 @@ export const useKickPointsConfig = () => {
 
   const initializeConfig = async () => {
     try {
-      // Usar el endpoint que existe en el backend según el log
-      await api.post('/api/kick/points-config/initialize')
+      // Usar la API definida en kickApi.ts
+      await kickPointsConfigApi.initializeConfig()
       await fetchConfigs() // Recargar configuración
       return true
     } catch (err: any) {
@@ -127,7 +126,7 @@ export const useKickPointsConfig = () => {
 
         for (const config of defaultConfigs) {
           try {
-            await api.put('/api/kick/points-config', {
+            await kickPointsConfigApi.updateConfig({
               config_key: config.key,
               config_value: config.value,
               enabled: true

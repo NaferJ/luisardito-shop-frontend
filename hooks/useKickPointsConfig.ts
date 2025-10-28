@@ -108,15 +108,16 @@ export const useKickPointsConfig = () => {
   }
 
   const resetToDefaults = async () => {
-    // Valores por defecto específicos que sabemos que queremos
+    // Valores por defecto específicos que sabemos que queremos (según backend)
     const defaultConfigs = [
       { config_key: 'chat_points_regular', config_value: 10, enabled: true },
       { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
+      { config_key: 'chat_points_vip', config_value: 30, enabled: true },
       { config_key: 'follow_points', config_value: 50, enabled: true },
       { config_key: 'subscription_new_points', config_value: 500, enabled: true },
       { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },
-      { config_key: 'gift_given_points', config_value: 300, enabled: true },
-      { config_key: 'gift_received_points', config_value: 200, enabled: true }
+      { config_key: 'gift_given_points', config_value: 100, enabled: true },
+      { config_key: 'gift_received_points', config_value: 400, enabled: true }
     ]
 
     try {
@@ -160,10 +161,11 @@ export const useKickPointsConfig = () => {
   }
 
   const initializeConfig = async () => {
-    // Valores por defecto que queremos establecer
+    // Valores por defecto que queremos establecer (según backend)
     const defaultConfigs = [
       { config_key: 'chat_points_regular', config_value: 10, enabled: true },
       { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
+      { config_key: 'chat_points_vip', config_value: 30, enabled: true },
       { config_key: 'follow_points', config_value: 50, enabled: true },
       { config_key: 'subscription_new_points', config_value: 500, enabled: true },
       { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },

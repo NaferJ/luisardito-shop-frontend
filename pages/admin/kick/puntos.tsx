@@ -42,6 +42,10 @@ const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
     label: 'Puntos por Mensaje (Suscriptor)',
     description: 'Puntos otorgados por cada mensaje en el chat de suscriptores',
   },
+  chat_points_vip: {
+    label: 'Puntos por Mensaje (Usuario VIP)',
+    description: 'Puntos otorgados por cada mensaje en el chat de usuarios VIP (prioridad máxima)',
+  },
   follow_points: {
     label: 'Puntos por Follow',
     description: 'Puntos otorgados cuando un usuario sigue el canal',

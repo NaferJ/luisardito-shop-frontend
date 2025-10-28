@@ -56,15 +56,17 @@ export default function HistorialPage() {
     return { icon: MdSwapHoriz, color: 'gray.500' }
   }
 
-  // Función para obtener descripción enriquecida del evento
   const getEventDescription = (movimiento: any) => {
     const concept = movimiento.concepto || movimiento.motivo
     const eventData = movimiento.kick_event_data
 
+      console.log('Movimiento:', movimiento);
+      console.log('Datos del evento:', eventData);
+
     if (eventData?.event_type === 'botrix_migration') {
       return {
         title: 'Migración desde Botrix',
-        subtitle: `${eventData.points_migrated?.toLocaleString()} puntos migrados automáticamente`,
+        subtitle: `${eventData.original_points?.toLocaleString()} puntos migrados automáticamente`,
         badge: { text: '🔄 Migración', color: 'cyan' }
       }
     }

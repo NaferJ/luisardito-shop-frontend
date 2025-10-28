@@ -14,12 +14,94 @@ import {
   Card,
   CardBody,
   Heading,
-  Divider
+  Divider,
+  Icon,
+  Switch,
+  FormControl,
+  FormLabel,
+  Tooltip,
 } from '@chakra-ui/react'
+import { useState } from 'react'
+import { MdStar, MdSwapHoriz, MdChat, MdPerson, MdCrown } from 'react-icons/md'
 
 export default function HistorialPage() {
   const { user } = useAuth()
-  const { data: historial, isLoading, error } = useHistorialPuntos(user?.id)
+  const [includeAll, setIncludeAll] = useState(false)
+  const { data: historial, isLoading, error } = useHistorialPuntos(user?.id, includeAll)
+
+  // Función para obtener el icono y color según el tipo de evento
+  const getEventIcon = (movimiento: any) => {
+    const concept = movimiento.concepto || movimiento.motivo
+    const eventData = movimiento.kick_event_data
+
+    if (eventData?.event_type === 'botrix_migration') {
+      return { icon: MdSwapHoriz, color: 'cyan.500' }
+    }
+    if (eventData?.event_type === 'vip_granted') {
+      return { icon: MdCrown, color: 'yellow.500' }
+    }
+    if (concept?.includes('VIP') || eventData?.is_vip) {
+      return { icon: MdCrown, color: 'yellow.500' }
+    }
+    if (concept?.includes('chat') || concept?.includes('mensaje')) {
+      return { icon: MdChat, color: 'blue.500' }
+    }
+    if (concept?.includes('follow') || concept?.includes('seguir')) {
+      return { icon: MdPerson, color: 'green.500' }
+    }
+    if (concept?.includes('suscr') || eventData?.user_type === 'subscriber') {
+      return { icon: MdStar, color: 'purple.500' }
+    }
+
+    return { icon: MdSwapHoriz, color: 'gray.500' }
+  }
+
+  // Función para obtener descripción enriquecida del evento
+  const getEventDescription = (movimiento: any) => {
+    const concept = movimiento.concepto || movimiento.motivo
+    const eventData = movimiento.kick_event_data
+
+    if (eventData?.event_type === 'botrix_migration') {
+      return {
+        title: 'Migración desde Botrix',
+        subtitle: `${eventData.points_migrated?.toLocaleString()} puntos migrados automáticamente`,
+        badge: { text: '🔄 Migración', color: 'cyan' }
+      }
+    }
+
+    if (eventData?.event_type === 'vip_granted') {
+      const duration = eventData.duration_days
+        ? `por ${eventData.duration_days} días`
+        : 'permanente'
+      return {
+        title: `VIP otorgado (${duration})`,
+        subtitle: 'Estado VIP activado',
+        badge: { text: 'VIP', color: 'yellow' }
+      }
+    }
+
+    if (concept?.includes('vip') || eventData?.is_vip) {
+      return {
+        title: concept,
+        subtitle: 'Evento con bonificación VIP',
+        badge: { text: 'VIP', color: 'yellow' }
+      }
+    }
+
+    if (eventData?.user_type === 'subscriber') {
+      return {
+        title: concept,
+        subtitle: 'Evento con bonificación de suscriptor',
+        badge: { text: 'SUB', color: 'purple' }
+      }
+    }
+
+    return {
+      title: concept,
+      subtitle: null,
+      badge: null
+    }
+  }
 
   if (isLoading) {
     return (
@@ -57,9 +139,29 @@ export default function HistorialPage() {
             {/* Encabezado */}
             <Box>
               <Heading size="xl" mb={2}>Historial de Puntos</Heading>
-              <Text color="gray.600">
-                Saldo actual: <Badge colorScheme="purple" fontSize="md">{user?.puntos?.toLocaleString()} puntos</Badge>
-              </Text>
+              <HStack justify="space-between" align="center">
+                <Text color="gray.600">
+                  Saldo actual: <Badge colorScheme="purple" fontSize="md">{user?.puntos?.toLocaleString()} puntos</Badge>
+                </Text>
+
+                {/* Toggle para admins */}
+                {user?.rol_id && [3, 4].includes(user.rol_id) && (
+                  <FormControl display="flex" alignItems="center" w="auto">
+                    <FormLabel htmlFor="include-all" mb="0" fontSize="sm">
+                      Ver eventos de chat automático
+                    </FormLabel>
+                    <Tooltip label="Los administradores pueden ver todos los eventos, incluyendo chat automático">
+                      <Switch
+                        id="include-all"
+                        isChecked={includeAll}
+                        onChange={(e) => setIncludeAll(e.target.checked)}
+                        colorScheme="purple"
+                        size="sm"
+                      />
+                    </Tooltip>
+                  </FormControl>
+                )}
+              </HStack>
             </Box>
 
             {/* Lista de movimientos */}
@@ -76,45 +178,100 @@ export default function HistorialPage() {
               </Center>
             ) : (
               <VStack spacing={4} align="stretch">
-                {historial.map((movimiento) => (
-                  <Card key={movimiento.id}>
-                    <CardBody>
-                      <HStack justify="space-between" align="start">
-                        <VStack align="start" spacing={1} flex="1">
-                          <Text fontWeight="semibold">
-                            {movimiento.motivo}
-                          </Text>
-                          <Text fontSize="sm" color="gray.600">
-                            {new Date(movimiento.fecha).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </Text>
-                        </VStack>
+                {historial.map((movimiento) => {
+                  const eventIcon = getEventIcon(movimiento)
+                  const eventDesc = getEventDescription(movimiento)
 
-                        <Badge 
-                          colorScheme={getChangeColor(movimiento.cambio)} 
-                          fontSize="md" 
-                          px={3} 
-                          py={1}
-                        >
-                          {getChangeText(movimiento.cambio)} puntos
-                        </Badge>
-                      </HStack>
-                    </CardBody>
-                  </Card>
-                ))}
+                  return (
+                    <Card key={movimiento.id} _hover={{ shadow: 'md' }} transition="all 0.2s">
+                      <CardBody>
+                        <HStack justify="space-between" align="start" spacing={4}>
+                          {/* Icono y contenido */}
+                          <HStack spacing={3} flex="1">
+                            <Icon
+                              as={eventIcon.icon}
+                              color={eventIcon.color}
+                              boxSize={5}
+                              mt={1}
+                            />
+                            <VStack align="start" spacing={1} flex="1">
+                              <HStack>
+                                <Text fontWeight="semibold" fontSize="md">
+                                  {eventDesc.title}
+                                </Text>
+                                {eventDesc.badge && (
+                                  <Badge
+                                    colorScheme={eventDesc.badge.color}
+                                    size="sm"
+                                    fontSize="xs"
+                                  >
+                                    {eventDesc.badge.text}
+                                  </Badge>
+                                )}
+                              </HStack>
+
+                              {eventDesc.subtitle && (
+                                <Text fontSize="sm" color="gray.600">
+                                  {eventDesc.subtitle}
+                                </Text>
+                              )}
+
+                              <Text fontSize="xs" color="gray.500">
+                                {new Date(movimiento.fecha).toLocaleDateString('es-ES', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </Text>
+                            </VStack>
+                          </HStack>
+
+                          {/* Badge de puntos */}
+                          <Badge
+                            colorScheme={getChangeColor(movimiento.cambio || movimiento.puntos)}
+                            fontSize="md"
+                            px={3}
+                            py={2}
+                            borderRadius="lg"
+                            fontWeight="bold"
+                          >
+                            {getChangeText(movimiento.cambio || movimiento.puntos)} puntos
+                          </Badge>
+                        </HStack>
+                      </CardBody>
+                    </Card>
+                  )
+                })}
               </VStack>
             )}
 
             <Divider />
 
-            <Text fontSize="sm" color="gray.500" textAlign="center">
-              Los puntos se obtienen por participar en actividades y se gastan al canjear productos
-            </Text>
+            <VStack spacing={2}>
+              <Text fontSize="sm" color="gray.500" textAlign="center">
+                Los puntos se obtienen por participar en actividades y se gastan al canjear productos
+              </Text>
+              <HStack spacing={4} fontSize="xs" color="gray.400">
+                <HStack spacing={1}>
+                  <Icon as={MdSwapHoriz} color="cyan.500" />
+                  <Text>Migración</Text>
+                </HStack>
+                <HStack spacing={1}>
+                  <Icon as={MdCrown} color="yellow.500" />
+                  <Text>VIP</Text>
+                </HStack>
+                <HStack spacing={1}>
+                  <Icon as={MdStar} color="purple.500" />
+                  <Text>Suscriptor</Text>
+                </HStack>
+                <HStack spacing={1}>
+                  <Icon as={MdChat} color="blue.500" />
+                  <Text>Chat</Text>
+                </HStack>
+              </HStack>
+            </VStack>
           </VStack>
         </Container>
       </Layout>

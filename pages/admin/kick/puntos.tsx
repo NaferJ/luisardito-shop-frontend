@@ -67,7 +67,7 @@ const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
 export default function KickPointsConfigPage() {
   const router = useRouter()
   const toast = useToast()
-  const { config, loading, error, updateConfig, initializeConfig } = useKickPointsConfig()
+  const { configs, loading, error, updateConfig, fetchConfigs } = useKickPointsConfig()
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
 
@@ -91,9 +91,9 @@ export default function KickPointsConfigPage() {
 
   // Inicializar formData cuando se carga la config
   useEffect(() => {
-    if (Array.isArray(config) && config.length > 0) {
+    if (Array.isArray(configs) && configs.length > 0) {
       const newFormData: Record<string, { value: number; enabled: boolean }> = {}
-      config.forEach((item) => {
+      configs.forEach((item) => {
         if (item && item.config_key) {
           newFormData[item.config_key] = {
             value: item.config_value || 0,
@@ -103,7 +103,7 @@ export default function KickPointsConfigPage() {
       })
       setFormData(newFormData)
     }
-  }, [config])
+  }, [configs])
 
   const handleValueChange = (key: string, value: number) => {
     setFormData((prev) => ({
@@ -129,12 +129,14 @@ export default function KickPointsConfigPage() {
     try {
       setSaving(true)
       const data = formData[key]
-      await updateConfig(key, data.value, data.enabled)
+      await updateConfig(key, data.value)
+      await updateConfig(`${key}_enabled`, data.enabled)
       toast({
         title: 'Configuración actualizada',
         status: 'success',
         duration: 2000,
       })
+      await fetchConfigs()
     } catch (err) {
       toast({
         title: 'Error al guardar',
@@ -153,7 +155,23 @@ export default function KickPointsConfigPage() {
 
     try {
       setInitializing(true)
-      await initializeConfig()
+      // Crear configuraciones por defecto
+      const defaultConfigs = [
+        { key: 'chat_points_regular', value: 1, enabled: true },
+        { key: 'chat_points_subscriber', value: 2, enabled: true },
+        { key: 'follow_points', value: 10, enabled: true },
+        { key: 'subscription_new_points', value: 50, enabled: true },
+        { key: 'subscription_renewal_points', value: 25, enabled: true },
+        { key: 'gift_given_points', value: 30, enabled: true },
+        { key: 'gift_received_points', value: 50, enabled: true },
+      ]
+
+      for (const config of defaultConfigs) {
+        await updateConfig(config.key, config.value)
+        await updateConfig(`${config.key}_enabled`, config.enabled)
+      }
+
+      await fetchConfigs()
       toast({
         title: 'Configuración inicializada',
         description: 'Se han establecido los valores por defecto',
@@ -173,248 +191,250 @@ export default function KickPointsConfigPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <Container maxW="container.xl" py={8}>
-          <VStack spacing={8}>
-            <Spinner size="xl" />
-            <Text>Cargando configuración...</Text>
-          </VStack>
-        </Container>
-      </Layout>
+      <RequireAdmin>
+        <Layout>
+          <Container maxW="container.xl" py={8}>
+            <VStack spacing={8}>
+              <Spinner size="xl" color="purple.500" thickness="4px" />
+              <Text fontSize="lg" color="gray.600">Cargando configuración...</Text>
+            </VStack>
+          </Container>
+        </Layout>
+      </RequireAdmin>
     )
   }
 
   return (
-    <Layout>
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
-          {/* Header mejorado */}
-          <Box>
-            <HStack mb={4}>
-              <IconButton
-                aria-label="Volver"
-                icon={<ArrowBackIcon />}
-                onClick={() => router.push('/admin/kick')}
-                variant="ghost"
-                size="lg"
-              />
-              <VStack align="start" spacing={1} flex={1}>
-                <Heading size="xl" color="purple.600">
-                  Configuración de Puntos
-                </Heading>
-                <Text color="gray.600" fontSize="lg">
-                  Define cuántos puntos se otorgan por cada tipo de evento en Kick
-                </Text>
-              </VStack>
-            </HStack>
-
-            {/* Stats rápidas */}
-            {Array.isArray(config) && config.length > 0 && (
-              <HStack spacing={4} flexWrap="wrap">
-                <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
-                  {config.length} configuraciones
-                </Badge>
-                <Badge
-                  colorScheme={config.filter(c => c.enabled).length > 0 ? "green" : "gray"}
-                  fontSize="sm"
-                  px={3}
-                  py={1}
-                >
-                  {config.filter(c => c.enabled).length} activas
-                </Badge>
-              </HStack>
-            )}
-          </Box>
-
-          {error && (
-            <Alert status="error" borderRadius="xl">
-              <AlertIcon />
-              <Box>
-                <Text fontWeight="bold">Error al cargar configuración</Text>
-                <Text fontSize="sm">{error}</Text>
-              </Box>
-            </Alert>
-          )}
-
-          {!Array.isArray(config) || config.length === 0 ? (
-            <Card borderRadius="xl" bg={initCardBg} border="1px solid" borderColor={cardBorder}>
-              <CardBody p={8}>
-                <VStack spacing={6}>
-                  <Alert status="info" borderRadius="lg" bg={initCardBg} boxShadow="sm">
-                    <AlertIcon />
-                    <Box>
-                      <Text fontWeight="bold" mb={1}>Configuración no encontrada</Text>
-                      <Text fontSize="sm" color={descriptionColor}>
-                        No hay configuración establecida. Inicializa la configuración para empezar a otorgar puntos.
-                      </Text>
-                    </Box>
-                  </Alert>
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleInitialize}
-                    isLoading={initializing}
-                    size="lg"
-                    borderRadius="xl"
-                    px={8}
-                  >
-                    Inicializar Configuración
-                  </Button>
+    <RequireAdmin>
+      <Layout>
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            {/* Header mejorado */}
+            <Box>
+              <HStack mb={4}>
+                <IconButton
+                  aria-label="Volver"
+                  icon={<ArrowBackIcon />}
+                  onClick={() => router.push('/admin/kick')}
+                  variant="ghost"
+                  size="lg"
+                />
+                <VStack align="start" spacing={1} flex={1}>
+                  <Heading size="xl" color="purple.600">
+                    Configuración de Puntos
+                  </Heading>
+                  <Text color="gray.600" fontSize="lg">
+                    Define cuántos puntos se otorgan por cada tipo de evento en Kick
+                  </Text>
                 </VStack>
-              </CardBody>
-            </Card>
-          ) : (
-            <VStack spacing={6} align="stretch">
-              <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-                {Object.keys(CONFIG_LABELS).map((key) => {
-                try {
-                  // Validar que config sea un array y contenga elementos válidos
-                  if (!Array.isArray(config) || config.length === 0) {
-                    return null
-                  }
+              </HStack>
 
-                  const configItem = config.find((c) => c && typeof c === 'object' && c.config_key === key)
-                  if (!configItem) {
-                    return null
-                  }
-
-                  // Validar que formData[key] existe o crear valores por defecto
-                  const formValue = formData[key] || {
-                    value: configItem.config_value,
-                    enabled: configItem.enabled
-                  }
-
-                return (
-                  <Card
-                    key={key}
-                    borderRadius="xl"
-                    border="1px solid"
-                    borderColor={formValue.enabled ? enabledCardBorder : disabledCardBorder}
-                    bg={formValue.enabled ? enabledCardBg : disabledCardBg}
-                    _hover={{
-                      transform: "translateY(-2px)",
-                      boxShadow: "lg",
-                      borderColor: formValue.enabled ? enabledCardHoverBorder : disabledCardHoverBorder
-                    }}
-                    transition="all 0.2s"
+              {/* Stats rápidas */}
+              {Array.isArray(configs) && configs.length > 0 && (
+                <HStack spacing={4} flexWrap="wrap">
+                  <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+                    {configs.length} configuraciones
+                  </Badge>
+                  <Badge
+                    colorScheme={configs.filter(c => c.enabled).length > 0 ? "green" : "gray"}
+                    fontSize="sm"
+                    px={3}
+                    py={1}
                   >
-                    <CardBody p={6}>
-                      <VStack spacing={5} align="stretch">
-                        {/* Header de la tarjeta */}
-                        <HStack justify="space-between" align="start">
-                          <VStack align="start" spacing={2} flex={1}>
-                            <HStack>
-                              <Heading size="md" color={formValue.enabled ? headingEnabledColor : headingDisabledColor}>
-                                {CONFIG_LABELS[key].label}
-                              </Heading>
-                              <Badge
-                                colorScheme={formValue.enabled ? 'green' : 'gray'}
-                                fontSize="xs"
-                                px={2}
-                                py={1}
-                                borderRadius="full"
-                              >
-                                {formValue.enabled ? 'Activo' : 'Inactivo'}
-                              </Badge>
-                            </HStack>
-                            <Text fontSize="sm" color={descriptionColor} lineHeight={1.5}>
-                              {CONFIG_LABELS[key].description}
-                            </Text>
-                          </VStack>
-                        </HStack>
+                    {configs.filter(c => c.enabled).length} activas
+                  </Badge>
+                </HStack>
+              )}
+            </Box>
 
-                        <Divider />
+            {error && (
+              <Alert status="error" borderRadius="xl">
+                <AlertIcon />
+                <Box>
+                  <Text fontWeight="bold">Error al cargar configuración</Text>
+                  <Text fontSize="sm">{error}</Text>
+                </Box>
+              </Alert>
+            )}
 
-                        {/* Controles */}
-                        <HStack spacing={4} align="end">
-                          <FormControl flex={1}>
-                            <FormLabel fontSize="sm" fontWeight="medium" color={labelColor}>
-                              Puntos otorgados
-                            </FormLabel>
-                            <NumberInput
-                              value={formValue.value}
-                              onChange={(_, value) => handleValueChange(key, value)}
-                              min={0}
-                              max={10000}
-                              isDisabled={!formValue.enabled}
-                            >
-                              <NumberInputField
-                                borderRadius="lg"
-                                _focus={{ borderColor: "purple.400", boxShadow: "0 0 0 1px purple.400" }}
-                              />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-
-                          <FormControl display="flex" alignItems="center" width="auto">
-                            <FormLabel mb={0} mr={3} fontSize="sm" fontWeight="medium" color={labelColor}>
-                              Habilitado
-                            </FormLabel>
-                            <Switch
-                              isChecked={formValue.enabled}
-                              onChange={(e) => handleEnabledChange(key, e.target.checked)}
-                              colorScheme="purple"
-                              size="lg"
-                            />
-                          </FormControl>
-
-                          <Button
-                            colorScheme="purple"
-                            onClick={() => handleSave(key)}
-                            isLoading={saving}
-                            borderRadius="lg"
-                            px={6}
-                            _hover={{ transform: "translateY(-1px)" }}
-                          >
-                            Guardar
-                          </Button>
-                        </HStack>
-                      </VStack>
-                    </CardBody>
-                  </Card>
-                )
-                } catch (error) {
-                  return (
-                    <Alert key={key} status="warning">
+            {!Array.isArray(configs) || configs.length === 0 ? (
+              <Card borderRadius="xl" bg={initCardBg} border="1px solid" borderColor={cardBorder}>
+                <CardBody p={8}>
+                  <VStack spacing={6}>
+                    <Alert status="info" borderRadius="lg" bg={initCardBg} boxShadow="sm">
                       <AlertIcon />
-                      Error al cargar configuración para {CONFIG_LABELS[key]?.label || key}
+                      <Box>
+                        <Text fontWeight="bold" mb={1}>Configuración no encontrada</Text>
+                        <Text fontSize="sm" color={descriptionColor}>
+                          No hay configuración establecida. Inicializa la configuración para empezar a otorgar puntos.
+                        </Text>
+                      </Box>
                     </Alert>
-                  )
-                }
-              })}
-              </SimpleGrid>
-
-              {/* Botón de reinicio mejorado */}
-              <Card borderRadius="xl" bg={resetCardBg} border="1px solid" borderColor={cardBorder}>
-                <CardBody p={6}>
-                  <VStack spacing={4}>
-                    <VStack spacing={2}>
-                      <Heading size="md" color={labelColor}>Restablecer Configuración</Heading>
-                      <Text fontSize="sm" color={descriptionColor} textAlign="center">
-                        Esto restablecerá todas las configuraciones a sus valores por defecto
-                      </Text>
-                    </VStack>
                     <Button
-                      colorScheme="gray"
-                      variant="outline"
+                      colorScheme="purple"
                       onClick={handleInitialize}
                       isLoading={initializing}
-                      borderRadius="lg"
+                      size="lg"
+                      borderRadius="xl"
                       px={8}
                     >
-                      Restablecer a Valores por Defecto
+                      Inicializar Configuración
                     </Button>
                   </VStack>
                 </CardBody>
               </Card>
-            </VStack>
-          )}
-        </VStack>
-      </Container>
-    </Layout>
+            ) : (
+              <VStack spacing={6} align="stretch">
+                <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+                  {Object.keys(CONFIG_LABELS).map((key) => {
+                    try {
+                      // Validar que config sea un array y contenga elementos válidos
+                      if (!Array.isArray(configs) || configs.length === 0) {
+                        return null
+                      }
+
+                      const configItem = configs.find((c) => c && typeof c === 'object' && c.config_key === key)
+                      if (!configItem) {
+                        return null
+                      }
+
+                      // Validar que formData[key] existe o crear valores por defecto
+                      const formValue = formData[key] || {
+                        value: configItem.config_value,
+                        enabled: configItem.enabled
+                      }
+
+                      return (
+                        <Card
+                          key={key}
+                          borderRadius="xl"
+                          border="1px solid"
+                          borderColor={formValue.enabled ? enabledCardBorder : disabledCardBorder}
+                          bg={formValue.enabled ? enabledCardBg : disabledCardBg}
+                          _hover={{
+                            transform: "translateY(-2px)",
+                            boxShadow: "lg",
+                            borderColor: formValue.enabled ? enabledCardHoverBorder : disabledCardHoverBorder
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <CardBody p={6}>
+                            <VStack spacing={5} align="stretch">
+                              {/* Header de la tarjeta */}
+                              <HStack justify="space-between" align="start">
+                                <VStack align="start" spacing={2} flex={1}>
+                                  <HStack>
+                                    <Heading size="md" color={formValue.enabled ? headingEnabledColor : headingDisabledColor}>
+                                      {CONFIG_LABELS[key].label}
+                                    </Heading>
+                                    <Badge
+                                      colorScheme={formValue.enabled ? 'green' : 'gray'}
+                                      fontSize="xs"
+                                      px={2}
+                                      py={1}
+                                      borderRadius="full"
+                                    >
+                                      {formValue.enabled ? 'Activo' : 'Inactivo'}
+                                    </Badge>
+                                  </HStack>
+                                  <Text fontSize="sm" color={descriptionColor} lineHeight={1.5}>
+                                    {CONFIG_LABELS[key].description}
+                                  </Text>
+                                </VStack>
+                              </HStack>
+
+                              <Divider />
+
+                              {/* Controles */}
+                              <HStack spacing={4} align="end">
+                                <FormControl flex={1}>
+                                  <FormLabel fontSize="sm" fontWeight="medium" color={labelColor}>
+                                    Puntos otorgados
+                                  </FormLabel>
+                                  <NumberInput
+                                    value={formValue.value}
+                                    onChange={(_, value) => handleValueChange(key, value)}
+                                    min={0}
+                                    max={10000}
+                                    isDisabled={!formValue.enabled}
+                                  >
+                                    <NumberInputField
+                                      borderRadius="lg"
+                                      _focus={{ borderColor: "purple.400", boxShadow: "0 0 0 1px purple.400" }}
+                                    />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                </FormControl>
+
+                                <FormControl display="flex" alignItems="center" width="auto">
+                                  <FormLabel mb={0} mr={3} fontSize="sm" fontWeight="medium" color={labelColor}>
+                                    Habilitado
+                                  </FormLabel>
+                                  <Switch
+                                    isChecked={formValue.enabled}
+                                    onChange={(e) => handleEnabledChange(key, e.target.checked)}
+                                    colorScheme="purple"
+                                    size="lg"
+                                  />
+                                </FormControl>
+
+                                <Button
+                                  colorScheme="purple"
+                                  onClick={() => handleSave(key)}
+                                  isLoading={saving}
+                                  borderRadius="lg"
+                                  px={6}
+                                  _hover={{ transform: "translateY(-1px)" }}
+                                >
+                                  Guardar
+                                </Button>
+                              </HStack>
+                            </VStack>
+                          </CardBody>
+                        </Card>
+                      )
+                    } catch (error) {
+                      return (
+                        <Alert key={key} status="warning">
+                          <AlertIcon />
+                          Error al cargar configuración para {CONFIG_LABELS[key]?.label || key}
+                        </Alert>
+                      )
+                    }
+                  })}
+                </SimpleGrid>
+
+                {/* Botón de reinicio mejorado */}
+                <Card borderRadius="xl" bg={resetCardBg} border="1px solid" borderColor={cardBorder}>
+                  <CardBody p={6}>
+                    <VStack spacing={4}>
+                      <VStack spacing={2}>
+                        <Heading size="md" color={labelColor}>Restablecer Configuración</Heading>
+                        <Text fontSize="sm" color={descriptionColor} textAlign="center">
+                          Esto restablecerá todas las configuraciones a sus valores por defecto
+                        </Text>
+                      </VStack>
+                      <Button
+                        colorScheme="gray"
+                        variant="outline"
+                        onClick={handleInitialize}
+                        isLoading={initializing}
+                        borderRadius="lg"
+                        px={8}
+                      >
+                        Restablecer a Valores por Defecto
+                      </Button>
+                    </VStack>
+                  </CardBody>
+                </Card>
+              </VStack>
+            )}
+          </VStack>
+        </Container>
+      </Layout>
+    </RequireAdmin>
   )
 }
-
-KickPointsConfigPage.getLayout = (page: React.ReactElement) => <RequireAdmin>{page}</RequireAdmin>

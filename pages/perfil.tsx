@@ -18,18 +18,35 @@ import {
   Icon,
   Stack,
   SimpleGrid,
-  useToast
+  useToast,
+  Input,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
 } from '@chakra-ui/react'
-import { DownloadIcon } from '@chakra-ui/icons'
+import { DownloadIcon, EditIcon } from '@chakra-ui/icons'
 import { MdShoppingCart, MdSwapHoriz, MdShoppingBag, MdHistory, MdPerson } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import api from '../lib/api'
 
 export default function PerfilPage() {
-  const { user, logout, updateUserKickInfo } = useAuth()
+  const { user, logout, updateUserKickInfo, refreshUser } = useAuth()
   const router = useRouter()
   const toast = useToast()
   const [isUpdatingKickInfo, setIsUpdatingKickInfo] = useState(false)
+  const [isUpdatingDiscord, setIsUpdatingDiscord] = useState(false)
+
+  // Modal para editar Discord
+  const { isOpen: isDiscordOpen, onOpen: onDiscordOpen, onClose: onDiscordClose } = useDisclosure()
+  const [discordUsername, setDiscordUsername] = useState(user?.discord_username || '')
 
   const bgGradient = useColorModeValue(
     'linear(to-br, blue.50, purple.50)',
@@ -73,6 +90,39 @@ export default function PerfilPage() {
     }
   }
 
+  const handleUpdateDiscord = async () => {
+    setIsUpdatingDiscord(true)
+    try {
+      await api.put('/api/usuarios/me', { discord_username: discordUsername })
+      await refreshUser()
+      toast({
+        title: 'Discord actualizado',
+        description: 'Tu username de Discord se ha actualizado correctamente',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+      onDiscordClose()
+    } catch (error: any) {
+      console.error('Error updating Discord:', error)
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Error desconocido'
+      toast({
+        title: 'Error al actualizar Discord',
+        description: `${errorMessage}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
+    } finally {
+      setIsUpdatingDiscord(false)
+    }
+  }
+
+  const openDiscordModal = () => {
+    setDiscordUsername(user?.discord_username || '')
+    onDiscordOpen()
+  }
+
   if (!user) {
     return (
       <RequireAuth>
@@ -85,33 +135,13 @@ export default function PerfilPage() {
     )
   }
 
-  // Determinar qué avatar y nombre usar con debugging
+  // Determinar qué avatar y nombre usar
   let avatarSrc = user.kick_avatar || undefined
   const displayName = user.kick_username || user.nickname || user.nombre || user.email
 
   // Si el usuario está conectado con Kick pero no tiene avatar, usar un fallback
   if (user.kick_username && !user.kick_avatar) {
-    // Podrías usar la API de Kick para obtener el avatar si es necesario
-    // Por ahora, usar undefined para que se muestre la inicial
     avatarSrc = undefined
-  }
-
-  // Debugging del avatar en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Perfil - Usuario completo:', {
-      id: user.id,
-      kick_avatar: user.kick_avatar,
-      kick_username: user.kick_username,
-      nickname: user.nickname,
-      nombre: user.nombre,
-      email: user.email,
-      created_at: user.created_at,
-      puntos: user.puntos,
-      avatarSrc,
-      displayName,
-      isCloudinaryAvatar: user.kick_avatar?.includes('cloudinary.com'),
-      hasKickConnection: !!user.kick_username
-    })
   }
 
   return (
@@ -150,7 +180,7 @@ export default function PerfilPage() {
                       {displayName}
                     </Heading>
                     <Text
-                      color="black.900"
+                      color="black.800"
                       fontSize={{ base: 'sm', md: 'md' }}
                       textShadow="0 1px 2px rgba(0,0,0,0.3)"
                     >
@@ -359,10 +389,94 @@ export default function PerfilPage() {
                       gap={2}
                     >
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                        Discord:
+                      </Text>
+                      <Flex align="center" gap={2}>
+                        {user.discord_username ? (
+                          <Badge
+                            colorScheme="purple"
+                            fontSize={{ base: 'sm', md: 'md' }}
+                            px={3}
+                            py={1}
+                            borderRadius="md"
+                          >
+                            {user.discord_username}
+                          </Badge>
+                        ) : (
+                          <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500">
+                            No configurado
+                          </Text>
+                        )}
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="purple"
+                          leftIcon={<EditIcon />}
+                          onClick={openDiscordModal}
+                        >
+                          {user.discord_username ? 'Editar' : 'Agregar'}
+                        </Button>
+                      </Flex>
+                    </Flex>
+
+                    {/* Información VIP */}
+                    {user.vip_info?.is_active && (
+                      <Flex
+                        direction={{ base: 'column', sm: 'row' }}
+                        justify="space-between"
+                        align={{ base: 'start', sm: 'center' }}
+                        gap={2}
+                      >
+                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                          Estado VIP:
+                        </Text>
+                        <Badge
+                          colorScheme="yellow"
+                          fontSize={{ base: 'sm', md: 'md' }}
+                          px={3}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          👑 VIP {user.vip_info.is_permanent ? 'Permanente' :
+                            `hasta ${new Date(user.vip_info.expires_at!).toLocaleDateString('es-ES')}`}
+                        </Badge>
+                      </Flex>
+                    )}
+
+                    {/* Estado de migración Botrix */}
+                    {user.botrix_info?.migrated && (
+                      <Flex
+                        direction={{ base: 'column', sm: 'row' }}
+                        justify="space-between"
+                        align={{ base: 'start', sm: 'center' }}
+                        gap={2}
+                      >
+                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                          Migración Botrix:
+                        </Text>
+                        <Badge
+                          colorScheme="cyan"
+                          fontSize={{ base: 'sm', md: 'md' }}
+                          px={3}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          ✅ {user.botrix_info.points_migrated?.toLocaleString()} puntos migrados
+                        </Badge>
+                      </Flex>
+                    )}
+
+                    <Flex
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify="space-between"
+                      align={{ base: 'start', sm: 'center' }}
+                      gap={2}
+                    >
+                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
                         Miembro desde:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
-                        {user.creado && new Date(user.creado).toLocaleDateString('es-ES', {
+                        {(user.creado || user.created_at) && new Date(user.creado || user.created_at).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
@@ -416,6 +530,41 @@ export default function PerfilPage() {
             </Card>
           </VStack>
         </Container>
+
+        {/* Modal para editar Discord */}
+        <Modal isOpen={isDiscordOpen} onClose={onDiscordClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Configurar Discord</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl>
+                <FormLabel>Username de Discord</FormLabel>
+                <Input
+                  value={discordUsername}
+                  onChange={(e) => setDiscordUsername(e.target.value)}
+                  placeholder="usuario#1234"
+                />
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  Formato: usuario#1234 o simplemente usuario
+                </Text>
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={onDiscordClose}>
+                Cancelar
+              </Button>
+              <Button
+                colorScheme="purple"
+                onClick={handleUpdateDiscord}
+                isLoading={isUpdatingDiscord}
+                loadingText="Actualizando..."
+              >
+                Guardar
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </Layout>
     </RequireAuth>
   )

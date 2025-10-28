@@ -49,7 +49,7 @@ api.interceptors.response.use(
 
     // Log del error solo en desarrollo
     if (process.env.NODE_ENV === 'development') {
-      console.error('Error en API:', {
+      console.warn('Error en API:', {
         url: originalRequest?.url,
         method: originalRequest?.method,
         status: error.response?.status,
@@ -63,7 +63,18 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // Si el error es 401 y no hemos intentado refrescar
+    // Para endpoints de Kick, no hacer refresh automático - simplemente devolver el error
+    const isKickEndpoint = originalRequest?.url?.includes('/kick') ||
+                          originalRequest?.url?.includes('/kick-admin')
+
+    if (isKickEndpoint) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('🔄 Endpoint de Kick falló, pero no se intentará refresh automático:', originalRequest?.url)
+      }
+      return Promise.reject(error)
+    }
+
+    // Si el error es 401 y no hemos intentado refrescar (solo para endpoints normales)
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         // Si ya se está refrescando, agregar a la cola
@@ -83,9 +94,17 @@ api.interceptors.response.use(
       const refreshToken = getRefreshCookie()
 
       if (!refreshToken) {
-        // No hay refresh token, limpiar cookies y redirigir a login
+        // No hay refresh token
         clearAuthCookies()
-        window.location.href = '/login'
+
+        // No redirigir automáticamente si es un endpoint de kick-admin o kick/broadcaster
+        // ya que pueden no estar disponibles en el backend
+        const isKickEndpoint = originalRequest?.url?.includes('/kick') ||
+                              originalRequest?.url?.includes('/kick-admin')
+
+        if (!isKickEndpoint && window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
         return Promise.reject(error)
       }
 
@@ -139,8 +158,12 @@ api.interceptors.response.use(
         processQueue(refreshError, null)
         clearAuthCookies()
 
-        // Solo redirigir si no estamos ya en login
-        if (window.location.pathname !== '/login') {
+        // No redirigir automáticamente si es un endpoint de kick
+        const isKickEndpoint = originalRequest?.url?.includes('/kick') ||
+                              originalRequest?.url?.includes('/kick-admin')
+
+        // Solo redirigir si no estamos ya en login y no es un endpoint de Kick
+        if (!isKickEndpoint && window.location.pathname !== '/login') {
           window.location.href = '/login'
         }
         return Promise.reject(refreshError)

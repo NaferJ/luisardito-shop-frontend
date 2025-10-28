@@ -1,103 +1,60 @@
 import { useState, useEffect } from 'react'
-import { kickPointsConfigApi } from '../lib/kickApi'
-import type { KickPointsConfig } from '../types'
+import { KickPointsConfig } from '../types'
+import { api } from '../lib/api'
 
-export function useKickPointsConfig() {
-  const [config, setConfig] = useState<KickPointsConfig[]>([])
+export const useKickPointsConfig = () => {
+  const [configs, setConfigs] = useState<KickPointsConfig[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchConfig = async () => {
+  const fetchConfigs = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await kickPointsConfigApi.getConfig()
-
-      // Validar que la respuesta tenga el formato esperado
-      const data = response.data
-
-      // El backend retorna {config: Array, total: number}
-      if (data && Array.isArray(data.config)) {
-        const validData = data.config.filter((item: any) =>
-          item &&
-          typeof item === 'object' &&
-          typeof item.config_key === 'string' &&
-          typeof item.config_value === 'number' &&
-          typeof item.enabled === 'boolean'
-        )
-        setConfig(validData)
-      } else if (Array.isArray(data)) {
-        // Fallback por si cambia el formato
-        const validData = data.filter((item: any) =>
-          item &&
-          typeof item === 'object' &&
-          typeof item.config_key === 'string' &&
-          typeof item.config_value === 'number' &&
-          typeof item.enabled === 'boolean'
-        )
-        setConfig(validData)
-      } else {
-        setConfig([])
-        setError('Formato de datos no válido recibido del servidor')
-      }
+      const response = await api.get('/api/kick-admin/points-config')
+      setConfigs(response.data)
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error al cargar configuración')
-      setConfig([])
+      setError(err.response?.data?.message || 'Error al cargar configuración de puntos')
     } finally {
       setLoading(false)
     }
   }
 
-  const updateConfig = async (configKey: string, configValue: number, enabled?: boolean) => {
+  const updateConfig = async (configKey: string, value: number | boolean) => {
     try {
-      setError(null)
-      await kickPointsConfigApi.updateConfig({
-        config_key: configKey,
-        config_value: configValue,
-        enabled,
-      })
-      await fetchConfig()
-    } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error al actualizar configuración')
-      throw err
-    }
-  }
+      let endpoint = '/api/kick-admin/points-config'
+      let payload: any = {}
 
-  const updateMultipleConfigs = async (
-    configs: Array<{ config_key: string; config_value: number; enabled?: boolean }>
-  ) => {
-    try {
-      setError(null)
-      await kickPointsConfigApi.updateMultipleConfigs(configs)
-      await fetchConfig()
-    } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error al actualizar configuraciones')
-      throw err
-    }
-  }
+      // Determinar si es valor numérico o boolean (enabled)
+      if (typeof value === 'boolean') {
+        // Es un toggle de enabled
+        payload.config_key = configKey.replace('_enabled', '')
+        payload.enabled = value
+        endpoint += '/toggle'
+      } else {
+        // Es un valor numérico
+        payload.config_key = configKey
+        payload.config_value = value
+      }
 
-  const initializeConfig = async () => {
-    try {
-      setError(null)
-      await kickPointsConfigApi.initializeConfig()
-      await fetchConfig()
+      await api.put(endpoint, payload)
+      await fetchConfigs() // Recargar configuración
+      return true
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error al inicializar configuración')
+      setError(err.response?.data?.message || 'Error al actualizar configuración')
       throw err
     }
   }
 
   useEffect(() => {
-    fetchConfig()
+    fetchConfigs()
   }, [])
 
   return {
-    config,
+    configs,
     loading,
     error,
-    refresh: fetchConfig,
-    updateConfig,
-    updateMultipleConfigs,
-    initializeConfig,
+    fetchConfigs,
+    updateConfig
   }
 }

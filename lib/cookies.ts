@@ -6,9 +6,9 @@ export class CookieManager {
 
     const hostname = window.location.hostname
 
-    // Si estamos en localhost, usar el hostname completo
+    // Si estamos en localhost, NO usar dominio para mejor compatibilidad
     if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
-      return hostname
+      return '' // No especificar dominio en localhost
     }
 
     // Para subdominios de luisardito.com, usar el dominio principal
@@ -30,10 +30,12 @@ export class CookieManager {
     if (typeof window === 'undefined') return
 
     const domain = this.getDomain()
+    const isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
 
     let cookieString = `${name}=${encodeURIComponent(value)}`
 
-    if (domain) {
+    // Solo agregar dominio si no es localhost
+    if (domain && !isLocalhost) {
       cookieString += `; Domain=${domain}`
     }
 
@@ -45,11 +47,14 @@ export class CookieManager {
       cookieString += `; Max-Age=${options.maxAge}`
     }
 
-    // Para subdominios, usar configuración segura
-    if (domain.startsWith('.')) {
-      cookieString += `; Path=/`
-      cookieString += `; SameSite=lax`
+    // Siempre agregar Path
+    cookieString += `; Path=/`
 
+    // Configuración de SameSite
+    if (isLocalhost) {
+      cookieString += `; SameSite=lax`
+    } else if (domain.startsWith('.')) {
+      cookieString += `; SameSite=lax`
       // En producción, usar HTTPS
       if (window.location.protocol === 'https:') {
         cookieString += `; Secure`
@@ -69,9 +74,11 @@ export class CookieManager {
       let c = ca[i]
       while (c.charAt(0) === ' ') c = c.substring(1, c.length)
       if (c.indexOf(nameEQ) === 0) {
-        return decodeURIComponent(c.substring(nameEQ.length, c.length))
+        const value = decodeURIComponent(c.substring(nameEQ.length, c.length))
+        return value
       }
     }
+
     return null
   }
 
@@ -140,3 +147,21 @@ export const clearAuthCookies = () => {
   CookieManager.removeCookie('auth_token')
   CookieManager.removeCookie('refresh_token')
 }
+
+// Función de debug para verificar el estado de las cookies
+export const debugCookies = () => {
+  if (typeof window !== 'undefined') {
+    console.log('🔧 DEBUG COOKIES:')
+    console.log('- All cookies:', document.cookie)
+    console.log('- Auth token:', getAuthCookie())
+    console.log('- Refresh token:', getRefreshCookie())
+    console.log('- Domain:', window.location.hostname)
+    console.log('- Protocol:', window.location.protocol)
+  }
+}
+
+// Hacer disponible globalmente en desarrollo
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as any).debugCookies = debugCookies
+}
+

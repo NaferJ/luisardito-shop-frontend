@@ -8,318 +8,487 @@ import {
   HStack,
   Card,
   CardBody,
+  CardHeader,
   Badge,
   Button,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
   Alert,
   AlertIcon,
-  AlertTitle,
-  AlertDescription,
   Spinner,
   useToast,
   SimpleGrid,
+  Switch,
+  FormControl,
+  FormLabel,
+  Divider,
+  Icon,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
+import { SettingsIcon, InfoIcon } from '@chakra-ui/icons'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickBroadcaster } from '../../../hooks/useKickBroadcaster'
+import { useKickAdminConfig } from '../../../hooks/useKickAdminConfig'
 import { useAuth } from '../../../hooks/useAuth'
 
 export default function KickAdminPage() {
   const router = useRouter()
   const toast = useToast()
-  const { user } = useAuth()
-  const { status, loading, error, refresh, disconnect } = useKickBroadcaster()
-  const [disconnecting, setDisconnecting] = useState(false)
+  const { user, isLoading: authLoading } = useAuth()
 
-  // Solo desarrolladores (rol_id 5) pueden ver toda la información
+  // Solo cargar datos si el usuario está autenticado y cargado
+  const shouldLoadData = !authLoading && user && user.rol_id >= 3 // Admin o Developer
+
+  const { status, loading: statusLoading, error: statusError } = useKickBroadcaster()
+  const {
+    config,
+    loading: configLoading,
+    error: configError,
+    updateMigrationConfig,
+    updateVipConfig,
+    cleanupExpiredVips
+  } = useKickAdminConfig()
+
+  const [updatingMigration, setUpdatingMigration] = useState(false)
+  const [updatingVip, setUpdatingVip] = useState(false)
+  const [cleaningVips, setCleaningVips] = useState(false)
+
+  // Solo desarrolladores (rol_id 4) pueden ver información completa
   const isDeveloper = user?.rol_id === 4
 
-  const handleDisconnect = async () => {
-    if (!confirm('¿Estás seguro de que deseas desconectar el broadcaster de Kick?')) {
-      return
+  // Si aún se está cargando la autenticación, mostrar loading
+  if (authLoading) {
+    return (
+      <RequireAdmin>
+        <Layout>
+          <Container maxW="container.xl" py={8}>
+            <Box textAlign="center" py={20}>
+              <Spinner size="xl" />
+              <Text mt={4} color="gray.500">Verificando autenticación...</Text>
+            </Box>
+          </Container>
+        </Layout>
+      </RequireAdmin>
+    )
+  }
+
+  // Función auxiliar para manejar errores de manera consistente
+  const handleApiError = (error: any, defaultMessage: string) => {
+    console.error('Error de API:', error)
+
+    let errorMessage = defaultMessage
+
+    // Detectar errores específicos pero NO redirigir automáticamente
+    if (error?.response?.status === 401) {
+      errorMessage = 'Error de autenticación. Verifica tu sesión.'
+    } else if (error?.response?.status === 403) {
+      errorMessage = 'No tienes permisos para realizar esta acción.'
+    } else if (error?.response?.status === 404) {
+      errorMessage = 'Recurso no encontrado. Puede que el endpoint no esté disponible.'
+    } else if (error?.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error?.message) {
+      errorMessage = error.message
     }
 
+    return errorMessage
+  }
+
+  // Theme colors con mejor contraste en modo oscuro
+  const cardBg = useColorModeValue('white', 'gray.700')
+  const borderColor = useColorModeValue('gray.200', 'gray.500')
+  const enabledBg = useColorModeValue('green.50', 'green.700')
+  const enabledBorder = useColorModeValue('green.200', 'green.400')
+  const disabledBg = useColorModeValue('gray.50', 'gray.600')
+  const disabledBorder = useColorModeValue('gray.200', 'gray.500')
+  const textPrimary = useColorModeValue('gray.800', 'gray.100')
+  const textSecondary = useColorModeValue('gray.600', 'gray.300')
+
+  const handleMigrationToggle = async (enabled: boolean) => {
     try {
-      setDisconnecting(true)
-      await disconnect()
+      setUpdatingMigration(true)
+      await updateMigrationConfig(enabled)
       toast({
-        title: 'Broadcaster desconectado',
-        description: 'La conexión con Kick ha sido desconectada exitosamente',
+        title: 'Configuración actualizada',
+        description: `Migración Botrix ${enabled ? 'activada' : 'desactivada'}`,
         status: 'success',
         duration: 3000,
       })
-    } catch (err) {
+    } catch (error: any) {
+      const errorMessage = handleApiError(error, 'No se pudo actualizar la configuración de migración')
+
       toast({
         title: 'Error',
-        description: 'No se pudo desconectar el broadcaster',
+        description: errorMessage,
         status: 'error',
         duration: 5000,
       })
     } finally {
-      setDisconnecting(false)
+      setUpdatingMigration(false)
     }
   }
 
-  const handleConnectKick = () => {
-    // Redirigir al OAuth de Kick
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/kick`
+  const handleVipToggle = async (enabled: boolean) => {
+    try {
+      setUpdatingVip(true)
+      await updateVipConfig({ vip_points_enabled: enabled })
+      toast({
+        title: 'Sistema VIP actualizado',
+        description: `Puntos VIP ${enabled ? 'activados' : 'desactivados'}`,
+        status: 'success',
+        duration: 3000,
+      })
+    } catch (error: any) {
+      const errorMessage = handleApiError(error, 'No se pudo actualizar la configuración VIP')
+
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        status: 'error',
+        duration: 5000,
+      })
+    } finally {
+      setUpdatingVip(false)
+    }
   }
 
-  if (loading) {
+  const handleCleanupVips = async () => {
+    if (!confirm('¿Estás seguro de limpiar todos los VIPs expirados?')) return
+
+    try {
+      setCleaningVips(true)
+      await cleanupExpiredVips()
+      toast({
+        title: 'VIPs expirados limpiados',
+        description: 'Se han removido todos los VIPs expirados',
+        status: 'success',
+        duration: 3000,
+      })
+    } catch (error: any) {
+      const errorMessage = handleApiError(error, 'No se pudo limpiar los VIPs expirados')
+
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        status: 'error',
+        duration: 5000,
+      })
+    } finally {
+      setCleaningVips(false)
+    }
+  }
+
+  if (statusLoading || configLoading) {
     return (
-      <Layout>
-        <Container maxW="container.xl" py={8}>
-          <VStack spacing={8}>
-            <Spinner size="xl" />
-            <Text>Cargando información de Kick...</Text>
-          </VStack>
-        </Container>
-      </Layout>
+      <RequireAdmin>
+        <Layout>
+          <Container maxW="container.xl" py={8}>
+            <VStack spacing={8}>
+              <Spinner size="xl" color="purple.500" thickness="4px" />
+              <Text fontSize="lg" color="gray.600">Cargando configuración de Kick...</Text>
+            </VStack>
+          </Container>
+        </Layout>
+      </RequireAdmin>
     )
   }
 
-  return (
-    <Layout>
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
-          {/* Header mejorado */}
-          <Box>
-            <Heading size="xl" mb={2} color="purple.600">
-              Administración de Kick
-            </Heading>
-            <Text color="gray.600" fontSize="lg">
-              Gestiona la integración con Kick, configuración de puntos y suscripciones a eventos
-            </Text>
-          </Box>
+  if (configError || statusError) {
+    // Si es un error de endpoints no disponibles, mostrar mensaje más amigable
+    const isEndpointError = configError?.includes('no disponible') ||
+                           statusError?.includes('no disponible') ||
+                           configError?.includes('404') ||
+                           statusError?.includes('404')
 
-          {error && (
-            <Alert status="error" borderRadius="xl">
+    return (
+      <RequireAdmin>
+        <Layout>
+          <Container maxW="container.xl" py={8}>
+            <Alert
+              status={isEndpointError ? "warning" : "error"}
+              borderRadius="xl"
+            >
               <AlertIcon />
               <Box>
-                <AlertTitle>Error de conexión</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <Text fontWeight="bold">
+                  {isEndpointError ? 'Funcionalidad de Kick no disponible' : 'Error al cargar configuración'}
+                </Text>
+                <Text fontSize="sm">
+                  {isEndpointError
+                    ? 'Los endpoints de administración de Kick no están disponibles en el backend. Contacta al desarrollador para habilitar esta funcionalidad.'
+                    : (configError || statusError)
+                  }
+                </Text>
               </Box>
             </Alert>
-          )}
+          </Container>
+        </Layout>
+      </RequireAdmin>
+    )
+  }
 
-          {/* Estado de Conexión mejorado - Solo para desarrolladores */}
-          {isDeveloper && (
-            <Card borderRadius="xl" overflow="hidden">
-              <CardBody p={0}>
-                <Box bg={status?.connected ? "green.50" : "red.50"} p={6} borderBottom="1px solid" borderColor={status?.connected ? "green.100" : "red.100"}>
-                  <HStack justify="space-between" align="center">
+  // Determinar estados actuales de la configuración con valores por defecto
+  const migrationEnabled = config?.migration?.migration_enabled ?? false
+  const vipEnabled = config?.vip?.vip_points_enabled ?? false
+  const migratedUsers = config?.migration?.stats?.migrated_users ?? 0
+  const totalPointsMigrated = config?.migration?.stats?.total_points ?? 0
+
+  // Si no hay configuración disponible pero tampoco hay error crítico,
+  // mostrar interfaz con valores por defecto
+  const hasConfig = !!config
+
+  return (
+    <RequireAdmin>
+      <Layout>
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            {/* Header */}
+            <Box>
+              <Heading size="xl" mb={2} color="purple.600">
+                Administración de Kick
+              </Heading>
+              <Text color="gray.600" fontSize="lg">
+                Gestiona la integración con Kick, configuración VIP y migración de puntos
+              </Text>
+            </Box>
+
+            {/* Estado de Conexión - Solo para desarrolladores */}
+            {isDeveloper && (
+              <Card bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor}>
+                <CardHeader pb={3}>
+                  <HStack>
+                    <Icon as={InfoIcon} color="blue.500" />
+                    <Heading size="md">Estado de Conexión</Heading>
+                  </HStack>
+                </CardHeader>
+                <CardBody pt={0}>
+                  <HStack justify="space-between">
                     <VStack align="start" spacing={1}>
-                      <Heading size="lg" color={status?.connected ? "green.700" : "red.700"}>
-                        Estado de Conexión
-                      </Heading>
-                      <Text color={status?.connected ? "green.600" : "red.600"} fontSize="sm">
-                        {status?.connected ? "Integración activa con Kick" : "Sin conexión a Kick"}
+                      <Text fontWeight="semibold">
+                        {status?.connected ? '🟢 Conectado' : '🔴 Desconectado'}
+                      </Text>
+                      <Text fontSize="sm" color="gray.600">
+                        {status?.connected
+                          ? 'Conexión activa con Kick'
+                          : 'Sin conexión a Kick'
+                        }
                       </Text>
                     </VStack>
                     <Badge
                       colorScheme={status?.connected ? 'green' : 'red'}
-                      fontSize="lg"
+                      fontSize="md"
                       px={4}
                       py={2}
                       borderRadius="full"
                     >
-                      {status?.connected ? '🟢 Conectado' : '🔴 Desconectado'}
+                      {status?.connected ? 'Operativo' : 'Inactivo'}
                     </Badge>
                   </HStack>
-                </Box>
+                </CardBody>
+              </Card>
+            )}
 
-                <Box p={6}>
-                  {status?.connected && status.broadcaster ? (
-                    <VStack spacing={6} align="stretch">
-                      {/* Stats grid */}
-                      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                        <Card bg="purple.50" borderColor="purple.200" border="1px solid">
-                          <CardBody>
-                            <Stat>
-                              <StatLabel color="purple.600" fontSize="sm" fontWeight="bold">
-                                👤 Broadcaster
-                              </StatLabel>
-                              <StatNumber fontSize="xl" color="purple.700">
-                                {status.broadcaster.kick_username}
-                              </StatNumber>
-                              <StatHelpText color="purple.500">
-                                ID: {status.broadcaster.kick_user_id}
-                              </StatHelpText>
-                            </Stat>
-                          </CardBody>
-                        </Card>
-
-                        <Card bg="blue.50" borderColor="blue.200" border="1px solid">
-                          <CardBody>
-                            <Stat>
-                              <StatLabel color="blue.600" fontSize="sm" fontWeight="bold">
-                                🔐 Token de Acceso
-                              </StatLabel>
-                              <StatNumber fontSize="xl">
-                                {status.token?.is_expired ? (
-                                  <Badge colorScheme="red" fontSize="lg" px={3} py={1}>
-                                    ❌ Expirado
-                                  </Badge>
-                                ) : (
-                                  <Badge colorScheme="green" fontSize="lg" px={3} py={1}>
-                                    ✅ Válido
-                                  </Badge>
-                                )}
-                              </StatNumber>
-                              <StatHelpText color="blue.500">
-                                {status.token?.expires_at &&
-                                  `Expira: ${new Date(status.token.expires_at).toLocaleDateString('es-ES')}`}
-                              </StatHelpText>
-                            </Stat>
-                          </CardBody>
-                        </Card>
-
-                        <Card bg="green.50" borderColor="green.200" border="1px solid">
-                          <CardBody>
-                            <Stat>
-                              <StatLabel color="green.600" fontSize="sm" fontWeight="bold">
-                                📡 Suscripciones
-                              </StatLabel>
-                              <StatNumber fontSize="xl" color="green.700">
-                                {status.subscriptions?.total_active || 0}
-                              </StatNumber>
-                              <StatHelpText color="green.500">
-                                {status.subscriptions?.auto_subscribed ? '🤖 Auto-suscritas' : '🔧 Manuales'}
-                              </StatHelpText>
-                            </Stat>
-                          </CardBody>
-                        </Card>
-                      </SimpleGrid>
-
-                      {/* Acciones */}
-                      <HStack spacing={4} justify="center">
-                        <Button
-                          colorScheme="red"
-                          onClick={handleDisconnect}
-                          isLoading={disconnecting}
-                          borderRadius="lg"
-                          px={6}
-                          _hover={{ transform: "translateY(-1px)" }}
-                        >
-                          🔌 Desconectar
-                        </Button>
-                        <Button
-                          onClick={refresh}
-                          variant="outline"
-                          colorScheme="purple"
-                          borderRadius="lg"
-                          px={6}
-                          _hover={{ transform: "translateY(-1px)" }}
-                        >
-                          🔄 Refrescar
-                        </Button>
-                      </HStack>
-                    </VStack>
-                  ) : (
-                    <VStack spacing={6}>
-                      <Alert status="warning" borderRadius="lg" bg="orange.50" border="1px solid" borderColor="orange.200">
-                        <AlertIcon color="orange.500" />
-                        <Box>
-                          <AlertTitle color="orange.800">No conectado a Kick</AlertTitle>
-                          <AlertDescription color="orange.700">
-                            El broadcaster no está conectado. Conecta tu cuenta de Kick para empezar a recibir eventos y
-                            otorgar puntos automáticamente a tus viewers.
-                          </AlertDescription>
-                        </Box>
-                      </Alert>
-                      <Button
-                        colorScheme="purple"
-                        onClick={handleConnectKick}
-                        size="lg"
-                        borderRadius="xl"
-                        px={10}
-                        py={6}
-                        fontSize="lg"
-                        _hover={{ transform: "scale(1.05)" }}
-                        transition="all 0.2s"
-                      >
-                        🚀 Conectar con Kick
-                      </Button>
-                    </VStack>
-                  )}
-                </Box>
-              </CardBody>
-            </Card>
-          )}
-
-          {/* Gestión rápida */}
-          {status?.connected && (
-            <SimpleGrid columns={{ base: 1, md: isDeveloper ? 2 : 1 }} spacing={6}>
+            {/* Configuraciones principales */}
+            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+              {/* Migración desde Botrix */}
               <Card
+                bg={migrationEnabled ? enabledBg : disabledBg}
                 borderRadius="xl"
-                bg="gradient-to-br"
-                bgGradient="linear(to-br, purple.50, purple.100)"
-                border="1px solid"
-                borderColor="purple.200"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                border="2px solid"
+                borderColor={migrationEnabled ? enabledBorder : disabledBorder}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg',
+                  borderColor: migrationEnabled ? 'green.300' : 'gray.300'
+                }}
                 transition="all 0.2s"
-                cursor="pointer"
-                onClick={() => router.push('/admin/kick/puntos')}
               >
-                <CardBody p={6}>
-                  <VStack spacing={4} align="center">
-                    <Box fontSize="4xl">⚙️</Box>
-                    <VStack spacing={2}>
-                      <Heading size="md" color="purple.700" textAlign="center">
-                        Configuración de Puntos
-                      </Heading>
-                      <Text fontSize="sm" color="purple.600" textAlign="center">
-                        Define cuántos puntos se otorgan por cada evento de Kick
+                <CardHeader pb={3}>
+                  <HStack justify="space-between" align="start">
+                    <VStack align="start" spacing={1}>
+                      <HStack>
+                        <Icon as={SettingsIcon} color="cyan.500" />
+                        <Heading size="md" color={migrationEnabled ? 'green.600' : textPrimary}>
+                          Migración desde Botrix
+                        </Heading>
+                      </HStack>
+                      <Text fontSize="sm" color={textSecondary}>
+                        Permite a los usuarios migrar sus puntos desde el bot Botrix automáticamente
                       </Text>
                     </VStack>
-                    <Button colorScheme="purple" size="sm" borderRadius="lg">
-                      Gestionar Puntos
-                    </Button>
+                    <Badge
+                      colorScheme={migrationEnabled ? 'green' : 'gray'}
+                      fontSize="sm"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      {migrationEnabled ? 'Activo' : 'Inactivo'}
+                    </Badge>
+                  </HStack>
+                </CardHeader>
+                <CardBody pt={0}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                      <FormLabel mb={0} fontWeight="semibold">
+                        Migración automática
+                      </FormLabel>
+                      <Switch
+                        isChecked={migrationEnabled}
+                        onChange={(e) => handleMigrationToggle(e.target.checked)}
+                        isDisabled={updatingMigration || !hasConfig}
+                        colorScheme="green"
+                        size="lg"
+                      />
+                    </FormControl>
+
+                    <Text fontSize="sm" color={textSecondary}>
+                      {hasConfig
+                        ? 'Detecta automáticamente respuestas del bot Botrix y migra puntos'
+                        : 'Funcionalidad no disponible - endpoint no configurado'
+                      }
+                    </Text>
+
+                    {migrationEnabled && (
+                      <>
+                        <Divider />
+                        <SimpleGrid columns={2} spacing={4}>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>Usuarios migrados</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="cyan.500">
+                              {migratedUsers}
+                            </Text>
+                          </Box>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>Total puntos migrados</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="cyan.500">
+                              {totalPointsMigrated.toLocaleString()}
+                            </Text>
+                          </Box>
+                        </SimpleGrid>
+                      </>
+                    )}
                   </VStack>
                 </CardBody>
               </Card>
 
-              {/* Suscripciones de Eventos - Solo para desarrolladores */}
-              {isDeveloper && (
-                <Card
-                  borderRadius="xl"
-                  bg="gradient-to-br"
-                  bgGradient="linear(to-br, blue.50, blue.100)"
-                  border="1px solid"
-                  borderColor="blue.200"
-                  _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
-                  transition="all 0.2s"
-                  cursor="pointer"
-                  onClick={() => router.push('/admin/kick/suscripciones')}
-                >
-                  <CardBody p={6}>
-                    <VStack spacing={4} align="center">
-                      <Box fontSize="4xl">📡</Box>
-                      <VStack spacing={2}>
-                        <Heading size="md" color="blue.700" textAlign="center">
-                          Suscripciones de Eventos
+              {/* Sistema VIP */}
+              <Card
+                bg={vipEnabled ? enabledBg : disabledBg}
+                borderRadius="xl"
+                border="2px solid"
+                borderColor={vipEnabled ? enabledBorder : disabledBorder}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg',
+                  borderColor: vipEnabled ? 'green.300' : 'gray.300'
+                }}
+                transition="all 0.2s"
+              >
+                <CardHeader pb={3}>
+                  <HStack justify="space-between" align="start">
+                    <VStack align="start" spacing={1}>
+                      <HStack>
+                        <Icon as={SettingsIcon} color="yellow.500" />
+                        <Heading size="md" color={vipEnabled ? 'green.600' : textPrimary}>
+                          Sistema VIP
                         </Heading>
-                        <Text fontSize="sm" color="blue.600" textAlign="center">
-                          Visualiza y gestiona las suscripciones a eventos de Kick
-                        </Text>
-                      </VStack>
-                      <Button colorScheme="blue" size="sm" borderRadius="lg">
-                        Ver Suscripciones
-                      </Button>
+                      </HStack>
+                      <Text fontSize="sm" color={textSecondary}>
+                        Configura puntos especiales y beneficios para usuarios VIP
+                      </Text>
                     </VStack>
-                  </CardBody>
-                </Card>
-              )}
+                    <Badge
+                      colorScheme={vipEnabled ? 'green' : 'gray'}
+                      fontSize="sm"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      {vipEnabled ? 'Activo' : 'Inactivo'}
+                    </Badge>
+                  </HStack>
+                </CardHeader>
+                <CardBody pt={0}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                      <FormLabel mb={0} fontWeight="semibold">
+                        Puntos especiales VIP
+                      </FormLabel>
+                      <Switch
+                        isChecked={vipEnabled}
+                        onChange={(e) => handleVipToggle(e.target.checked)}
+                        isDisabled={updatingVip || !hasConfig}
+                        colorScheme="green"
+                        size="lg"
+                      />
+                    </FormControl>
+
+                    <Text fontSize="sm" color={textSecondary}>
+                      {hasConfig
+                        ? 'Los usuarios VIP ganan puntos adicionales por actividades'
+                        : 'Funcionalidad no disponible - endpoint no configurado'
+                      }
+                    </Text>
+
+                    {vipEnabled && (
+                      <>
+                        <Divider />
+                        <Button
+                          variant="outline"
+                          colorScheme="orange"
+                          size="sm"
+                          onClick={handleCleanupVips}
+                          isLoading={cleaningVips}
+                          loadingText="Limpiando..."
+                          leftIcon={<SettingsIcon />}
+                        >
+                          Limpiar VIPs expirados
+                        </Button>
+                      </>
+                    )}
+                  </VStack>
+                </CardBody>
+              </Card>
             </SimpleGrid>
-          )}
-        </VStack>
-      </Container>
-    </Layout>
+
+            {/* Botones de configuración */}
+            <Card bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor}>
+              <CardBody>
+                <VStack spacing={4} align="stretch">
+                  <Heading size="md" color="purple.600">
+                    Configuración Avanzada
+                  </Heading>
+                  <Text fontSize="sm" color="gray.600">
+                    Accede a configuraciones detalladas y ajustes específicos
+                  </Text>
+
+                  <HStack spacing={4} wrap="wrap">
+                    <Button
+                      colorScheme="purple"
+                      variant="outline"
+                      onClick={() => router.push('/admin/kick/puntos')}
+                      leftIcon={<SettingsIcon />}
+                      size="md"
+                    >
+                      Configurar Puntos
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      onClick={() => router.push('/admin/usuarios')}
+                      leftIcon={<SettingsIcon />}
+                      size="md"
+                    >
+                      Gestionar Usuarios
+                    </Button>
+                  </HStack>
+                </VStack>
+              </CardBody>
+            </Card>
+          </VStack>
+        </Container>
+      </Layout>
+    </RequireAdmin>
   )
 }
-
-KickAdminPage.getLayout = (page: React.ReactElement) => <RequireAdmin>{page}</RequireAdmin>

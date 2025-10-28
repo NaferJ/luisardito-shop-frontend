@@ -9,6 +9,7 @@ export interface Usuario {
   updated_at?: string  // Campo legacy, puede existir en algunos lugares
   creado: string       // Campo real del backend
   actualizado: string  // Campo real del backend
+
   // Campos específicos de Kick
   nickname?: string
   kick_user_id?: string
@@ -18,6 +19,32 @@ export interface Usuario {
     username: string
     avatar_url: string
   }
+
+  // Campo Discord
+  discord_username?: string
+
+  // Campos VIP
+  is_vip?: boolean
+  vip_info?: {
+    is_vip: boolean
+    is_active: boolean
+    granted_at?: string
+    expires_at?: string
+    granted_by_canje_id?: number
+    is_permanent: boolean
+  }
+
+  // Campos migración Botrix
+  botrix_migrated?: boolean
+  botrix_info?: {
+    migrated: boolean
+    migrated_at?: string
+    points_migrated?: number
+    can_migrate: boolean
+  }
+
+  // Tipo de usuario calculado
+  user_type?: 'regular' | 'vip' | 'subscriber'
 }
 
 export interface Producto {
@@ -41,14 +68,6 @@ export interface Canje {
   fecha: string
   producto?: Producto
   usuario?: Usuario
-}
-
-export interface HistorialPunto {
-  id: number
-  usuario_id: number
-  cambio: number
-  motivo: string
-  fecha: string
 }
 
 // Tipos para requests/responses de la API
@@ -133,3 +152,47 @@ export interface KickSubscription {
   status: string
   created_at: string
 }
+
+// Tipos para configuración VIP y migración
+export interface VipConfig {
+  vip_points_enabled: boolean
+  vip_chat_points: number
+  vip_follow_points: number
+  vip_sub_points: number
+}
+
+export interface MigrationConfig {
+  migration_enabled: boolean
+  stats?: {
+    migrated_users: number
+    total_points: number
+  }
+}
+
+export interface KickAdminConfig {
+  migration: MigrationConfig
+  vip: VipConfig
+}
+
+// Tipos para historial de puntos actualizado
+export interface HistorialPunto {
+  id: number
+  usuario_id: number
+  cambio: number
+  motivo: string
+  concepto?: string
+  tipo?: 'ganado' | 'gastado' | 'evento'
+  fecha: string
+  kick_event_data?: {
+    event_type: string
+    kick_username?: string
+    points_migrated?: number
+    migrated_from?: string
+    duration_days?: number
+    expires_at?: string
+    granted_by_canje_id?: number
+    is_vip?: boolean
+    user_type?: string
+  }
+}
+

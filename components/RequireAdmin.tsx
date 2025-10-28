@@ -1,88 +1,82 @@
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { ReactNode } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import {
-  Box,
-  Container,
-  VStack,
-  Spinner,
-  Text,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Button,
-} from '@chakra-ui/react'
+import { Alert, AlertIcon, Container, VStack, Text, Button } from '@chakra-ui/react'
+import { useRouter } from 'next/router'
 
 interface RequireAdminProps {
-  children: React.ReactNode
+  children: ReactNode
+  allowedRoles?: number[] // IDs de roles permitidos
+  permissions?: string[] // Permisos específicos requeridos
 }
 
-export function RequireAdmin({ children }: RequireAdminProps) {
-  const { user, isLoading } = useAuth()
+// Solo streamer (rol_id: 3) y developer (rol_id: 4) pueden acceder a admin
+const DEFAULT_ADMIN_ROLES = [3, 4]
+
+export function RequireAdmin({
+  children,
+  allowedRoles = DEFAULT_ADMIN_ROLES,
+  permissions = []
+}: RequireAdminProps) {
+  const { user, loading } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      // Si no está autenticado, redirigir al login
-      router.push('/login')
-    } else if (!isLoading && user && user.rol_id !== 3 && user.rol_id !== 4) {
-      // Solo streamer (id: 3) y developer (id: 4) pueden acceder
-      router.push('/')
-    }
-  }, [user, isLoading, router])
-
-  // Mostrar spinner mientras carga
-  if (isLoading) {
+  if (loading) {
     return (
-      <Container maxW="container.md" py={20}>
+      <Container maxW="container.md" py={8}>
         <VStack spacing={4}>
-          <Spinner size="xl" color="blue.500" />
           <Text>Verificando permisos...</Text>
         </VStack>
       </Container>
     )
   }
 
-  // Si no está autenticado
   if (!user) {
     return (
-      <Container maxW="container.md" py={20}>
-        <Alert status="warning" borderRadius="xl">
+      <Container maxW="container.md" py={8}>
+        <Alert status="error" borderRadius="xl">
           <AlertIcon />
-          <Box>
-            <AlertTitle>Acceso no autorizado</AlertTitle>
-            <AlertDescription>
-              Debes iniciar sesión para acceder a esta página.
-            </AlertDescription>
-          </Box>
+          <VStack align="start" spacing={2}>
+            <Text fontWeight="bold">Acceso denegado</Text>
+            <Text>Debes iniciar sesión para acceder a esta página.</Text>
+            <Button
+              colorScheme="blue"
+              size="sm"
+              onClick={() => router.push('/login')}
+            >
+              Iniciar sesión
+            </Button>
+          </VStack>
         </Alert>
       </Container>
     )
   }
 
-  // Si está autenticado pero no es streamer ni developer
-  if (user.rol_id !== 3 && user.rol_id !== 4) {
+  // Verificar si el usuario tiene uno de los roles permitidos
+  const hasValidRole = allowedRoles.includes(user.rol_id)
+
+  if (!hasValidRole) {
     return (
-      <Container maxW="container.md" py={20}>
-        <VStack spacing={6}>
-          <Alert status="error" borderRadius="xl">
-            <AlertIcon />
-            <Box>
-            <AlertTitle>Acceso denegado</AlertTitle>
-            <AlertDescription>
-              Solo el streamer y desarrolladores pueden acceder a esta página.
-            </AlertDescription>
-            </Box>
-          </Alert>
-          <Button colorScheme="blue" onClick={() => router.push('/')}>
-            Volver al inicio
-          </Button>
-        </VStack>
+      <Container maxW="container.md" py={8}>
+        <Alert status="error" borderRadius="xl">
+          <AlertIcon />
+          <VStack align="start" spacing={2}>
+            <Text fontWeight="bold">Acceso denegado</Text>
+            <Text>
+              No tienes permisos para acceder a esta página. Solo streamers y desarrolladores
+              pueden acceder al panel de administración.
+            </Text>
+            <Button
+              colorScheme="purple"
+              size="sm"
+              onClick={() => router.push('/')}
+            >
+              🏠 Volver al inicio
+            </Button>
+          </VStack>
+        </Alert>
       </Container>
     )
   }
 
-  // Si es streamer o developer, mostrar el contenido
   return <>{children}</>
 }

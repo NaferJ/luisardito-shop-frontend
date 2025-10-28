@@ -80,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = getAuthCookie()
+
       if (savedToken) {
         setToken(savedToken)
         try {
@@ -90,8 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           logout()
         }
       }
+
       setIsLoading(false)
     }
+
     initAuth()
   }, [])
 
@@ -159,35 +162,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // El backend ahora devuelve accessToken y refreshToken
       const accessToken = data.accessToken || data.token
       const refreshToken = data.refreshToken
-      const expiresIn = data.expiresIn
+      const user = data.user || data.usuario
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Login exitoso:', {
-          hasAccessToken: !!accessToken,
-          hasRefreshToken: !!refreshToken,
-          expiresIn
-        })
+      if (!accessToken) {
+        throw new Error('No se recibió token de acceso del servidor')
       }
 
-      setToken(accessToken)
-      setUser(data.user || data.usuario)
-
-      // Guardar tokens en cookies cross-domain
+      // Guardar tokens en cookies cross-domain PRIMERO
       setAuthCookie(accessToken)
       if (refreshToken) {
         setRefreshCookie(refreshToken)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Refresh token guardado en cookies')
-        }
-      } else if (process.env.NODE_ENV === 'development') {
-        console.warn('No se recibió refresh token del backend')
       }
 
-      router.push('/')
+      // Luego actualizar estado
+      setToken(accessToken)
+      setUser(user)
+
+      return { success: true }
+
     } catch (error: any) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error en login:', error.response?.data)
-      }
+      console.error('Error en login:', error.response?.data || error.message)
       throw new Error(error.response?.data?.error || 'Error en el login')
     }
   }

@@ -1,5 +1,6 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
+import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import {
   Box,
   Container,
@@ -38,7 +39,6 @@ import {
   TableContainer,
   Card,
   CardBody,
-  CardHeader,
   Input,
   InputGroup,
   InputLeftElement,
@@ -48,22 +48,27 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  StatHelpText,
   Divider,
   Avatar,
-  Tooltip,
   Alert,
   AlertIcon,
   Stack,
   Tag,
   TagLabel,
   TagCloseButton,
-  Wrap,
-  WrapItem
+  FormControl,
+  FormLabel,
 } from '@chakra-ui/react'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import { useAdminUsuarios, useUpdateUsuarioPuntos, UsuarioAdmin } from '../../../hooks/useAdminUsuarios'
+import {
+  useAdminUsuarios,
+  useUpdateUsuarioPuntos,
+  useRemoveVipFromUser,
+  useGrantVipToUser,
+  useManualBotrixMigration,
+  UsuarioAdmin
+} from '../../../hooks/useAdminUsuarios'
 import {
   SettingsIcon,
   SearchIcon,
@@ -71,23 +76,43 @@ import {
   ViewIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  AddIcon
 } from '@chakra-ui/icons'
 
 export default function AdminUsuariosPage() {
-  const { data: usuarios, isLoading, error } = useAdminUsuarios({ limit: 50, offset: 0 })
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedUser, setSelectedUser] = useState<{ id: number; nickname?: string; puntos: number } | null>(null)
-  const [puntos, setPuntos] = useState<number>(0)
+  const router = useRouter()
+  const toast = useToast()
+
+  // Estados originales
   const [searchTerm, setSearchTerm] = useState('')
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [pageSize, setPageSize] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
+  const [filter, setFilter] = useState<'all' | 'vip' | 'migrated' | 'pending_migration' | 'subscribers'>('all')
+
+  // Modales originales + nuevos
+  const { isOpen: isPuntosOpen, onOpen: onPuntosOpen, onClose: onPuntosClose } = useDisclosure()
+  const { isOpen: isVipOpen, onOpen: onVipOpen, onClose: onVipClose } = useDisclosure()
+  const { isOpen: isMigrationOpen, onOpen: onMigrationOpen, onClose: onMigrationClose } = useDisclosure()
+
+  // Estados para modales
+  const [selectedUser, setSelectedUser] = useState<UsuarioAdmin | null>(null)
+  const [puntos, setPuntos] = useState<number>(0)
+  const [motivo, setMotivo] = useState('')
+  const [vipDays, setVipDays] = useState<number | undefined>(30)
+  const [migrationPoints, setMigrationPoints] = useState<number>(0)
+
+  // Hooks de datos - usando el hook actualizado pero con lógica de filtrado local para compatibilidad
+  const { data: usuariosData, isLoading, error } = useAdminUsuarios({
+    page: 1,
+    limit: 100, // Cargar más para filtrado local
+    filter: 'all'
+  })
 
   const updatePuntos = useUpdateUsuarioPuntos()
-  const toast = useToast()
-  const router = useRouter()
+  const removeVip = useRemoveVipFromUser()
+  const grantVip = useGrantVipToUser()
+  const manualMigration = useManualBotrixMigration()
 
   // Theme colors
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -95,26 +120,49 @@ export default function AdminUsuariosPage() {
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
   const headerBg = useColorModeValue('gray.50', 'gray.700')
 
-  const openModal = (u: UsuarioAdmin) => {
-    setSelectedUser({ id: u.id, nickname: (u as any).nickname || u.nombre, puntos: u.puntos })
-    setPuntos(u.puntos)
-    onOpen()
+  // Funciones de modal originales
+  const openPuntosModal = (user: UsuarioAdmin) => {
+    setSelectedUser(user)
+    setPuntos(0)
+    setMotivo('')
+    onPuntosOpen()
+  }
+
+  const openVipModal = (user: UsuarioAdmin) => {
+    setSelectedUser(user)
+    setVipDays(30)
+    onVipOpen()
+  }
+
+  const openMigrationModal = (user: UsuarioAdmin) => {
+    setSelectedUser(user)
+    setMigrationPoints(0)
+    onMigrationOpen()
   }
 
   const savePuntos = async () => {
-    if (!selectedUser) return
+    if (!selectedUser || !motivo.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Debes proporcionar un motivo para el cambio de puntos',
+        status: 'error',
+        duration: 3000,
+      })
+      return
+    }
+
     try {
       await updatePuntos.mutateAsync({
         usuarioId: selectedUser.id,
         puntos,
-        motivo: 'Ajuste manual admin'
+        motivo
       })
       toast({
-        title: '✅ Puntos actualizados',
-        description: `Se actualizaron los puntos de ${selectedUser.nickname}`,
+        title: 'Puntos actualizados',
+        description: `Se ${puntos >= 0 ? 'agregaron' : 'restaron'} ${Math.abs(puntos)} puntos a ${selectedUser.nickname || selectedUser.email}`,
         status: 'success'
       })
-      onClose()
+      onPuntosClose()
     } catch (e: any) {
       toast({
         title: 'Error',
@@ -124,27 +172,125 @@ export default function AdminUsuariosPage() {
     }
   }
 
-  // Filtered and sorted data
-  const processedData = useMemo(() => {
-    if (!usuarios) return []
+  const handleGrantVip = async () => {
+    if (!selectedUser) return
 
-    let filtered = usuarios.filter((user: any) => {
+    try {
+      await grantVip.mutateAsync({
+        usuarioId: selectedUser.id,
+        durationDays: vipDays
+      })
+      toast({
+        title: 'VIP otorgado',
+        description: `${selectedUser.nickname || selectedUser.email} ahora es VIP${vipDays ? ` por ${vipDays} días` : ' permanente'}`,
+        status: 'success',
+      })
+      onVipClose()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo otorgar VIP',
+        status: 'error',
+        duration: 5000,
+      })
+    }
+  }
+
+  const handleRemoveVip = async (user: UsuarioAdmin) => {
+    if (!confirm(`¿Estás seguro de remover VIP a ${user.nickname || user.email}?`)) return
+
+    try {
+      await removeVip.mutateAsync({
+        usuarioId: user.id,
+        reason: 'Removido manualmente por administrador'
+      })
+      toast({
+        title: 'VIP removido',
+        description: `Se removió el VIP de ${user.nickname || user.email}`,
+        status: 'success',
+        duration: 3000,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo remover VIP',
+        status: 'error',
+        duration: 5000,
+      })
+    }
+  }
+
+  const handleManualMigration = async () => {
+    if (!selectedUser || migrationPoints <= 0) {
+      toast({
+        title: 'Error',
+        description: 'Debes especificar una cantidad válida de puntos',
+        status: 'error',
+        duration: 3000,
+      })
+      return
+    }
+
+    try {
+      await manualMigration.mutateAsync({
+        usuarioId: selectedUser.id,
+        pointsAmount: migrationPoints,
+        kickUsername: selectedUser.nickname || selectedUser.email
+      })
+      toast({
+        title: 'Migración completada',
+        description: `Se migraron ${migrationPoints.toLocaleString()} puntos para ${selectedUser.nickname || selectedUser.email}`,
+        status: 'success',
+        duration: 3000,
+      })
+      onMigrationClose()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo completar la migración',
+        status: 'error',
+        duration: 5000,
+      })
+    }
+  }
+
+  // Lógica de filtrado y paginación original
+  const processedData = useMemo(() => {
+    if (!usuariosData?.users) return []
+
+    let filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
       const searchLower = searchTerm.toLowerCase()
-      return (
+      const matchesSearch = (
         user.nickname?.toLowerCase().includes(searchLower) ||
-        user.nombre?.toLowerCase().includes(searchLower) ||
         user.email?.toLowerCase().includes(searchLower) ||
-        user.id.toString().includes(searchLower)
+        user.id.toString().includes(searchLower) ||
+        user.discord_username?.toLowerCase().includes(searchLower)
       )
+
+      if (!matchesSearch) return false
+
+      // Aplicar filtros
+      switch (filter) {
+        case 'vip':
+          return user.vip_status?.is_active
+        case 'migrated':
+          return user.migration_status?.points_migrated
+        case 'pending_migration':
+          return user.migration_status?.can_migrate && !user.migration_status?.points_migrated
+        case 'subscribers':
+          return user.user_type === 'subscriber'
+        default:
+          return true
+      }
     })
 
-    filtered.sort((a: any, b: any) => {
-      let aVal = a[sortField]
-      let bVal = b[sortField]
+    filtered.sort((a: UsuarioAdmin, b: UsuarioAdmin) => {
+      let aVal = a[sortField as keyof UsuarioAdmin]
+      let bVal = b[sortField as keyof UsuarioAdmin]
 
       if (sortField === 'nickname') {
-        aVal = a.nickname || a.nombre || ''
-        bVal = b.nickname || b.nombre || ''
+        aVal = a.nickname || a.email || ''
+        bVal = b.nickname || b.email || ''
       }
 
       if (typeof aVal === 'string') aVal = aVal.toLowerCase()
@@ -156,9 +302,9 @@ export default function AdminUsuariosPage() {
     })
 
     return filtered
-  }, [usuarios, searchTerm, sortField, sortDirection])
+  }, [usuariosData?.users, searchTerm, sortField, sortDirection, filter])
 
-  // Pagination
+  // Pagination original
   const totalPages = Math.ceil(processedData.length / pageSize)
   const paginatedData = processedData.slice(
     (currentPage - 1) * pageSize,
@@ -174,17 +320,27 @@ export default function AdminUsuariosPage() {
     }
   }
 
-  // Statistics
+  // Statistics originales + nuevas
   const stats = useMemo(() => {
-    if (!usuarios) return null
+    if (!usuariosData?.users) return null
 
+    const usuarios = usuariosData.users
     const totalUsers = usuarios.length
-    const totalPoints = usuarios.reduce((sum: number, user: any) => sum + (user.puntos || 0), 0)
+    const totalPoints = usuarios.reduce((sum: number, user: UsuarioAdmin) => sum + (user.puntos || 0), 0)
     const avgPoints = Math.round(totalPoints / totalUsers)
-    const usersWithCanjes = usuarios.filter((user: any) => (user.total_canjes || 0) > 0).length
+    const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
+    const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
+    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.migration_status?.points_migrated).length
 
-    return { totalUsers, totalPoints, avgPoints, usersWithCanjes }
-  }, [usuarios])
+    return {
+      totalUsers,
+      totalPoints,
+      avgPoints,
+      usersWithCanjes,
+      vipUsers,
+      migratedUsers
+    }
+  }, [usuariosData?.users])
 
   if (isLoading) {
     return (
@@ -226,25 +382,47 @@ export default function AdminUsuariosPage() {
       <Layout>
         <Container maxW="container.xl" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
           <VStack spacing={{ base: 4, md: 6 }} align="stretch">
-            {/* Header */}
+            {/* Header original */}
             <Box>
               <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
                 👥 Gestión de Usuarios
               </Heading>
               <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-                Administra los usuarios registrados y sus puntos
+                Administra los usuarios registrados, VIPs, migración y puntos
               </Text>
             </Box>
 
-            {/* Statistics Cards */}
+            {/* Statistics Cards mejoradas */}
             {stats && (
-              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+              <SimpleGrid columns={{ base: 2, md: 3, lg: 6 }} spacing={4}>
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
                       <StatLabel color="gray.600">Total Usuarios</StatLabel>
                       <StatNumber color="blue.600" fontSize="2xl">
                         {stats.totalUsers}
+                      </StatNumber>
+                    </Stat>
+                  </CardBody>
+                </Card>
+
+                <Card bg={cardBg} shadow="md" borderRadius="xl">
+                  <CardBody textAlign="center" py={6}>
+                    <Stat>
+                      <StatLabel color="gray.600">👑 VIPs</StatLabel>
+                      <StatNumber color="yellow.600" fontSize="2xl">
+                        {stats.vipUsers}
+                      </StatNumber>
+                    </Stat>
+                  </CardBody>
+                </Card>
+
+                <Card bg={cardBg} shadow="md" borderRadius="xl">
+                  <CardBody textAlign="center" py={6}>
+                    <Stat>
+                      <StatLabel color="gray.600">🔄 Migrados</StatLabel>
+                      <StatNumber color="cyan.600" fontSize="2xl">
+                        {stats.migratedUsers}
                       </StatNumber>
                     </Stat>
                   </CardBody>
@@ -264,7 +442,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Promedio Puntos</StatLabel>
+                      <StatLabel color="gray.600">Promedio</StatLabel>
                       <StatNumber color="purple.600" fontSize="2xl">
                         {stats.avgPoints.toLocaleString()}
                       </StatNumber>
@@ -285,7 +463,7 @@ export default function AdminUsuariosPage() {
               </SimpleGrid>
             )}
 
-            {/* Search and Filters */}
+            {/* Search and Filters mejorado */}
             <Card bg={cardBg} shadow="md" borderRadius="xl">
               <CardBody>
                 <Stack direction={{ base: 'column', md: 'row' }} spacing={4} align="center">
@@ -300,6 +478,19 @@ export default function AdminUsuariosPage() {
                       borderRadius="lg"
                     />
                   </InputGroup>
+
+                  <Select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value as any)}
+                    w={{ base: 'full', md: '200px' }}
+                    borderRadius="lg"
+                  >
+                    <option value="all">Todos los usuarios</option>
+                    <option value="vip">👑 Solo VIPs</option>
+                    <option value="subscribers">⭐ Solo suscriptores</option>
+                    <option value="migrated">🔄 Ya migrados</option>
+                    <option value="pending_migration">⏳ Pendientes migración</option>
+                  </Select>
 
                   <HStack spacing={4}>
                     <Text fontSize="sm" color="gray.600" whiteSpace="nowrap">
@@ -322,21 +513,24 @@ export default function AdminUsuariosPage() {
                     </Select>
                   </HStack>
 
-                  {searchTerm && (
+                  {(searchTerm || filter !== 'all') && (
                     <Tag
                       size="md"
                       colorScheme="blue"
                       borderRadius="full"
                     >
                       <TagLabel>{processedData.length} resultados</TagLabel>
-                      <TagCloseButton onClick={() => setSearchTerm('')} />
+                      <TagCloseButton onClick={() => {
+                        setSearchTerm('')
+                        setFilter('all')
+                      }} />
                     </Tag>
                   )}
                 </Stack>
               </CardBody>
             </Card>
 
-            {/* Users Table */}
+            {/* Users Table original + nuevas funcionalidades */}
             <Card bg={cardBg} shadow="md" borderRadius="xl" overflow="hidden">
               <TableContainer>
                 <Table variant="simple">
@@ -380,12 +574,13 @@ export default function AdminUsuariosPage() {
                           )}
                         </HStack>
                       </Th>
+                      <Th display={{ base: 'none', lg: 'table-cell' }}>Estado</Th>
                       <Th display={{ base: 'none', lg: 'table-cell' }}>Canjes</Th>
                       <Th>Acciones</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {paginatedData.map((user: any) => (
+                    {paginatedData.map((user: UsuarioAdmin) => (
                       <Tr
                         key={user.id}
                         _hover={{ bg: hoverBg }}
@@ -396,22 +591,26 @@ export default function AdminUsuariosPage() {
                         </Td>
                         <Td>
                           <HStack spacing={3}>
-                            <Avatar
-                              size="sm"
-                              name={user.nickname || user.nombre || user.email}
-                              src={user.kick_avatar}
-                            />
+                            <UserAvatarWithBadge user={user}>
+                              <Avatar
+                                size="sm"
+                                name={user.nickname || user.email}
+                              />
+                            </UserAvatarWithBadge>
                             <VStack align="start" spacing={0}>
-                              <Text fontWeight="medium" fontSize="sm">
-                                {user.nickname || user.nombre || 'Sin nombre'}
-                              </Text>
+                              <HStack>
+                                <Text fontWeight="medium" fontSize="sm">
+                                  {user.nickname || 'Sin username'}
+                                </Text>
+                                <UserBadge user={user} size="sm" />
+                              </HStack>
                               <Text fontSize="xs" color="gray.500" display={{ base: 'block', md: 'none' }}>
                                 {user.email}
                               </Text>
-                              {user.kick_username && (
-                                <Badge colorScheme="green" fontSize="xs">
-                                  Kick: {user.kick_username}
-                                </Badge>
+                              {user.discord_username && (
+                                <Text fontSize="xs" color="purple.500">
+                                  Discord: {user.discord_username}
+                                </Text>
                               )}
                             </VStack>
                           </HStack>
@@ -434,10 +633,28 @@ export default function AdminUsuariosPage() {
                         </Td>
                         <Td display={{ base: 'none', lg: 'table-cell' }}>
                           <VStack align="start" spacing={1}>
+                            {user.vip_status?.is_active && (
+                              <Badge colorScheme="yellow" fontSize="xs">
+                                👑 VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
+                              </Badge>
+                            )}
+                            {user.migration_status?.points_migrated ? (
+                              <Badge colorScheme="cyan" fontSize="xs">
+                                🔄 {user.migration_status.points_migrated.toLocaleString()} pts
+                              </Badge>
+                            ) : user.migration_status?.can_migrate ? (
+                              <Badge colorScheme="orange" fontSize="xs">
+                                ⏳ Pendiente migración
+                              </Badge>
+                            ) : null}
+                          </VStack>
+                        </Td>
+                        <Td display={{ base: 'none', lg: 'table-cell' }}>
+                          <VStack align="start" spacing={1}>
                             <Text fontSize="sm">
                               Total: {user.total_canjes || 0}
                             </Text>
-                            {user.canjes_pendientes > 0 && (
+                            {(user.canjes_pendientes || 0) > 0 && (
                               <Badge colorScheme="orange" fontSize="xs">
                                 {user.canjes_pendientes} pendientes
                               </Badge>
@@ -463,13 +680,12 @@ export default function AdminUsuariosPage() {
                                 borderColor={borderColor}
                                 shadow="xl"
                                 p={2}
-                                minW="160px"
+                                minW="180px"
                               >
                                 <MenuItem
                                   icon={<EditIcon />}
-                                  onClick={() => openModal(user)}
+                                  onClick={() => openPuntosModal(user)}
                                   borderRadius="lg"
-                                  whiteSpace="nowrap"
                                 >
                                   Editar puntos
                                 </MenuItem>
@@ -477,10 +693,38 @@ export default function AdminUsuariosPage() {
                                   icon={<ViewIcon />}
                                   onClick={() => router.push(`/admin/usuarios/${user.id}`)}
                                   borderRadius="lg"
-                                  whiteSpace="nowrap"
                                 >
                                   Ver canjes
                                 </MenuItem>
+                                {user.vip_status?.is_active ? (
+                                  <MenuItem
+                                    icon={<SettingsIcon />}
+                                    onClick={() => handleRemoveVip(user)}
+                                    borderRadius="lg"
+                                    color="red.500"
+                                  >
+                                    Remover VIP
+                                  </MenuItem>
+                                ) : (
+                                  <MenuItem
+                                    icon={<SettingsIcon />}
+                                    onClick={() => openVipModal(user)}
+                                    borderRadius="lg"
+                                    color="yellow.500"
+                                  >
+                                    Otorgar VIP
+                                  </MenuItem>
+                                )}
+                                {!user.migration_status?.points_migrated && (
+                                  <MenuItem
+                                    icon={<SettingsIcon />}
+                                    onClick={() => openMigrationModal(user)}
+                                    borderRadius="lg"
+                                    color="cyan.500"
+                                  >
+                                    Migración manual
+                                  </MenuItem>
+                                )}
                               </MenuList>
                             </Portal>
                           </Menu>
@@ -491,7 +735,7 @@ export default function AdminUsuariosPage() {
                 </Table>
               </TableContainer>
 
-              {/* Pagination */}
+              {/* Pagination original */}
               {totalPages > 1 && (
                 <Box p={4} borderTop="1px solid" borderColor={borderColor}>
                   <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
@@ -546,15 +790,15 @@ export default function AdminUsuariosPage() {
             </Card>
           </VStack>
 
-          {/* Edit Points Modal */}
-          <Modal isOpen={isOpen} onClose={onClose} isCentered>
+          {/* Modal original para editar puntos */}
+          <Modal isOpen={isPuntosOpen} onClose={onPuntosClose} isCentered>
             <ModalOverlay backdropFilter="blur(10px)" />
             <ModalContent borderRadius="2xl" mx={4}>
               <ModalHeader>
                 <VStack align="start" spacing={1}>
                   <Text>✏️ Editar Puntos</Text>
                   <Text fontSize="sm" fontWeight="normal" color="gray.600">
-                    Usuario: {selectedUser?.nickname}
+                    Usuario: {selectedUser?.nickname || selectedUser?.email}
                   </Text>
                 </VStack>
               </ModalHeader>
@@ -568,17 +812,28 @@ export default function AdminUsuariosPage() {
                     </Badge>
                   </Box>
 
-                  <Box>
-                    <Text mb={2} fontWeight="medium">Nuevos puntos:</Text>
+                  <FormControl>
+                    <Text mb={2} fontWeight="medium">Cambio de puntos:</Text>
                     <NumberInput
                       value={puntos}
                       onChange={(_, val) => setPuntos(val)}
-                      min={0}
-                      max={999999999}
                     >
-                      <NumberInputField borderRadius="lg" />
+                      <NumberInputField
+                        borderRadius="lg"
+                        placeholder="Ej: 1000 (positivo) o -500 (negativo)"
+                      />
                     </NumberInput>
-                  </Box>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Motivo</FormLabel>
+                    <Input
+                      value={motivo}
+                      onChange={(e) => setMotivo(e.target.value)}
+                      placeholder="Ej: Ajuste manual, premio por evento, etc."
+                      borderRadius="lg"
+                    />
+                  </FormControl>
 
                   <Alert status="info" borderRadius="lg">
                     <AlertIcon />
@@ -589,16 +844,115 @@ export default function AdminUsuariosPage() {
                 </VStack>
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={onClose} borderRadius="lg">
+                <Button variant="ghost" mr={3} onClick={onPuntosClose} borderRadius="lg">
                   Cancelar
                 </Button>
                 <Button
                   colorScheme="blue"
                   onClick={savePuntos}
-                  isLoading={updatePuntos.isLoading}
+                  isLoading={updatePuntos.isPending}
                   borderRadius="lg"
                 >
                   Guardar Cambios
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+          {/* Modal para otorgar VIP */}
+          <Modal isOpen={isVipOpen} onClose={onVipClose} isCentered>
+            <ModalOverlay backdropFilter="blur(10px)" />
+            <ModalContent borderRadius="2xl" mx={4}>
+              <ModalHeader>
+                <VStack align="start" spacing={1}>
+                  <HStack>
+                    <SettingsIcon />
+                    <Text>Otorgar VIP</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
+                    Usuario: {selectedUser?.nickname || selectedUser?.email}
+                  </Text>
+                </VStack>
+              </ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4} align="stretch">
+                  <FormControl>
+                    <FormLabel>Duración (días)</FormLabel>
+                    <NumberInput value={vipDays} onChange={(_, value) => setVipDays(value)}>
+                      <NumberInputField
+                        placeholder="Ej: 30 (dejar vacío para permanente)"
+                        borderRadius="lg"
+                      />
+                    </NumberInput>
+                    <Text fontSize="xs" color="gray.500" mt={1}>
+                      Deja vacío o 0 para VIP permanente
+                    </Text>
+                  </FormControl>
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={onVipClose} borderRadius="lg">
+                  Cancelar
+                </Button>
+                <Button
+                  colorScheme="yellow"
+                  onClick={handleGrantVip}
+                  isLoading={grantVip.isPending}
+                  borderRadius="lg"
+                >
+                  Otorgar VIP
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+          {/* Modal para migración manual */}
+          <Modal isOpen={isMigrationOpen} onClose={onMigrationClose} isCentered>
+            <ModalOverlay backdropFilter="blur(10px)" />
+            <ModalContent borderRadius="2xl" mx={4}>
+              <ModalHeader>
+                <VStack align="start" spacing={1}>
+                  <HStack>
+                    <SettingsIcon />
+                    <Text>Migración Manual</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
+                    Usuario: {selectedUser?.nickname || selectedUser?.email}
+                  </Text>
+                </VStack>
+              </ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4} align="stretch">
+                  <FormControl>
+                    <FormLabel>Puntos a migrar</FormLabel>
+                    <NumberInput
+                      value={migrationPoints}
+                      onChange={(_, value) => setMigrationPoints(value)}
+                    >
+                      <NumberInputField
+                        placeholder="Ej: 50000"
+                        borderRadius="lg"
+                      />
+                    </NumberInput>
+                    <Text fontSize="xs" color="gray.500" mt={1}>
+                      Cantidad de puntos que tenía en Botrix
+                    </Text>
+                  </FormControl>
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={onMigrationClose} borderRadius="lg">
+                  Cancelar
+                </Button>
+                <Button
+                  colorScheme="cyan"
+                  onClick={handleManualMigration}
+                  isLoading={manualMigration.isPending}
+                  borderRadius="lg"
+                >
+                  Migrar puntos
                 </Button>
               </ModalFooter>
             </ModalContent>

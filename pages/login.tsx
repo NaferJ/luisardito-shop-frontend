@@ -1,4 +1,5 @@
 import NextLink from 'next/link'
+import { useRouter } from 'next/router'
 import { useKickAuth } from '../hooks/useKickAuth'
 import {
   Box,
@@ -14,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const { connectWithKick, isLoading: isKickLoading } = useKickAuth()
 
   const mutedBg = useColorModeValue('gray.100', 'gray.700')
@@ -67,6 +69,27 @@ export default function LoginPage() {
       <Box display={{ base: 'none', lg: 'block' }} position="relative" bg={mutedBg}>
         <Image src="/images/login.jpg" alt="Login image" position="absolute" inset={0} w="100%" h="100%" objectFit="cover" />
       </Box>
+
+      {/* Dev login link - solo visible en desarrollo */}
+      {process.env.NODE_ENV === 'development' && (
+        <Box
+          position="fixed"
+          bottom={4}
+          left={4}
+          zIndex={1000}
+        >
+          <Button
+            size="xs"
+            variant="ghost"
+            colorScheme="gray"
+            opacity={0.3}
+            _hover={{ opacity: 1 }}
+            onClick={() => router.push('/auth/dev-login')}
+          >
+            🔧 dev
+          </Button>
+        </Box>
+      )}
     </Grid>
   )
 }

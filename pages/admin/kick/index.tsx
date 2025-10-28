@@ -227,7 +227,7 @@ export default function KickAdminPage() {
     )
   }
 
-  // Determinar estados actuales de la configuración con nombres correctos del backend
+  // Determinar estados actuales de la configuración con nombres REALES del backend
   const migrationEnabled = config?.migration?.enabled ?? false
   const vipEnabled = config?.vip?.points_enabled ?? false
   const migratedUsers = config?.migration?.stats?.migrated_users ?? 0

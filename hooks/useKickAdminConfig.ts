@@ -41,10 +41,27 @@ export const useKickAdminConfig = () => {
 
   const updateMigrationConfig = async (enabled: boolean) => {
     try {
-      await api.put('/api/kick-admin/migration', { enabled: enabled })
+      // Usar la estructura real del backend: { enabled: boolean }
+      const payload = { enabled: enabled }
+
+      console.log('🔄 updateMigrationConfig: Enviando payload:', payload)
+      console.log('🔄 updateMigrationConfig: Endpoint:', '/api/kick-admin/migration')
+
+      const response = await api.put('/api/kick-admin/migration', payload)
+
+      console.log('✅ updateMigrationConfig: Respuesta exitosa:', response.data)
+
       await fetchConfig() // Recargar configuración
       return true
     } catch (err: any) {
+      console.error('❌ updateMigrationConfig: Error:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message,
+        payload: { enabled }
+      })
+
       setError(err.response?.data?.message || 'Error al actualizar migración')
       throw err
     }
@@ -52,10 +69,24 @@ export const useKickAdminConfig = () => {
 
   const updateVipConfig = async (vipConfig: Partial<VipConfig>) => {
     try {
-      await api.put('/api/kick-admin/vip-config', vipConfig)
+      console.log('🔄 updateVipConfig: Enviando payload:', vipConfig)
+      console.log('🔄 updateVipConfig: Endpoint:', '/api/kick-admin/vip-config')
+
+      const response = await api.put('/api/kick-admin/vip-config', vipConfig)
+
+      console.log('✅ updateVipConfig: Respuesta exitosa:', response.data)
+
       await fetchConfig() // Recargar configuración
       return true
     } catch (err: any) {
+      console.error('❌ updateVipConfig: Error:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message,
+        payload: vipConfig
+      })
+
       setError(err.response?.data?.message || 'Error al actualizar configuración VIP')
       throw err
     }

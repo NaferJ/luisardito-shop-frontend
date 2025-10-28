@@ -466,7 +466,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button colorScheme="blackAlpha" ref={cancelRef} onClick={onClose}>
                 Cancelar
               </Button>
               <Button

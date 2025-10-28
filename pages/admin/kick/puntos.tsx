@@ -67,7 +67,7 @@ const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
 export default function KickPointsConfigPage() {
   const router = useRouter()
   const toast = useToast()
-  const { configs, loading, error, updateConfig, fetchConfigs, initializeConfig } = useKickPointsConfig()
+  const { configs, loading, error, updateConfig, fetchConfigs, initializeConfig, resetToDefaults } = useKickPointsConfig()
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
 
@@ -188,6 +188,41 @@ export default function KickPointsConfigPage() {
       })
     } finally {
       setInitializing(false)
+    }
+  }
+
+  const handleReset = async () => {
+    console.log('🎯 handleReset: Botón presionado')
+
+    if (!confirm('¿Estás seguro de restablecer TODAS las configuraciones a sus valores por defecto? Esto sobrescribirá todos los valores actuales.')) {
+      console.log('🚫 handleReset: Usuario canceló')
+      return
+    }
+
+    try {
+      console.log('🎯 handleReset: Iniciando restablecimiento...')
+      setInitializing(true)
+
+      // Usar la función resetToDefaults que tiene control total
+      await resetToDefaults()
+
+      console.log('🎯 handleReset: Restablecimiento exitoso')
+      toast({
+        title: 'Configuración restablecida',
+        description: 'Todos los valores han sido restablecidos a los valores por defecto correctos',
+        status: 'success',
+        duration: 3000,
+      })
+    } catch (err) {
+      console.error('🎯 handleReset: Error durante restablecimiento:', err)
+      toast({
+        title: 'Error al restablecer',
+        status: 'error',
+        duration: 3000,
+      })
+    } finally {
+      setInitializing(false)
+      console.log('🎯 handleReset: Proceso terminado')
     }
   }
 
@@ -422,7 +457,7 @@ export default function KickPointsConfigPage() {
                       <Button
                         colorScheme="gray"
                         variant="outline"
-                        onClick={handleInitialize}
+                        onClick={handleReset}
                         isLoading={initializing}
                         borderRadius="lg"
                         px={8}

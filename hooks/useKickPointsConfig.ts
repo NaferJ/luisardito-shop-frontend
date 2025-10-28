@@ -107,52 +107,112 @@ export const useKickPointsConfig = () => {
     }
   }
 
-  const initializeConfig = async () => {
+  const resetToDefaults = async () => {
+    // Valores por defecto específicos que sabemos que queremos
+    const defaultConfigs = [
+      { config_key: 'chat_points_regular', config_value: 10, enabled: true },
+      { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
+      { config_key: 'follow_points', config_value: 50, enabled: true },
+      { config_key: 'subscription_new_points', config_value: 500, enabled: true },
+      { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },
+      { config_key: 'gift_given_points', config_value: 300, enabled: true },
+      { config_key: 'gift_received_points', config_value: 200, enabled: true }
+    ]
+
     try {
-      // Usar la API definida en kickApi.ts
-      await kickPointsConfigApi.initializeConfig()
-      await fetchConfigs() // Recargar configuración
-      return true
-    } catch (err: any) {
-      // Si el endpoint no existe, intentar crear configuraciones manualmente
-      if (err.response?.status === 404) {
-        console.warn('Endpoint de inicialización no disponible, creando configuraciones en lote')
+      console.log('🔄 Restableciendo a valores por defecto...')
+      console.log('📋 Valores objetivo:', defaultConfigs)
 
-        // Crear todas las configuraciones en una sola llamada
-        const defaultConfigs = [
-          { config_key: 'chat_points_regular', config_value: 10, enabled: true },
-          { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
-          { config_key: 'follow_points', config_value: 50, enabled: true },
-          { config_key: 'subscription_new_points', config_value: 500, enabled: true },
-          { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },
-          { config_key: 'gift_given_points', config_value: 300, enabled: true },
-          { config_key: 'gift_received_points', config_value: 200, enabled: true }
-        ]
-
+      // Actualizar cada configuración individualmente para asegurar los valores correctos
+      for (const config of defaultConfigs) {
         try {
-          // Usar updateMultipleConfigs para hacer todo en una sola llamada
-          await kickPointsConfigApi.updateMultipleConfigs(defaultConfigs)
-          await fetchConfigs() // Solo una recarga al final
-          return true
-        } catch (bulkErr) {
-          console.warn('Error con actualización en lote, intentando una por una:', bulkErr)
+          console.log(`🔧 Actualizando ${config.config_key} a ${config.config_value}...`)
 
-          // Fallback: crear una por una pero sin recargar hasta el final
-          for (const config of defaultConfigs) {
-            try {
-              await kickPointsConfigApi.updateConfig(config)
-            } catch (createErr) {
-              console.warn(`Error creando configuración ${config.config_key}:`, createErr)
-            }
-          }
+          const response = await kickPointsConfigApi.updateConfig({
+            config_key: config.config_key,
+            config_value: config.config_value,
+            enabled: config.enabled
+          })
 
-          await fetchConfigs() // Solo una recarga al final
-          return true
+          console.log(`✅ ${config.config_key} = ${config.config_value} (enabled: ${config.enabled}) - Respuesta:`, response?.data)
+        } catch (updateErr: any) {
+          console.error(`❌ Error restableciendo ${config.config_key}:`, {
+            error: updateErr,
+            status: updateErr.response?.status,
+            data: updateErr.response?.data,
+            message: updateErr.message
+          })
+          throw updateErr
         }
       }
 
-      setError(err.response?.data?.message || 'Error al inicializar configuración')
+      console.log('🔄 Recargando configuración...')
+      // Solo recargar una vez al final
+      await fetchConfigs()
+
+      console.log('🎉 Restablecimiento completado exitosamente')
+      return true
+    } catch (err: any) {
+      console.error('💥 Error durante el restablecimiento:', err)
+      setError(err.response?.data?.message || 'Error al restablecer valores por defecto')
       throw err
+    }
+  }
+
+  const initializeConfig = async () => {
+    // Valores por defecto que queremos establecer
+    const defaultConfigs = [
+      { config_key: 'chat_points_regular', config_value: 10, enabled: true },
+      { config_key: 'chat_points_subscriber', config_value: 20, enabled: true },
+      { config_key: 'follow_points', config_value: 50, enabled: true },
+      { config_key: 'subscription_new_points', config_value: 500, enabled: true },
+      { config_key: 'subscription_renewal_points', config_value: 300, enabled: true },
+      { config_key: 'gift_given_points', config_value: 300, enabled: true },
+      { config_key: 'gift_received_points', config_value: 200, enabled: true }
+    ]
+
+    try {
+      // Intentar usar el endpoint de inicialización del backend
+      await kickPointsConfigApi.initializeConfig()
+      await fetchConfigs()
+
+      // Verificar si los valores son los esperados
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Inicialización con endpoint del backend completada')
+      }
+
+      return true
+    } catch (err: any) {
+      console.warn('Endpoint de inicialización falló, usando método manual:', err)
+
+      try {
+        // Método manual: actualizar cada configuración individualmente
+        console.log('🔄 Estableciendo valores por defecto manualmente...')
+
+        for (const config of defaultConfigs) {
+          try {
+            await kickPointsConfigApi.updateConfig({
+              config_key: config.config_key,
+              config_value: config.config_value,
+              enabled: config.enabled
+            })
+            console.log(`✅ Configurado ${config.config_key} = ${config.config_value}`)
+          } catch (updateErr) {
+            console.warn(`❌ Error configurando ${config.config_key}:`, updateErr)
+          }
+        }
+
+        await fetchConfigs() // Solo una recarga al final
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 Inicialización manual completada')
+        }
+
+        return true
+      } catch (manualErr) {
+        setError('Error al establecer valores por defecto')
+        throw manualErr
+      }
     }
   }
 
@@ -179,6 +239,7 @@ export const useKickPointsConfig = () => {
     error,
     fetchConfigs,
     updateConfig,
-    initializeConfig
+    initializeConfig,
+    resetToDefaults
   }
 }

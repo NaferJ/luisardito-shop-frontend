@@ -21,6 +21,7 @@ import {
     useToast,
     Text,
     IconButton,
+    Icon,
     Menu,
     MenuButton,
     MenuItem,
@@ -82,6 +83,7 @@ import {
 } from '@chakra-ui/icons'
 import NextLink from 'next/link'
 import Head from 'next/head'
+import { MdPeople } from 'react-icons/md'
 
 export default function AdminProductosPage() {
     const { data: productos, isLoading, error } = useProductos()
@@ -503,6 +505,18 @@ export default function AdminProductosPage() {
                                                         )}
                                                     </HStack>
                                                 </Th>
+                                            <Th
+                                                cursor="pointer"
+                                                onClick={() => handleSort('canjes_count')}
+                                                _hover={{ bg: hoverBg }}
+                                            >
+                                                <HStack>
+                                                    <Text>Canjes</Text>
+                                                    {sortField === 'canjes_count' && (
+                                                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
+                                                    )}
+                                                </HStack>
+                                            </Th>
                                                 <Th
                                                     cursor="pointer"
                                                     onClick={() => handleSort('estado')}
@@ -598,6 +612,12 @@ export default function AdminProductosPage() {
                                                             >
                                                                 {producto.stock || 0} unidades
                                                             </Badge>
+                                                        </Td>
+                                                        <Td>
+                                                            <HStack spacing={1}>
+                                                                <Icon as={MdPeople} />
+                                                                <Text fontSize="sm">{(producto as any).canjes_count ?? 0}</Text>
+                                                            </HStack>
                                                         </Td>
                                                         <Td>
                                                             <Badge

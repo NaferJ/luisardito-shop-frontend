@@ -21,7 +21,8 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
-  Tooltip
+  Tooltip,
+  Icon
 } from '@chakra-ui/react'
 import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Producto } from '../types'
@@ -31,6 +32,7 @@ import type { KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
+import { MdPeople } from 'react-icons/md'
 
 interface ProductCardProps {
   producto: Producto
@@ -446,6 +448,21 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                 >
                   Stock: {producto.stock}
                 </Badge>
+                {typeof (producto as any).canjes_count === 'number' && (
+                  <Badge
+                    colorScheme="purple"
+                    fontSize="xs"
+                    px={2}
+                    py={1}
+                    borderRadius="lg"
+                    display="inline-flex"
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <Icon as={MdPeople} boxSize={3.5} />
+                    {(producto as any).canjes_count}
+                  </Badge>
+                )}
               </HStack>
             </HStack>
           </VStack>

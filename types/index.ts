@@ -58,6 +58,7 @@ export interface Producto {
   estado: 'borrador' | 'publicado' | 'eliminado'
   created_at: string
   updated_at: string
+  canjes_count?: number
 }
 
 export interface Canje {

@@ -30,6 +30,7 @@ import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickBroadcaster } from '../../../hooks/useKickBroadcaster'
 import { useKickAdminConfig } from '../../../hooks/useKickAdminConfig'
 import { useAuth } from '../../../hooks/useAuth'
+import Head from 'next/head'
 
 export default function KickAdminPage() {
   const router = useRouter()
@@ -202,6 +203,10 @@ export default function KickAdminPage() {
 
     return (
       <RequireAdmin>
+          <Head>
+              <title>Administración de Kick - Luisardito Shop</title>
+              <meta name="description" content="Administración de la integración con Kick en Luisardito Shop"/>
+          </Head>
         <Layout>
           <Container maxW="container.xl" py={8}>
             <Alert

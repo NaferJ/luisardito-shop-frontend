@@ -36,6 +36,7 @@ import { MdShoppingCart, MdSwapHoriz, MdShoppingBag, MdHistory, MdPerson } from 
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import api from '../lib/api'
+import Head from 'next/head'
 
 export default function PerfilPage() {
   const { user, logout, updateUserKickInfo, refreshUser } = useAuth()
@@ -146,6 +147,10 @@ export default function PerfilPage() {
 
   return (
     <RequireAuth>
+        <Head>
+            <title>Perfil - Luisardito Shop</title>
+            <meta name="description" content="Perfil de usuario en Luisardito Shop"/>
+        </Head>
       <Layout>
         <Container maxW="container.lg" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
           <VStack spacing={{ base: 4, md: 6 }} align="stretch">

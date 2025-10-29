@@ -77,6 +77,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from '@chakra-ui/icons'
+import Head from "next/head";
 
 export default function AdminUsuariosPage() {
   const router = useRouter()
@@ -379,6 +380,10 @@ export default function AdminUsuariosPage() {
 
   return (
     <RequireAdmin>
+        <Head>
+            <title>Gestión de Usuarios - Luisardito Shop</title>
+            <meta name="description" content="Administra los usuarios de Luisardito Shop"/>
+        </Head>
       <Layout>
         <Container maxW="container.xl" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
           <VStack spacing={{ base: 4, md: 6 }} align="stretch">

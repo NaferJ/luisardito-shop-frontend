@@ -32,6 +32,7 @@ import { useRouter } from 'next/router'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickPointsConfig } from '../../../hooks/useKickPointsConfig'
+import Head from "next/head";
 
 const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
   chat_points_regular: {
@@ -243,6 +244,10 @@ export default function KickPointsConfigPage() {
   return (
     <RequireAdmin>
       <Layout>
+          <Head>
+              <title>Puntos - Luisardito Shop</title>
+              <meta name="description" content="Configura la cantidad de puntos que se otorgan por cada acción en la tienda." />
+          </Head>
         <Container maxW="container.xl" py={8}>
           <VStack spacing={8} align="stretch">
             {/* Header mejorado */}

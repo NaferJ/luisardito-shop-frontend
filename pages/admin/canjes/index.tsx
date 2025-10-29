@@ -74,6 +74,7 @@ import {
 import { useMemo, useState } from 'react'
 import type { AxiosError } from 'axios'
 import type { Canje } from '../../../types'
+import Head from "next/head";
 
 export default function AdminCanjesPage() {
   const { data: canjes, isLoading, error, refetch } = useAdminCanjes()
@@ -285,6 +286,10 @@ export default function AdminCanjesPage() {
 
   return (
     <RequireAdmin>
+        <Head>
+            <title>Gestión de Canjes - Luisardito Shop</title>
+            <meta name="description" content="Administra los canjes de puntos realizados por los usuarios en Luisardito Shop"/>
+        </Head>
       <Layout>
         <Container maxW="container.xl" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
           <VStack spacing={{ base: 4, md: 6 }} align="stretch">

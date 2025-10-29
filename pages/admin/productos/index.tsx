@@ -81,6 +81,7 @@ import {
     DeleteIcon
 } from '@chakra-ui/icons'
 import NextLink from 'next/link'
+import Head from 'next/head'
 
 export default function AdminProductosPage() {
     const { data: productos, isLoading, error } = useProductos()
@@ -258,6 +259,10 @@ export default function AdminProductosPage() {
 
     return (
         <RequireAdmin>
+            <Head>
+                <title>Gestión de Productos - Luisardito Shop</title>
+                <meta name="description" content="Administra el catálogo de productos de Luisardito Shop"/>
+            </Head>
             <Layout>
                 <Container maxW="container.xl" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
                     <VStack spacing={{ base: 4, md: 6 }} align="stretch">

@@ -25,6 +25,7 @@ import {
 import { useCanjes } from '../hooks/useCanjes'
 import { useState, useEffect } from 'react'
 import { MdViewList, MdViewModule, MdViewComfy } from 'react-icons/md'
+import Head from "next/head";
 
 type ViewMode = 'list' | 'grid' | 'compact'
 
@@ -304,6 +305,10 @@ export default function CanjesPage() {
 
     return (
         <RequireAuth>
+            <Head>
+                <title>Mis Canjes - Luisardito Shop</title>
+                <meta name="description" content="Historial de canjes en Luisardito Shop"/>
+            </Head>
             <Layout>
                 <Container maxW="container.lg" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
                     <VStack spacing={6} align="stretch">

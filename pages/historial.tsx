@@ -30,6 +30,7 @@ import {
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { MdStar, MdSwapHoriz, MdChat, MdPerson, MdCrown, MdViewList, MdViewModule, MdViewComfy } from 'react-icons/md'
+import Head from "next/head";
 
 type ViewMode = 'list' | 'grid' | 'compact'
 
@@ -339,6 +340,10 @@ export default function HistorialPage() {
 
     return (
         <RequireAuth>
+            <Head>
+                <title>Historial - Luisardito Shop</title>
+                <meta name="description" content="Historial de puntos acumulados en Luisardito Shop"/>
+            </Head>
             <Layout>
                 <Container maxW="container.lg" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
                     <VStack spacing={6} align="stretch">

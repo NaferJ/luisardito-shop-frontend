@@ -33,6 +33,7 @@ export default function CanjesPage() {
 
     // Cargar vista desde localStorage
     const [viewMode, setViewMode] = useState<ViewMode>(() => {
+        if (typeof window === 'undefined') return 'list'
         const saved = localStorage.getItem('canjes-view-mode')
         return (saved as ViewMode) || 'list'
     })

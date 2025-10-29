@@ -640,7 +640,7 @@ export default function AdminUsuariosPage() {
                           <VStack align="start" spacing={1}>
                             {user.vip_status?.is_active && (
                               <Badge colorScheme="yellow" fontSize="xs">
-                                👑 VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
+                                VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
                               </Badge>
                             )}
                             {user.migration_status?.points_migrated ? (

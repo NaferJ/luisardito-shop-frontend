@@ -71,6 +71,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon
 } from '@chakra-ui/icons'
+import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import { useMemo, useState } from 'react'
 import type { AxiosError } from 'axios'
 import type { Canje } from '../../../types'
@@ -190,7 +191,10 @@ export default function AdminCanjesPage() {
     }
   }
 
-  const handleUpdateEstado = async (canjeId: number, nuevoEstado: string) => {
+  const handleUpdateEstado = async (
+    canjeId: number,
+    nuevoEstado: 'pendiente' | 'entregado' | 'cancelado'
+  ) => {
     try {
       await updateEstado.mutateAsync({ canjeId, estado: nuevoEstado })
       toast({
@@ -537,16 +541,19 @@ export default function AdminCanjesPage() {
                             #{canje.id}
                           </Td>
                           <Td>
-                            <HStack spacing={3}>
-                              <Avatar
-                                size="sm"
-                                name={canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname}
-                                src={canje?.Usuario?.kick_avatar || canje?.usuario?.kick_avatar}
-                              />
+                          <HStack spacing={3}>
+                              <UserAvatarWithBadge user={(canje?.Usuario || canje?.usuario) as any}>
+                                <Avatar
+                                  size="sm"
+                                  name={canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname}
+                                  src={canje?.Usuario?.kick_avatar || canje?.usuario?.kick_avatar}
+                                />
+                              </UserAvatarWithBadge>
                               <VStack align="start" spacing={0}>
                                 <Text fontWeight="medium" fontSize="sm">
                                   {canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname || `Usuario #${canje.usuario_id}`}
                                 </Text>
+                                <UserBadge user={(canje?.Usuario || canje?.usuario) as any} size="sm" />
                                 <Text fontSize="xs" color="gray.500">
                                   {canje?.Usuario?.email || canje?.usuario?.email}
                                 </Text>
@@ -763,7 +770,7 @@ export default function AdminCanjesPage() {
                 <Button
                   colorScheme="purple"
                   onClick={handleDevolucion}
-                  isLoading={devolver.isLoading}
+                  isLoading={devolver.isPending}
                   borderRadius="lg"
                   isDisabled={!devolucionMotivo.trim()}
                 >

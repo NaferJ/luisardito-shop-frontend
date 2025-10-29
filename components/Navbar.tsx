@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
 import ColorModeToggle from './ColorModeToggle'
+import { UserBadge, UserAvatarWithBadge } from './UserBadge'
 
 export default function Navbar() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -284,6 +285,7 @@ export default function Navbar() {
                 align="center"
                 flexShrink={0}
               >
+                <UserBadge user={user as any} size="sm" />
                 {/* Badge de puntos */}
                 <Badge
                   colorScheme="yellow"
@@ -321,11 +323,13 @@ export default function Navbar() {
                       }}
                       transition="all 0.3s ease"
                     >
-                      <Avatar
-                        size="sm"
-                        name={user.kick_username || user.nickname || user.nombre || user.email}
-                        src={user.kick_avatar || undefined}
-                      />
+                      <UserAvatarWithBadge user={user as any}>
+                        <Avatar
+                          size="sm"
+                          name={user.kick_username || user.nickname || user.nombre || user.email}
+                          src={user.kick_avatar || undefined}
+                        />
+                      </UserAvatarWithBadge>
                     </MenuButton>
                   </Tooltip>
                   <MenuList
@@ -350,14 +354,17 @@ export default function Navbar() {
                     }}
                   >
                     <VStack spacing={1} p={2} borderBottom="1px solid" borderColor={borderClr} mb={1}>
-                      <Avatar
-                        size="md"
-                        name={user.kick_username || user.nickname || user.nombre || user.email}
-                        src={user.kick_avatar || undefined}
-                      />
+                      <UserAvatarWithBadge user={user as any}>
+                        <Avatar
+                          size="md"
+                          name={user.kick_username || user.nickname || user.nombre || user.email}
+                          src={user.kick_avatar || undefined}
+                        />
+                      </UserAvatarWithBadge>
                       <Text fontWeight="medium" fontSize="sm" whiteSpace="nowrap">
                         {user.kick_username || user.nickname || user.nombre || user.email}
                       </Text>
+                      <UserBadge user={user as any} size="sm" />
                       <Badge colorScheme="yellow" fontSize="xs">{user.puntos?.toLocaleString()} pts</Badge>
                     </VStack>
                     <MenuItem
@@ -565,15 +572,19 @@ export default function Navbar() {
                   <VStack align="stretch" spacing={2}>
                     <HStack justify="space-between">
                       <HStack>
-                        <Avatar
-                          size="sm"
-                          name={avatarName}
-                          src={avatarSrc}
-                        />
+                        <UserAvatarWithBadge user={user as any}>
+                          <Avatar
+                            size="sm"
+                            name={avatarName}
+                            src={avatarSrc}
+                          />
+                        </UserAvatarWithBadge>
                         <Text fontWeight="medium">{avatarName}</Text>
                       </HStack>
                       <Badge colorScheme="yellow">{user.puntos?.toLocaleString()} pts</Badge>
                     </HStack>
+
+                    <UserBadge user={user as any} size="sm" />
 
                     <Divider my={2} />
 

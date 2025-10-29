@@ -65,7 +65,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
         }}
         transition="all 0.2s"
       >
-        👑 VIP
+        VIP
       </Badge>
     )
 

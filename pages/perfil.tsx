@@ -37,6 +37,7 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import api from '../lib/api'
 import Head from 'next/head'
+import { UserBadge, UserAvatarWithBadge } from '../components/UserBadge'
 
 export default function PerfilPage() {
   const { user, logout, updateUserKickInfo, refreshUser } = useAuth()
@@ -168,14 +169,16 @@ export default function PerfilPage() {
                   align="center"
                   textAlign={{ base: 'center', sm: 'left' }}
                 >
-                  <Avatar
-                    size={{ base: 'xl', md: '2xl' }}
-                    name={displayName}
-                    src={avatarSrc}
-                    border="4px solid"
-                    borderColor="white"
-                    shadow="xl"
-                  />
+                  <UserAvatarWithBadge user={user as any}>
+                    <Avatar
+                      size={{ base: 'xl', md: '2xl' }}
+                      name={displayName}
+                      src={avatarSrc}
+                      border="4px solid"
+                      borderColor="white"
+                      shadow="xl"
+                    />
+                  </UserAvatarWithBadge>
                   <VStack align={{ base: 'center', sm: 'start' }} spacing={2} flex="1">
                     <Heading
                       size={{ base: 'md', md: 'lg' }}
@@ -184,6 +187,7 @@ export default function PerfilPage() {
                     >
                       {displayName}
                     </Heading>
+                    <UserBadge user={user as any} size="md" />
                     <Text
                       color="black.800"
                       fontSize={{ base: 'sm', md: 'md' }}
@@ -442,7 +446,7 @@ export default function PerfilPage() {
                           py={1}
                           borderRadius="md"
                         >
-                          👑 VIP {user.vip_info.is_permanent ? 'Permanente' :
+                          VIP {user.vip_info.is_permanent ? 'Permanente' :
                             `hasta ${new Date(user.vip_info.expires_at!).toLocaleDateString('es-ES')}`}
                         </Badge>
                       </Flex>

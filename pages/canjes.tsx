@@ -32,7 +32,7 @@ export default function CanjesPage() {
       case 'entregado': return 'green'
       case 'cancelado': return 'red'
       case 'devuelto': return 'purple'
-      default: return 'black'
+      default: return 'gray'
     }
   }
 
@@ -125,7 +125,7 @@ export default function CanjesPage() {
                         </Text>
                       )}
                       {canje.estado === 'entregado' && (
-                        <Text fontSize="sm" color="green.400" fontStyle="italic">
+                        <Text fontSize="sm" color="green.600" fontStyle="italic">
                           ¡Canje completado con éxito!
                         </Text>
                       )}

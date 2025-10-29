@@ -11,13 +11,13 @@ export default function Custom404() {
       <Container maxW="container.md" py={20}>
         <VStack spacing={8} textAlign="center">
           <VStack spacing={4}>
-            <Text fontSize="8xl" fontWeight="bold" color="black.300">
+            <Text fontSize="8xl" fontWeight="bold" color="gray.300">
               404
             </Text>
-            <Heading size="xl" color="black.700">
+            <Heading size="xl" color="gray.700">
               Página no encontrada
             </Heading>
-            <Text fontSize="lg" color="black.600" maxW="md">
+            <Text fontSize="lg" color="gray.600" maxW="md">
               Lo sentimos, la página que buscas no existe o ha sido movida.
             </Text>
           </VStack>

@@ -89,20 +89,20 @@ export default function KickPointsConfigPage() {
   }, [configs, loading, error])
 
   // Color mode values
-  const cardBg = useColorModeValue('white', 'black.800')
-  const cardBorder = useColorModeValue('black.200', 'black.600')
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBorder = useColorModeValue('gray.200', 'gray.600')
   const enabledCardBg = useColorModeValue('purple.50', 'purple.900')
   const enabledCardBorder = useColorModeValue('purple.200', 'purple.600')
-  const disabledCardBg = useColorModeValue('black.50', 'black.700')
-  const disabledCardBorder = useColorModeValue('black.200', 'black.600')
+  const disabledCardBg = useColorModeValue('gray.50', 'gray.700')
+  const disabledCardBorder = useColorModeValue('gray.200', 'gray.600')
   const enabledCardHoverBorder = useColorModeValue('purple.300', 'purple.500')
-  const disabledCardHoverBorder = useColorModeValue('black.300', 'black.500')
+  const disabledCardHoverBorder = useColorModeValue('gray.300', 'gray.500')
   const headingEnabledColor = useColorModeValue('purple.700', 'purple.200')
-  const headingDisabledColor = useColorModeValue('black.600', 'black.400')
-  const labelColor = useColorModeValue('black.700', 'black.300')
-  const descriptionColor = useColorModeValue('black.600', 'black.400')
-  const initCardBg = useColorModeValue('white', 'black.800')
-  const resetCardBg = useColorModeValue('black.50', 'black.700')
+  const headingDisabledColor = useColorModeValue('gray.600', 'gray.400')
+  const labelColor = useColorModeValue('gray.700', 'gray.300')
+  const descriptionColor = useColorModeValue('gray.600', 'gray.400')
+  const initCardBg = useColorModeValue('white', 'gray.800')
+  const resetCardBg = useColorModeValue('gray.50', 'gray.700')
 
   const [formData, setFormData] = useState<Record<string, { value: number; enabled: boolean }>>({})
 
@@ -237,7 +237,7 @@ export default function KickPointsConfigPage() {
           <Container maxW="container.xl" py={8}>
             <VStack spacing={8}>
               <Spinner size="xl" color="purple.500" thickness="4px" />
-              <Text fontSize="lg" color="black.600">Cargando configuración...</Text>
+              <Text fontSize="lg" color="gray.600">Cargando configuración...</Text>
             </VStack>
           </Container>
         </Layout>
@@ -264,7 +264,7 @@ export default function KickPointsConfigPage() {
                   <Heading size="xl" color="purple.600">
                     Configuración de Puntos
                   </Heading>
-                  <Text color="black.600" fontSize="lg">
+                  <Text color="gray.600" fontSize="lg">
                     Define cuántos puntos se otorgan por cada tipo de evento en Kick
                   </Text>
                 </VStack>
@@ -277,7 +277,7 @@ export default function KickPointsConfigPage() {
                     {configs.length} configuraciones
                   </Badge>
                   <Badge
-                    colorScheme={configs.filter(c => c.enabled).length > 0 ? "green" : "black"}
+                    colorScheme={configs.filter(c => c.enabled).length > 0 ? "green" : "gray"}
                     fontSize="sm"
                     px={3}
                     py={1}
@@ -369,7 +369,7 @@ export default function KickPointsConfigPage() {
                                       {CONFIG_LABELS[key].label}
                                     </Heading>
                                     <Badge
-                                      colorScheme={formValue.enabled ? 'green' : 'black'}
+                                      colorScheme={formValue.enabled ? 'green' : 'gray'}
                                       fontSize="xs"
                                       px={2}
                                       py={1}
@@ -459,7 +459,7 @@ export default function KickPointsConfigPage() {
                         </Text>
                       </VStack>
                       <Button
-                        colorScheme="black"
+                        colorScheme="gray"
                         variant="outline"
                         onClick={handleReset}
                         isLoading={initializing}

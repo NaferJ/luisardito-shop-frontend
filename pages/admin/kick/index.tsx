@@ -64,7 +64,7 @@ export default function KickAdminPage() {
           <Container maxW="container.xl" py={8}>
             <Box textAlign="center" py={20}>
               <Spinner size="xl" />
-              <Text mt={4} color="black.500">Verificando autenticación...</Text>
+              <Text mt={4} color="gray.500">Verificando autenticación...</Text>
             </Box>
           </Container>
         </Layout>
@@ -95,14 +95,14 @@ export default function KickAdminPage() {
   }
 
   // Theme colors con mejor contraste en modo oscuro
-  const cardBg = useColorModeValue('white', 'black.700')
-  const borderColor = useColorModeValue('black.200', 'black.500')
+  const cardBg = useColorModeValue('white', 'gray.700')
+  const borderColor = useColorModeValue('gray.200', 'gray.500')
   const enabledBg = useColorModeValue('green.50', 'green.700')
   const enabledBorder = useColorModeValue('green.200', 'green.400')
-  const disabledBg = useColorModeValue('black.50', 'black.600')
-  const disabledBorder = useColorModeValue('black.200', 'black.500')
-  const textPrimary = useColorModeValue('black.800', 'black.100')
-  const textSecondary = useColorModeValue('black.600', 'black.300')
+  const disabledBg = useColorModeValue('gray.50', 'gray.600')
+  const disabledBorder = useColorModeValue('gray.200', 'gray.500')
+  const textPrimary = useColorModeValue('gray.800', 'gray.100')
+  const textSecondary = useColorModeValue('gray.600', 'gray.300')
 
   const handleMigrationToggle = async (enabled: boolean) => {
     try {
@@ -185,7 +185,7 @@ export default function KickAdminPage() {
           <Container maxW="container.xl" py={8}>
             <VStack spacing={8}>
               <Spinner size="xl" color="purple.500" thickness="4px" />
-              <Text fontSize="lg" color="black.600">Cargando configuración de Kick...</Text>
+              <Text fontSize="lg" color="gray.600">Cargando configuración de Kick...</Text>
             </VStack>
           </Container>
         </Layout>
@@ -249,7 +249,7 @@ export default function KickAdminPage() {
               <Heading size="xl" mb={2} color="purple.600">
                 Administración de Kick
               </Heading>
-              <Text color="black.600" fontSize="lg">
+              <Text color="gray.600" fontSize="lg">
                 Gestiona la integración con Kick, configuración VIP y migración de puntos
               </Text>
             </Box>
@@ -269,7 +269,7 @@ export default function KickAdminPage() {
                       <Text fontWeight="semibold">
                         {status?.connected ? '🟢 Conectado' : '🔴 Desconectado'}
                       </Text>
-                      <Text fontSize="sm" color="black.600">
+                      <Text fontSize="sm" color="gray.600">
                         {status?.connected
                           ? 'Conexión activa con Kick'
                           : 'Sin conexión a Kick'
@@ -301,7 +301,7 @@ export default function KickAdminPage() {
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: 'lg',
-                  borderColor: migrationEnabled ? 'green.300' : 'black.300'
+                  borderColor: migrationEnabled ? 'green.300' : 'gray.300'
                 }}
                 transition="all 0.2s"
               >
@@ -310,7 +310,7 @@ export default function KickAdminPage() {
                     <VStack align="start" spacing={1}>
                       <HStack>
                         <Icon as={SettingsIcon} color="cyan.500" />
-                        <Heading size="md" color={migrationEnabled ? 'green.400' : textPrimary}>
+                        <Heading size="md" color={migrationEnabled ? 'green.600' : textPrimary}>
                           Migración desde Botrix
                         </Heading>
                       </HStack>
@@ -319,7 +319,7 @@ export default function KickAdminPage() {
                       </Text>
                     </VStack>
                     <Badge
-                      colorScheme={migrationEnabled ? 'green' : 'black'}
+                      colorScheme={migrationEnabled ? 'green' : 'gray'}
                       fontSize="sm"
                       px={3}
                       py={1}
@@ -383,7 +383,7 @@ export default function KickAdminPage() {
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: 'lg',
-                  borderColor: vipEnabled ? 'green.300' : 'black.300'
+                  borderColor: vipEnabled ? 'green.300' : 'gray.300'
                 }}
                 transition="all 0.2s"
               >
@@ -392,7 +392,7 @@ export default function KickAdminPage() {
                     <VStack align="start" spacing={1}>
                       <HStack>
                         <Icon as={SettingsIcon} color="yellow.500" />
-                        <Heading size="md" color={vipEnabled ? 'green.400' : textPrimary}>
+                        <Heading size="md" color={vipEnabled ? 'green.600' : textPrimary}>
                           Sistema VIP
                         </Heading>
                       </HStack>
@@ -401,7 +401,7 @@ export default function KickAdminPage() {
                       </Text>
                     </VStack>
                     <Badge
-                      colorScheme={vipEnabled ? 'green' : 'black'}
+                      colorScheme={vipEnabled ? 'green' : 'gray'}
                       fontSize="sm"
                       px={3}
                       py={1}
@@ -481,7 +481,7 @@ export default function KickAdminPage() {
                   <Heading size="md" color="purple.600">
                     Configuración Avanzada
                   </Heading>
-                  <Text fontSize="sm" color="black.600">
+                  <Text fontSize="sm" color="gray.600">
                     Accede a configuraciones detalladas y ajustes específicos
                   </Text>
 

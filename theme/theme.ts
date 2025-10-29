@@ -77,10 +77,10 @@ const components = {
     },
     variants: {
       solid: (props: any) => ({
-        bg: props.colorScheme === 'black' ? 'brand.200' : `${props.colorScheme}.500`,
-        color: props.colorScheme === 'black' ? 'text.primary' : 'white',
+        bg: props.colorScheme === 'gray' ? 'brand.200' : `${props.colorScheme}.500`,
+        color: props.colorScheme === 'gray' ? 'text.primary' : 'white',
         _hover: {
-          bg: props.colorScheme === 'black' ? 'brand.300' : `${props.colorScheme}.600`,
+          bg: props.colorScheme === 'gray' ? 'brand.300' : `${props.colorScheme}.600`,
         },
       }),
       subtle: {

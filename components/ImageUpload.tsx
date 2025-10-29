@@ -45,11 +45,11 @@ export default function ImageUpload({
 
   const borderColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const hoverBorder = useColorModeValue('blue.300', 'cyan.400')
-  const bgIdle = useColorModeValue('black.50', 'whiteAlpha.100')
+  const bgIdle = useColorModeValue('gray.50', 'whiteAlpha.100')
   const bgDragging = useColorModeValue('blue.50', 'whiteAlpha.200')
-  const hintColor = useColorModeValue('black.600', 'black.300')
-  const mutedColor = useColorModeValue('black.500', 'black.400')
-  const previewBg = useColorModeValue('black.100', 'whiteAlpha.100')
+  const hintColor = useColorModeValue('gray.600', 'gray.300')
+  const mutedColor = useColorModeValue('gray.500', 'gray.400')
+  const previewBg = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const validateFile = (file: File) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']

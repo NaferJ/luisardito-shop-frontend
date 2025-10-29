@@ -9,7 +9,7 @@ export default function ColorModeToggle() {
       <HStack spacing={{ base: 1, md: 2 }} align="center" flexShrink={0}>
         <Icon
           as={SunIcon}
-          color={!isDark ? 'yellow.400' : 'black.400'}
+          color={!isDark ? 'yellow.400' : 'gray.400'}
           boxSize={{ base: 3, md: 4 }}
         />
         <Switch
@@ -20,7 +20,7 @@ export default function ColorModeToggle() {
         />
         <Icon
           as={MoonIcon}
-          color={isDark ? 'blue.400' : 'black.400'}
+          color={isDark ? 'blue.400' : 'gray.400'}
           boxSize={{ base: 3, md: 4 }}
         />
       </HStack>

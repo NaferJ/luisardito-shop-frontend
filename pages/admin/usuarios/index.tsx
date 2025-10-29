@@ -115,10 +115,10 @@ export default function AdminUsuariosPage() {
   const manualMigration = useManualBotrixMigration()
 
   // Theme colors
-  const cardBg = useColorModeValue('white', 'black.800')
-  const borderColor = useColorModeValue('black.200', 'black.600')
-  const hoverBg = useColorModeValue('black.50', 'black.700')
-  const headerBg = useColorModeValue('black.50', 'black.700')
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const hoverBg = useColorModeValue('gray.50', 'gray.700')
+  const headerBg = useColorModeValue('gray.50', 'gray.700')
 
   // Funciones de modal originales
   const openPuntosModal = (user: UsuarioAdmin) => {
@@ -350,7 +350,7 @@ export default function AdminUsuariosPage() {
             <Center minH="50vh">
               <VStack spacing={4}>
                 <Spinner size="xl" color="blue.500" thickness="4px" />
-                <Text fontSize="lg" color="black.600">Cargando usuarios...</Text>
+                <Text fontSize="lg" color="gray.600">Cargando usuarios...</Text>
               </VStack>
             </Center>
           </Container>
@@ -384,10 +384,10 @@ export default function AdminUsuariosPage() {
           <VStack spacing={{ base: 4, md: 6 }} align="stretch">
             {/* Header original */}
             <Box>
-              <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="black.800" _dark={{ color: 'white' }}>
-                Gestión de Usuarios
+              <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
+                👥 Gestión de Usuarios
               </Heading>
-              <Text color="black.600" _dark={{ color: 'black.400' }}>
+              <Text color="gray.600" _dark={{ color: 'gray.400' }}>
                 Administra los usuarios registrados, VIPs, migración y puntos
               </Text>
             </Box>
@@ -398,7 +398,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">Total Usuarios</StatLabel>
+                      <StatLabel color="gray.600">Total Usuarios</StatLabel>
                       <StatNumber color="blue.600" fontSize="2xl">
                         {stats.totalUsers}
                       </StatNumber>
@@ -409,7 +409,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">VIPs</StatLabel>
+                      <StatLabel color="gray.600">👑 VIPs</StatLabel>
                       <StatNumber color="yellow.600" fontSize="2xl">
                         {stats.vipUsers}
                       </StatNumber>
@@ -420,7 +420,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">🔄 Migrados</StatLabel>
+                      <StatLabel color="gray.600">🔄 Migrados</StatLabel>
                       <StatNumber color="cyan.600" fontSize="2xl">
                         {stats.migratedUsers}
                       </StatNumber>
@@ -431,8 +431,8 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">Puntos Totales</StatLabel>
-                      <StatNumber color="green.400" fontSize="2xl">
+                      <StatLabel color="gray.600">Puntos Totales</StatLabel>
+                      <StatNumber color="green.600" fontSize="2xl">
                         {stats.totalPoints.toLocaleString()}
                       </StatNumber>
                     </Stat>
@@ -442,7 +442,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">Promedio</StatLabel>
+                      <StatLabel color="gray.600">Promedio</StatLabel>
                       <StatNumber color="purple.600" fontSize="2xl">
                         {stats.avgPoints.toLocaleString()}
                       </StatNumber>
@@ -453,7 +453,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="black.600">Con Canjes</StatLabel>
+                      <StatLabel color="gray.600">Con Canjes</StatLabel>
                       <StatNumber color="orange.600" fontSize="2xl">
                         {stats.usersWithCanjes}
                       </StatNumber>
@@ -469,7 +469,7 @@ export default function AdminUsuariosPage() {
                 <Stack direction={{ base: 'column', md: 'row' }} spacing={4} align="center">
                   <InputGroup maxW={{ base: 'full', md: '300px' }}>
                     <InputLeftElement>
-                      <SearchIcon color="black.400" />
+                      <SearchIcon color="gray.400" />
                     </InputLeftElement>
                     <Input
                       placeholder="Buscar usuarios..."
@@ -486,14 +486,14 @@ export default function AdminUsuariosPage() {
                     borderRadius="lg"
                   >
                     <option value="all">Todos los usuarios</option>
-                    <option value="vip">Solo VIPs</option>
+                    <option value="vip">👑 Solo VIPs</option>
                     <option value="subscribers">⭐ Solo suscriptores</option>
-                    <option value="migrated">Ya migrados</option>
+                    <option value="migrated">🔄 Ya migrados</option>
                     <option value="pending_migration">⏳ Pendientes migración</option>
                   </Select>
 
                   <HStack spacing={4}>
-                    <Text fontSize="sm" color="black.600" whiteSpace="nowrap">
+                    <Text fontSize="sm" color="gray.600" whiteSpace="nowrap">
                       Mostrar:
                     </Text>
                     <Select
@@ -604,7 +604,7 @@ export default function AdminUsuariosPage() {
                                 </Text>
                                 <UserBadge user={user} size="sm" />
                               </HStack>
-                              <Text fontSize="xs" color="black.500" display={{ base: 'block', md: 'none' }}>
+                              <Text fontSize="xs" color="gray.500" display={{ base: 'block', md: 'none' }}>
                                 {user.email}
                               </Text>
                               {user.discord_username && (
@@ -616,7 +616,7 @@ export default function AdminUsuariosPage() {
                           </HStack>
                         </Td>
                         <Td display={{ base: 'none', md: 'table-cell' }}>
-                          <Text fontSize="sm" color="black.600">
+                          <Text fontSize="sm" color="gray.600">
                             {user.email}
                           </Text>
                         </Td>
@@ -739,7 +739,7 @@ export default function AdminUsuariosPage() {
               {totalPages > 1 && (
                 <Box p={4} borderTop="1px solid" borderColor={borderColor}>
                   <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-                    <Text fontSize="sm" color="black.600">
+                    <Text fontSize="sm" color="gray.600">
                       Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, processedData.length)} de {processedData.length} usuarios
                     </Text>
 
@@ -764,7 +764,7 @@ export default function AdminUsuariosPage() {
                               key={page}
                               size="sm"
                               variant={currentPage === page ? "solid" : "outline"}
-                              colorScheme={currentPage === page ? "blue" : "black"}
+                              colorScheme={currentPage === page ? "blue" : "gray"}
                               onClick={() => setCurrentPage(page)}
                               borderRadius="lg"
                             >
@@ -797,7 +797,7 @@ export default function AdminUsuariosPage() {
               <ModalHeader>
                 <VStack align="start" spacing={1}>
                   <Text>✏️ Editar Puntos</Text>
-                  <Text fontSize="sm" fontWeight="normal" color="black.600">
+                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
                     Usuario: {selectedUser?.nickname || selectedUser?.email}
                   </Text>
                 </VStack>
@@ -869,7 +869,7 @@ export default function AdminUsuariosPage() {
                     <SettingsIcon />
                     <Text>Otorgar VIP</Text>
                   </HStack>
-                  <Text fontSize="sm" fontWeight="normal" color="black.600">
+                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
                     Usuario: {selectedUser?.nickname || selectedUser?.email}
                   </Text>
                 </VStack>
@@ -885,7 +885,7 @@ export default function AdminUsuariosPage() {
                         borderRadius="lg"
                       />
                     </NumberInput>
-                    <Text fontSize="xs" color="black.500" mt={1}>
+                    <Text fontSize="xs" color="gray.500" mt={1}>
                       Deja vacío o 0 para VIP permanente
                     </Text>
                   </FormControl>
@@ -917,7 +917,7 @@ export default function AdminUsuariosPage() {
                     <SettingsIcon />
                     <Text>Migración Manual</Text>
                   </HStack>
-                  <Text fontSize="sm" fontWeight="normal" color="black.600">
+                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
                     Usuario: {selectedUser?.nickname || selectedUser?.email}
                   </Text>
                 </VStack>
@@ -936,7 +936,7 @@ export default function AdminUsuariosPage() {
                         borderRadius="lg"
                       />
                     </NumberInput>
-                    <Text fontSize="xs" color="black.500" mt={1}>
+                    <Text fontSize="xs" color="gray.500" mt={1}>
                       Cantidad de puntos que tenía en Botrix
                     </Text>
                   </FormControl>

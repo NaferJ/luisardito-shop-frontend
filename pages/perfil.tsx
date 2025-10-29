@@ -52,7 +52,7 @@ export default function PerfilPage() {
     'linear(to-br, blue.50, purple.50)',
     'linear(to-br, blue.900, purple.900)'
   )
-  const cardBg = useColorModeValue('white', 'black.800')
+  const cardBg = useColorModeValue('white', 'gray.800')
 
   const handleLogout = () => {
     logout()
@@ -231,7 +231,7 @@ export default function PerfilPage() {
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="teal.600">
                     {user.puntos?.toLocaleString()}
                   </Text>
-                  <Text color="black.600" fontSize={{ base: 'sm', md: 'md' }}>Puntos totales</Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Puntos totales</Text>
                   <Button
                     mt={3}
                     size="sm"
@@ -259,7 +259,7 @@ export default function PerfilPage() {
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="blue.600">
                     Canjes
                   </Text>
-                  <Text color="black.600" fontSize={{ base: 'sm', md: 'md' }}>Mis canjes realizados</Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Mis canjes realizados</Text>
                   <Button
                     mt={3}
                     size="sm"
@@ -288,7 +288,7 @@ export default function PerfilPage() {
                   <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
                     Tienda
                   </Text>
-                  <Text color="black.600" fontSize={{ base: 'sm', md: 'md' }}>Catálogo de productos</Text>
+                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Catálogo de productos</Text>
                   <Button
                     mt={3}
                     size="sm"
@@ -403,7 +403,7 @@ export default function PerfilPage() {
                             {user.discord_username}
                           </Badge>
                         ) : (
-                          <Text fontSize={{ base: 'sm', md: 'md' }} color="black.500">
+                          <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500">
                             No configurado
                           </Text>
                         )}
@@ -475,7 +475,7 @@ export default function PerfilPage() {
                       <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
                         Miembro desde:
                       </Text>
-                      <Text fontSize={{ base: 'sm', md: 'md' }} color="black.600">
+                      <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
                         {(user.creado || user.created_at) && new Date(user.creado || user.created_at).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
@@ -545,7 +545,7 @@ export default function PerfilPage() {
                   onChange={(e) => setDiscordUsername(e.target.value)}
                   placeholder="usuario#1234"
                 />
-                <Text fontSize="xs" color="black.500" mt={1}>
+                <Text fontSize="xs" color="gray.500" mt={1}>
                   Formato: usuario#1234 o simplemente usuario
                 </Text>
               </FormControl>

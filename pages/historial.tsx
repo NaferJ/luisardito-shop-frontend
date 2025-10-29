@@ -53,7 +53,7 @@ export default function HistorialPage() {
       return { icon: MdStar, color: 'purple.500' }
     }
 
-    return { icon: MdSwapHoriz, color: 'black.500' }
+    return { icon: MdSwapHoriz, color: 'gray.500' }
   }
 
   const getEventDescription = (movimiento: any) => {
@@ -142,7 +142,7 @@ export default function HistorialPage() {
             <Box>
               <Heading size="xl" mb={2}>Historial de Puntos</Heading>
               <HStack justify="space-between" align="center">
-                <Text color="black.600">
+                <Text color="gray.600">
                   Saldo actual: <Badge colorScheme="purple" fontSize="md">{user?.puntos?.toLocaleString()} puntos</Badge>
                 </Text>
 
@@ -170,10 +170,10 @@ export default function HistorialPage() {
             {!historial || historial.length === 0 ? (
               <Center py={10}>
                 <VStack spacing={4}>
-                  <Text fontSize="lg" color="black.500">
+                  <Text fontSize="lg" color="gray.500">
                     No hay movimientos de puntos
                   </Text>
-                  <Text fontSize="sm" color="black.400">
+                  <Text fontSize="sm" color="gray.400">
                     Los movimientos de puntos aparecerán aquí cuando realices canjes o recibas puntos
                   </Text>
                 </VStack>
@@ -213,12 +213,12 @@ export default function HistorialPage() {
                               </HStack>
 
                               {eventDesc.subtitle && (
-                                <Text fontSize="sm" color="black.600">
+                                <Text fontSize="sm" color="gray.600">
                                   {eventDesc.subtitle}
                                 </Text>
                               )}
 
-                              <Text fontSize="xs" color="black.500">
+                              <Text fontSize="xs" color="gray.500">
                                 {new Date(movimiento.fecha).toLocaleDateString('es-ES', {
                                   year: 'numeric',
                                   month: 'long',
@@ -252,10 +252,10 @@ export default function HistorialPage() {
             <Divider />
 
             <VStack spacing={2}>
-              <Text fontSize="sm" color="black.500" textAlign="center">
+              <Text fontSize="sm" color="gray.500" textAlign="center">
                 Los puntos se obtienen por participar en actividades y se gastan al canjear productos
               </Text>
-              <HStack spacing={4} fontSize="xs" color="black.400">
+              <HStack spacing={4} fontSize="xs" color="gray.400">
                 <HStack spacing={1}>
                   <Icon as={MdSwapHoriz} color="cyan.500" />
                   <Text>Migración</Text>

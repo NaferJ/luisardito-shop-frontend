@@ -37,7 +37,7 @@ export default function DevLoginPage() {
   const router = useRouter()
   const toast = useToast()
 
-  const mutedBg = useColorModeValue('black.100', 'black.700')
+  const mutedBg = useColorModeValue('gray.100', 'gray.700')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -103,7 +103,7 @@ export default function DevLoginPage() {
               <VStack spacing={6} align="stretch">
                 <Box textAlign="center">
                   <Heading size="md" mb={1}>Login de Desarrollo</Heading>
-                  <Text fontSize="sm" color="black.500">Ingresa tu nickname y contraseña</Text>
+                  <Text fontSize="sm" color="gray.500">Ingresa tu nickname y contraseña</Text>
                 </Box>
 
                 <VStack spacing={4} align="stretch">
@@ -171,7 +171,7 @@ export default function DevLoginPage() {
                     </Button>
                     <Button
                       variant="link"
-                      colorScheme="black"
+                      colorScheme="gray"
                       onClick={() => router.push('/')}
                       size="sm"
                     >

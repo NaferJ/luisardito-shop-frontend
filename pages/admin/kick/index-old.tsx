@@ -147,7 +147,7 @@ export default function KickAdminPage() {
               <Heading size="xl" mb={2} color="purple.600">
                 Administración de Kick
               </Heading>
-              <Text color="gray.600" fontSize="lg">
+              <Text color="black.600" fontSize="lg">
                 Gestiona la integración con Kick, configuración de puntos y sistemas VIP
               </Text>
             </Box>
@@ -172,7 +172,7 @@ export default function KickAdminPage() {
                         <Heading size="lg" color={status?.connected ? "green.700" : "red.700"}>
                           Estado de Conexión
                         </Heading>
-                        <Text color={status?.connected ? "green.600" : "red.600"} fontSize="sm">
+                        <Text color={status?.connected ? "green.400" : "red.600"} fontSize="sm">
                           {status?.connected ? "Webhooks permanentes activos" : "Sin conexión a Kick"}
                         </Text>
                       </VStack>
@@ -210,7 +210,7 @@ export default function KickAdminPage() {
                         <Card bg="green.50" borderColor="green.200" border="1px solid">
                           <CardBody>
                             <Stat>
-                              <StatLabel color="green.600" fontSize="sm" fontWeight="bold">
+                              <StatLabel color="green.400" fontSize="sm" fontWeight="bold">
                                 🔄 Sistema
                               </StatLabel>
                               <StatNumber fontSize="xl" color="green.700">
@@ -253,7 +253,7 @@ export default function KickAdminPage() {
                     <Heading size="md" color="cyan.600" mb={2}>
                       🔄 Migración desde Botrix
                     </Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Text color="black.600" fontSize="sm">
                       Permite a los usuarios migrar sus puntos desde el bot Botrix automáticamente
                     </Text>
                   </Box>
@@ -262,7 +262,7 @@ export default function KickAdminPage() {
                     <FormLabel htmlFor="migration-toggle" mb="0" flex="1">
                       <VStack align="start" spacing={1}>
                         <Text fontWeight="semibold">Migración automática</Text>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text fontSize="sm" color="black.600">
                           Detecta automáticamente respuestas del bot Botrix y migra puntos
                         </Text>
                       </VStack>
@@ -305,7 +305,7 @@ export default function KickAdminPage() {
                     <Heading size="md" color="gold" mb={2}>
                       👑 Sistema VIP
                     </Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Text color="black.600" fontSize="sm">
                       Configura puntos especiales y beneficios para usuarios VIP
                     </Text>
                   </Box>
@@ -314,7 +314,7 @@ export default function KickAdminPage() {
                     <FormLabel htmlFor="vip-toggle" mb="0" flex="1">
                       <VStack align="start" spacing={1}>
                         <Text fontWeight="semibold">Puntos especiales VIP</Text>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text fontSize="sm" color="black.600">
                           Los usuarios VIP ganan puntos adicionales por actividades
                         </Text>
                       </VStack>
@@ -417,7 +417,7 @@ export default function KickAdminPage() {
                   <Heading size="md" color="blue.600" mb={2}>
                     ⚙️ Configuración de Puntos
                   </Heading>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="black.600">
                     Gestiona puntos por eventos y actividades
                   </Text>
                 </CardBody>
@@ -434,7 +434,7 @@ export default function KickAdminPage() {
                   <Heading size="md" color="purple.600" mb={2}>
                     👥 Gestionar Usuarios
                   </Heading>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="black.600">
                     Ver usuarios, VIPs y migración
                   </Text>
                 </CardBody>
@@ -448,10 +448,10 @@ export default function KickAdminPage() {
                 onClick={() => router.push('/admin/canjes')}
               >
                 <CardBody textAlign="center">
-                  <Heading size="md" color="green.600" mb={2}>
+                  <Heading size="md" color="green.400" mb={2}>
                     🎁 Gestionar Canjes
                   </Heading>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="black.600">
                     Entregar recompensas y VIPs
                   </Text>
                 </CardBody>

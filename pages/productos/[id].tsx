@@ -151,8 +151,8 @@ export default function ProductoDetallePage() {
                   objectFit="cover"
                 />
               ) : (
-                <Center h="400px" bg="gray.100">
-                  <Text color="gray.500">Sin imagen</Text>
+                <Center h="400px" bg="black.100">
+                  <Text color="black.500">Sin imagen</Text>
                 </Center>
               )}
             </Box>
@@ -184,7 +184,7 @@ export default function ProductoDetallePage() {
                   {producto.precio} puntos
                 </Text>
                 {isAuthenticated && user && (
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="black.600">
                     Tienes {user.puntos} puntos disponibles
                   </Text>
                 )}

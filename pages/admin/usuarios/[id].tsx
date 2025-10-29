@@ -92,10 +92,10 @@ export default function AdminUsuarioGestionPage() {
   const [currentPage, setCurrentPage] = useState(1)
 
   // Theme colors
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.600')
-  const hoverBg = useColorModeValue('gray.50', 'gray.700')
-  const headerBg = useColorModeValue('gray.50', 'gray.700')
+  const cardBg = useColorModeValue('white', 'black.800')
+  const borderColor = useColorModeValue('black.200', 'black.600')
+  const hoverBg = useColorModeValue('black.50', 'black.700')
+  const headerBg = useColorModeValue('black.50', 'black.700')
 
   // User info from first canje
   const userInfo = useMemo(() => {
@@ -184,7 +184,7 @@ export default function AdminUsuarioGestionPage() {
       case 'entregado': return 'green'
       case 'cancelado': return 'red'
       case 'devuelto': return 'purple'
-      default: return 'gray'
+      default: return 'black'
     }
   }
 
@@ -263,7 +263,7 @@ export default function AdminUsuarioGestionPage() {
             <Center minH="50vh">
               <VStack spacing={4}>
                 <Spinner size="xl" color="blue.500" thickness="4px" />
-                <Text fontSize="lg" color="gray.600">Cargando información del usuario...</Text>
+                <Text fontSize="lg" color="black.600">Cargando información del usuario...</Text>
               </VStack>
             </Center>
           </Container>
@@ -318,10 +318,10 @@ export default function AdminUsuarioGestionPage() {
                       borderColor="blue.500"
                     />
                     <VStack align="start" spacing={1}>
-                      <Heading size={{ base: 'md', md: 'lg' }} color="gray.800" _dark={{ color: 'white' }}>
+                      <Heading size={{ base: 'md', md: 'lg' }} color="black.800" _dark={{ color: 'white' }}>
                         {userInfo.kick_username || userInfo.nickname || userInfo.nombre || `Usuario #${userInfo.id}`}
                       </Heading>
-                      <Text color="gray.600" _dark={{ color: 'gray.400' }} fontSize={{ base: 'sm', md: 'md' }}>
+                      <Text color="black.600" _dark={{ color: 'black.400' }} fontSize={{ base: 'sm', md: 'md' }}>
                         {userInfo.email}
                       </Text>
                       {userInfo.kick_username && (
@@ -344,7 +344,7 @@ export default function AdminUsuarioGestionPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Total Canjes</StatLabel>
+                      <StatLabel color="black.600">Total Canjes</StatLabel>
                       <StatNumber color="blue.600" fontSize="2xl">
                         {stats.total}
                       </StatNumber>
@@ -355,7 +355,7 @@ export default function AdminUsuarioGestionPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Pendientes</StatLabel>
+                      <StatLabel color="black.600">Pendientes</StatLabel>
                       <StatNumber color="yellow.600" fontSize="2xl">
                         {stats.pendientes}
                       </StatNumber>
@@ -366,8 +366,8 @@ export default function AdminUsuarioGestionPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Entregados</StatLabel>
-                      <StatNumber color="green.600" fontSize="2xl">
+                      <StatLabel color="black.600">Entregados</StatLabel>
+                      <StatNumber color="green.400" fontSize="2xl">
                         {stats.entregados}
                       </StatNumber>
                     </Stat>
@@ -377,7 +377,7 @@ export default function AdminUsuarioGestionPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Cancelados</StatLabel>
+                      <StatLabel color="black.600">Cancelados</StatLabel>
                       <StatNumber color="red.600" fontSize="2xl">
                         {stats.cancelados}
                       </StatNumber>
@@ -388,7 +388,7 @@ export default function AdminUsuarioGestionPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Devueltos</StatLabel>
+                      <StatLabel color="black.600">Devueltos</StatLabel>
                       <StatNumber color="purple.600" fontSize="2xl">
                         {stats.devueltos}
                       </StatNumber>
@@ -404,7 +404,7 @@ export default function AdminUsuarioGestionPage() {
                 <Stack direction={{ base: 'column', md: 'row' }} spacing={4} align="center">
                   <InputGroup maxW={{ base: 'full', md: '300px' }}>
                     <InputLeftElement>
-                      <SearchIcon color="gray.400" />
+                      <SearchIcon color="black.400" />
                     </InputLeftElement>
                     <Input
                       placeholder="Buscar canjes..."
@@ -416,7 +416,7 @@ export default function AdminUsuarioGestionPage() {
 
                   <HStack spacing={4} wrap="wrap">
                     <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="gray.600">Estado:</Text>
+                      <Text fontSize="xs" color="black.600">Estado:</Text>
                       <Select
                         value={filterEstado}
                         onChange={(e) => {
@@ -436,7 +436,7 @@ export default function AdminUsuarioGestionPage() {
                     </VStack>
 
                     <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="gray.600">Mostrar:</Text>
+                      <Text fontSize="xs" color="black.600">Mostrar:</Text>
                       <Select
                         value={pageSize}
                         onChange={(e) => {
@@ -479,10 +479,10 @@ export default function AdminUsuarioGestionPage() {
                     <VStack spacing={6}>
                       <Box fontSize="6xl">🛒</Box>
                       <VStack spacing={2}>
-                        <Text fontSize="lg" fontWeight="bold" color="gray.600">
+                        <Text fontSize="lg" fontWeight="bold" color="black.600">
                           Sin canjes realizados
                         </Text>
-                        <Text fontSize="sm" color="gray.500" textAlign="center">
+                        <Text fontSize="sm" color="black.500" textAlign="center">
                           Este usuario aún no ha realizado ningún canje
                         </Text>
                       </VStack>
@@ -563,7 +563,7 @@ export default function AdminUsuarioGestionPage() {
                               <Text fontWeight="medium" fontSize="sm">
                                 {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
                               </Text>
-                              <Text fontSize="xs" color="gray.500">
+                              <Text fontSize="xs" color="black.500">
                                 ID: {canje.producto_id}
                               </Text>
                             </VStack>
@@ -591,7 +591,7 @@ export default function AdminUsuarioGestionPage() {
                             </Badge>
                           </Td>
                           <Td>
-                            <Text fontSize="sm" color="gray.600">
+                            <Text fontSize="sm" color="black.600">
                               {new Date(canje.fecha).toLocaleDateString('es-ES', {
                                 year: 'numeric',
                                 month: 'short',
@@ -669,7 +669,7 @@ export default function AdminUsuarioGestionPage() {
                 {totalPages > 1 && (
                   <Box p={4} borderTop="1px solid" borderColor={borderColor}>
                     <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text fontSize="sm" color="black.600">
                         Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, processedData.length)} de {processedData.length} canjes
                       </Text>
 
@@ -694,7 +694,7 @@ export default function AdminUsuarioGestionPage() {
                                 key={page}
                                 size="sm"
                                 variant={currentPage === page ? "solid" : "outline"}
-                                colorScheme={currentPage === page ? "blue" : "gray"}
+                                colorScheme={currentPage === page ? "blue" : "black"}
                                 onClick={() => setCurrentPage(page)}
                                 borderRadius="lg"
                               >
@@ -728,7 +728,7 @@ export default function AdminUsuarioGestionPage() {
               <ModalHeader>
                 <VStack align="start" spacing={1}>
                   <Text>↩️ Procesar Devolución</Text>
-                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
+                  <Text fontSize="sm" fontWeight="normal" color="black.600">
                     Canje #{selectedCanje?.id} - {selectedCanje?.Producto?.nombre}
                   </Text>
                 </VStack>

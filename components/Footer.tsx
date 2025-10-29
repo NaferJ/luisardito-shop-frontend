@@ -15,8 +15,8 @@ function GitHubIcon(props: React.ComponentProps<typeof Icon>) {
 
 export function Footer() {
   const bg = useColorModeValue('rgba(247, 250, 252, 0.8)', 'rgba(26, 32, 44, 0.6)')
-  const borderClr = useColorModeValue('gray.200', 'gray.700')
-  const color = useColorModeValue('gray.700', 'gray.300')
+  const borderClr = useColorModeValue('black.200', 'black.700')
+  const color = useColorModeValue('black.700', 'black.300')
   const year = new Date().getFullYear()
 
   return (
@@ -28,7 +28,7 @@ export function Footer() {
             <ChakraLink as={NextLink} href="https://github.com/naferj" isExternal color="blue.400" _hover={{ textDecor: 'underline' }}>
               NaferJ
             </ChakraLink>
-            <ChakraLink href="https://github.com/naferj" isExternal aria-label="GitHub de NaferJ" color={color} _hover={{ color: 'gray.500' }}>
+            <ChakraLink href="https://github.com/naferj" isExternal aria-label="GitHub de NaferJ" color={color} _hover={{ color: 'black.500' }}>
               <GitHubIcon boxSize={5} />
             </ChakraLink>
           </Text>

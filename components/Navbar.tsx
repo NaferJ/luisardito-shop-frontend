@@ -18,16 +18,16 @@ export default function Navbar() {
   }
 
     const floatingBg = useColorModeValue(
-        'rgba(255, 255, 255, 0.40)',
-        'rgba(13, 17, 23, 0.40)'
+        'rgba(255, 255, 255, 0.30)',
+        'rgba(13, 17, 23, 0.30)'
     )
     const borderClr = useColorModeValue(
-        'rgba(208, 215, 222, 0.28)',
-        'rgba(66, 74, 83, 0.28)'
+        'rgba(208, 215, 222, 0.18)',
+        'rgba(66, 74, 83, 0.18)'
     )
     const shadow = useColorModeValue(
-        '0 8px 32px rgba(0,0,0,0.086)',
-        '0 8px 32px rgba(0,0,0,0.20)'
+        '0 8px 32px rgba(0,0,0,0.076)',
+        '0 8px 32px rgba(0,0,0,0.10)'
     )
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
@@ -367,13 +367,13 @@ export default function Navbar() {
                       bg="transparent"
                       _hover={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
                       _focus={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={useColorModeValue('black.700', 'black.100')}
                     >
                       Mi Perfil
                     </MenuItem>
@@ -384,13 +384,13 @@ export default function Navbar() {
                       bg="transparent"
                       _hover={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
                       _focus={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={useColorModeValue('black.700', 'black.100')}
                     >
                       Historial de Puntos
                     </MenuItem>
@@ -401,13 +401,13 @@ export default function Navbar() {
                       bg="transparent"
                       _hover={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
                       _focus={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={useColorModeValue('black.700', 'black.100')}
                     >
                       Mis Canjes
                     </MenuItem>
@@ -418,13 +418,13 @@ export default function Navbar() {
                       bg="transparent"
                       _hover={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
                       _focus={{
                         bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        color: useColorModeValue('black.900', 'white')
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={useColorModeValue('black.700', 'black.100')}
                     >
                       Catálogo
                     </MenuItem>

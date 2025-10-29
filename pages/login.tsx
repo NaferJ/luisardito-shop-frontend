@@ -18,7 +18,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { connectWithKick, isLoading: isKickLoading } = useKickAuth()
 
-  const mutedBg = useColorModeValue('gray.100', 'gray.700')
+  const mutedBg = useColorModeValue('black.100', 'black.700')
 
   return (
     <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} minH="100vh">
@@ -35,7 +35,7 @@ export default function LoginPage() {
             <VStack spacing={6} align="stretch">
               <Box textAlign="center">
                 <Heading size="md" mb={1}>Inicia sesión en tu cuenta</Heading>
-                <Text fontSize="sm" color="gray.500">Conecta con tu cuenta de Kick para acceder</Text>
+                <Text fontSize="sm" color="black.500">Conecta con tu cuenta de Kick para acceder</Text>
               </Box>
 
               <VStack spacing={4} align="stretch">
@@ -50,7 +50,7 @@ export default function LoginPage() {
                   fontSize="md"
                   fontWeight="semibold"
                   _hover={{
-                    bg: 'green.600',
+                    bg: 'green.400',
                     boxShadow: '0 0 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(34, 197, 94, 0.4)',
                     transform: 'translateY(-1px)',
                     transition: 'all 0.2s ease-in-out'
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <Button
             size="xs"
             variant="ghost"
-            colorScheme="gray"
+            colorScheme="black"
             opacity={0.3}
             _hover={{ opacity: 1 }}
             onClick={() => router.push('/auth/dev-login')}

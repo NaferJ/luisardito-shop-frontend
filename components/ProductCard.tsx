@@ -50,16 +50,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   // UI theme helpers (light/dark aware) - todos los hooks useColorModeValue
   const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
   const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
-  const menuColor = useColorModeValue('gray.800', 'gray.100')
-  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const menuColor = useColorModeValue('black.800', 'black.100')
+  const menuHoverBg = useColorModeValue('black.100', 'black.700')
   const overlayGradient = useColorModeValue(
     'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
     'linear-gradient(to top, rgba(0,0,0,0.975) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0) 100%)'
   )
-  const gearBg = useColorModeValue('white', 'gray.700')
+  const gearBg = useColorModeValue('white', 'black.700')
   const gearColor = useColorModeValue('blue.600', 'cyan.300')
   const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
+  const gearHoverBg = useColorModeValue('black.50', 'black.600')
   const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
 
   // Solo mostrar productos publicados a usuarios normales (después de todos los hooks)
@@ -130,7 +130,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
       case 'eliminado':
         return 'red'
       default:
-        return 'gray'
+        return 'black'
     }
   }
 
@@ -192,19 +192,19 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   > = {
     publicado: {
       light: { bg: 'green.50', color: 'green.700', border: 'green.200' },
-      dark: { bg: 'green.700', color: 'green.50', border: 'green.600' }
+      dark: { bg: 'green.700', color: 'green.50', border: 'green.400' }
     },
     borrador: {
       light: { bg: 'yellow.50', color: 'yellow.800', border: 'yellow.200' },
-      dark: { bg: 'yellow.700', color: 'gray.900', border: 'yellow.600' }
+      dark: { bg: 'yellow.700', color: 'black.900', border: 'yellow.600' }
     },
     eliminado: {
       light: { bg: 'red.50', color: 'red.700', border: 'red.200' },
       dark: { bg: 'red.700', color: 'red.50', border: 'red.600' }
     },
     default: {
-      light: { bg: 'gray.100', color: 'gray.700', border: 'gray.300' },
-      dark: { bg: 'gray.700', color: 'gray.100', border: 'gray.600' }
+      light: { bg: 'black.100', color: 'black.700', border: 'black.300' },
+      dark: { bg: 'black.700', color: 'black.100', border: 'black.600' }
     }
   }
   const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
@@ -284,7 +284,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             fallbackSrc="/no-image.png"
             transition="all 0.3s ease"
             sx={{
-              filter: outOfStock ? 'grayscale(100%)' : 'none',
+              filter: outOfStock ? 'blackscale(100%)' : 'none',
             }}
             _groupHover={{
               transform: 'scale(1.05)',
@@ -294,16 +294,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           <Box
             w="full"
             h="260px"
-            bg={useColorModeValue('gray.100', 'gray.700')}
+            bg={useColorModeValue('black.100', 'black.700')}
             display="flex"
             alignItems="center"
             justifyContent="center"
             transition="all 0.3s ease"
             _groupHover={{
-              bg: useColorModeValue('gray.200', 'gray.600'),
+              bg: useColorModeValue('black.200', 'black.600'),
             }}
           >
-            <Text color="gray.500" fontSize="sm" fontWeight="medium">
+            <Text color="black.500" fontSize="sm" fontWeight="medium">
               📦 Sin imagen
             </Text>
           </Box>

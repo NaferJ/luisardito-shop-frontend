@@ -134,7 +134,7 @@ export default function EditarProductoPage() {
       case 'publicado': return 'green'
       case 'borrador': return 'yellow'
       case 'eliminado': return 'red'
-      default: return 'gray'
+      default: return 'black'
     }
   }
 
@@ -179,7 +179,7 @@ export default function EditarProductoPage() {
                   {producto.estado?.charAt(0).toUpperCase() + producto.estado?.slice(1) || 'Publicado'}
                 </Badge>
               </HStack>
-              <Text color="gray.600">
+              <Text color="black.600">
                 Creado el {new Date((producto as any).creado).toLocaleDateString('es-ES')}
               </Text>
             </VStack>
@@ -300,16 +300,16 @@ export default function EditarProductoPage() {
 
             {/* Información adicional */}
             <Card
-              bg={useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')}
+              bg={useColorModeValue('black.50', 'rgba(255,255,255,0.04)')}
               border="1px solid"
               borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
             >
               <CardBody>
                 <VStack spacing={2} align="start">
-                  <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.700', 'gray.200')}>
+                  <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('black.700', 'black.200')}>
                     Información adicional:
                   </Text>
-                  <Text fontSize="xs" color={useColorModeValue('gray.600', 'gray.300')}>
+                  <Text fontSize="xs" color={useColorModeValue('black.600', 'black.300')}>
                     Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
                     Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
                   </Text>

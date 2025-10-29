@@ -102,7 +102,7 @@ export default function KickPuntosAdminPage() {
               <Heading size="xl" mb={2} color="blue.600">
                 ⚙️ Configuración de Puntos
               </Heading>
-              <Text color="gray.600" fontSize="lg">
+              <Text color="black.600" fontSize="lg">
                 Gestiona la cantidad de puntos otorgados por diferentes eventos de Kick
               </Text>
             </Box>
@@ -125,7 +125,7 @@ export default function KickPuntosAdminPage() {
                     <Heading size="md" color="blue.600" mb={2}>
                       💬 Eventos de Chat
                     </Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Text color="black.600" fontSize="sm">
                       Puntos otorgados por participación en chat
                     </Text>
                   </Box>
@@ -155,7 +155,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Puntos base por cada mensaje enviado en chat
                       </Text>
                     </FormControl>
@@ -164,7 +164,7 @@ export default function KickPuntosAdminPage() {
                       <FormLabel>
                         <HStack justify="space-between">
                           <Text>Cooldown entre mensajes (segundos)</Text>
-                          <Badge colorScheme="gray" fontSize="xs">Automático</Badge>
+                          <Badge colorScheme="black" fontSize="xs">Automático</Badge>
                         </HStack>
                       </FormLabel>
                       <NumberInput
@@ -180,7 +180,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Tiempo mínimo entre mensajes para obtener puntos
                       </Text>
                     </FormControl>
@@ -194,10 +194,10 @@ export default function KickPuntosAdminPage() {
               <CardBody>
                 <VStack spacing={6} align="stretch">
                   <Box>
-                    <Heading size="md" color="green.600" mb={2}>
+                    <Heading size="md" color="green.400" mb={2}>
                       👥 Eventos Sociales
                     </Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Text color="black.600" fontSize="sm">
                       Puntos por follows, suscripciones y otros eventos importantes
                     </Text>
                   </Box>
@@ -227,7 +227,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Puntos otorgados cuando alguien sigue el canal
                       </Text>
                     </FormControl>
@@ -256,7 +256,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Puntos por suscribirse al canal
                       </Text>
                     </FormControl>
@@ -273,7 +273,7 @@ export default function KickPuntosAdminPage() {
                     <Heading size="md" color="purple.600" mb={2}>
                       ⭐ Eventos Especiales
                     </Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Text color="black.600" fontSize="sm">
                       Configuración para eventos especiales y multiplicadores
                     </Text>
                   </Box>
@@ -301,7 +301,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Multiplicador de puntos para suscriptores del canal
                       </Text>
                     </FormControl>
@@ -330,7 +330,7 @@ export default function KickPuntosAdminPage() {
                           <NumberDecrementStepper />
                         </NumberInputStepper>
                       </NumberInput>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <Text fontSize="xs" color="black.500" mt={1}>
                         Puntos bonus cuando recibimos un raid
                       </Text>
                     </FormControl>
@@ -340,14 +340,14 @@ export default function KickPuntosAdminPage() {
             </Card>
 
             {/* Información del sistema */}
-            <Card borderRadius="xl" bg="gray.50">
+            <Card borderRadius="xl" bg="black.50">
               <CardBody>
                 <VStack spacing={4} align="stretch">
-                  <Heading size="sm" color="gray.700">
+                  <Heading size="sm" color="black.700">
                     ℹ️ Información del Sistema
                   </Heading>
 
-                  <VStack spacing={2} align="stretch" fontSize="sm" color="gray.600">
+                  <VStack spacing={2} align="stretch" fontSize="sm" color="black.600">
                     <Text>• Los puntos se otorgan automáticamente cuando se detectan los eventos</Text>
                     <Text>• Los usuarios VIP reciben puntos adicionales según su configuración especial</Text>
                     <Text>• Los suscriptores del canal reciben el multiplicador configurado</Text>

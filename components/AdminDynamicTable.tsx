@@ -71,11 +71,11 @@ export default function AdminDynamicTable<T = unknown>({
   const [pageSize, setPageSize] = useState(defaultPageSize)
   const [filters, setFilters] = useState<Record<string, unknown>>({})
 
-  const headerBg = useColorModeValue('gray.50', 'whiteAlpha.100')
+  const headerBg = useColorModeValue('black.50', 'whiteAlpha.100')
   const borderClr = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  const searchIconColor = useColorModeValue('gray.400', 'gray.500')
-  const emptyColor = useColorModeValue('gray.500', 'gray.400')
-  const pagTextColor = useColorModeValue('gray.600', 'gray.300')
+  const searchIconColor = useColorModeValue('black.400', 'black.500')
+  const emptyColor = useColorModeValue('black.500', 'black.400')
+  const pagTextColor = useColorModeValue('black.600', 'black.300')
 
   const autoColumns = useMemo(() => {
     return columns.map((col) => ({

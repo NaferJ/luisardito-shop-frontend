@@ -242,11 +242,11 @@ export default function KickAdminPage() {
   return (
     <RequireAdmin>
       <Layout>
-        <Container maxW="container.xl" py={8}>
+        <Container maxW="container.xl" py={6}>
           <VStack spacing={8} align="stretch">
             {/* Header */}
             <Box>
-              <Heading size="xl" mb={2} color="purple.600">
+              <Heading size="xl" mb={2} color="green.600">
                 Administración de Kick
               </Heading>
               <Text color="gray.600" fontSize="lg">
@@ -269,7 +269,7 @@ export default function KickAdminPage() {
                       <Text fontWeight="semibold">
                         {status?.connected ? '🟢 Conectado' : '🔴 Desconectado'}
                       </Text>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text fontSize="sm" color="gray.400">
                         {status?.connected
                           ? 'Conexión activa con Kick'
                           : 'Sin conexión a Kick'
@@ -478,7 +478,7 @@ export default function KickAdminPage() {
             <Card bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor}>
               <CardBody>
                 <VStack spacing={4} align="stretch">
-                  <Heading size="md" color="purple.600">
+                  <Heading size="md" color="green.500">
                     Configuración Avanzada
                   </Heading>
                   <Text fontSize="sm" color="black.600">

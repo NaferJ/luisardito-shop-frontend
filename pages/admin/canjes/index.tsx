@@ -92,7 +92,7 @@ export default function AdminCanjesPage() {
   const [currentPage, setCurrentPage] = useState(1)
 
   // Theme colors
-  const cardBg = useColorModeValue('gray.50', 'gray.800')
+  const cardBg = useColorModeValue('black.50', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
   const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -304,7 +304,7 @@ export default function AdminCanjesPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Total Canjes</StatLabel>
+                      <StatLabel color="black.500">Total Canjes</StatLabel>
                       <StatNumber color="blue.600" fontSize="2xl">
                         {stats.total}
                       </StatNumber>
@@ -315,7 +315,7 @@ export default function AdminCanjesPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Pendientes</StatLabel>
+                      <StatLabel color="black.500">Pendientes</StatLabel>
                       <StatNumber color="yellow.600" fontSize="2xl">
                         {stats.pendientes}
                       </StatNumber>
@@ -326,7 +326,7 @@ export default function AdminCanjesPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Entregados</StatLabel>
+                      <StatLabel color="black.500">Entregados</StatLabel>
                       <StatNumber color="green.600" fontSize="2xl">
                         {stats.entregados}
                       </StatNumber>
@@ -337,7 +337,7 @@ export default function AdminCanjesPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Cancelados</StatLabel>
+                      <StatLabel color="black.500">Cancelados</StatLabel>
                       <StatNumber color="red.600" fontSize="2xl">
                         {stats.cancelados}
                       </StatNumber>
@@ -348,7 +348,7 @@ export default function AdminCanjesPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Devueltos</StatLabel>
+                      <StatLabel color="black.500">Devueltos</StatLabel>
                       <StatNumber color="purple.600" fontSize="2xl">
                         {stats.devueltos}
                       </StatNumber>
@@ -376,7 +376,7 @@ export default function AdminCanjesPage() {
 
                   <HStack spacing={4} wrap="wrap">
                     <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="gray.600">Estado:</Text>
+                      <Text fontSize="xs" color="black.500">Estado:</Text>
                       <Select
                         value={filterEstado}
                         onChange={(e) => {
@@ -396,7 +396,7 @@ export default function AdminCanjesPage() {
                     </VStack>
 
                     <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="gray.600">Mostrar:</Text>
+                      <Text fontSize="xs" color="black.500">Mostrar:</Text>
                       <Select
                         value={pageSize}
                         onChange={(e) => {
@@ -586,7 +586,7 @@ export default function AdminCanjesPage() {
                             </Badge>
                           </Td>
                           <Td>
-                            <Text fontSize="sm" color="gray.600">
+                            <Text fontSize="sm" color="gray.500">
                               {new Date(canje.fecha).toLocaleDateString('es-ES', {
                                 year: 'numeric',
                                 month: 'short',

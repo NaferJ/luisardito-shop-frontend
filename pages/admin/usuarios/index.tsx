@@ -115,7 +115,7 @@ export default function AdminUsuariosPage() {
   const manualMigration = useManualBotrixMigration()
 
   // Theme colors
-  const cardBg = useColorModeValue('gray.50', 'gray.800')
+  const cardBg = useColorModeValue('black.800', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
   const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -486,10 +486,10 @@ export default function AdminUsuariosPage() {
                     borderRadius="lg"
                   >
                     <option value="all">Todos los usuarios</option>
-                    <option value="vip">👑 Solo VIPs</option>
-                    <option value="subscribers">⭐ Solo suscriptores</option>
-                    <option value="migrated">🔄 Ya migrados</option>
-                    <option value="pending_migration">⏳ Pendientes migración</option>
+                    <option value="vip">Solo VIPs</option>
+                    <option value="subscribers">Solo suscriptores</option>
+                    <option value="migrated">Ya migrados</option>
+                    <option value="pending_migration">Pendientes migración</option>
                   </Select>
 
                   <HStack spacing={4}>
@@ -616,7 +616,7 @@ export default function AdminUsuariosPage() {
                           </HStack>
                         </Td>
                         <Td display={{ base: 'none', md: 'table-cell' }}>
-                          <Text fontSize="sm" color="gray.600">
+                          <Text fontSize="sm" color="gray.500">
                             {user.email}
                           </Text>
                         </Td>

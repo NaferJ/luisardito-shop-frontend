@@ -18,12 +18,12 @@ export default function Navbar() {
   }
 
     const floatingBg = useColorModeValue(
-        'rgba(255, 255, 255, 0.30)',
-        'rgba(13, 17, 23, 0.30)'
+        'rgba(255, 255, 255, 0.20)',
+        'rgba(13, 17, 23, 0.20)'
     )
     const borderClr = useColorModeValue(
-        'rgba(208, 215, 222, 0.18)',
-        'rgba(66, 74, 83, 0.18)'
+        'rgba(208, 215, 222, 0.08)',
+        'rgba(66, 74, 83, 0.08)'
     )
     const shadow = useColorModeValue(
         '0 8px 32px rgba(0,0,0,0.086)',

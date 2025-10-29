@@ -92,7 +92,7 @@ export default function AdminCanjesPage() {
   const [currentPage, setCurrentPage] = useState(1)
 
   // Theme colors
-  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBg = useColorModeValue('gray.50', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
   const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -291,7 +291,7 @@ export default function AdminCanjesPage() {
             {/* Header */}
             <Box>
               <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
-                🔄 Gestión de Canjes
+                Gestión de Canjes
               </Heading>
               <Text color="gray.600" _dark={{ color: 'gray.400' }}>
                 Administra todos los canjes de puntos realizados por los usuarios

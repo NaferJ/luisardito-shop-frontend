@@ -106,7 +106,7 @@ export default function AdminProductosPage() {
     const cancelRef = useRef<HTMLButtonElement>(null)
 
     // Theme colors
-    const cardBg = useColorModeValue('white', 'gray.800')
+    const cardBg = useColorModeValue('gray.50', 'gray.800')
     const borderColor = useColorModeValue('gray.200', 'gray.600')
     const hoverBg = useColorModeValue('gray.50', 'gray.700')
     const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -265,7 +265,7 @@ export default function AdminProductosPage() {
                         <Flex justify="space-between" align={{ base: 'start', md: 'center' }} direction={{ base: 'column', md: 'row' }} gap={4}>
                             <Box>
                                 <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
-                                    🛍️ Gestión de Productos
+                                    Gestión de Productos
                                 </Heading>
                                 <Text color="gray.600" _dark={{ color: 'gray.400' }}>
                                     Administra el catálogo de productos de la tienda

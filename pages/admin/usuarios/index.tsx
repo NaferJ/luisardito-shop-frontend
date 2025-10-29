@@ -115,7 +115,7 @@ export default function AdminUsuariosPage() {
   const manualMigration = useManualBotrixMigration()
 
   // Theme colors
-  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBg = useColorModeValue('gray.50', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
   const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -385,7 +385,7 @@ export default function AdminUsuariosPage() {
             {/* Header original */}
             <Box>
               <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
-                👥 Gestión de Usuarios
+                Gestión de Usuarios
               </Heading>
               <Text color="gray.600" _dark={{ color: 'gray.400' }}>
                 Administra los usuarios registrados, VIPs, migración y puntos
@@ -398,7 +398,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Total Usuarios</StatLabel>
+                      <StatLabel color="black.600">Total Usuarios</StatLabel>
                       <StatNumber color="blue.600" fontSize="2xl">
                         {stats.totalUsers}
                       </StatNumber>
@@ -409,7 +409,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">👑 VIPs</StatLabel>
+                      <StatLabel color="black.600">VIPs</StatLabel>
                       <StatNumber color="yellow.600" fontSize="2xl">
                         {stats.vipUsers}
                       </StatNumber>
@@ -420,7 +420,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">🔄 Migrados</StatLabel>
+                      <StatLabel color="black.600">Migrados</StatLabel>
                       <StatNumber color="cyan.600" fontSize="2xl">
                         {stats.migratedUsers}
                       </StatNumber>
@@ -431,7 +431,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Puntos Totales</StatLabel>
+                      <StatLabel color="black.600">Puntos Totales</StatLabel>
                       <StatNumber color="green.600" fontSize="2xl">
                         {stats.totalPoints.toLocaleString()}
                       </StatNumber>
@@ -442,7 +442,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Promedio</StatLabel>
+                      <StatLabel color="black.600">Promedio</StatLabel>
                       <StatNumber color="purple.600" fontSize="2xl">
                         {stats.avgPoints.toLocaleString()}
                       </StatNumber>
@@ -453,7 +453,7 @@ export default function AdminUsuariosPage() {
                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                   <CardBody textAlign="center" py={6}>
                     <Stat>
-                      <StatLabel color="gray.600">Con Canjes</StatLabel>
+                      <StatLabel color="black.600">Con Canjes</StatLabel>
                       <StatNumber color="orange.600" fontSize="2xl">
                         {stats.usersWithCanjes}
                       </StatNumber>
@@ -493,7 +493,7 @@ export default function AdminUsuariosPage() {
                   </Select>
 
                   <HStack spacing={4}>
-                    <Text fontSize="sm" color="gray.600" whiteSpace="nowrap">
+                    <Text fontSize="sm" color="black.600" whiteSpace="nowrap">
                       Mostrar:
                     </Text>
                     <Select

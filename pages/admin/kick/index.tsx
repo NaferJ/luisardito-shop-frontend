@@ -310,7 +310,7 @@ export default function KickAdminPage() {
                     <VStack align="start" spacing={1}>
                       <HStack>
                         <Icon as={SettingsIcon} color="cyan.500" />
-                        <Heading size="md" color={migrationEnabled ? 'green.600' : textPrimary}>
+                        <Heading size="md" color={migrationEnabled ? 'green.400' : textPrimary}>
                           Migración desde Botrix
                         </Heading>
                       </HStack>
@@ -392,7 +392,7 @@ export default function KickAdminPage() {
                     <VStack align="start" spacing={1}>
                       <HStack>
                         <Icon as={SettingsIcon} color="yellow.500" />
-                        <Heading size="md" color={vipEnabled ? 'green.600' : textPrimary}>
+                        <Heading size="md" color={vipEnabled ? 'green.400' : textPrimary}>
                           Sistema VIP
                         </Heading>
                       </HStack>
@@ -481,7 +481,7 @@ export default function KickAdminPage() {
                   <Heading size="md" color="purple.600">
                     Configuración Avanzada
                   </Heading>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="black.600">
                     Accede a configuraciones detalladas y ajustes específicos
                   </Text>
 

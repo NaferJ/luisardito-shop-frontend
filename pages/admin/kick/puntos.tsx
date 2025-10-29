@@ -91,13 +91,13 @@ export default function KickPointsConfigPage() {
   // Color mode values
   const cardBg = useColorModeValue('white', 'gray.800')
   const cardBorder = useColorModeValue('gray.200', 'gray.600')
-  const enabledCardBg = useColorModeValue('purple.50', 'purple.900')
-  const enabledCardBorder = useColorModeValue('purple.200', 'purple.600')
+  const enabledCardBg = useColorModeValue('green.50', 'green.900')
+  const enabledCardBorder = useColorModeValue('green.200', 'green.600')
   const disabledCardBg = useColorModeValue('gray.50', 'gray.700')
   const disabledCardBorder = useColorModeValue('gray.200', 'gray.600')
-  const enabledCardHoverBorder = useColorModeValue('purple.300', 'purple.500')
+  const enabledCardHoverBorder = useColorModeValue('green.300', 'green.500')
   const disabledCardHoverBorder = useColorModeValue('gray.300', 'gray.500')
-  const headingEnabledColor = useColorModeValue('purple.700', 'purple.200')
+  const headingEnabledColor = useColorModeValue('green.700', 'green.200')
   const headingDisabledColor = useColorModeValue('gray.600', 'gray.400')
   const labelColor = useColorModeValue('gray.700', 'gray.300')
   const descriptionColor = useColorModeValue('gray.600', 'gray.400')
@@ -236,7 +236,7 @@ export default function KickPointsConfigPage() {
         <Layout>
           <Container maxW="container.xl" py={8}>
             <VStack spacing={8}>
-              <Spinner size="xl" color="purple.500" thickness="4px" />
+              <Spinner size="xl" color="green.500" thickness="4px" />
               <Text fontSize="lg" color="gray.600">Cargando configuración...</Text>
             </VStack>
           </Container>
@@ -261,7 +261,7 @@ export default function KickPointsConfigPage() {
                   size="lg"
                 />
                 <VStack align="start" spacing={1} flex={1}>
-                  <Heading size="xl" color="purple.600">
+                  <Heading size="xl" color="green.600">
                     Configuración de Puntos
                   </Heading>
                   <Text color="gray.600" fontSize="lg">
@@ -273,7 +273,7 @@ export default function KickPointsConfigPage() {
               {/* Stats rápidas */}
               {Array.isArray(configs) && configs.length > 0 && (
                 <HStack spacing={4} flexWrap="wrap">
-                  <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+                  <Badge colorScheme="blue" fontSize="sm" px={3} py={1}>
                     {configs.length} configuraciones
                   </Badge>
                   <Badge
@@ -312,7 +312,7 @@ export default function KickPointsConfigPage() {
                       </Box>
                     </Alert>
                     <Button
-                      colorScheme="purple"
+                      colorScheme="green"
                       onClick={handleInitialize}
                       isLoading={initializing}
                       size="lg"
@@ -401,7 +401,7 @@ export default function KickPointsConfigPage() {
                                   >
                                     <NumberInputField
                                       borderRadius="lg"
-                                      _focus={{ borderColor: "purple.400", boxShadow: "0 0 0 1px purple.400" }}
+                                      _focus={{ borderColor: "green.400", boxShadow: "0 0 0 1px green.400" }}
                                     />
                                     <NumberInputStepper>
                                       <NumberIncrementStepper />
@@ -417,13 +417,13 @@ export default function KickPointsConfigPage() {
                                   <Switch
                                     isChecked={formValue.enabled}
                                     onChange={(e) => handleEnabledChange(key, e.target.checked)}
-                                    colorScheme="purple"
+                                    colorScheme="green"
                                     size="lg"
                                   />
                                 </FormControl>
 
                                 <Button
-                                  colorScheme="purple"
+                                  colorScheme="green"
                                   onClick={() => handleSave(key)}
                                   isLoading={saving}
                                   borderRadius="lg"

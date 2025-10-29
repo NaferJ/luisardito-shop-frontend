@@ -106,7 +106,7 @@ export default function AdminProductosPage() {
     const cancelRef = useRef<HTMLButtonElement>(null)
 
     // Theme colors
-    const cardBg = useColorModeValue('gray.50', 'gray.800')
+    const cardBg = useColorModeValue('black.200', 'gray.800')
     const borderColor = useColorModeValue('gray.200', 'gray.600')
     const hoverBg = useColorModeValue('gray.50', 'gray.700')
     const headerBg = useColorModeValue('gray.50', 'gray.700')
@@ -293,7 +293,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Total</StatLabel>
+                                            <StatLabel color="gray.500">Total</StatLabel>
                                             <StatNumber color="blue.600" fontSize="2xl">
                                                 {stats.totalProducts}
                                             </StatNumber>
@@ -304,7 +304,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Publicados</StatLabel>
+                                            <StatLabel color="gray.500">Publicados</StatLabel>
                                             <StatNumber color="green.600" fontSize="2xl">
                                                 {stats.publicados}
                                             </StatNumber>
@@ -315,7 +315,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Borradores</StatLabel>
+                                            <StatLabel color="gray.500">Borradores</StatLabel>
                                             <StatNumber color="yellow.600" fontSize="2xl">
                                                 {stats.borradores}
                                             </StatNumber>
@@ -326,7 +326,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Eliminados</StatLabel>
+                                            <StatLabel color="gray.500">Eliminados</StatLabel>
                                             <StatNumber color="red.600" fontSize="2xl">
                                                 {stats.eliminados}
                                             </StatNumber>
@@ -337,7 +337,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Stock Total</StatLabel>
+                                            <StatLabel color="gray.500">Stock Total</StatLabel>
                                             <StatNumber color="purple.600" fontSize="2xl">
                                                 {stats.totalStock}
                                             </StatNumber>
@@ -348,7 +348,7 @@ export default function AdminProductosPage() {
                                 <Card bg={cardBg} shadow="md" borderRadius="xl">
                                     <CardBody textAlign="center" py={6}>
                                         <Stat>
-                                            <StatLabel color="gray.600">Precio Promedio</StatLabel>
+                                            <StatLabel color="gray.500">Precio Promedio</StatLabel>
                                             <StatNumber color="orange.600" fontSize="2xl">
                                                 {stats.avgPrice}
                                             </StatNumber>
@@ -376,7 +376,7 @@ export default function AdminProductosPage() {
 
                                     <HStack spacing={4} wrap="wrap">
                                         <VStack spacing={1} align="start">
-                                            <Text fontSize="xs" color="gray.600">Estado:</Text>
+                                            <Text fontSize="xs" color="gray.500">Estado:</Text>
                                             <Select
                                                 value={filterEstado}
                                                 onChange={(e) => {
@@ -395,7 +395,7 @@ export default function AdminProductosPage() {
                                         </VStack>
 
                                         <VStack spacing={1} align="start">
-                                            <Text fontSize="xs" color="gray.600">Mostrar:</Text>
+                                            <Text fontSize="xs" color="gray.500">Mostrar:</Text>
                                             <Select
                                                 value={pageSize}
                                                 onChange={(e) => {

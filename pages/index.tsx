@@ -184,7 +184,6 @@ export default function Home() {
                     <HStack spacing={2}>
                       <SettingsIcon />
                       <Text>Panel Admin</Text>
-                      <Box as="span" transform="rotate(90deg)">⚡</Box>
                     </HStack>
                   </MenuButton>
                 </Tooltip>

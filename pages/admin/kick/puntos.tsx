@@ -196,21 +196,17 @@ export default function KickPointsConfigPage() {
   }
 
   const handleReset = async () => {
-    console.log('🎯 handleReset: Botón presionado')
 
     if (!confirm('¿Estás seguro de restablecer TODAS las configuraciones a sus valores por defecto? Esto sobrescribirá todos los valores actuales.')) {
-      console.log('🚫 handleReset: Usuario canceló')
       return
     }
 
     try {
-      console.log('🎯 handleReset: Iniciando restablecimiento...')
       setInitializing(true)
 
       // Usar la función resetToDefaults que tiene control total
       await resetToDefaults()
 
-      console.log('🎯 handleReset: Restablecimiento exitoso')
       toast({
         title: 'Configuración restablecida',
         description: 'Todos los valores han sido restablecidos a los valores por defecto correctos',
@@ -226,7 +222,6 @@ export default function KickPointsConfigPage() {
       })
     } finally {
       setInitializing(false)
-      console.log('🎯 handleReset: Proceso terminado')
     }
   }
 

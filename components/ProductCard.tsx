@@ -445,8 +445,14 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                   px={2}
                   py={1}
                   borderRadius="lg"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
                 >
-                  Stock: {producto.stock}
+                  <Icon as={MdPeople} display="none" />
+                  {/* Usamos un ícono de caja para stock */}
+                  <span role="img" aria-label="stock">📦</span>
+                  {producto.stock}
                 </Badge>
                 {typeof (producto as any).canjes_count === 'number' && (
                   <Badge

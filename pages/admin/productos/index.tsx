@@ -464,8 +464,8 @@ export default function AdminProductosPage() {
                             </Card>
                         ) : (
                             <Card bg={cardBg} shadow="md" borderRadius="xl" overflow="hidden">
-                                <TableContainer>
-                                    <Table variant="simple">
+                                <TableContainer overflowX="auto">
+                                    <Table variant="simple" tableLayout="auto">
                                         <Thead bg={headerBg}>
                                             <Tr>
                                                 <Th
@@ -505,18 +505,18 @@ export default function AdminProductosPage() {
                                                         )}
                                                     </HStack>
                                                 </Th>
-                                            <Th
-                                                cursor="pointer"
-                                                onClick={() => handleSort('canjes_count')}
-                                                _hover={{ bg: hoverBg }}
-                                            >
-                                                <HStack>
-                                                    <Text>Canjes</Text>
-                                                    {sortField === 'canjes_count' && (
-                                                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                                                    )}
-                                                </HStack>
-                                            </Th>
+                                                <Th
+                                                    cursor="pointer"
+                                                    onClick={() => handleSort('canjes_count')}
+                                                    _hover={{ bg: hoverBg }}
+                                                >
+                                                    <HStack>
+                                                        <Text>Canjes</Text>
+                                                        {sortField === 'canjes_count' && (
+                                                            sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
+                                                        )}
+                                                    </HStack>
+                                                </Th>
                                                 <Th
                                                     cursor="pointer"
                                                     onClick={() => handleSort('estado')}
@@ -603,15 +603,10 @@ export default function AdminProductosPage() {
                                                             </Badge>
                                                         </Td>
                                                         <Td>
-                                                            <Badge
-                                                                colorScheme={producto.stock > 0 ? 'blue' : 'red'}
-                                                                fontSize="sm"
-                                                                px={3}
-                                                                py={1}
-                                                                borderRadius="full"
-                                                            >
-                                                                {producto.stock || 0} unidades
-                                                            </Badge>
+                                                            <HStack spacing={1}>
+                                                                <span role="img" aria-label="stock">📦</span>
+                                                                <Text fontSize="sm">{producto.stock || 0}</Text>
+                                                            </HStack>
                                                         </Td>
                                                         <Td>
                                                             <HStack spacing={1}>

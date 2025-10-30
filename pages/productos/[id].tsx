@@ -17,12 +17,14 @@ import {
   Spinner,
   Center,
   Badge,
+  Icon,
   Heading,
   Divider,
   useToast,
   Alert,
   AlertIcon
 } from '@chakra-ui/react'
+import { MdPeople } from 'react-icons/md'
 
 export default function ProductoDetallePage() {
   const router = useRouter()
@@ -180,9 +182,21 @@ export default function ProductoDetallePage() {
               </Box>
 
               <Box>
-                <Text fontSize="2xl" fontWeight="bold" color="teal.600">
-                  {producto.precio} puntos
-                </Text>
+                <HStack spacing={3} align="center">
+                  <Badge colorScheme="blue" borderRadius="full" px={3} py={1} fontSize="sm">
+                    {producto.precio} pts
+                  </Badge>
+                  <Badge colorScheme={producto.stock > 0 ? 'green' : 'red'} borderRadius="full" px={2} py={1} fontSize="xs" display="inline-flex" alignItems="center" gap={1}>
+                    <span role="img" aria-label="stock">📦</span>
+                    {producto.stock}
+                  </Badge>
+                  {typeof (producto as any).canjes_count === 'number' && (
+                    <Badge colorScheme="purple" borderRadius="full" px={2} py={1} fontSize="xs" display="inline-flex" alignItems="center" gap={1}>
+                      <Icon as={MdPeople} />
+                      {(producto as any).canjes_count}
+                    </Badge>
+                  )}
+                </HStack>
                 {isAuthenticated && user && (
                   <Text fontSize="sm" color="gray.600">
                     Tienes {user.puntos} puntos disponibles

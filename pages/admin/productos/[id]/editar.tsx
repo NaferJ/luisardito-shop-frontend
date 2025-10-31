@@ -57,6 +57,16 @@ export default function EditarProductoPage() {
   })
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
+  // Theme colors - move all hooks to top level
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBorder = useColorModeValue('gray.200', 'gray.600')
+  const inputBg = useColorModeValue('white', 'gray.700')
+  const inputBorder = useColorModeValue('gray.300', 'gray.600')
+  const infoCardBg = useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')
+  const infoCardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+  const infoTextColor = useColorModeValue('gray.700', 'gray.200')
+  const infoSubTextColor = useColorModeValue('gray.600', 'gray.300')
+
   // Cargar datos del producto cuando esté disponible
   useEffect(() => {
     if (producto) {
@@ -300,17 +310,17 @@ export default function EditarProductoPage() {
 
             {/* Información adicional */}
             <Card
-              bg={useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')}
+              bg={infoCardBg}
               border="1px solid"
-              borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}
+              borderColor={infoCardBorder}
             >
               <CardBody>
                 <VStack spacing={2} align="start">
-                  <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.700', 'gray.200')}>
+                  <Text fontWeight="semibold" fontSize="sm" color={infoTextColor}>
                     Información adicional:
                   </Text>
-                  <Text fontSize="xs" color={useColorModeValue('gray.600', 'gray.300')}>
-                    Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} | 
+                  <Text fontSize="xs" color={infoSubTextColor}>
+                    Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} |
                     Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
                   </Text>
                 </VStack>

@@ -150,6 +150,8 @@ export default function ImageUpload({
             borderWidth="1px"
             borderColor={borderColor}
             bg={previewBg}
+            cursor={isUploading ? 'not-allowed' : 'pointer'}
+            onClick={triggerFile}
           >
             <Image
               src={preview}
@@ -165,7 +167,7 @@ export default function ImageUpload({
             {preview}
           </Text>
           <HStack>
-            <Button size="sm" variant="outline" onClick={triggerFile} isDisabled={isUploading}>
+            <Button as="label" htmlFor="file-input" size="sm" variant="outline" isDisabled={isUploading}>
               Reemplazar
             </Button>
             <Button
@@ -216,15 +218,17 @@ export default function ImageUpload({
               Formatos: JPG, PNG, WEBP, GIF. Tamaño máx: {maxSizeMB}MB
             </Text>
           </VStack>
-          <Input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={onInputChange}
-            display="none"
-          />
         </Box>
       )}
+
+      <Input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={onInputChange}
+        display="none"
+        id="file-input"
+      />
 
       {/* Progress */}
       {isUploading && (

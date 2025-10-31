@@ -59,6 +59,7 @@ export interface Producto {
   created_at: string
   updated_at: string
   canjes_count?: number
+  slug?: string
 }
 
 export interface Canje {
@@ -216,4 +217,3 @@ export interface HistorialPunto {
     user_type?: string
   }
 }
-

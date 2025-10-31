@@ -33,6 +33,7 @@ import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
 import { MdPeople } from 'react-icons/md'
+import { generateSlug } from '../utils/slug'
 
 interface ProductCardProps {
   producto: Producto
@@ -64,8 +65,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
   const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
 
-  // Solo mostrar productos publicados a usuarios normales (después de todos los hooks)
-  if (!isAdmin && producto.estado !== 'publicado') {
+  // Solo mostrar productos publicados a usuarios que no pueden ver borradores
+  const canSeeDrafts = isAdmin || (user && user.rol_id > 2)
+  if (!canSeeDrafts && producto.estado !== 'publicado') {
     return null
   }
 
@@ -240,11 +242,11 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         }}
         role="group"
         cursor="pointer"
-        onClick={() => router.push(`/productos/${producto.id}`)}
+        onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
         onKeyDown={(e: any) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
-            router.push(`/productos/${producto.id}`)
+            router.push(`/productos/${generateSlug(producto.nombre)}`)
           }
         }}
         tabIndex={0}
@@ -373,7 +375,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     bg="transparent"
                     _hover={{ bg: menuHoverBg }}
                     _focus={{ bg: menuHoverBg }}
-                    onClick={() => router.push(`/productos/${producto.id}`)}
+                    onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
                     borderRadius="lg"
                     whiteSpace="nowrap"
                   >

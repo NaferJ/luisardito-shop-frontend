@@ -28,8 +28,8 @@ import { MdPeople } from 'react-icons/md'
 
 export default function ProductoDetallePage() {
   const router = useRouter()
-  const { id } = router.query
-  const { data: producto, isLoading, error } = useProducto(id as string)
+  const { slug } = router.query
+  const { data: producto, isLoading, error } = useProducto(slug as string)
   const { user, isAuthenticated } = useAuth()
   const createCanjeMutation = useCreateCanje()
   const toast = useToast()
@@ -50,6 +50,18 @@ export default function ProductoDetallePage() {
       <Layout>
         <Center mt={10}>
           <Text>Error al cargar el producto</Text>
+        </Center>
+      </Layout>
+    )
+  }
+
+  // Validación: si el producto no está publicado y el usuario no puede ver borradores, mostrar 404
+  const canSeeDrafts = user && user.rol_id > 2 // Roles 3,4,5 pueden ver borradores
+  if (producto.estado !== 'publicado' && !canSeeDrafts) {
+    return (
+      <Layout>
+        <Center mt={10}>
+          <Text>Producto no encontrado</Text>
         </Center>
       </Layout>
     )
@@ -120,8 +132,8 @@ export default function ProductoDetallePage() {
     }
 
     return {
-      text: createCanjeMutation.isPending 
-        ? 'Canjeando...' 
+      text: createCanjeMutation.isPending
+        ? 'Canjeando...'
         : `Canjear por ${producto.precio} puntos`,
       colorScheme: 'teal',
       disabled: createCanjeMutation.isPending,

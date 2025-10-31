@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Layout } from '../../components/Layout'
 import { useProducto } from '../../hooks/useProducto'
@@ -35,6 +35,13 @@ export default function ProductoDetallePage() {
   const toast = useToast()
   const [canjeError, setCanjeError] = useState<string | null>(null)
 
+  // Redirect to 404 if product not found
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 404) {
+      router.push('/404')
+    }
+  }, [error, router])
+
   if (isLoading) {
     return (
       <Layout>
@@ -46,13 +53,19 @@ export default function ProductoDetallePage() {
   }
 
   if (error || !producto) {
-    return (
-      <Layout>
-        <Center mt={10}>
-          <Text>Error al cargar el producto</Text>
-        </Center>
-      </Layout>
-    )
+    // If it's a 404, we already redirected, so this won't show
+    // For other errors, show generic error
+    if ((error as any)?.response?.status !== 404) {
+      return (
+        <Layout>
+          <Center mt={10}>
+            <Text>Error al cargar el producto</Text>
+          </Center>
+        </Layout>
+      )
+    }
+    // For 404, return null since we're redirecting
+    return null
   }
 
   // Validación: si el producto no está publicado y el usuario no puede ver borradores, mostrar 404

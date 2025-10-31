@@ -154,28 +154,42 @@ export function useGrantVipToUser() {
 
 // Hook para migración manual de Botrix
 export function useManualBotrixMigration() {
-  const queryClient = useQueryClient()
+    const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: async ({
-      usuarioId,
-      pointsAmount,
-      kickUsername
-    }: {
-      usuarioId: number
-      pointsAmount: number
-      kickUsername: string
-    }) => {
-      const { data } = await api.post('/api/kick-admin/manual-migration', {
-        usuario_id: usuarioId,
-        points_amount: pointsAmount,
-        kick_username: kickUsername
-      })
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-usuarios'] })
-    }
-  })
+    return useMutation<
+        any,
+        Error,
+        {
+            usuarioId?: number
+            usuario_id?: number
+            pointsAmount?: number
+            points_amount?: number
+            kickUsername?: string
+            kick_username?: string
+        }
+    >({
+        mutationFn: async (params) => {
+            const usuarioId = params.usuarioId ?? params.usuario_id
+            const pointsAmount = params.pointsAmount ?? params.points_amount
+            const kickUsername = params.kickUsername ?? params.kick_username
+
+            if (typeof usuarioId !== 'number' || typeof pointsAmount !== 'number') {
+                throw new Error('Parámetros inválidos para la migración manual de Botrix')
+            }
+
+            const payload: any = {
+                usuario_id: usuarioId,
+                points_amount: pointsAmount
+            }
+            if (kickUsername) payload.kick_username = kickUsername
+
+            const { data } = await api.post('/api/kick-admin/manual-migration', payload)
+            return data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-usuarios'] })
+        }
+    })
 }
+
 

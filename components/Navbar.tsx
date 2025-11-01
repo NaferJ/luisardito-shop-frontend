@@ -14,16 +14,16 @@ export default function Navbar() {
 
   // Definir todos los colores incondicionalmente para evitar cambios en el orden de hooks
   const floatingBg = useColorModeValue(
-    'rgba(255, 255, 255, 0.20)',
-    'rgba(13, 17, 23, 0.20)'
+    'rgba(255, 255, 255, 0.14)',
+    'rgba(13, 17, 23, 0.14)'
   )
   const borderClr = useColorModeValue(
-    'rgba(208, 215, 222, 0.08)',
-    'rgba(66, 74, 83, 0.08)'
+    'rgba(208, 215, 222, 0.02)',
+    'rgba(66, 74, 83, 0.02)'
   )
   const shadow = useColorModeValue(
-    '0 8px 32px rgba(0,0,0,0.086)',
-    '0 8px 32px rgba(0,0,0,0.20)'
+    '0 8px 32px rgba(0,0,0,0.080)',
+    '0 8px 32px rgba(0,0,0,0.14)'
   )
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
   const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')

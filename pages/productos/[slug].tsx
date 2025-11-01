@@ -4,6 +4,8 @@ import { Layout } from '../../components/Layout'
 import { useProducto } from '../../hooks/useProducto'
 import { useAuth } from '../../hooks/useAuth'
 import { useCreateCanje } from '../../hooks/useCanjes'
+import { useProductos } from '../../hooks/useProductos'
+import { ProductCard } from '../../components/ProductCard'
 import {
   Box,
   Container,
@@ -32,6 +34,7 @@ export default function ProductoDetallePage() {
   const { data: producto, isLoading, error } = useProducto(slug as string)
   const { user, isAuthenticated } = useAuth()
   const createCanjeMutation = useCreateCanje()
+  const { data: productos } = useProductos()
   const toast = useToast()
   const [canjeError, setCanjeError] = useState<string | null>(null)
 
@@ -244,6 +247,27 @@ export default function ProductoDetallePage() {
             </VStack>
           </GridItem>
         </Grid>
+
+        {/* Productos similares */}
+        {(() => {
+          const canSeeDrafts = user && user.rol_id > 2
+          const productosSimilares = productos
+            ?.filter(p => p.id !== producto.id && (p.estado === 'publicado' || canSeeDrafts))
+            ?.sort((a, b) => Math.abs(a.precio - producto.precio) - Math.abs(b.precio - producto.precio))
+            ?.slice(0, 4) || []
+          return productosSimilares.length > 0 ? (
+            <Box mt={12}>
+              <Heading size="md" mb={6} textAlign="center">
+                Productos similares
+              </Heading>
+              <Grid templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }} gap={6}>
+                {productosSimilares.map(p => (
+                  <ProductCard key={p.id} producto={p} />
+                ))}
+              </Grid>
+            </Box>
+          ) : null
+        })()}
       </Container>
     </Layout>
   )

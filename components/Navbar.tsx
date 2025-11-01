@@ -12,28 +12,59 @@ export default function Navbar() {
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
+  // Definir todos los colores incondicionalmente para evitar cambios en el orden de hooks
+  const floatingBg = useColorModeValue(
+    'rgba(255, 255, 255, 0.20)',
+    'rgba(13, 17, 23, 0.20)'
+  )
+  const borderClr = useColorModeValue(
+    'rgba(208, 215, 222, 0.08)',
+    'rgba(66, 74, 83, 0.08)'
+  )
+  const shadow = useColorModeValue(
+    '0 8px 32px rgba(0,0,0,0.086)',
+    '0 8px 32px rgba(0,0,0,0.20)'
+  )
+  const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
+  const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
+  const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
+  const activeShadow = useColorModeValue('0 0 25px rgba(59, 130, 246, 0.6)', '0 0 30px rgba(96, 165, 250, 0.7)')
+
+  // Colores para el menú
+  const menuBg = useColorModeValue(
+    'rgba(255, 255, 255, 0.95)',
+    'rgba(13, 17, 23, 0.95)'
+  )
+  const menuShadow = useColorModeValue(
+    '0 20px 40px rgba(0,0,0,0.15)',
+    '0 20px 40px rgba(0,0,0,0.5)'
+  )
+  const menuItemHoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
+  const menuItemColor = useColorModeValue('gray.700', 'gray.100')
+  const menuItemHoverColor = useColorModeValue('gray.900', 'white')
+  const logoutHoverBg = useColorModeValue('rgba(239, 68, 68, 0.1)', 'rgba(248, 113, 113, 0.15)')
+  const logoutHoverColor = useColorModeValue('red.600', 'red.400')
+
+  // Colores para el drawer
+  const drawerBg = useColorModeValue(
+    'rgba(255, 255, 255, 0.95)',
+    'rgba(13, 17, 23, 0.95)'
+  )
+  const drawerShadow = useColorModeValue(
+    '0 20px 40px rgba(0,0,0,0.15)',
+    '0 20px 40px rgba(0,0,0,0.6)'
+  )
+
+  // Fallback background
+  const fallbackBg = useColorModeValue(
+    'rgba(255, 255, 255, 0.85)',
+    'rgba(13, 17, 23, 0.85)'
+  )
 
   const handleLogout = () => {
     logout()
     onClose()
   }
-
-    const floatingBg = useColorModeValue(
-        'rgba(255, 255, 255, 0.20)',
-        'rgba(13, 17, 23, 0.20)'
-    )
-    const borderClr = useColorModeValue(
-        'rgba(208, 215, 222, 0.08)',
-        'rgba(66, 74, 83, 0.08)'
-    )
-    const shadow = useColorModeValue(
-        '0 8px 32px rgba(0,0,0,0.086)',
-        '0 8px 32px rgba(0,0,0,0.20)'
-    )
-  const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
-  const hoverShadow = useColorModeValue('0 0 20px rgba(59, 130, 246, 0.4)', '0 0 25px rgba(96, 165, 250, 0.5)')
-  const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
-  const activeShadow = useColorModeValue('0 0 25px rgba(59, 130, 246, 0.6)', '0 0 30px rgba(96, 165, 250, 0.7)')
 
   // Función para verificar si una ruta está activa
   const isActiveRoute = (path: string) => {
@@ -73,10 +104,7 @@ export default function Navbar() {
           backdropFilter: 'saturate(180%) blur(20px)',
           WebkitBackdropFilter: 'saturate(180%) blur(20px)',
           // Fallback para navegadores que no soportan backdrop-filter
-          background: useColorModeValue(
-            'rgba(255, 255, 255, 0.85)',
-            'rgba(13, 17, 23, 0.85)'
-          )
+          background: fallbackBg
         }}
         border="1px solid"
         borderColor={borderClr}
@@ -336,18 +364,12 @@ export default function Navbar() {
                     borderRadius="xl"
                     border="1px solid"
                     borderColor={borderClr}
-                    boxShadow={useColorModeValue(
-                      '0 20px 40px rgba(0,0,0,0.15)',
-                      '0 20px 40px rgba(0,0,0,0.5)'
-                    )}
+                    boxShadow={menuShadow}
                     maxW="250px"
                     minW="200px"
                     zIndex={1000}
                     p={2}
-                    bg={useColorModeValue(
-                      'rgba(255, 255, 255, 0.95)',
-                      'rgba(13, 17, 23, 0.95)'
-                    )}
+                    bg={menuBg}
                     sx={{
                       backdropFilter: 'saturate(180%) blur(20px)',
                       WebkitBackdropFilter: 'saturate(180%) blur(20px)'
@@ -373,14 +395,14 @@ export default function Navbar() {
                       whiteSpace="nowrap"
                       bg="transparent"
                       _hover={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
                       _focus={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={menuItemColor}
                     >
                       Mi Perfil
                     </MenuItem>
@@ -390,14 +412,14 @@ export default function Navbar() {
                       whiteSpace="nowrap"
                       bg="transparent"
                       _hover={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
                       _focus={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={menuItemColor}
                     >
                       Historial de Puntos
                     </MenuItem>
@@ -407,14 +429,14 @@ export default function Navbar() {
                       whiteSpace="nowrap"
                       bg="transparent"
                       _hover={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
                       _focus={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={menuItemColor}
                     >
                       Mis Canjes
                     </MenuItem>
@@ -424,14 +446,14 @@ export default function Navbar() {
                       whiteSpace="nowrap"
                       bg="transparent"
                       _hover={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
                       _focus={{
-                        bg: useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)'),
-                        color: useColorModeValue('gray.900', 'white')
+                        bg: menuItemHoverBg,
+                        color: menuItemHoverColor
                       }}
-                      color={useColorModeValue('gray.700', 'gray.100')}
+                      color={menuItemColor}
                     >
                       Catálogo
                     </MenuItem>
@@ -443,12 +465,12 @@ export default function Navbar() {
                       bg="transparent"
                       color="red.500"
                       _hover={{
-                        bg: useColorModeValue('rgba(239, 68, 68, 0.1)', 'rgba(248, 113, 113, 0.15)'),
-                        color: useColorModeValue('red.600', 'red.400')
+                        bg: logoutHoverBg,
+                        color: logoutHoverColor
                       }}
                       _focus={{
-                        bg: useColorModeValue('rgba(239, 68, 68, 0.1)', 'rgba(248, 113, 113, 0.15)'),
-                        color: useColorModeValue('red.600', 'red.400')
+                        bg: logoutHoverBg,
+                        color: logoutHoverColor
                       }}
                     >
                       Cerrar Sesión
@@ -526,18 +548,12 @@ export default function Navbar() {
           mt={{ base: 0, sm: 2 }}
           mb={{ base: 0, sm: 2 }}
           maxH={{ base: "100vh", sm: "95vh" }}
-          bg={useColorModeValue(
-            'rgba(255, 255, 255, 0.95)',
-            'rgba(13, 17, 23, 0.95)'
-          )}
+          bg={drawerBg}
           sx={{
             backdropFilter: 'saturate(180%) blur(20px)',
             WebkitBackdropFilter: 'saturate(180%) blur(20px)'
           }}
-          boxShadow={useColorModeValue(
-            '0 20px 40px rgba(0,0,0,0.15)',
-            '0 20px 40px rgba(0,0,0,0.6)'
-          )}
+          boxShadow={drawerShadow}
         >
           <DrawerHeader display="flex" alignItems="center" justifyContent="space-between">
             <ChakraLink as={NextLink} href="/" display="flex" alignItems="center" gap={2} onClick={onClose}>

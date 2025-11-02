@@ -1,6 +1,6 @@
 import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip, Icon } from '@chakra-ui/react'
 import { HamburgerIcon } from '@chakra-ui/icons'
-import { MdShoppingCart, MdSwapHoriz, MdGroup, MdFlashOn, MdPerson, MdHistory, MdShoppingBag } from 'react-icons/md'
+import { MdShoppingCart, MdGroup, MdPerson, MdHistory, MdShoppingBag, MdSend, MdRedeem, MdInventory } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -60,6 +60,15 @@ export default function Navbar() {
     'rgba(255, 255, 255, 0.85)',
     'rgba(13, 17, 23, 0.85)'
   )
+
+  // Colores para el botón de sugerencia
+  const suggestionBtnBg = useColorModeValue('white', 'black')
+  const suggestionBtnColor = useColorModeValue('gray.800', 'white')
+  const suggestionBtnHoverBg = useColorModeValue('gray.100', 'gray.800')
+  const suggestionBtnBorder = useColorModeValue('gray.200', 'gray.700')
+
+  // Filtro para el logo de Kick (blanco en modo oscuro, normal en modo claro)
+  const kickLogoFilter = useColorModeValue('none', 'brightness(0) invert(1)')
 
   const handleLogout = () => {
     logout()
@@ -202,7 +211,7 @@ export default function Navbar() {
                 <ChakraLink as={NextLink} href="/canjes">
                   <IconButton
                     aria-label="Mis Canjes"
-                    icon={<Icon as={MdSwapHoriz} boxSize={5} />}
+                    icon={<Icon as={MdRedeem} boxSize={5} />}
                     variant="ghost"
                     size="sm"
                     borderRadius="xl"
@@ -249,7 +258,7 @@ export default function Navbar() {
                     <ChakraLink as={NextLink} href="/admin/canjes">
                       <IconButton
                         aria-label="Canjes Admin"
-                        icon={<Icon as={MdSwapHoriz} boxSize={5} />}
+                        icon={<Icon as={MdInventory} boxSize={5} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
@@ -271,7 +280,7 @@ export default function Navbar() {
                     <ChakraLink as={NextLink} href="/admin/kick">
                       <IconButton
                         aria-label="Configuración Kick"
-                        icon={<Icon as={MdFlashOn} boxSize={5} />}
+                        icon={<Image src="/images/logokick.png" alt="Kick" boxSize={5} filter={kickLogoFilter} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
@@ -300,6 +309,32 @@ export default function Navbar() {
             align="center"
             minW="fit-content"
           >
+            {/* Botón de Sugerencia - Solo en tablet y desktop */}
+            <Button
+              leftIcon={<Icon as={MdSend} />}
+              size="sm"
+              bg={suggestionBtnBg}
+              color={suggestionBtnColor}
+              border="1px solid"
+              borderColor={suggestionBtnBorder}
+              borderRadius="xl"
+              display={{ base: 'none', md: 'inline-flex' }}
+              _hover={{
+                bg: suggestionBtnHoverBg,
+                transform: 'translateY(-2px)',
+                boxShadow: 'md',
+                transition: 'all 0.2s ease-in-out'
+              }}
+              _active={{
+                transform: 'translateY(0)',
+                boxShadow: 'sm'
+              }}
+              transition="all 0.2s ease-in-out"
+              onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank')}
+            >
+              Sugerencia
+            </Button>
+
             {/* Toggle de modo - Solo en tablet y desktop */}
             <Box display={{ base: 'none', md: 'block' }} flexShrink={0}>
               <ColorModeToggle />
@@ -628,7 +663,7 @@ export default function Navbar() {
                         variant="ghost"
                         width="full"
                         justifyContent="flex-start"
-                        leftIcon={<Icon as={MdSwapHoriz} />}
+                        leftIcon={<Icon as={MdRedeem} />}
                         borderRadius="xl"
                         bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
                         boxShadow={isActiveRoute('/canjes') ? 'md' : 'none'}
@@ -669,7 +704,7 @@ export default function Navbar() {
                             variant="ghost"
                             width="full"
                             justifyContent="flex-start"
-                            leftIcon={<Icon as={MdSwapHoriz} />}
+                            leftIcon={<Icon as={MdInventory} />}
                             borderRadius="xl"
                             bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
                             boxShadow={isActiveRoute('/admin/canjes') ? 'md' : 'none'}
@@ -688,7 +723,7 @@ export default function Navbar() {
                             variant="ghost"
                             width="full"
                             justifyContent="flex-start"
-                            leftIcon={<Icon as={MdFlashOn} />}
+                            leftIcon={<Image src="/images/logokick.png" alt="Kick" boxSize={5} filter={kickLogoFilter} />}
                             borderRadius="xl"
                             bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
                             boxShadow={isActiveRoute('/admin/kick') ? 'md' : 'none'}
@@ -767,6 +802,31 @@ export default function Navbar() {
 
                     <Divider my={2} />
 
+                    <Button
+                      leftIcon={<Icon as={MdSend} />}
+                      bg={suggestionBtnBg}
+                      color={suggestionBtnColor}
+                      border="1px solid"
+                      borderColor={suggestionBtnBorder}
+                      borderRadius="xl"
+                      width="full"
+                      justifyContent="center"
+                      _hover={{
+                        bg: suggestionBtnHoverBg,
+                        transform: 'translateX(4px)',
+                        transition: 'all 0.2s'
+                      }}
+                      transition="all 0.2s"
+                      onClick={() => {
+                        window.open('https://form.typeform.com/to/In8zTBm6', '_blank')
+                        onClose()
+                      }}
+                    >
+                      Enviar Sugerencia
+                    </Button>
+
+                    <Divider my={2} />
+
                     <Button colorScheme="red" onClick={handleLogout} borderRadius="xl">Cerrar Sesión</Button>
 
                     <Divider my={2} />
@@ -781,6 +841,31 @@ export default function Navbar() {
                   <ChakraLink as={NextLink} href="/login" onClick={onClose}>
                     <Button variant="outline" width="full" borderRadius="xl">Iniciar Sesión</Button>
                   </ChakraLink>
+
+                  <Divider my={2} />
+
+                  <Button
+                    leftIcon={<Icon as={MdSend} />}
+                    bg={suggestionBtnBg}
+                    color={suggestionBtnColor}
+                    border="1px solid"
+                    borderColor={suggestionBtnBorder}
+                    borderRadius="xl"
+                    width="full"
+                    justifyContent="center"
+                    _hover={{
+                      bg: suggestionBtnHoverBg,
+                      transform: 'translateX(4px)',
+                      transition: 'all 0.2s'
+                    }}
+                    transition="all 0.2s"
+                    onClick={() => {
+                      window.open('https://form.typeform.com/to/In8zTBm6', '_blank')
+                      onClose()
+                    }}
+                  >
+                    Enviar Sugerencia
+                  </Button>
 
                   <Divider my={2} />
 

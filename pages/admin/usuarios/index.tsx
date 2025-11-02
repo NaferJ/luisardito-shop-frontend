@@ -556,13 +556,13 @@ export default function AdminUsuariosPage() {
                       <Th>Usuario</Th>
                       <Th
                         cursor="pointer"
-                        onClick={() => handleSort('email')}
+                        onClick={() => handleSort('creado')}
                         _hover={{ bg: hoverBg }}
                         display={{ base: 'none', md: 'table-cell' }}
                       >
                         <HStack>
-                          <Text>Email</Text>
-                          {sortField === 'email' && (
+                          <Text>Fecha de Registro</Text>
+                          {sortField === 'creado' && (
                             sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
                           )}
                         </HStack>
@@ -609,9 +609,6 @@ export default function AdminUsuariosPage() {
                                 </Text>
                                 <UserBadge user={user} size="sm" />
                               </HStack>
-                              <Text fontSize="xs" color="gray.500" display={{ base: 'block', md: 'none' }}>
-                                {user.email}
-                              </Text>
                               {user.discord_username && (
                                 <Text fontSize="xs" color="purple.500">
                                   Discord: {user.discord_username}
@@ -622,7 +619,11 @@ export default function AdminUsuariosPage() {
                         </Td>
                         <Td display={{ base: 'none', md: 'table-cell' }}>
                           <Text fontSize="sm" color="gray.500">
-                            {user.email}
+                            {user.creado ? new Date(user.creado).toLocaleDateString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            }) : 'N/A'}
                           </Text>
                         </Td>
                         <Td>

@@ -32,7 +32,7 @@ import {
   FormLabel,
 } from '@chakra-ui/react'
 import { DownloadIcon, EditIcon } from '@chakra-ui/icons'
-import { MdShoppingCart, MdSwapHoriz, MdShoppingBag, MdHistory, MdPerson } from 'react-icons/md'
+import { MdSwapHoriz, MdShoppingBag, MdHistory, MdWarning } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import api from '../lib/api'
@@ -55,6 +55,8 @@ export default function PerfilPage() {
     'linear(to-br, blue.900, purple.900)'
   )
   const cardBg = useColorModeValue('white', 'gray.800')
+  const discordWarningBg = useColorModeValue('orange.50', 'orange.900')
+  const discordWarningBorder = useColorModeValue('orange.300', 'orange.600')
 
   const handleLogout = () => {
     logout()
@@ -396,10 +398,20 @@ export default function PerfilPage() {
                       justify="space-between"
                       align={{ base: 'start', sm: 'center' }}
                       gap={2}
+                      p={!user.discord_username ? 3 : 0}
+                      bg={!user.discord_username ? discordWarningBg : 'transparent'}
+                      borderRadius="lg"
+                      border={!user.discord_username ? '2px solid' : 'none'}
+                      borderColor={!user.discord_username ? discordWarningBorder : 'transparent'}
                     >
-                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        Discord:
-                      </Text>
+                      <Flex align="center" gap={2}>
+                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
+                          Discord:
+                        </Text>
+                        {!user.discord_username && (
+                          <Icon as={MdWarning} color="orange.500" boxSize={5} />
+                        )}
+                      </Flex>
                       <Flex align="center" gap={2}>
                         {user.discord_username ? (
                           <Badge
@@ -412,14 +424,14 @@ export default function PerfilPage() {
                             {user.discord_username}
                           </Badge>
                         ) : (
-                          <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500">
-                            No configurado
+                          <Text fontSize={{ base: 'sm', md: 'md' }} color="orange.600" fontWeight="medium">
+                            ⚠️ No configurado - Agrégalo ahora
                           </Text>
                         )}
                         <Button
                           size="xs"
                           variant="ghost"
-                          colorScheme="purple"
+                          colorScheme={!user.discord_username ? 'orange' : 'purple'}
                           leftIcon={<EditIcon />}
                           onClick={openDiscordModal}
                         >

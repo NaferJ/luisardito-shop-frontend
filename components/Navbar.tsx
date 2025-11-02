@@ -1,6 +1,6 @@
 import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip, Icon } from '@chakra-ui/react'
 import { HamburgerIcon } from '@chakra-ui/icons'
-import { MdShoppingCart, MdGroup, MdPerson, MdHistory, MdShoppingBag, MdSend, MdRedeem, MdInventory } from 'react-icons/md'
+import { MdShoppingCart, MdGroup, MdPerson, MdHistory, MdShoppingBag, MdSend, MdRedeem, MdInventory, MdWarning } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -69,6 +69,13 @@ export default function Navbar() {
 
   // Filtro para el logo de Kick (blanco en modo oscuro, normal en modo claro)
   const kickLogoFilter = useColorModeValue('none', 'brightness(0) invert(1)')
+
+  // Colores para el banner de advertencia de Discord en móvil
+  const discordAlertBg = useColorModeValue('orange.50', 'orange.900')
+  const discordAlertBgHover = useColorModeValue('orange.100', 'orange.800')
+  const discordAlertBorder = useColorModeValue('orange.300', 'orange.600')
+  const discordAlertTextBold = useColorModeValue('orange.800', 'orange.100')
+  const discordAlertText = useColorModeValue('orange.700', 'orange.200')
 
   const handleLogout = () => {
     logout()
@@ -362,6 +369,42 @@ export default function Navbar() {
                   {user.puntos?.toLocaleString()} pts
                 </Badge>
 
+                {/* Advertencia de Discord no configurado */}
+                {!user.discord_username && (
+                  <Tooltip
+                    label="No has configurado tu Discord. Ve a tu perfil para añadirlo."
+                    placement="bottom"
+                    hasArrow
+                    bg="orange.500"
+                    color="white"
+                    fontSize="sm"
+                    borderRadius="md"
+                    p={3}
+                  >
+                    <Box
+                      cursor="pointer"
+                      onClick={() => router.push('/perfil')}
+                      _hover={{
+                        transform: 'scale(1.1)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <Icon
+                        as={MdWarning}
+                        boxSize={5}
+                        color="orange.500"
+                        animation="pulse 2s infinite"
+                        sx={{
+                          '@keyframes pulse': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.5 }
+                          }
+                        }}
+                      />
+                    </Box>
+                  </Tooltip>
+                )}
+
                 {/* Menú de usuario */}
                 <Menu placement="bottom-end" gutter={8}>
                   <Tooltip label="Perfil de Usuario" placement="bottom">
@@ -439,7 +482,12 @@ export default function Navbar() {
                       }}
                       color={menuItemColor}
                     >
-                      Mi Perfil
+                      <HStack spacing={2} width="100%">
+                        <Text>Mi Perfil</Text>
+                        {!user.discord_username && (
+                          <Icon as={MdWarning} color="orange.500" boxSize={4} />
+                        )}
+                      </HStack>
                     </MenuItem>
                     <MenuItem
                       onClick={() => router.push('/historial')}
@@ -637,6 +685,40 @@ export default function Navbar() {
 
                     <UserBadge user={user as any} size="sm" />
 
+                    {/* Alerta de Discord no configurado */}
+                    {!user.discord_username && (
+                      <Box
+                        p={3}
+                        bg={discordAlertBg}
+                        borderRadius="lg"
+                        border="2px solid"
+                        borderColor={discordAlertBorder}
+                        cursor="pointer"
+                        onClick={() => {
+                          router.push('/perfil')
+                          onClose()
+                        }}
+                        _hover={{
+                          bg: discordAlertBgHover,
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s"
+                        }}
+                        transition="all 0.2s"
+                      >
+                        <HStack spacing={2}>
+                          <Icon as={MdWarning} color="orange.500" boxSize={5} />
+                          <VStack align="start" spacing={0} flex={1}>
+                            <Text fontSize="xs" fontWeight="bold" color={discordAlertTextBold}>
+                              ⚠️ Discord no configurado
+                            </Text>
+                            <Text fontSize="xs" color={discordAlertText}>
+                              Toca aquí para agregarlo en tu perfil
+                            </Text>
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    )}
+
                     <Divider my={2} />
 
                     <ChakraLink as={NextLink} href="/" onClick={onClose}>
@@ -758,7 +840,12 @@ export default function Navbar() {
                         }}
                         transition="all 0.2s"
                       >
-                        Mi Perfil
+                        <HStack spacing={2} width="100%" justify="space-between">
+                          <Text>Mi Perfil</Text>
+                          {!user.discord_username && (
+                            <Icon as={MdWarning} color="orange.500" boxSize={5} />
+                          )}
+                        </HStack>
                       </Button>
                     </ChakraLink>
                     <ChakraLink as={NextLink} href="/historial" onClick={onClose}>

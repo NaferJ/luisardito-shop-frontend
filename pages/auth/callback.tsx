@@ -31,19 +31,41 @@ export default function AuthCallbackPage() {
       try {
         // Caso 1: El backend ya procesó todo y envió los datos codificados
         if (encodedData) {
+          console.log('🔍 [Auth Callback] Datos codificados recibidos')
+
           const decodedData = JSON.parse(atob(String(encodedData)))
+          console.log('🔍 [Auth Callback] Datos decodificados:', {
+            hasAccessToken: !!decodedData.accessToken,
+            hasToken: !!decodedData.token,
+            hasRefreshToken: !!decodedData.refreshToken,
+            usuario: decodedData.usuario?.nickname
+          })
 
           // Guardar tokens en cookies cross-domain
           if (decodedData.accessToken || decodedData.token) {
             const accessToken = decodedData.accessToken || decodedData.token
+
+            console.log('🍪 [Auth Callback] Guardando tokens en cookies...')
+            console.log('🍪 [Auth Callback] Dominio actual:', window.location.hostname)
+            console.log('🍪 [Auth Callback] Protocolo:', window.location.protocol)
+
             setAuthCookie(accessToken)
 
             if (decodedData.refreshToken) {
               setRefreshCookie(decodedData.refreshToken)
             }
 
-            // Forzar recarga para que el AuthProvider detecte el token
-            window.location.href = '/'
+            // Verificar que se guardaron correctamente
+            setTimeout(() => {
+              console.log('🍪 [Auth Callback] Cookies después de guardar:', document.cookie)
+              console.log('🍪 [Auth Callback] auth_token encontrado:', document.cookie.includes('auth_token'))
+              console.log('🍪 [Auth Callback] refresh_token encontrado:', document.cookie.includes('refresh_token'))
+
+              // Forzar recarga para que el AuthProvider detecte el token
+              window.location.href = '/'
+            }, 100)
+
+            return
           } else {
             setError('No se recibió token del servidor')
           }

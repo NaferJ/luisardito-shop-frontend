@@ -31,6 +31,7 @@ export class CookieManager {
 
     const domain = this.getDomain()
     const isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+    const isHttps = window.location.protocol === 'https:'
 
     let cookieString = `${name}=${encodeURIComponent(value)}`
 
@@ -50,15 +51,30 @@ export class CookieManager {
     // Siempre agregar Path
     cookieString += `; Path=/`
 
-    // Configuración de SameSite
+    // Configuración de SameSite y Secure
     if (isLocalhost) {
-      cookieString += `; SameSite=lax`
-    } else if (domain.startsWith('.')) {
-      cookieString += `; SameSite=lax`
-      // En producción, usar HTTPS
-      if (window.location.protocol === 'https:') {
-        cookieString += `; Secure`
+      cookieString += `; SameSite=Lax`
+    } else {
+      // En producción cross-domain HTTPS, usar SameSite=None con Secure
+      if (isHttps && domain && domain.startsWith('.')) {
+        cookieString += `; SameSite=None; Secure`
+      } else if (isHttps) {
+        // HTTPS pero mismo dominio
+        cookieString += `; SameSite=Lax; Secure`
+      } else {
+        // HTTP (no debería pasar en producción)
+        cookieString += `; SameSite=Lax`
       }
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🍪 Configurando cookie:', {
+        name,
+        domain,
+        isLocalhost,
+        isHttps,
+        cookieString: cookieString.substring(0, 100) + '...'
+      })
     }
 
     document.cookie = cookieString

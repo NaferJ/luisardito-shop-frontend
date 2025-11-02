@@ -30,9 +30,10 @@ import {
   ModalFooter,
   FormControl,
   FormLabel,
+  Image,
 } from '@chakra-ui/react'
 import { DownloadIcon, EditIcon } from '@chakra-ui/icons'
-import { MdSwapHoriz, MdShoppingBag, MdHistory, MdWarning } from 'react-icons/md'
+import { MdSwapHoriz, MdShoppingBag, MdHistory } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import api from '../lib/api'
@@ -405,12 +406,10 @@ export default function PerfilPage() {
                       borderColor={!user.discord_username ? discordWarningBorder : 'transparent'}
                     >
                       <Flex align="center" gap={2}>
+                        <Image src="/images/discordlogo.png" alt="Discord" boxSize={5} />
                         <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
                           Discord:
                         </Text>
-                        {!user.discord_username && (
-                          <Icon as={MdWarning} color="orange.500" boxSize={5} />
-                        )}
                       </Flex>
                       <Flex align="center" gap={2}>
                         {user.discord_username ? (
@@ -425,7 +424,7 @@ export default function PerfilPage() {
                           </Badge>
                         ) : (
                           <Text fontSize={{ base: 'sm', md: 'md' }} color="orange.600" fontWeight="medium">
-                            ⚠️ No configurado - Agrégalo ahora
+                            No configurado - Agrégalo ahora
                           </Text>
                         )}
                         <Button

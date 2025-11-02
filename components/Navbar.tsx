@@ -1,6 +1,6 @@
 import { Flex, Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, Badge, Divider, useColorModeValue, Skeleton, SkeletonCircle, Link as ChakraLink, Image, IconButton, VStack, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure, CloseButton, Tooltip, Icon } from '@chakra-ui/react'
 import { HamburgerIcon } from '@chakra-ui/icons'
-import { MdShoppingCart, MdGroup, MdPerson, MdHistory, MdShoppingBag, MdSend, MdRedeem, MdInventory, MdWarning } from 'react-icons/md'
+import { MdShoppingCart, MdGroup, MdPerson, MdHistory, MdShoppingBag, MdSend, MdRedeem, MdInventory } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
@@ -388,11 +388,12 @@ export default function Navbar() {
                         transform: 'scale(1.1)',
                         transition: 'all 0.2s'
                       }}
+                      position="relative"
                     >
-                      <Icon
-                        as={MdWarning}
+                      <Image
+                        src="/images/discordlogo.png"
+                        alt="Discord"
                         boxSize={5}
-                        color="orange.500"
                         animation="pulse 2s infinite"
                         sx={{
                           '@keyframes pulse': {
@@ -400,6 +401,14 @@ export default function Navbar() {
                             '50%': { opacity: 0.5 }
                           }
                         }}
+                      />
+                      <Box
+                        position="absolute"
+                        top="-2px"
+                        right="-2px"
+                        bg="orange.500"
+                        borderRadius="full"
+                        boxSize="10px"
                       />
                     </Box>
                   </Tooltip>
@@ -485,7 +494,7 @@ export default function Navbar() {
                       <HStack spacing={2} width="100%">
                         <Text>Mi Perfil</Text>
                         {!user.discord_username && (
-                          <Icon as={MdWarning} color="orange.500" boxSize={4} />
+                          <Image src="/images/discordlogo.png" alt="Discord" boxSize={4} />
                         )}
                       </HStack>
                     </MenuItem>
@@ -706,10 +715,10 @@ export default function Navbar() {
                         transition="all 0.2s"
                       >
                         <HStack spacing={2}>
-                          <Icon as={MdWarning} color="orange.500" boxSize={5} />
+                          <Image src="/images/discordlogo.png" alt="Discord" boxSize={5} />
                           <VStack align="start" spacing={0} flex={1}>
                             <Text fontSize="xs" fontWeight="bold" color={discordAlertTextBold}>
-                              ⚠️ Discord no configurado
+                              Discord no configurado
                             </Text>
                             <Text fontSize="xs" color={discordAlertText}>
                               Toca aquí para agregarlo en tu perfil
@@ -843,7 +852,7 @@ export default function Navbar() {
                         <HStack spacing={2} width="100%" justify="space-between">
                           <Text>Mi Perfil</Text>
                           {!user.discord_username && (
-                            <Icon as={MdWarning} color="orange.500" boxSize={5} />
+                            <Image src="/images/discordlogo.png" alt="Discord" boxSize={5} />
                           )}
                         </HStack>
                       </Button>

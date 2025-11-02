@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import { Layout } from '../../components/Layout'
 import { useProducto } from '../../hooks/useProducto'
 import { useAuth } from '../../hooks/useAuth'
@@ -161,6 +162,15 @@ export default function ProductoDetallePage() {
 
   return (
     <Layout>
+      <Head>
+        <title>{producto.nombre} - Luisardito Shop</title>
+        <meta name="description" content={`${producto.descripcion} - Canjea por ${producto.precio} puntos en Luisardito Shop`}/>
+        <meta property="og:title" content={`${producto.nombre} - Luisardito Shop`}/>
+        <meta property="og:description" content={producto.descripcion}/>
+        {(producto.imagen_url || producto.imagen) && (
+          <meta property="og:image" content={producto.imagen_url || producto.imagen}/>
+        )}
+      </Head>
       <Container maxW="container.lg" py={8}>
         {canjeError && (
           <Alert status="error" mb={6}>

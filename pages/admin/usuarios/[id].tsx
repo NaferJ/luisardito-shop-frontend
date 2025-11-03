@@ -57,7 +57,8 @@ import {
   useDisclosure,
   FormControl,
   FormLabel,
-  Textarea
+  Textarea,
+  Image
 } from '@chakra-ui/react'
 import {
   SettingsIcon,
@@ -547,14 +548,46 @@ export default function AdminUsuarioGestionPage() {
                           transition="all 0.2s"
                         >
                           <Td>
-                            <VStack align="start" spacing={1}>
-                              <Text fontWeight="medium" fontSize="sm">
-                                {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
-                              </Text>
-                              <Text fontSize="xs" color="gray.500">
-                                ID: {canje.producto_id}
-                              </Text>
-                            </VStack>
+                            <HStack spacing={3}>
+                              <Box
+                                boxSize="40px"
+                                borderRadius="lg"
+                                overflow="hidden"
+                                bg="gray.100"
+                                _dark={{ bg: 'gray.700' }}
+                                flexShrink={0}
+                              >
+                                {canje?.Producto?.imagen_url ? (
+                                  <Image
+                                    src={canje?.Producto?.imagen_url}
+                                    alt={canje?.Producto?.nombre}
+                                    w="full"
+                                    h="full"
+                                    objectFit="cover"
+                                  />
+                                ) : (
+                                  <Center w="full" h="full">
+                                    <Text fontSize="xs" color="gray.500">📦</Text>
+                                  </Center>
+                                )}
+                              </Box>
+                              <VStack align="start" spacing={0}>
+                                <Text
+                                  fontWeight="medium"
+                                  fontSize="sm"
+                                >
+                                  {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
+                                </Text>
+                                <Text
+                                  fontSize="xs"
+                                  color="gray.500"
+                                  maxW="200px"
+                                  isTruncated
+                                >
+                                  {canje?.Producto?.descripcion}
+                                </Text>
+                              </VStack>
+                            </HStack>
                           </Td>
                           <Td>
                             <Badge

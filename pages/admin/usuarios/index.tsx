@@ -629,7 +629,7 @@ export default function AdminUsuariosPage() {
                                 VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
                               </Badge>
                             )}
-                            {user.migration_status?.points_migrated ? (
+                            {user.migration_status?.points_migrated !== undefined ? (
                               <Badge colorScheme="cyan" fontSize="xs">
                                 🔄 {user.migration_status.points_migrated.toLocaleString()} pts
                               </Badge>

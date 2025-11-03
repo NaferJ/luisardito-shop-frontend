@@ -59,7 +59,8 @@ import {
   FormControl,
   FormLabel,
   Textarea,
-  Button
+  Button,
+  Image
 } from '@chakra-ui/react'
 import {
   SettingsIcon,
@@ -478,18 +479,7 @@ export default function AdminCanjesPage() {
                             )}
                           </HStack>
                         </Th>
-                        <Th
-                          cursor="pointer"
-                          onClick={() => handleSort('producto')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>Producto</Text>
-                            {sortField === 'producto' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
+                        <Th>Producto</Th>
                         <Th>Precio</Th>
                         <Th
                           cursor="pointer"
@@ -548,14 +538,46 @@ export default function AdminCanjesPage() {
                             </HStack>
                           </Td>
                           <Td>
-                            <VStack align="start" spacing={1}>
-                              <Text fontWeight="medium" fontSize="sm">
-                                {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
-                              </Text>
-                              <Text fontSize="xs" color="gray.500">
-                                ID: {canje.producto_id}
-                              </Text>
-                            </VStack>
+                            <HStack spacing={3}>
+                              <Box
+                                boxSize="40px"
+                                borderRadius="lg"
+                                overflow="hidden"
+                                bg="gray.100"
+                                _dark={{ bg: 'gray.700' }}
+                                flexShrink={0}
+                              >
+                                {canje?.Producto?.imagen_url ? (
+                                  <Image
+                                    src={canje?.Producto?.imagen_url}
+                                    alt={canje?.Producto?.nombre}
+                                    w="full"
+                                    h="full"
+                                    objectFit="cover"
+                                  />
+                                ) : (
+                                  <Center w="full" h="full">
+                                    <Text fontSize="xs" color="gray.500">📦</Text>
+                                  </Center>
+                                )}
+                              </Box>
+                              <VStack align="start" spacing={0}>
+                                <Text
+                                  fontWeight="medium"
+                                  fontSize="sm"
+                                >
+                                  {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
+                                </Text>
+                                <Text
+                                  fontSize="xs"
+                                  color="gray.500"
+                                  maxW="200px"
+                                  isTruncated
+                                >
+                                  {canje?.Producto?.descripcion}
+                                </Text>
+                              </VStack>
+                            </HStack>
                           </Td>
                           <Td>
                             <Badge

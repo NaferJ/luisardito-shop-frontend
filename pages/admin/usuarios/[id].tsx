@@ -108,6 +108,7 @@ export default function AdminUsuarioGestionPage() {
       email: firstCanje?.Usuario?.email || firstCanje?.usuario?.email,
       kick_username: firstCanje?.Usuario?.kick_username || firstCanje?.usuario?.kick_username,
       kick_avatar: firstCanje?.Usuario?.kick_avatar || firstCanje?.usuario?.kick_avatar,
+      discord_username: firstCanje?.Usuario?.discord_username || firstCanje?.usuario?.discord_username,
       puntos: firstCanje?.Usuario?.puntos || firstCanje?.usuario?.puntos || 0
     }
   }, [canjes, id])
@@ -321,9 +322,11 @@ export default function AdminUsuarioGestionPage() {
                       <Heading size={{ base: 'md', md: 'lg' }} color="gray.800" _dark={{ color: 'white' }}>
                         {userInfo.kick_username || userInfo.nickname || userInfo.nombre || `Usuario #${userInfo.id}`}
                       </Heading>
-                      <Text color="gray.600" _dark={{ color: 'gray.400' }} fontSize={{ base: 'sm', md: 'md' }}>
-                        {userInfo.email}
-                      </Text>
+                      {userInfo.discord_username && (
+                        <Text color="purple.500" fontSize={{ base: 'sm', md: 'md' }}>
+                          Discord: {userInfo.discord_username}
+                        </Text>
+                      )}
                       {userInfo.kick_username && (
                         <Badge colorScheme="green" fontSize="xs">
                           Kick: {userInfo.kick_username}
@@ -498,18 +501,6 @@ export default function AdminUsuarioGestionPage() {
                       <Tr>
                         <Th
                           cursor="pointer"
-                          onClick={() => handleSort('id')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>ID</Text>
-                            {sortField === 'id' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
-                        <Th
-                          cursor="pointer"
                           onClick={() => handleSort('producto')}
                           _hover={{ bg: hoverBg }}
                         >
@@ -555,9 +546,6 @@ export default function AdminUsuarioGestionPage() {
                           _hover={{ bg: hoverBg }}
                           transition="all 0.2s"
                         >
-                          <Td fontWeight="bold" color="blue.600">
-                            #{canje.id}
-                          </Td>
                           <Td>
                             <VStack align="start" spacing={1}>
                               <Text fontWeight="medium" fontSize="sm">

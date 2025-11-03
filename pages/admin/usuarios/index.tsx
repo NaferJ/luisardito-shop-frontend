@@ -275,9 +275,9 @@ export default function AdminUsuariosPage() {
         case 'vip':
           return user.vip_status?.is_active
         case 'migrated':
-          return user.migration_status?.points_migrated
+          return user.migration_status?.points_migrated !== undefined
         case 'pending_migration':
-          return user.migration_status?.can_migrate && !user.migration_status?.points_migrated
+          return user.migration_status?.can_migrate && (user.migration_status?.points_migrated === undefined)
         case 'subscribers':
           return user.user_type === 'subscriber'
         default:

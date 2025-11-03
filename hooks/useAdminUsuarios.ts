@@ -60,7 +60,7 @@ export function useAdminUsuarios(params?: AdminUsuariosParams) {
   const qs = new URLSearchParams()
 
   qs.set('page', String(page))
-  qs.set('limit', String(limit))
+  if (limit !== undefined) qs.set('limit', String(limit))
   if (filter !== 'all') qs.set('filter', filter)
   if (search) qs.set('search', search)
 

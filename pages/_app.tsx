@@ -6,6 +6,9 @@ import type { AppProps } from "next/app";
 import theme from '../theme/theme'
 import Head from 'next/head'
 
+// Importar utilidades de debugging (se auto-registran globalmente)
+import '../lib/authHealthCheck'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

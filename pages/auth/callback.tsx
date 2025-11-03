@@ -55,15 +55,22 @@ export default function AuthCallbackPage() {
               setRefreshCookie(decodedData.refreshToken)
             }
 
-            // Verificar que se guardaron correctamente
-            setTimeout(() => {
-              console.log('🍪 [Auth Callback] Cookies después de guardar:', document.cookie)
-              console.log('🍪 [Auth Callback] auth_token encontrado:', document.cookie.includes('auth_token'))
-              console.log('🍪 [Auth Callback] refresh_token encontrado:', document.cookie.includes('refresh_token'))
+            // FIX: Esperar un poco más para asegurar que las cookies se escriban
+            // Y verificar que realmente se guardaron antes de redirigir
+            await new Promise(resolve => setTimeout(resolve, 300))
 
-              // Forzar recarga para que el AuthProvider detecte el token
-              window.location.href = '/'
-            }, 100)
+            const cookiesVerified = document.cookie.includes('auth_token')
+            console.log('🍪 [Auth Callback] Cookies verificadas:', cookiesVerified)
+            console.log('🍪 [Auth Callback] Cookies después de guardar:', document.cookie)
+
+            if (cookiesVerified) {
+              // Usar router.replace para navegación más controlada
+              // Esto previene race conditions con el AuthProvider
+              router.replace('/')
+            } else {
+              // Fallback: Si las cookies no se guardaron, mostrar error
+              setError('Error al guardar cookies de autenticación. Por favor intenta de nuevo.')
+            }
 
             return
           } else {
@@ -90,8 +97,18 @@ export default function AuthCallbackPage() {
               setRefreshCookie(data.refreshToken)
             }
 
-            // Forzar recarga para que el AuthProvider detecte el token
-            window.location.href = '/'
+            // FIX: Esperar y verificar que las cookies se guardaron
+            await new Promise(resolve => setTimeout(resolve, 300))
+
+            const cookiesVerified = document.cookie.includes('auth_token')
+            console.log('🍪 [Auth Callback] Cookies verificadas (flujo code/state):', cookiesVerified)
+
+            if (cookiesVerified) {
+              // Usar router.replace para navegación más controlada
+              router.replace('/')
+            } else {
+              setError('Error al guardar cookies de autenticación. Por favor intenta de nuevo.')
+            }
           } else {
             setError('No se recibió token del servidor')
           }

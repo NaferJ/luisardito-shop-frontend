@@ -51,28 +51,27 @@ export class CookieManager {
     // Siempre agregar Path
     cookieString += `; Path=/`
 
-    // Configuración de SameSite y Secure
+    // MEJORADO: Configuración consistente de SameSite para OAuth
     if (isLocalhost) {
+      // En localhost, usar Lax (más compatible con desarrollo)
       cookieString += `; SameSite=Lax`
+    } else if (isHttps) {
+      // En producción HTTPS, SIEMPRE usar None + Secure para OAuth cross-domain
+      // Esto asegura que las cookies se envíen en redirects de OAuth
+      cookieString += `; SameSite=None; Secure`
     } else {
-      // En producción cross-domain HTTPS, usar SameSite=None con Secure
-      if (isHttps && domain && domain.startsWith('.')) {
-        cookieString += `; SameSite=None; Secure`
-      } else if (isHttps) {
-        // HTTPS pero mismo dominio
-        cookieString += `; SameSite=Lax; Secure`
-      } else {
-        // HTTP (no debería pasar en producción)
-        cookieString += `; SameSite=Lax`
-      }
+      // HTTP en producción (no debería pasar, pero fallback seguro)
+      cookieString += `; SameSite=Lax`
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('🍪 Configurando cookie:', {
+      console.log('🍪 [CookieManager] Configurando cookie:', {
         name,
         domain,
         isLocalhost,
         isHttps,
+        sameSite: isLocalhost ? 'Lax' : (isHttps ? 'None' : 'Lax'),
+        secure: isHttps,
         cookieString: cookieString.substring(0, 100) + '...'
       })
     }
@@ -112,29 +111,75 @@ export class CookieManager {
     }
   }
 
-  // Migrar de localStorage a cookies
+  // Validar formato básico de JWT
+  private static isValidJWT(token: string): boolean {
+    try {
+      const parts = token.split('.')
+      if (parts.length !== 3) return false
+
+      // Verificar que el payload sea JSON válido
+      const payload = JSON.parse(atob(parts[1]))
+
+      // Verificar que tenga campos básicos de JWT
+      return payload.exp !== undefined
+    } catch {
+      return false
+    }
+  }
+
+  // Migrar de localStorage a cookies con validación
   static migrateFromLocalStorage(): void {
     if (typeof window === 'undefined') return
 
-    // Migrar auth_token
-    const authToken = localStorage.getItem('auth_token')
-    if (authToken) {
-      this.setCookie('auth_token', authToken, {
-        maxAge: 30 * 24 * 60 * 60 // 30 días
-      })
-    }
+    try {
+      const authToken = localStorage.getItem('auth_token')
+      const refreshToken = localStorage.getItem('refresh_token')
 
-    // Migrar refresh_token
-    const refreshToken = localStorage.getItem('refresh_token')
-    if (refreshToken) {
-      this.setCookie('refresh_token', refreshToken, {
-        maxAge: 90 * 24 * 60 * 60 // 90 días
-      })
-    }
+      // Solo migrar si NO existen cookies ya (no sobrescribir cookies válidas)
+      const existingAuthCookie = this.getCookie('auth_token')
+      const existingRefreshCookie = this.getCookie('refresh_token')
 
-    // Limpiar localStorage después de migrar
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('refresh_token')
+      if (authToken && !existingAuthCookie) {
+        // Validar formato del token antes de migrar
+        if (this.isValidJWT(authToken)) {
+          this.setCookie('auth_token', authToken, {
+            maxAge: 30 * 24 * 60 * 60 // 30 días
+          })
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ [CookieManager] Migrado auth_token desde localStorage')
+          }
+        } else if (process.env.NODE_ENV === 'development') {
+          console.warn('⚠️ [CookieManager] auth_token en localStorage no es válido, omitiendo migración')
+        }
+      }
+
+      if (refreshToken && !existingRefreshCookie) {
+        if (this.isValidJWT(refreshToken)) {
+          this.setCookie('refresh_token', refreshToken, {
+            maxAge: 90 * 24 * 60 * 60 // 90 días
+          })
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ [CookieManager] Migrado refresh_token desde localStorage')
+          }
+        } else if (process.env.NODE_ENV === 'development') {
+          console.warn('⚠️ [CookieManager] refresh_token en localStorage no es válido, omitiendo migración')
+        }
+      }
+
+      // Limpiar localStorage solo después de verificar migración exitosa
+      if (this.getCookie('auth_token')) {
+        localStorage.removeItem('auth_token')
+      }
+      if (this.getCookie('refresh_token')) {
+        localStorage.removeItem('refresh_token')
+      }
+
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [CookieManager] Error en migración de localStorage:', error)
+      }
+      // No propagar el error, no es crítico
+    }
   }
 }
 

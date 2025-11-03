@@ -84,11 +84,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedToken) {
         setToken(savedToken)
         try {
+          // Solo validar que el token funcione obteniendo el usuario
           await fetchUser()
-          // Intentar refrescar el token al inicializar
-          await refreshTokenIfNeeded()
+
+          // FIX: NO hacer refresh proactivo aquí
+          // Si el token es nuevo (del callback de OAuth), puede no estar listo en el backend
+          // El interceptor se encargará de refrescar cuando expire naturalmente
+
         } catch (error) {
-          logout()
+          // FIX: Si falla fetchUser, intentar recuperar antes de hacer logout
+          // El token podría estar válido pero el backend temporalmente no responde
+          const refreshToken = getRefreshCookie()
+
+          if (refreshToken) {
+            try {
+              if (process.env.NODE_ENV === 'development') {
+                console.log('🔄 [Auth] fetchUser falló, intentando recuperar con refresh token...')
+              }
+
+              const { data } = await api.post('/api/auth/refresh', { refreshToken })
+              const accessToken = data.accessToken || data.token
+
+              if (accessToken) {
+                setAuthCookie(accessToken)
+                setToken(accessToken)
+
+                if (data.refreshToken) {
+                  setRefreshCookie(data.refreshToken)
+                }
+
+                // Reintentar fetchUser
+                try {
+                  await fetchUser()
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('✅ [Auth] Recuperación exitosa')
+                  }
+                } catch (retryError) {
+                  // Si aún falla después del refresh, entonces sí hacer logout
+                  if (process.env.NODE_ENV === 'development') {
+                    console.error('❌ [Auth] fetchUser falló después de refresh, haciendo logout')
+                  }
+                  logout()
+                }
+              }
+            } catch (refreshError) {
+              // El refresh falló, hacer logout
+              if (process.env.NODE_ENV === 'development') {
+                console.error('❌ [Auth] Refresh falló en initAuth, haciendo logout')
+              }
+              logout()
+            }
+          } else {
+            // No hay refresh token, logout directo
+            logout()
+          }
         }
       }
 
@@ -105,6 +154,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateUserKickInfo()
     }
   }, [user?.kick_username, user?.kick_avatar])
+
+  // FIX: Detectar cambios en cookies (para cuando callback.tsx setea cookies)
+  // Esto previene race conditions eliminando la necesidad de window.location.href
+  useEffect(() => {
+    const checkCookieChange = setInterval(() => {
+      const currentToken = getAuthCookie()
+
+      // Si hay un token nuevo diferente al actual, actualizar
+      if (currentToken && currentToken !== token) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 [Auth] Nuevo token detectado en cookies, actualizando...')
+        }
+        setToken(currentToken)
+
+        // Intentar cargar el usuario con el nuevo token
+        fetchUser().catch(() => {
+          // Si falla, dejar que el interceptor maneje
+          if (process.env.NODE_ENV === 'development') {
+            console.log('⚠️ [Auth] fetchUser falló con nuevo token, el interceptor lo manejará')
+          }
+        })
+      }
+    }, 500) // Check cada 500ms
+
+    return () => clearInterval(checkCookieChange)
+  }, [token])
 
   // Configurar refresh automático cada 30 minutos
   useEffect(() => {
@@ -178,7 +253,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(user)
 
-      return { success: true }
 
     } catch (error: any) {
       console.error('Error en login:', error.response?.data || error.message)

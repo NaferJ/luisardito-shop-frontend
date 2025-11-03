@@ -465,21 +465,9 @@ export default function AdminProductosPage() {
                         ) : (
                             <Card bg={cardBg} shadow="md" borderRadius="xl" overflow="hidden">
                                 <TableContainer overflowX="auto">
-                                    <Table variant="simple" tableLayout="auto">
+                                    <Table variant="simple">
                                         <Thead bg={headerBg}>
                                             <Tr>
-                                                <Th
-                                                    cursor="pointer"
-                                                    onClick={() => handleSort('id')}
-                                                    _hover={{ bg: hoverBg }}
-                                                >
-                                                    <HStack>
-                                                        <Text>ID</Text>
-                                                        {sortField === 'id' && (
-                                                            sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                                                        )}
-                                                    </HStack>
-                                                </Th>
                                                 <Th>Producto</Th>
                                                 <Th
                                                     cursor="pointer"
@@ -544,9 +532,6 @@ export default function AdminProductosPage() {
                                                         transition="all 0.2s"
                                                         opacity={isEliminado ? 0.6 : isBorrador ? 0.8 : 1}
                                                     >
-                                                        <Td fontWeight="bold" color="blue.600">
-                                                            #{producto.id}
-                                                        </Td>
                                                         <Td>
                                                             <HStack spacing={3}>
                                                                 <Box
@@ -561,9 +546,9 @@ export default function AdminProductosPage() {
                                                                         <Image
                                                                             src={producto.imagen_url}
                                                                             alt={producto.nombre}
-                                                                            w="full"
-                                                                            h="full"
-                                                                            objectFit="cover"
+                                                                            width="100%"
+                                                                            height="100%"
+                                                                            style={{ objectFit: 'cover' }}
                                                                         />
                                                                     ) : (
                                                                         <Center w="full" h="full">

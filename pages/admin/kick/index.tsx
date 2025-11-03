@@ -244,7 +244,7 @@ export default function KickAdminPage() {
   const vipEnabled = config?.vip?.points_enabled ?? false
 
   // Calcular estadísticas REALES desde los datos de usuarios (en tiempo real)
-  const migratedUsers = usuariosData?.users?.filter(user => user.migration_status?.points_migrated).length ?? 0
+  const migratedUsers = usuariosData?.users?.filter(user => user.migration_status?.points_migrated !== undefined).length ?? 0
   const totalPointsMigrated = usuariosData?.users?.reduce((sum, user) =>
     sum + (user.migration_status?.points_migrated || 0), 0
   ) ?? 0

@@ -448,7 +448,7 @@ export default function AdminCanjesPage() {
                 <CardBody>
                   <Center py={20}>
                     <VStack spacing={6}>
-                      <Box fontSize="6xl">🔄</Box>
+                      <Box fontSize="6xl">🛒</Box>
                       <VStack spacing={2}>
                         <Text fontSize="lg" fontWeight="bold" color="gray.600">
                           No hay canjes registrados

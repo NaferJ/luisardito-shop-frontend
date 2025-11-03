@@ -331,7 +331,7 @@ export default function AdminUsuariosPage() {
     const avgPoints = Math.round(totalPoints / totalUsers)
     const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
     const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
-    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.migration_status?.points_migrated).length
+    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.migration_status?.points_migrated !== undefined).length
 
     return {
       totalUsers,

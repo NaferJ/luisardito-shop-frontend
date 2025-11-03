@@ -468,18 +468,6 @@ export default function AdminCanjesPage() {
                       <Tr>
                         <Th
                           cursor="pointer"
-                          onClick={() => handleSort('id')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>ID</Text>
-                            {sortField === 'id' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
-                        <Th
-                          cursor="pointer"
                           onClick={() => handleSort('usuario')}
                           _hover={{ bg: hoverBg }}
                         >
@@ -537,9 +525,6 @@ export default function AdminCanjesPage() {
                           _hover={{ bg: hoverBg }}
                           transition="all 0.2s"
                         >
-                          <Td fontWeight="bold" color="blue.600">
-                            #{canje.id}
-                          </Td>
                           <Td>
                           <HStack spacing={3}>
                               <UserAvatarWithBadge user={(canje?.Usuario || canje?.usuario) as any}>
@@ -554,9 +539,6 @@ export default function AdminCanjesPage() {
                                   {canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname || `Usuario #${canje.usuario_id}`}
                                 </Text>
                                 <UserBadge user={(canje?.Usuario || canje?.usuario) as any} size="sm" />
-                                <Text fontSize="xs" color="gray.500">
-                                  {canje?.Usuario?.email || canje?.usuario?.email}
-                                </Text>
                                 {(canje?.Usuario?.discord_username || canje?.usuario?.discord_username) && (
                                   <Text fontSize="xs" color="purple.500">
                                     Discord: {canje?.Usuario?.discord_username || canje?.usuario?.discord_username}

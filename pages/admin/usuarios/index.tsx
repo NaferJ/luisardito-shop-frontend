@@ -541,18 +541,6 @@ export default function AdminUsuariosPage() {
                 <Table variant="simple">
                   <Thead bg={headerBg}>
                     <Tr>
-                      <Th
-                        cursor="pointer"
-                        onClick={() => handleSort('id')}
-                        _hover={{ bg: hoverBg }}
-                      >
-                        <HStack>
-                          <Text>ID</Text>
-                          {sortField === 'id' && (
-                            sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                          )}
-                        </HStack>
-                      </Th>
                       <Th>Usuario</Th>
                       <Th
                         cursor="pointer"
@@ -591,9 +579,6 @@ export default function AdminUsuariosPage() {
                         _hover={{ bg: hoverBg }}
                         transition="all 0.2s"
                       >
-                        <Td fontWeight="bold" color="blue.600">
-                          #{user.id}
-                        </Td>
                         <Td>
                           <HStack spacing={3}>
                             <UserAvatarWithBadge user={user}>

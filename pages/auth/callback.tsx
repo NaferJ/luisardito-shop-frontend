@@ -31,23 +31,11 @@ export default function AuthCallbackPage() {
       try {
         // Caso 1: El backend ya procesó todo y envió los datos codificados
         if (encodedData) {
-          console.log('🔍 [Auth Callback] Datos codificados recibidos')
-
           const decodedData = JSON.parse(atob(String(encodedData)))
-          console.log('🔍 [Auth Callback] Datos decodificados:', {
-            hasAccessToken: !!decodedData.accessToken,
-            hasToken: !!decodedData.token,
-            hasRefreshToken: !!decodedData.refreshToken,
-            usuario: decodedData.usuario?.nickname
-          })
 
           // Guardar tokens en cookies cross-domain
           if (decodedData.accessToken || decodedData.token) {
             const accessToken = decodedData.accessToken || decodedData.token
-
-            console.log('🍪 [Auth Callback] Guardando tokens en cookies...')
-            console.log('🍪 [Auth Callback] Dominio actual:', window.location.hostname)
-            console.log('🍪 [Auth Callback] Protocolo:', window.location.protocol)
 
             setAuthCookie(accessToken)
 
@@ -60,8 +48,6 @@ export default function AuthCallbackPage() {
             await new Promise(resolve => setTimeout(resolve, 300))
 
             const cookiesVerified = document.cookie.includes('auth_token')
-            console.log('🍪 [Auth Callback] Cookies verificadas:', cookiesVerified)
-            console.log('🍪 [Auth Callback] Cookies después de guardar:', document.cookie)
 
             if (cookiesVerified) {
               // Usar router.replace para navegación más controlada
@@ -101,7 +87,6 @@ export default function AuthCallbackPage() {
             await new Promise(resolve => setTimeout(resolve, 300))
 
             const cookiesVerified = document.cookie.includes('auth_token')
-            console.log('🍪 [Auth Callback] Cookies verificadas (flujo code/state):', cookiesVerified)
 
             if (cookiesVerified) {
               // Usar router.replace para navegación más controlada

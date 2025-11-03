@@ -28,15 +28,38 @@ function isValidJWT(token: string): boolean {
   try {
     const parts = token.split('.')
     if (parts.length !== 3) return false
-
+    
     // Verificar que el payload sea JSON válido
     const payload = JSON.parse(atob(parts[1]))
-
+    
     // Verificar que tenga campos básicos de JWT
     return payload.exp !== undefined
   } catch {
     return false
   }
+}
+
+/**
+ * Valida si un string es un token opaco válido
+ * Los tokens opacos son hashes largos (ej: SHA-256) usados como refresh tokens
+ */
+function isOpaqueToken(token: string): boolean {
+  // Un token opaco típicamente:
+  // - Es un hash largo (>= 64 caracteres para SHA-256)
+  // - No contiene puntos (no es JWT)
+  // - Solo contiene caracteres hexadecimales o alfanuméricos
+  const isLongEnough = token.length >= 64
+  const hasNoDots = !token.includes('.')
+  const isHexOrAlphanumeric = /^[a-fA-F0-9]+$/.test(token)
+  
+  return isLongEnough && hasNoDots && isHexOrAlphanumeric
+}
+
+/**
+ * Valida si un token es válido (JWT o token opaco)
+ */
+function isValidToken(token: string): boolean {
+  return isValidJWT(token) || isOpaqueToken(token)
 }
 
 /**
@@ -116,21 +139,22 @@ export function verifyAuthHealth(): AuthHealthResult {
     issues.push('No se encontró refresh_token en cookies')
   }
 
-  // Verificar que los tokens son JWT válidos
-  const authTokenValid = authToken ? isValidJWT(authToken) : false
-  const refreshTokenValid = refreshToken ? isValidJWT(refreshToken) : false
+  // Verificar que los tokens son válidos (JWT o token opaco)
+  const authTokenValid = authToken ? isValidToken(authToken) : false
+  const refreshTokenValid = refreshToken ? isValidToken(refreshToken) : false
 
   if (authToken && !authTokenValid) {
-    issues.push('auth_token no es un JWT válido')
+    issues.push('auth_token no es válido')
   }
 
   if (refreshToken && !refreshTokenValid) {
-    issues.push('refresh_token no es un JWT válido')
+    issues.push('refresh_token no es válido')
   }
 
-  // Verificar que no están expirados
-  const authTokenExpired = authToken ? isJWTExpired(authToken) : false
-  const refreshTokenExpired = refreshToken ? isJWTExpired(refreshToken) : false
+  // Verificar que no están expirados (solo aplicable a JWT)
+  // Los tokens opacos no tienen fecha de expiración visible
+  const authTokenExpired = authToken && isValidJWT(authToken) ? isJWTExpired(authToken) : false
+  const refreshTokenExpired = refreshToken && isValidJWT(refreshToken) ? isJWTExpired(refreshToken) : false
 
   if (authToken && authTokenExpired) {
     issues.push('auth_token está expirado')
@@ -236,6 +260,9 @@ if (typeof window !== 'undefined') {
   (window as any).debugAuth = debugAuth;
   (window as any).verifyAuthHealth = verifyAuthHealth
 
-  console.log('💡 Tip: Usa debugAuth() en la consola para diagnosticar problemas de autenticación')
+  // Solo mostrar tip en desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('💡 Tip: Usa debugAuth() en la consola para diagnosticar problemas de autenticación')
+  }
 }
 

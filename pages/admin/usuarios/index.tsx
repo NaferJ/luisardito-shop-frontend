@@ -106,7 +106,7 @@ export default function AdminUsuariosPage() {
   // Hooks de datos - usando el hook actualizado pero con lógica de filtrado local para compatibilidad
   const { data: usuariosData, isLoading, error } = useAdminUsuarios({
     page: 1,
-    limit: 100, // Cargar más para filtrado local
+    //limit: 100, // Cargar más para filtrado local
     filter: 'all'
   })
 

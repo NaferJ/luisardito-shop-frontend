@@ -56,7 +56,7 @@ export interface AdminUsuariosResponse {
 
 // Hook para listar usuarios (admin) con filtros avanzados
 export function useAdminUsuarios(params?: AdminUsuariosParams) {
-  const { page = 1, limit = 20, filter = 'all', search } = params || {}
+  const { page = 1, limit, filter = 'all', search } = params || {}
   const qs = new URLSearchParams()
 
   qs.set('page', String(page))

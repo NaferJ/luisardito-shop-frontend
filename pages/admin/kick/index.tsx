@@ -30,6 +30,7 @@ import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickBroadcaster } from '../../../hooks/useKickBroadcaster'
 import { useKickAdminConfig } from '../../../hooks/useKickAdminConfig'
 import { useAuth } from '../../../hooks/useAuth'
+import { useAdminUsuarios } from '../../../hooks/useAdminUsuarios'
 import Head from 'next/head'
 
 export default function KickAdminPage() {
@@ -49,6 +50,12 @@ export default function KickAdminPage() {
     updateVipConfig,
     cleanupExpiredVips
   } = useKickAdminConfig()
+
+  // Obtener usuarios para estadísticas en tiempo real
+  const { data: usuariosData } = useAdminUsuarios({
+    page: 1,
+    filter: 'all'
+  })
 
   const [updatingMigration, setUpdatingMigration] = useState(false)
   const [updatingVip, setUpdatingVip] = useState(false)
@@ -235,9 +242,13 @@ export default function KickAdminPage() {
   // Determinar estados actuales de la configuración con nombres REALES del backend
   const migrationEnabled = config?.migration?.enabled ?? false
   const vipEnabled = config?.vip?.points_enabled ?? false
-  const migratedUsers = config?.migration?.stats?.migrated_users ?? 0
-  const totalPointsMigrated = config?.migration?.stats?.total_points_migrated ?? 0
-  const activeVips = config?.vip?.stats?.active_vips ?? 0
+
+  // Calcular estadísticas REALES desde los datos de usuarios (en tiempo real)
+  const migratedUsers = usuariosData?.users?.filter(user => user.migration_status?.points_migrated).length ?? 0
+  const totalPointsMigrated = usuariosData?.users?.reduce((sum, user) =>
+    sum + (user.migration_status?.points_migrated || 0), 0
+  ) ?? 0
+  const activeVips = usuariosData?.users?.filter(user => user.vip_status?.is_active).length ?? 0
   const expiredVips = config?.vip?.stats?.expired_vips ?? 0
 
   // Si no hay configuración disponible pero tampoco hay error crítico,

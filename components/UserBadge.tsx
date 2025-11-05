@@ -30,6 +30,10 @@ interface Usuario {
     migrated?: boolean
     points_migrated?: number
   }
+  subscriber_status?: {
+    is_active?: boolean
+    expires_soon?: boolean
+  }
 }
 
 interface UserBadgeProps {
@@ -90,28 +94,28 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     }
   }
 
-  // Badge Suscriptor (si user_type es 'subscriber' y no es VIP)
-  if (user.user_type === 'subscriber' && !vipInfo?.is_active) {
+  // Badge Suscriptor (si subscriber_status.is_active y no es VIP)
+  if (user.subscriber_status?.is_active && !vipInfo?.is_active) {
     const subBadge = (
       <Badge
         key="sub"
-        colorScheme="purple"
+        colorScheme="green"
         fontSize={size === 'sm' ? 'xs' : 'sm'}
         px={size === 'sm' ? 2 : 3}
         py={1}
         borderRadius="md"
         fontWeight="bold"
-        bg="linear-gradient(135deg, #9F7AEA, #805AD5)"
+        bg="linear-gradient(135deg, #48BB78, #38A169)"
         color="white"
         border="1px solid"
-        borderColor="purple.400"
+        borderColor="green.400"
         _hover={{
           transform: 'scale(1.05)',
-          boxShadow: '0 0 10px rgba(159, 122, 234, 0.5)'
+          boxShadow: '0 0 10px rgba(72, 187, 120, 0.5)'
         }}
         transition="all 0.2s"
       >
-        ⭐ SUB
+        SUB
       </Badge>
     )
 
@@ -137,13 +141,13 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       <Badge
         key="migration"
         colorScheme="cyan"
-        fontSize={size === 'sm' ? 'xs' : 'sm'}
-        px={size === 'sm' ? 2 : 3}
+        fontSize="sm"
+        px={3}
         py={1}
         borderRadius="md"
         variant="subtle"
       >
-        🔄 Migrado
+        Migrado
       </Badge>
     )
 
@@ -244,7 +248,7 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
       )}
 
       {/* Overlay para Suscriptor (solo si no es VIP) */}
-      {user.user_type === 'subscriber' && !vipInfo?.is_active && (
+      {user.subscriber_status?.is_active && !vipInfo?.is_active && (
         <Box
           position="absolute"
           top="-2px"
@@ -253,7 +257,7 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
           bottom="-2px"
           borderRadius="full"
           border="3px solid"
-          borderColor="purple.400"
+          borderColor="green.400"
           pointerEvents="none"
           _before={{
             content: '""',
@@ -264,7 +268,7 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
             bottom: '-1px',
             borderRadius: 'full',
             border: '1px solid',
-            borderColor: 'purple.300',
+            borderColor: 'green.300',
           }}
         />
       )}

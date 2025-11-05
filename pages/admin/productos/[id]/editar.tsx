@@ -29,6 +29,7 @@ import {
 } from '@chakra-ui/react'
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
+import { useAdminCanjes } from '../../../../hooks/useAdminCanjes'
 import { ProductoForm } from '../../../../types'
 import ImageUpload from '../../../../components/ImageUpload'
 
@@ -39,6 +40,7 @@ export default function EditarProductoPage() {
 
   const { data: producto, isLoading: loadingProducto, error } = useProducto(id as string)
   const updateProductoMutation = useUpdateProducto()
+  const { data: canjes } = useAdminCanjes()
 
   const [formData, setFormData] = useState<{
     nombre: string
@@ -94,6 +96,20 @@ export default function EditarProductoPage() {
         isClosable: true,
       })
       return
+    }
+
+    if (formData.precio !== producto.precio) {
+      const canjesPendientes = canjes?.filter(c => c.producto_id === producto.id && c.estado === 'pendiente') || []
+      if (canjesPendientes.length > 0) {
+        toast({
+          title: 'Aun hay usuarios pendientes',
+          description: `Hay ${canjesPendientes.length} canje(s) pendiente(s) para este producto.`,
+          status: 'warning',
+          duration: 5000,
+          isClosable: true,
+        })
+        return
+      }
     }
 
     try {

@@ -182,16 +182,6 @@ export default function AdminCanjesPage() {
     }
   }
 
-  const getEstadoIcon = (estado: string) => {
-    switch (estado) {
-      case 'pendiente': return '⏳'
-      case 'entregado': return '✅'
-      case 'cancelado': return '❌'
-      case 'devuelto': return '↩️'
-      default: return '❓'
-    }
-  }
-
   const handleUpdateEstado = async (
     canjeId: number,
     nuevoEstado: 'pendiente' | 'entregado' | 'cancelado'
@@ -479,7 +469,7 @@ export default function AdminCanjesPage() {
                             )}
                           </HStack>
                         </Th>
-                        <Th>Producto</Th>
+                        <Th width="80px">Producto</Th>
                         <Th>Precio</Th>
                         <Th
                           cursor="pointer"
@@ -538,7 +528,7 @@ export default function AdminCanjesPage() {
                             </HStack>
                           </Td>
                           <Td>
-                            <HStack spacing={3}>
+                            <HStack spacing={2}>
                               <Box
                                 boxSize="40px"
                                 borderRadius="lg"
@@ -565,13 +555,15 @@ export default function AdminCanjesPage() {
                                 <Text
                                   fontWeight="medium"
                                   fontSize="sm"
+                                  maxW="150px"
+                                  isTruncated
                                 >
                                   {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
                                 </Text>
                                 <Text
                                   fontSize="xs"
                                   color="gray.500"
-                                  maxW="200px"
+                                  maxW="150px"
                                   isTruncated
                                 >
                                   {canje?.Producto?.descripcion}
@@ -598,7 +590,7 @@ export default function AdminCanjesPage() {
                               py={1}
                               borderRadius="full"
                             >
-                              {getEstadoIcon(canje.estado)} {canje.estado}
+                              {canje.estado}
                             </Badge>
                           </Td>
                           <Td>

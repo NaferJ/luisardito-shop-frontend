@@ -275,9 +275,9 @@ export default function AdminUsuariosPage() {
         case 'vip':
           return user.vip_status?.is_active
         case 'migrated':
-          return user.migration_status?.points_migrated !== undefined
+          return !!user.migration_status?.migrated_at
         case 'pending_migration':
-          return user.migration_status?.can_migrate && (user.migration_status?.points_migrated === undefined)
+          return user.migration_status?.can_migrate && !user.migration_status?.migrated_at
         case 'subscribers':
           return user.user_type === 'subscriber'
         default:
@@ -331,7 +331,7 @@ export default function AdminUsuariosPage() {
     const avgPoints = Math.round(totalPoints / totalUsers)
     const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
     const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
-    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.migration_status?.points_migrated !== undefined).length
+    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => !!user.migration_status?.migrated_at).length
 
     return {
       totalUsers,
@@ -629,13 +629,13 @@ export default function AdminUsuariosPage() {
                                 VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
                               </Badge>
                             )}
-                            {user.migration_status?.points_migrated !== undefined ? (
+                            {user.migration_status?.migrated_at ? (
                               <Badge colorScheme="cyan" fontSize="xs">
-                                🔄 {user.migration_status.points_migrated.toLocaleString()} pts
+                                {user.migration_status.points_migrated?.toLocaleString() ?? 0} pts
                               </Badge>
                             ) : user.migration_status?.can_migrate ? (
                               <Badge colorScheme="orange" fontSize="xs">
-                                ⏳ Pendiente migración
+                                Pendiente migración
                               </Badge>
                             ) : null}
                           </VStack>
@@ -706,7 +706,7 @@ export default function AdminUsuariosPage() {
                                     Otorgar VIP
                                   </MenuItem>
                                 )}
-                                {!user.migration_status?.points_migrated && (
+                                {!user.migration_status?.migrated_at && (
                                   <MenuItem
                                     icon={<SettingsIcon />}
                                     onClick={() => openMigrationModal(user)}

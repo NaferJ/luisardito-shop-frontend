@@ -515,10 +515,12 @@ export default function AdminCanjesPage() {
                                 />
                               </UserAvatarWithBadge>
                               <VStack align="start" spacing={0}>
-                                <Text fontWeight="medium" fontSize="sm">
-                                  {canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname || `Usuario #${canje.usuario_id}`}
-                                </Text>
-                                <UserBadge user={(canje?.Usuario || canje?.usuario) as any} size="sm" />
+                                <HStack>
+                                  <Text fontWeight="medium" fontSize="sm">
+                                    {canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname || `Usuario #${canje.usuario_id}`}
+                                  </Text>
+                                  <UserBadge user={(canje?.Usuario || canje?.usuario) as any} size="sm" />
+                                </HStack>
                                 {(canje?.Usuario?.discord_username || canje?.usuario?.discord_username) && (
                                   <Text fontSize="xs" color="purple.500">
                                     Discord: {canje?.Usuario?.discord_username || canje?.usuario?.discord_username}

@@ -328,7 +328,6 @@ export default function AdminUsuariosPage() {
     const usuarios = usuariosData.users
     const totalUsers = usuarios.length
     const totalPoints = usuarios.reduce((sum: number, user: UsuarioAdmin) => sum + (user.puntos || 0), 0)
-    const avgPoints = Math.round(totalPoints / totalUsers)
     const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
     const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
     const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.botrix_migrated).length
@@ -337,7 +336,6 @@ export default function AdminUsuariosPage() {
     return {
       totalUsers,
       totalPoints,
-      avgPoints,
       usersWithCanjes,
       vipUsers,
       migratedUsers,
@@ -452,17 +450,6 @@ export default function AdminUsuariosPage() {
                       <StatLabel color="black.600">Puntos Totales</StatLabel>
                       <StatNumber color="green.600" fontSize="2xl">
                         {stats.totalPoints.toLocaleString()}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
-
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.600">Promedio</StatLabel>
-                      <StatNumber color="purple.600" fontSize="2xl">
-                        {stats.avgPoints.toLocaleString()}
                       </StatNumber>
                     </Stat>
                   </CardBody>

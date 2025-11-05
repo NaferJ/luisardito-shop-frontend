@@ -6,7 +6,7 @@ import { useProductos } from '../hooks/useProductos'
 import { ProductCard } from '../components/ProductCard'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
-import { useKickPointsConfig } from '../hooks/useKickPointsConfig'
+import { usePublicKickPointsConfig } from '../hooks/usePublicKickPointsConfig'
 import Link from 'next/link'
 import Head from 'next/head'
 import { SettingsIcon, AddIcon, ViewIcon, EditIcon, RepeatIcon } from '@chakra-ui/icons'
@@ -15,7 +15,7 @@ export default function Home() {
   const { data: productos, isLoading, error } = useProductos()
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
-  const { configs } = useKickPointsConfig()
+  const { configs } = usePublicKickPointsConfig()
 
   const [currentIndex, setCurrentIndex] = useState(0)
 

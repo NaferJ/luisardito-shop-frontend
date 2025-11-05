@@ -332,6 +332,7 @@ export default function AdminUsuariosPage() {
     const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
     const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
     const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.botrix_migrated).length
+    const subscribers = usuarios.filter((user: UsuarioAdmin) => user.subscriber_status?.is_active).length
 
     return {
       totalUsers,
@@ -339,7 +340,8 @@ export default function AdminUsuariosPage() {
       avgPoints,
       usersWithCanjes,
       vipUsers,
-      migratedUsers
+      migratedUsers,
+      subscribers
     }
   }, [usuariosData?.users])
 
@@ -417,6 +419,17 @@ export default function AdminUsuariosPage() {
                       <StatLabel color="black.600">VIPs</StatLabel>
                       <StatNumber color="yellow.600" fontSize="2xl">
                         {stats.vipUsers}
+                      </StatNumber>
+                    </Stat>
+                  </CardBody>
+                </Card>
+
+                <Card bg={cardBg} shadow="md" borderRadius="xl">
+                  <CardBody textAlign="center" py={6}>
+                    <Stat>
+                      <StatLabel color="black.600">Subs</StatLabel>
+                      <StatNumber color="green.600" fontSize="2xl">
+                        {stats.subscribers}
                       </StatNumber>
                     </Stat>
                   </CardBody>

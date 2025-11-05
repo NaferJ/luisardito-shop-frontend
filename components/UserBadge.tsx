@@ -45,8 +45,8 @@ interface UserBadgeProps {
 export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgeProps) => {
   const badges = []
 
-  // Compatibilidad: usar vip_info o vip_status
-  const vipInfo = user.vip_info || user.vip_status
+  // Compatibilidad: usar vip_info, vip_status o is_vip
+  const vipInfo = user.vip_info || user.vip_status || (user.is_vip ? { is_active: true } : undefined)
 
   // Badge VIP
   if (vipInfo?.is_active) {
@@ -94,8 +94,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     }
   }
 
-  // Badge Suscriptor (si subscriber_status.is_active y no es VIP)
-  if (user.subscriber_status?.is_active && !vipInfo?.is_active) {
+  // Badge Suscriptor (si subscriber_status.is_active o user_type === 'subscriber', y no es VIP)
+  if ((user.subscriber_status?.is_active || user.user_type === 'subscriber') && !vipInfo?.is_active) {
     const subBadge = (
       <Badge
         key="sub"
@@ -134,8 +134,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     }
   }
 
-  // Badge migración Botrix - usando migration_status o botrix_info
-  const migrationInfo = user.migration_status || user.botrix_info
+  // Badge migración Botrix - usando migration_status, botrix_info o botrix_migrated
+  const migrationInfo = user.migration_status || user.botrix_info || (user.botrix_migrated ? { migrated: true, points_migrated: user.botrix_info?.points_migrated } : undefined)
   if (migrationInfo?.migrated && showTooltip && size !== 'sm') {
     const migrationBadge = (
       <Badge
@@ -207,8 +207,8 @@ interface UserAvatarWithBadgeProps {
 }
 
 export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps) => {
-  // Compatibilidad: usar vip_info o vip_status
-  const vipInfo = user.vip_info || user.vip_status
+  // Compatibilidad: usar vip_info, vip_status o is_vip
+  const vipInfo = user.vip_info || user.vip_status || (user.is_vip ? { is_active: true } : undefined)
 
   return (
     <Box position="relative" display="inline-block">
@@ -248,7 +248,7 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
       )}
 
       {/* Overlay para Suscriptor (solo si no es VIP) */}
-      {user.subscriber_status?.is_active && !vipInfo?.is_active && (
+      {(user.subscriber_status?.is_active || user.user_type === 'subscriber') && !vipInfo?.is_active && (
         <Box
           position="absolute"
           top="-2px"

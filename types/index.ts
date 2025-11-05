@@ -33,6 +33,18 @@ export interface Usuario {
     granted_by_canje_id?: number
     is_permanent: boolean
   }
+  vip_status?: {
+    is_active: boolean
+    is_permanent: boolean
+    expires_soon?: boolean
+    expires_at?: string
+  }
+
+  // Campos suscriptor
+  subscriber_status?: {
+    is_active: boolean
+    expires_soon?: boolean
+  }
 
   // Campos migración Botrix
   botrix_migrated?: boolean
@@ -41,6 +53,12 @@ export interface Usuario {
     migrated_at?: string
     points_migrated?: number
     can_migrate: boolean
+  }
+  migration_status?: {
+    can_migrate: boolean
+    points_migrated?: number
+    migrated_at?: string
+    migrated?: boolean
   }
 
   // Tipo de usuario calculado

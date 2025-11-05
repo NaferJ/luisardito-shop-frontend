@@ -275,11 +275,11 @@ export default function AdminUsuariosPage() {
         case 'vip':
           return user.vip_status?.is_active
         case 'migrated':
-          return !!user.migration_status?.migrated_at
+          return user.botrix_migrated
         case 'pending_migration':
           return user.migration_status?.can_migrate && !user.migration_status?.migrated_at
         case 'subscribers':
-          return user.user_type === 'subscriber'
+          return user.subscriber_status?.is_active
         default:
           return true
       }
@@ -331,7 +331,7 @@ export default function AdminUsuariosPage() {
     const avgPoints = Math.round(totalPoints / totalUsers)
     const usersWithCanjes = usuarios.filter((user: UsuarioAdmin) => (user.total_canjes || 0) > 0).length
     const vipUsers = usuarios.filter((user: UsuarioAdmin) => user.vip_status?.is_active).length
-    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => !!user.migration_status?.migrated_at).length
+    const migratedUsers = usuarios.filter((user: UsuarioAdmin) => user.botrix_migrated).length
 
     return {
       totalUsers,
@@ -629,15 +629,25 @@ export default function AdminUsuariosPage() {
                                 VIP {user.vip_status.is_permanent ? 'Permanente' : 'Temporal'}
                               </Badge>
                             )}
-                            {user.migration_status?.migrated_at ? (
+                            {user.subscriber_status?.is_active && (
+                              <Badge colorScheme="green" fontSize="xs">
+                                SUB
+                              </Badge>
+                            )}
+                            {user.botrix_migrated ? (
                               <Badge colorScheme="cyan" fontSize="xs">
-                                {user.migration_status.points_migrated?.toLocaleString() ?? 0} pts
+                                {user.botrix_points_migrated?.toLocaleString() ?? 0} pts
                               </Badge>
                             ) : user.migration_status?.can_migrate ? (
                               <Badge colorScheme="orange" fontSize="xs">
                                 Pendiente migración
                               </Badge>
                             ) : null}
+                            {!user.vip_status?.is_active && !user.subscriber_status?.is_active && !user.migration_status?.migrated_at && !user.migration_status?.can_migrate && (
+                              <Badge colorScheme="gray" fontSize="xs">
+                                USUARIO
+                              </Badge>
+                            )}
                           </VStack>
                         </Td>
                         <Td display={{ base: 'none', lg: 'table-cell' }}>

@@ -10,9 +10,10 @@ interface VipInfo {
 }
 
 interface MigrationStatus {
-  points_migrated?: number
-  migrated?: boolean
   can_migrate?: boolean
+  migrated?: boolean
+  migrated_at?: string
+  points_migrated?: number
 }
 
 interface Usuario {
@@ -26,10 +27,6 @@ interface Usuario {
   vip_info?: VipInfo
   vip_status?: VipInfo // Alias para compatibilidad
   migration_status?: MigrationStatus
-  botrix_info?: {
-    migrated?: boolean
-    points_migrated?: number
-  }
   subscriber_status?: {
     is_active?: boolean
     expires_soon?: boolean
@@ -45,8 +42,8 @@ interface UserBadgeProps {
 export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgeProps) => {
   const badges = []
 
-  // Compatibilidad: usar vip_info, vip_status o is_vip
-  const vipInfo = user.vip_info || user.vip_status || (user.is_vip ? { is_active: true } : undefined)
+  // Compatibilidad: usar vip_info o vip_status
+  const vipInfo = user.vip_info || user.vip_status
 
   // Badge VIP
   if (vipInfo?.is_active) {
@@ -134,9 +131,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     }
   }
 
-  // Badge migración Botrix - usando migration_status, botrix_info o botrix_migrated
-  const migrationInfo = user.migration_status || user.botrix_info || (user.botrix_migrated ? { migrated: true, points_migrated: user.botrix_info?.points_migrated } : undefined)
-  if (migrationInfo?.migrated && showTooltip && size !== 'sm') {
+  // Badge migración Botrix
+  if (user.migration_status?.migrated && showTooltip && size !== 'sm') {
     const migrationBadge = (
       <Badge
         key="migration"
@@ -154,7 +150,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     badges.push(
       <Tooltip
         key="migration-tooltip"
-        label={`Migró ${migrationInfo.points_migrated?.toLocaleString()} puntos desde Botrix`}
+        label={`Migró ${user.migration_status.points_migrated?.toLocaleString()} puntos desde Botrix`}
         hasArrow
       >
         {migrationBadge}
@@ -207,8 +203,8 @@ interface UserAvatarWithBadgeProps {
 }
 
 export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps) => {
-  // Compatibilidad: usar vip_info, vip_status o is_vip
-  const vipInfo = user.vip_info || user.vip_status || (user.is_vip ? { is_active: true } : undefined)
+  // Compatibilidad: usar vip_info o vip_status
+  const vipInfo = user.vip_info || user.vip_status
 
   return (
     <Box position="relative" display="inline-block">

@@ -440,7 +440,7 @@ export default function PerfilPage() {
                     </Flex>
 
                     {/* Información VIP */}
-                    {user.vip_info?.is_active && (
+                    {user.vip_status?.is_active && (
                       <Flex
                         direction={{ base: 'column', sm: 'row' }}
                         justify="space-between"
@@ -457,14 +457,14 @@ export default function PerfilPage() {
                           py={1}
                           borderRadius="md"
                         >
-                          VIP {user.vip_info.is_permanent ? 'Permanente' :
-                            `hasta ${new Date(user.vip_info.expires_at!).toLocaleDateString('es-ES')}`}
+                          VIP {user.vip_status.is_permanent ? 'Permanente' :
+                            `hasta ${new Date(user.vip_status.expires_at!).toLocaleDateString('es-ES')}`}
                         </Badge>
                       </Flex>
                     )}
 
                     {/* Estado de migración Botrix */}
-                    {user.botrix_info?.migrated && (
+                    {user.migration_status?.migrated && (
                       <Flex
                         direction={{ base: 'column', sm: 'row' }}
                         justify="space-between"
@@ -481,7 +481,7 @@ export default function PerfilPage() {
                           py={1}
                           borderRadius="md"
                         >
-                          ✅ {user.botrix_info.points_migrated?.toLocaleString()} puntos migrados
+                          ✅ {user.migration_status.points_migrated?.toLocaleString()} puntos migrados
                         </Badge>
                       </Flex>
                     )}
@@ -496,7 +496,7 @@ export default function PerfilPage() {
                         Miembro desde:
                       </Text>
                       <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
-                        {(user.creado || user.created_at) && new Date(user.creado || user.created_at).toLocaleDateString('es-ES', {
+                        {(user.creado || user.created_at) && new Date((user.creado || user.created_at)!).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'

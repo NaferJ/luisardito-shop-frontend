@@ -47,18 +47,11 @@ export interface Usuario {
   }
 
   // Campos migración Botrix
-  botrix_migrated?: boolean
-  botrix_info?: {
-    migrated: boolean
-    migrated_at?: string
-    points_migrated?: number
-    can_migrate: boolean
-  }
   migration_status?: {
     can_migrate: boolean
-    points_migrated?: number
-    migrated_at?: string
     migrated?: boolean
+    migrated_at?: string
+    points_migrated?: number
   }
 
   // Tipo de usuario calculado

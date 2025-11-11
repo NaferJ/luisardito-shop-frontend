@@ -219,6 +219,7 @@ export interface HistorialPunto {
   kick_event_data?: {
     event_type: string
     kick_username?: string
+    kick_user_id?: string
     points_migrated?: number
     migrated_from?: string
     duration_days?: number
@@ -226,5 +227,13 @@ export interface HistorialPunto {
     granted_by_canje_id?: number
     is_vip?: boolean
     user_type?: string
+    // Campos específicos de kicks.gifted
+    kick_amount?: number
+    gift_name?: string
+    gift_type?: string
+    gift_tier?: string
+    gift_message?: string
+    original_points?: number
+    created_at?: string
   }
 }

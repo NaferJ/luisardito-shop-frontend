@@ -29,7 +29,7 @@ import {
     useBreakpointValue,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
-import { MdStar, MdSwapHoriz, MdChat, MdPerson, MdCrown, MdViewList, MdViewModule, MdViewComfy } from 'react-icons/md'
+import { MdStar, MdSwapHoriz, MdChat, MdPerson, MdViewList, MdViewModule, MdViewComfy, MdDiamond, MdStarRate } from 'react-icons/md'
 import Head from "next/head";
 
 type ViewMode = 'list' | 'grid' | 'compact'
@@ -63,10 +63,13 @@ export default function HistorialPage() {
             return { icon: MdSwapHoriz, color: 'cyan.500' }
         }
         if (eventData?.event_type === 'vip_granted') {
-            return { icon: MdCrown, color: 'yellow.500' }
+            return { icon: MdStarRate, color: 'yellow.500' }
+        }
+        if (eventData?.event_type === 'kicks.gifted' || concept?.includes('Regalo de') && concept?.includes('kicks')) {
+            return { icon: MdDiamond, color: 'pink.500' }
         }
         if (concept?.includes('VIP') || eventData?.is_vip) {
-            return { icon: MdCrown, color: 'yellow.500' }
+            return { icon: MdStarRate, color: 'yellow.500' }
         }
         if (concept?.includes('chat') || concept?.includes('mensaje')) {
             return { icon: MdChat, color: 'blue.500' }
@@ -101,6 +104,17 @@ export default function HistorialPage() {
                 title: `VIP otorgado (${duration})`,
                 subtitle: 'Estado VIP activado',
                 badge: { text: 'VIP', color: 'yellow' }
+            }
+        }
+
+        if (eventData?.event_type === 'kicks.gifted') {
+            const kickAmount = eventData.kick_amount || 0
+            const giftName = eventData.gift_name || 'kicks'
+            const giftTier = eventData.gift_tier
+            return {
+                title: concept || `Regalo de ${kickAmount} kicks`,
+                subtitle: `${giftName}${giftTier ? ` (${giftTier})` : ''}`,
+                badge: { text: 'Kicks', color: 'green' }
             }
         }
 
@@ -433,12 +447,16 @@ export default function HistorialPage() {
                                     <Text display={{ base: 'none', sm: 'block' }}>Migración</Text>
                                 </HStack>
                                 <HStack spacing={1}>
-                                    <Icon as={MdCrown} color="yellow.500" />
+                                    <Icon as={MdStarRate} color="yellow.500" />
                                     <Text>VIP</Text>
                                 </HStack>
                                 <HStack spacing={1}>
                                     <Icon as={MdStar} color="purple.500" />
                                     <Text display={{ base: 'none', sm: 'block' }}>Suscriptor</Text>
+                                </HStack>
+                                <HStack spacing={1}>
+                                    <Icon as={MdDiamond} color="pink.500" />
+                                    <Text>Kicks</Text>
                                 </HStack>
                                 <HStack spacing={1}>
                                     <Icon as={MdChat} color="blue.500" />

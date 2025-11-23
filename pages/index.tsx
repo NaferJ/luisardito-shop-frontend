@@ -21,13 +21,16 @@ export default function Home() {
 
   const carouselItems = [
     {
+      text: "¡Duplicamos tus donaciones! Por cada 1,000 KICKS que dones al canal, recibirás 2,000 puntos. Apoya el stream y multiplica tus recompensas.",
+    },
+    {
       text: "Los envíos pueden tardar hasta 1 mes. Por favor, ten paciencia mientras procesamos tu pedido.",
     },
     {
       text: "Si anteriormente ya habías canjeado VIP, por favor contacta a un moderador para migrar tu VIP a la página actual.",
     },
     {
-      text: `Gana puntos participando: ${configs?.find(c => c.config_key === 'chat_points_regular')?.config_value || 0} por mensaje en chat, ${configs?.find(c => c.config_key === 'chat_points_subscriber')?.config_value || 0} si eres suscriptor, y ${configs?.find(c => c.config_key === 'chat_points_vip')?.config_value || 0} si eres VIP. Además, regalar suscripciones (${configs?.find(c => c.config_key === 'gift_given_points')?.config_value || 0} pts), recibir regalos (${configs?.find(c => c.config_key === 'gift_received_points')?.config_value || 0} pts), nuevas suscripciones (${configs?.find(c => c.config_key === 'subscription_new_points')?.config_value || 0} pts), renovaciones (${configs?.find(c => c.config_key === 'subscription_renewal_points')?.config_value || 0} pts) y follows (${configs?.find(c => c.config_key === 'follow_points')?.config_value || 0} pts) también te dan puntos.`,
+      text: `Gana puntos participando: ${configs?.find(c => c.config_key === 'chat_points_regular')?.config_value || 0} por mensaje en chat, ${configs?.find(c => c.config_key === 'chat_points_vip')?.config_value || 0} si eres VIP, y ${configs?.find(c => c.config_key === 'chat_points_subscriber')?.config_value || 0} si eres suscriptor. Además, regalar suscripciones (${configs?.find(c => c.config_key === 'gift_given_points')?.config_value || 0} pts), recibir regalos (${configs?.find(c => c.config_key === 'gift_received_points')?.config_value || 0} pts), nuevas suscripciones (${configs?.find(c => c.config_key === 'subscription_new_points')?.config_value || 0} pts), renovaciones (${configs?.find(c => c.config_key === 'subscription_renewal_points')?.config_value || 0} pts) y follows (${configs?.find(c => c.config_key === 'follow_points')?.config_value || 0} pts) también te dan puntos.`,
     },
   ]
 

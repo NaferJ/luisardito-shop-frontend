@@ -205,13 +205,40 @@ interface UserAvatarWithBadgeProps {
 export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps) => {
   // Compatibilidad: usar vip_info o vip_status
   const vipInfo = user.vip_info || user.vip_status
+  const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
 
   return (
     <Box position="relative" display="inline-block">
       {children}
 
-      {/* Overlay para VIP */}
-      {vipInfo?.is_active && (
+      {/* Overlay para Suscriptor (prioridad sobre VIP) */}
+      {isSubscriber && (
+        <Box
+          position="absolute"
+          top="-2px"
+          left="-2px"
+          right="-2px"
+          bottom="-2px"
+          borderRadius="full"
+          border="3px solid"
+          borderColor="green.400"
+          pointerEvents="none"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: '-1px',
+            left: '-1px',
+            right: '-1px',
+            bottom: '-1px',
+            borderRadius: 'full',
+            border: '1px solid',
+            borderColor: 'green.300',
+          }}
+        />
+      )}
+
+      {/* Overlay para VIP (solo si no es suscriptor) */}
+      {vipInfo?.is_active && !isSubscriber && (
         <Box
           position="absolute"
           top="-2px"
@@ -239,32 +266,6 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
               '0%, 100%': { opacity: 1 },
               '50%': { opacity: 0.7 },
             },
-          }}
-        />
-      )}
-
-      {/* Overlay para Suscriptor (solo si no es VIP) */}
-      {(user.subscriber_status?.is_active || user.user_type === 'subscriber') && !vipInfo?.is_active && (
-        <Box
-          position="absolute"
-          top="-2px"
-          left="-2px"
-          right="-2px"
-          bottom="-2px"
-          borderRadius="full"
-          border="3px solid"
-          borderColor="green.400"
-          pointerEvents="none"
-          _before={{
-            content: '""',
-            position: 'absolute',
-            top: '-1px',
-            left: '-1px',
-            right: '-1px',
-            bottom: '-1px',
-            borderRadius: 'full',
-            border: '1px solid',
-            borderColor: 'green.300',
           }}
         />
       )}

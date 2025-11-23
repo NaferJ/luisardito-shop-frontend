@@ -44,9 +44,50 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
 
   // Compatibilidad: usar vip_info o vip_status
   const vipInfo = user.vip_info || user.vip_status
+  const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
 
-  // Badge VIP
-  if (vipInfo?.is_active) {
+  // Badge Suscriptor (PRIORIDAD SOBRE VIP)
+  if (isSubscriber) {
+    const subBadge = (
+      <Badge
+        key="sub"
+        colorScheme="green"
+        fontSize={size === 'sm' ? 'xs' : 'sm'}
+        px={size === 'sm' ? 2 : 3}
+        py={1}
+        borderRadius="md"
+        fontWeight="bold"
+        bg="linear-gradient(135deg, #48BB78, #38A169)"
+        color="white"
+        border="1px solid"
+        borderColor="green.400"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: '0 0 10px rgba(72, 187, 120, 0.5)'
+        }}
+        transition="all 0.2s"
+      >
+        SUB
+      </Badge>
+    )
+
+    if (showTooltip) {
+      badges.push(
+        <Tooltip
+          key="sub-tooltip"
+          label="Suscriptor del canal"
+          hasArrow
+        >
+          {subBadge}
+        </Tooltip>
+      )
+    } else {
+      badges.push(subBadge)
+    }
+  }
+
+  // Badge VIP (SOLO SI NO ES SUSCRIPTOR)
+  if (vipInfo?.is_active && !isSubscriber) {
     const vipBadge = (
       <Badge
         key="vip"
@@ -88,46 +129,6 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       )
     } else {
       badges.push(vipBadge)
-    }
-  }
-
-  // Badge Suscriptor (si subscriber_status.is_active o user_type === 'subscriber', y no es VIP)
-  if ((user.subscriber_status?.is_active || user.user_type === 'subscriber') && !vipInfo?.is_active) {
-    const subBadge = (
-      <Badge
-        key="sub"
-        colorScheme="green"
-        fontSize={size === 'sm' ? 'xs' : 'sm'}
-        px={size === 'sm' ? 2 : 3}
-        py={1}
-        borderRadius="md"
-        fontWeight="bold"
-        bg="linear-gradient(135deg, #48BB78, #38A169)"
-        color="white"
-        border="1px solid"
-        borderColor="green.400"
-        _hover={{
-          transform: 'scale(1.05)',
-          boxShadow: '0 0 10px rgba(72, 187, 120, 0.5)'
-        }}
-        transition="all 0.2s"
-      >
-        SUB
-      </Badge>
-    )
-
-    if (showTooltip) {
-      badges.push(
-        <Tooltip
-          key="sub-tooltip"
-          label="Suscriptor del canal"
-          hasArrow
-        >
-          {subBadge}
-        </Tooltip>
-      )
-    } else {
-      badges.push(subBadge)
     }
   }
 

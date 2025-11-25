@@ -595,9 +595,23 @@ export default function AdminUsuarioGestionPage() {
                               <Text fontSize="sm" fontWeight="medium" color={textColor}>
                                 {canje.Producto?.nombre || 'Producto eliminado'}
                               </Text>
-                              <Text fontSize="xs" color={mutedColor}>
-                                {canje.Producto?.descripcion || ''}
-                              </Text>
+                              {canje.Producto?.descripcion && (
+                                <Tooltip
+                                  label={canje.Producto.descripcion}
+                                  placement="top"
+                                  hasArrow
+                                >
+                                  <Text
+                                    fontSize="xs"
+                                    color={mutedColor}
+                                    noOfLines={1}
+                                    maxW="200px"
+                                    cursor="help"
+                                  >
+                                    {canje.Producto.descripcion}
+                                  </Text>
+                                </Tooltip>
+                              )}
                             </VStack>
                           </HStack>
                         </Td>

@@ -159,7 +159,6 @@ export default function LeaderboardPage() {
       const data = await response.json()
 
       if (data.success && data.data) {
-        console.log('My position data:', data.data)
         setMyPosition(data.data)
       } else {
         console.log('No position data received:', data)

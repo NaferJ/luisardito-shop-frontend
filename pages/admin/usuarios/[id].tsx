@@ -1,6 +1,7 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useRouter } from 'next/router'
+import { useAdminUsuario } from '../../../hooks/useAdminUsuario'
 import { useAdminUsuarioCanjes } from '../../../hooks/useAdminUsuarioCanjes'
 import { useUpdateCanjeEstado, useDevolverCanje } from '../../../hooks/useAdminCanjes'
 import {
@@ -67,8 +68,20 @@ export default function AdminUsuarioGestionPage() {
   const router = useRouter()
   const { id } = router.query
 
-  // El ID puede ser un número o un nickname (slug)
-  const { data: canjes, isLoading, error, refetch } = useAdminUsuarioCanjes(id as string)
+  // Primero obtener el usuario por ID o slug para obtener el ID numérico
+  const {
+    data: usuario,
+    isLoading: isLoadingUsuario,
+    error: errorUsuario
+  } = useAdminUsuario(id as string)
+
+  // Una vez tenemos el usuario, obtener sus canjes usando el ID numérico
+  const {
+    data: canjes,
+    isLoading: isLoadingCanjes,
+    error: errorCanjes,
+    refetch
+  } = useAdminUsuarioCanjes(usuario?.id)
   const updateEstado = useUpdateCanjeEstado()
   const devolver = useDevolverCanje()
   const toast = useToast()
@@ -91,20 +104,34 @@ export default function AdminUsuarioGestionPage() {
   const statBg = useColorModeValue('gray.50', 'gray.700')
 
   const userInfo = useMemo(() => {
+    if (usuario) {
+      return {
+        id: usuario.id,
+        nickname: usuario.nickname || String(usuario.id),
+        nombre: usuario.nombre,
+        email: usuario.email,
+        kick_username: (usuario as any).kick_username,
+        kick_avatar: (usuario as any).kick_avatar,
+        discord_username: usuario.discord_username,
+        puntos: usuario.puntos || 0
+      }
+    }
+
+    // Fallback: obtener info del primer canje si no tenemos usuario
     if (!canjes || canjes.length === 0) return null
     const firstCanje = canjes[0]
-    const usuario = firstCanje?.Usuario || firstCanje?.usuario
+    const usuarioFromCanje = firstCanje?.Usuario || firstCanje?.usuario
     return {
-      id: usuario?.id || id,
-      nickname: usuario?.nickname || id,
-      nombre: usuario?.nombre,
-      email: usuario?.email,
-      kick_username: usuario?.kick_username,
-      kick_avatar: usuario?.kick_avatar,
-      discord_username: usuario?.discord_username,
-      puntos: usuario?.puntos || 0
+      id: usuarioFromCanje?.id || id,
+      nickname: usuarioFromCanje?.nickname || id,
+      nombre: usuarioFromCanje?.nombre,
+      email: usuarioFromCanje?.email,
+      kick_username: usuarioFromCanje?.kick_username,
+      kick_avatar: usuarioFromCanje?.kick_avatar,
+      discord_username: usuarioFromCanje?.discord_username,
+      puntos: usuarioFromCanje?.puntos || 0
     }
-  }, [canjes, id])
+  }, [usuario, canjes, id])
 
   const processedData = useMemo(() => {
     if (!canjes) return []
@@ -259,6 +286,9 @@ export default function AdminUsuarioGestionPage() {
     setDevolucionMotivo('')
     onOpen()
   }
+
+  const isLoading = isLoadingUsuario || isLoadingCanjes
+  const error = errorUsuario || errorCanjes
 
   if (isLoading) {
     return (

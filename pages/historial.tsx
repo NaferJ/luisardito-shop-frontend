@@ -2,6 +2,7 @@ import { Layout } from '../components/Layout'
 import { RequireAuth } from '../components/RequireAuth'
 import { useAuth } from '../hooks/useAuth'
 import { useHistorialPuntos } from '../hooks/useHistorialPuntos'
+import { HistorialPunto } from '../types'
 import {
   Box,
   Container,
@@ -52,6 +53,12 @@ import Head from 'next/head'
 type SortOption = 'date-desc' | 'date-asc' | 'points-desc' | 'points-asc'
 type FilterType = 'all' | 'positive' | 'negative' | 'vip' | 'migration' | 'gifts'
 
+// Tipo para historial con cambio normalizado y saldo calculado
+type HistorialConSaldo = Omit<HistorialPunto, 'cambio'> & {
+  cambio: number
+  saldo_actual: number
+}
+
 export default function HistorialPage() {
   const { user } = useAuth()
   const [includeAll, setIncludeAll] = useState(false)
@@ -70,11 +77,29 @@ export default function HistorialPage() {
   const positiveColor = useColorModeValue('green.500', 'green.400')
   const negativeColor = useColorModeValue('red.500', 'red.400')
 
-  // Filtrar y ordenar historial
-  const filteredAndSortedHistorial = useMemo(() => {
+  // Calcular saldo acumulado primero (usando TODO el historial sin filtrar)
+  const historialConSaldo = useMemo<HistorialConSaldo[]>(() => {
     if (!historial) return []
 
-    let result = [...historial]
+    // Ordenar por fecha ascendente para calcular el saldo correctamente
+    const sortedByDateAsc = [...historial].sort(
+      (a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+    )
+
+    let saldoAcumulado = 0
+    return sortedByDateAsc.map((item): HistorialConSaldo => {
+      // Usar 'puntos' si 'cambio' es null
+      const cambioReal = item.cambio !== null ? item.cambio : item.puntos || 0
+      saldoAcumulado += cambioReal
+      return { ...item, cambio: cambioReal, saldo_actual: saldoAcumulado }
+    })
+  }, [historial])
+
+  // Filtrar y ordenar historial
+  const filteredAndSortedHistorial = useMemo(() => {
+    if (!historialConSaldo) return []
+
+    let result = [...historialConSaldo]
 
     // Filtrar por búsqueda
     if (searchTerm) {
@@ -124,26 +149,29 @@ export default function HistorialPage() {
     })
 
     return result
-  }, [historial, searchTerm, filterType, sortBy])
+  }, [historialConSaldo, searchTerm, filterType, sortBy])
 
   // Estadísticas
   const stats = useMemo(() => {
-    if (!historial) return { total: 0, ganados: 0, gastados: 0, balance: 0, promedioGanado: 0 }
+    if (!historialConSaldo)
+      return { total: 0, ganados: 0, gastados: 0, balance: 0, promedioGanado: 0 }
 
-    const ganados = historial.filter((h) => h.cambio > 0).reduce((sum, h) => sum + h.cambio, 0)
-    const gastados = historial
+    const ganados = historialConSaldo
+      .filter((h) => h.cambio > 0)
+      .reduce((sum, h) => sum + h.cambio, 0)
+    const gastados = historialConSaldo
       .filter((h) => h.cambio < 0)
       .reduce((sum, h) => sum + Math.abs(h.cambio), 0)
-    const transaccionesPositivas = historial.filter((h) => h.cambio > 0).length
+    const transaccionesPositivas = historialConSaldo.filter((h) => h.cambio > 0).length
 
     return {
-      total: historial.length,
+      total: historialConSaldo.length,
       ganados,
       gastados,
       balance: ganados - gastados,
       promedioGanado: transaccionesPositivas > 0 ? Math.round(ganados / transaccionesPositivas) : 0
     }
-  }, [historial])
+  }, [historialConSaldo])
 
   const getEventIcon = (movimiento: any) => {
     const concept = movimiento.concepto || movimiento.motivo

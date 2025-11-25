@@ -5,10 +5,10 @@ export interface Usuario {
   puntos: number
   rol_id: number
   user_id_ext?: string
-  created_at?: string  // Campo legacy, puede existir en algunos lugares
-  updated_at?: string  // Campo legacy, puede existir en algunos lugares
-  creado: string       // Campo real del backend
-  actualizado: string  // Campo real del backend
+  created_at?: string // Campo legacy, puede existir en algunos lugares
+  updated_at?: string // Campo legacy, puede existir en algunos lugares
+  creado: string // Campo real del backend
+  actualizado: string // Campo real del backend
 
   // Campos específicos de Kick
   nickname?: string
@@ -171,7 +171,7 @@ export interface KickSubscription {
 // Tipos para configuración VIP y migración
 // NOTA: El backend devuelve ciertos nombres en GET pero espera otros en PUT
 export interface VipConfig {
-  points_enabled: boolean  // GET devuelve points_enabled
+  points_enabled: boolean // GET devuelve points_enabled
   chat_points: number
   follow_points: number
   sub_points: number
@@ -182,7 +182,7 @@ export interface VipConfig {
 }
 
 export interface MigrationConfig {
-  enabled: boolean  // GET devuelve enabled, pero PUT espera migration_enabled
+  enabled: boolean // GET devuelve enabled, pero PUT espera migration_enabled
   stats: {
     migrated_users: number
     total_points_migrated: number
@@ -211,10 +211,11 @@ export interface KickAdminConfig {
 export interface HistorialPunto {
   id: number
   usuario_id: number
-  cambio: number
+  cambio: number | null
+  puntos?: number
   motivo: string
   concepto?: string
-  tipo?: 'ganado' | 'gastado' | 'evento'
+  tipo?: 'ganado' | 'gastado' | 'evento' | 'ajuste'
   fecha: string
   kick_event_data?: {
     event_type: string
@@ -225,6 +226,8 @@ export interface HistorialPunto {
     duration_days?: number
     expires_at?: string
     granted_by_canje_id?: number
+    canje_id?: number
+    granted_at?: string
     is_vip?: boolean
     user_type?: string
     // Campos específicos de kicks.gifted

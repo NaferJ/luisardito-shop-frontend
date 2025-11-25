@@ -71,7 +71,7 @@ export default function Navbar() {
   }
 
   // Definir todos los colores incondicionalmente para evitar cambios en el orden de hooks
-  const floatingBg = useColorModeValue('rgba(255, 255, 255, 0.14)', 'rgba(13, 17, 23, 0.14)')
+  const floatingBg = useColorModeValue('rgba(255, 255, 255, 0.10)', 'rgba(13, 17, 23, 0.10)')
   const borderClr = useColorModeValue('rgba(208, 215, 222, 0.02)', 'rgba(66, 74, 83, 0.02)')
   const shadow = useColorModeValue('0 8px 32px rgba(0,0,0,0.080)', '0 8px 32px rgba(0,0,0,0.14)')
   const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
@@ -105,7 +105,7 @@ export default function Navbar() {
   )
 
   // Fallback background
-  const fallbackBg = useColorModeValue('rgba(255, 255, 255, 0.85)', 'rgba(13, 17, 23, 0.85)')
+  const fallbackBg = useColorModeValue('rgba(255, 255, 255, 0.65)', 'rgba(13, 17, 23, 0.65)')
 
   // Colores para el botón de sugerencia
   const suggestionBtnBg = useColorModeValue('white', 'black')
@@ -154,12 +154,12 @@ export default function Navbar() {
         zIndex={50}
         w="auto"
         maxW={{
-          base: 'calc(95vw + 20px)', // < 480px
-          sm: 'calc(92vw + 20px)', // 480px - 768px
-          md: 'calc(88vw + 20px)', // 768px - 992px (tablet portrait como 768x1024)
-          lg: 'calc(85vw + 20px)', // 992px - 1200px
-          xl: 'calc(80vw + 20px)', // 1200px - 1536px (como 1393x990)
-          '2xl': 'calc(75vw + 20px)' // > 1536px
+          base: 'calc(95vw + 50px)', // < 480px - más espacio para 2 badges
+          sm: 'calc(92vw + 60px)', // 480px - 768px
+          md: 'calc(88vw + 70px)', // 768px - 992px (tablet portrait como 768x1024)
+          lg: 'calc(85vw + 80px)', // 992px - 1200px
+          xl: 'calc(80vw + 90px)', // 1200px - 1536px (como 1393x990)
+          '2xl': 'calc(75vw + 100px)' // > 1536px
         }}
         minW={{
           base: '300px', // mínimo más pequeño para móvil
@@ -181,7 +181,7 @@ export default function Navbar() {
           borderColor={borderClr}
           borderRadius="2xl"
           boxShadow={shadow}
-          px={{ base: 2, sm: 3, md: 4, lg: 5, xl: 6 }}
+          px={{ base: 5, sm: 6, md: 8, lg: 12, xl: 14 }}
           py={{ base: 2, sm: 2.5, md: 0.5 }}
           position="relative"
         >

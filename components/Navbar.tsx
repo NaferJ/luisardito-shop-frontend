@@ -1,5 +1,4 @@
 import {
-  Flex,
   Box,
   Button,
   HStack,
@@ -54,6 +53,11 @@ export default function Navbar() {
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [showNewBadge, setShowNewBadge] = useState(false)
+
+  // Detectar si el usuario tiene 2 badges (VIP + SUB)
+  const vipInfo = user?.vip_info || user?.vip_status
+  const isSubscriber = user?.subscriber_status?.is_active || user?.user_type === 'subscriber'
+  const hasTwoBadges = Boolean(vipInfo?.is_active && isSubscriber)
 
   // Check if user has visited leaderboard before
   useEffect(() => {
@@ -186,65 +190,65 @@ export default function Navbar() {
           position="relative"
         >
           {/* Decoraciones de borde desactivadas por rendimiento */}
-          <Flex
+          <HStack
+            spacing={{ base: 2, sm: 3, md: 4, lg: 5 }}
             align="center"
-            gap={{ base: 1, sm: 1.5, md: 2, lg: 3, xl: 4 }}
             justify="space-between"
             w="full"
             minH={{ base: '36px', sm: '40px', md: '44px' }}
             maxH="50px"
           >
             {/* Logo con badge beta */}
-            <ChakraLink
-              as={NextLink}
-              href="/"
-              display="flex"
-              alignItems="center"
-              gap={{ base: 1, sm: 2 }}
-              fontWeight="bold"
-              fontSize={{ base: 'sm', sm: 'md', md: 'lg' }}
-              flexShrink={0}
-              minW="fit-content"
-              _hover={{
-                opacity: 0.8,
-                transform: 'scale(1.05)',
-                transition: 'all 0.2s'
-              }}
-            >
-              <Image
-                src="/images/logo2.jpg"
-                alt="Luisardito Shop logo"
-                boxSize={{ base: 5, sm: 6, md: 7, lg: 8 }}
-                rounded="lg"
-                objectFit="cover"
-                flexShrink={0}
-              />
-              <HStack spacing={1} display={{ base: 'none', sm: 'flex', lg: 'flex' }}>
-                <Text whiteSpace="nowrap" fontSize={{ sm: 'sm', md: 'md', lg: 'lg' }}>
-                  Luisardito Shop
-                </Text>
+            <Box flexShrink={0} minW={{ base: 'auto', lg: '150px', xl: '180px' }}>
+              <ChakraLink
+                as={NextLink}
+                href="/"
+                display="flex"
+                alignItems="center"
+                gap={{ base: 1, sm: 2 }}
+                fontWeight="bold"
+                fontSize={{ base: 'sm', sm: 'md', md: 'lg' }}
+                _hover={{
+                  opacity: 0.8,
+                  transform: 'scale(1.05)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Image
+                  src="/images/logo2.jpg"
+                  alt="Luisardito Shop logo"
+                  boxSize={{ base: 5, sm: 6, md: 7, lg: 8 }}
+                  rounded="lg"
+                  objectFit="cover"
+                  flexShrink={0}
+                />
+                <HStack spacing={1} display={{ base: 'none', sm: 'flex', lg: 'flex' }}>
+                  <Text whiteSpace="nowrap" fontSize={{ sm: 'sm', md: 'md', lg: 'lg' }}>
+                    Luisardito Shop
+                  </Text>
+                  <Badge
+                    colorScheme="blue"
+                    fontSize={{ base: 'xx-small', sm: 'xs' }}
+                    px={{ base: 1, sm: 2 }}
+                    py={0.5}
+                    borderRadius="md"
+                  >
+                    beta
+                  </Badge>
+                </HStack>
+                {/* Logo compacto para móvil */}
                 <Badge
                   colorScheme="blue"
-                  fontSize={{ base: 'xx-small', sm: 'xs' }}
-                  px={{ base: 1, sm: 2 }}
+                  fontSize="xx-small"
+                  px={1}
                   py={0.5}
                   borderRadius="md"
+                  display={{ base: 'block', sm: 'none' }}
                 >
-                  beta
+                  LS
                 </Badge>
-              </HStack>
-              {/* Logo compacto para móvil */}
-              <Badge
-                colorScheme="blue"
-                fontSize="xx-small"
-                px={1}
-                py={0.5}
-                borderRadius="md"
-                display={{ base: 'block', sm: 'none' }}
-              >
-                LS
-              </Badge>
-            </ChakraLink>
+              </ChakraLink>
+            </Box>
 
             {/* Enlaces de navegación con iconos flotantes - Solo desktop */}
             <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} flex="1" justify="center">
@@ -437,12 +441,17 @@ export default function Navbar() {
 
             {/* Controles del lado derecho */}
             <HStack
-              spacing={{ base: 1, sm: 2, md: 3 }}
-              flexShrink={0}
+              spacing={{ base: 1, sm: 1.5, md: 2 }}
               align="center"
-              minW="fit-content"
+              flexShrink={0}
+              minW={{
+                base: 'auto',
+                lg: hasTwoBadges ? '320px' : '280px',
+                xl: hasTwoBadges ? '360px' : '320px'
+              }}
+              justify="flex-end"
             >
-              {/* Botón de Sugerencia - Solo en tablet y desktop */}
+              {/* Botón de Sugerencia - Solo xl */}
               <Button
                 leftIcon={<Icon as={MdSend} />}
                 size="sm"
@@ -451,7 +460,9 @@ export default function Navbar() {
                 border="1px solid"
                 borderColor={suggestionBtnBorder}
                 borderRadius="xl"
-                display={{ base: 'none', md: 'inline-flex' }}
+                px={4}
+                display={{ base: 'none', xl: 'inline-flex' }}
+                flexShrink={0}
                 _hover={{
                   bg: suggestionBtnHoverBg,
                   transform: 'translateY(-2px)',
@@ -476,18 +487,19 @@ export default function Navbar() {
               {/* Badge de puntos y botón de perfil para usuarios autenticados - Solo tablet y desktop */}
               {isAuthenticated && user && (
                 <HStack
-                  spacing={{ base: 1, md: 2 }}
+                  spacing={{ base: 1, md: 1.5 }}
                   display={{ base: 'none', md: 'flex' }}
                   align="center"
                   flexShrink={0}
+                  flexWrap="nowrap"
                 >
                   <UserBadge user={user as any} size="sm" />
                   {/* Badge de puntos */}
                   <Badge
                     colorScheme="yellow"
-                    fontSize={{ base: 'xs', md: 'sm' }}
-                    px={{ base: 2, md: 3 }}
-                    py={1}
+                    fontSize={{ base: 'xs', md: 'xs', xl: 'sm' }}
+                    px={{ base: 2, md: 2, xl: 3 }}
+                    py={{ base: 0.5, xl: 1 }}
                     borderRadius="full"
                     flexShrink={0}
                     whiteSpace="nowrap"
@@ -760,7 +772,7 @@ export default function Navbar() {
                 }}
               />
             </HStack>
-          </Flex>
+          </HStack>
         </Box>
 
         {/* Drawer móvil */}

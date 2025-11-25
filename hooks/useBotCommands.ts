@@ -1,7 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import api from '../lib/api'
 
 // Tipos
 export interface BotCommand {
@@ -70,15 +68,6 @@ interface ApiResponse<T> {
   }
 }
 
-// Headers con autenticación
-const getHeaders = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-  return {
-    Authorization: token ? `Bearer ${token}` : '',
-    'Content-Type': 'application/json'
-  }
-}
-
 // API Calls
 const commandsApi = {
   getAll: async (params?: {
@@ -88,70 +77,56 @@ const commandsApi = {
     command_type?: string
     search?: string
   }) => {
-    const { data } = await axios.get<ApiResponse<BotCommand[]>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands`,
-      { headers: getHeaders(), params }
-    )
+    const { data } = await api.get<ApiResponse<BotCommand[]>>(`/api/kick-admin/bot-commands`, {
+      params
+    })
     return data
   },
 
   getById: async (id: number) => {
-    const { data } = await axios.get<ApiResponse<BotCommand>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/${id}`,
-      { headers: getHeaders() }
-    )
+    const { data } = await api.get<ApiResponse<BotCommand>>(`/api/kick-admin/bot-commands/${id}`)
     return data
   },
 
   create: async (command: CommandFormData) => {
-    const { data } = await axios.post<ApiResponse<BotCommand>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands`,
-      command,
-      { headers: getHeaders() }
+    const { data } = await api.post<ApiResponse<BotCommand>>(
+      `/api/kick-admin/bot-commands`,
+      command
     )
     return data
   },
 
   update: async (id: number, command: Partial<CommandFormData>) => {
-    const { data } = await axios.put<ApiResponse<BotCommand>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/${id}`,
-      command,
-      { headers: getHeaders() }
+    const { data } = await api.put<ApiResponse<BotCommand>>(
+      `/api/kick-admin/bot-commands/${id}`,
+      command
     )
     return data
   },
 
   delete: async (id: number) => {
-    const { data } = await axios.delete<ApiResponse<void>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/${id}`,
-      { headers: getHeaders() }
-    )
+    const { data } = await api.delete<ApiResponse<void>>(`/api/kick-admin/bot-commands/${id}`)
     return data
   },
 
   toggle: async (id: number) => {
-    const { data } = await axios.patch<ApiResponse<BotCommand>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/${id}/toggle`,
-      {},
-      { headers: getHeaders() }
+    const { data } = await api.patch<ApiResponse<BotCommand>>(
+      `/api/kick-admin/bot-commands/${id}/toggle`,
+      {}
     )
     return data
   },
 
   duplicate: async (id: number) => {
-    const { data } = await axios.post<ApiResponse<BotCommand>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/${id}/duplicate`,
-      {},
-      { headers: getHeaders() }
+    const { data } = await api.post<ApiResponse<BotCommand>>(
+      `/api/kick-admin/bot-commands/${id}/duplicate`,
+      {}
     )
     return data
   },
 
   getStats: async () => {
-    const { data } = await axios.get<ApiResponse<CommandStats>>(
-      `${API_BASE_URL}/api/kick-admin/bot-commands/stats`,
-      { headers: getHeaders() }
-    )
+    const { data } = await api.get<ApiResponse<CommandStats>>(`/api/kick-admin/bot-commands/stats`)
     return data
   },
 
@@ -160,13 +135,13 @@ const commandsApi = {
     test_username?: string
     test_args?: string
   }) => {
-    const { data } = await axios.post<
+    const { data } = await api.post<
       ApiResponse<{
         original: string
         processed: string
         variables_used: Record<string, string>
       }>
-    >(`${API_BASE_URL}/api/kick-admin/bot-commands/test`, testData, { headers: getHeaders() })
+    >(`/api/kick-admin/bot-commands/test`, testData)
     return data
   }
 }

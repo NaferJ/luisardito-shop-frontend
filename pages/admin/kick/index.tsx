@@ -21,10 +21,10 @@ import {
   FormLabel,
   Divider,
   Icon,
-  useColorModeValue,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { SettingsIcon, InfoIcon } from '@chakra-ui/icons'
+import { SettingsIcon, InfoIcon, ChatIcon } from '@chakra-ui/icons'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickBroadcaster } from '../../../hooks/useKickBroadcaster'
@@ -72,7 +72,9 @@ export default function KickAdminPage() {
           <Container maxW="container.xl" py={8}>
             <Box textAlign="center" py={20}>
               <Spinner size="xl" />
-              <Text mt={4} color="gray.500">Verificando autenticación...</Text>
+              <Text mt={4} color="gray.500">
+                Verificando autenticación...
+              </Text>
             </Box>
           </Container>
         </Layout>
@@ -120,16 +122,19 @@ export default function KickAdminPage() {
         title: 'Configuración actualizada',
         description: `Migración Botrix ${enabled ? 'activada' : 'desactivada'}`,
         status: 'success',
-        duration: 3000,
+        duration: 3000
       })
     } catch (error: any) {
-      const errorMessage = handleApiError(error, 'No se pudo actualizar la configuración de migración')
+      const errorMessage = handleApiError(
+        error,
+        'No se pudo actualizar la configuración de migración'
+      )
 
       toast({
         title: 'Error',
         description: errorMessage,
         status: 'error',
-        duration: 5000,
+        duration: 5000
       })
     } finally {
       setUpdatingMigration(false)
@@ -144,7 +149,7 @@ export default function KickAdminPage() {
         title: 'Sistema VIP actualizado',
         description: `Puntos VIP ${enabled ? 'activados' : 'desactivados'}`,
         status: 'success',
-        duration: 3000,
+        duration: 3000
       })
     } catch (error: any) {
       const errorMessage = handleApiError(error, 'No se pudo actualizar la configuración VIP')
@@ -153,7 +158,7 @@ export default function KickAdminPage() {
         title: 'Error',
         description: errorMessage,
         status: 'error',
-        duration: 5000,
+        duration: 5000
       })
     } finally {
       setUpdatingVip(false)
@@ -170,7 +175,7 @@ export default function KickAdminPage() {
         title: 'VIPs expirados limpiados',
         description: 'Se han removido todos los VIPs expirados',
         status: 'success',
-        duration: 3000,
+        duration: 3000
       })
     } catch (error: any) {
       const errorMessage = handleApiError(error, 'No se pudo limpiar los VIPs expirados')
@@ -179,7 +184,7 @@ export default function KickAdminPage() {
         title: 'Error',
         description: errorMessage,
         status: 'error',
-        duration: 5000,
+        duration: 5000
       })
     } finally {
       setCleaningVips(false)
@@ -193,7 +198,9 @@ export default function KickAdminPage() {
           <Container maxW="container.xl" py={8}>
             <VStack spacing={8}>
               <Spinner size="xl" color="purple.500" thickness="4px" />
-              <Text fontSize="lg" color="gray.600">Cargando configuración de Kick...</Text>
+              <Text fontSize="lg" color="gray.600">
+                Cargando configuración de Kick...
+              </Text>
             </VStack>
           </Container>
         </Layout>
@@ -203,33 +210,35 @@ export default function KickAdminPage() {
 
   if (configError || statusError) {
     // Si es un error de endpoints no disponibles, mostrar mensaje más amigable
-    const isEndpointError = configError?.includes('no disponible') ||
-                           statusError?.includes('no disponible') ||
-                           configError?.includes('404') ||
-                           statusError?.includes('404')
+    const isEndpointError =
+      configError?.includes('no disponible') ||
+      statusError?.includes('no disponible') ||
+      configError?.includes('404') ||
+      statusError?.includes('404')
 
     return (
       <RequireAdmin>
-          <Head>
-              <title>Administración de Kick - Luisardito Shop</title>
-              <meta name="description" content="Administración de la integración con Kick en Luisardito Shop"/>
-          </Head>
+        <Head>
+          <title>Administración de Kick - Luisardito Shop</title>
+          <meta
+            name="description"
+            content="Administración de la integración con Kick en Luisardito Shop"
+          />
+        </Head>
         <Layout>
           <Container maxW="container.xl" py={8}>
-            <Alert
-              status={isEndpointError ? "warning" : "error"}
-              borderRadius="xl"
-            >
+            <Alert status={isEndpointError ? 'warning' : 'error'} borderRadius="xl">
               <AlertIcon />
               <Box>
                 <Text fontWeight="bold">
-                  {isEndpointError ? 'Funcionalidad de Kick no disponible' : 'Error al cargar configuración'}
+                  {isEndpointError
+                    ? 'Funcionalidad de Kick no disponible'
+                    : 'Error al cargar configuración'}
                 </Text>
                 <Text fontSize="sm">
                   {isEndpointError
                     ? 'Los endpoints de administración de Kick no están disponibles en el backend. Contacta al desarrollador para habilitar esta funcionalidad.'
-                    : (configError || statusError)
-                  }
+                    : configError || statusError}
                 </Text>
               </Box>
             </Alert>
@@ -244,11 +253,13 @@ export default function KickAdminPage() {
   const vipEnabled = config?.vip?.points_enabled ?? false
 
   // Calcular estadísticas REALES desde los datos de usuarios (en tiempo real)
-  const migratedUsers = usuariosData?.users?.filter(user => user.botrix_migrated).length ?? 0
-  const totalPointsMigrated = usuariosData?.users?.reduce((sum, user) =>
-    sum + (user.migration_status?.points_migrated || 0), 0
-  ) ?? 0
-  const activeVips = usuariosData?.users?.filter(user => user.vip_status?.is_active).length ?? 0
+  const migratedUsers = usuariosData?.users?.filter((user) => user.botrix_migrated).length ?? 0
+  const totalPointsMigrated =
+    usuariosData?.users?.reduce(
+      (sum, user) => sum + (user.migration_status?.points_migrated || 0),
+      0
+    ) ?? 0
+  const activeVips = usuariosData?.users?.filter((user) => user.vip_status?.is_active).length ?? 0
   const expiredVips = config?.vip?.stats?.expired_vips ?? 0
 
   // Si no hay configuración disponible pero tampoco hay error crítico,
@@ -286,10 +297,7 @@ export default function KickAdminPage() {
                         {status?.connected ? '🟢 Conectado' : '🔴 Desconectado'}
                       </Text>
                       <Text fontSize="sm" color="gray.400">
-                        {status?.connected
-                          ? 'Conexión activa con Kick'
-                          : 'Sin conexión a Kick'
-                        }
+                        {status?.connected ? 'Conexión activa con Kick' : 'Sin conexión a Kick'}
                       </Text>
                     </VStack>
                     <Badge
@@ -363,8 +371,7 @@ export default function KickAdminPage() {
                     <Text fontSize="sm" color={textSecondary}>
                       {hasConfig
                         ? 'Detecta automáticamente respuestas del bot Botrix y migra puntos'
-                        : 'Funcionalidad no disponible - endpoint no configurado'
-                      }
+                        : 'Funcionalidad no disponible - endpoint no configurado'}
                     </Text>
 
                     {migrationEnabled && (
@@ -372,13 +379,17 @@ export default function KickAdminPage() {
                         <Divider />
                         <SimpleGrid columns={2} spacing={4}>
                           <Box>
-                            <Text fontSize="xs" color={textSecondary} mb={1}>Usuarios migrados</Text>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              Usuarios migrados
+                            </Text>
                             <Text fontSize="2xl" fontWeight="bold" color="cyan.500">
                               {migratedUsers}
                             </Text>
                           </Box>
                           <Box>
-                            <Text fontSize="xs" color={textSecondary} mb={1}>Total puntos migrados</Text>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              Total puntos migrados
+                            </Text>
                             <Text fontSize="2xl" fontWeight="bold" color="cyan.500">
                               {totalPointsMigrated.toLocaleString()}
                             </Text>
@@ -445,8 +456,7 @@ export default function KickAdminPage() {
                     <Text fontSize="sm" color={textSecondary}>
                       {hasConfig
                         ? 'Los usuarios VIP ganan puntos adicionales por actividades'
-                        : 'Funcionalidad no disponible - endpoint no configurado'
-                      }
+                        : 'Funcionalidad no disponible - endpoint no configurado'}
                     </Text>
 
                     {vipEnabled && hasConfig && (
@@ -454,13 +464,17 @@ export default function KickAdminPage() {
                         <Divider />
                         <SimpleGrid columns={2} spacing={4}>
                           <Box>
-                            <Text fontSize="xs" color={textSecondary} mb={1}>VIPs activos</Text>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              VIPs activos
+                            </Text>
                             <Text fontSize="2xl" fontWeight="bold" color="yellow.500">
                               {activeVips}
                             </Text>
                           </Box>
                           <Box>
-                            <Text fontSize="xs" color={textSecondary} mb={1}>VIPs expirados</Text>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              VIPs expirados
+                            </Text>
                             <Text fontSize="2xl" fontWeight="bold" color="orange.500">
                               {expiredVips}
                             </Text>
@@ -519,6 +533,15 @@ export default function KickAdminPage() {
                       size="md"
                     >
                       Gestionar Usuarios
+                    </Button>
+                    <Button
+                      colorScheme="teal"
+                      variant="outline"
+                      onClick={() => router.push('/admin/comandos')}
+                      leftIcon={<ChatIcon />}
+                      size="md"
+                    >
+                      Gestionar Comandos
                     </Button>
                   </HStack>
                 </VStack>

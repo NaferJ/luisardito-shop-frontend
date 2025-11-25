@@ -1,17 +1,24 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
-import {
-  useAdminCanjes,
-  useUpdateCanjeEstado,
-  useDevolverCanje
-} from '../../../hooks/useAdminCanjes'
+import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import {
   Box,
   Container,
   Heading,
+  Button,
   Badge,
+  HStack,
+  VStack,
   Spinner,
   Center,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
   useToast,
   Text,
   IconButton,
@@ -21,10 +28,6 @@ import {
   MenuList,
   useColorModeValue,
   Portal,
-  VStack,
-  HStack,
-  Card,
-  CardBody,
   Table,
   Thead,
   Tbody,
@@ -32,51 +35,27 @@ import {
   Th,
   Td,
   TableContainer,
-  Avatar,
-  Flex,
-  SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Alert,
-  AlertIcon,
   Input,
   InputGroup,
   InputLeftElement,
   Select,
-  Stack,
-  Tag,
-  TagLabel,
-  TagCloseButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
+  Flex,
+  SimpleGrid,
+  Avatar,
+  Alert,
+  AlertIcon,
   FormControl,
   FormLabel,
   Textarea,
-  Button,
-  Image
+  Image,
+  Tooltip
 } from '@chakra-ui/react'
-import {
-  SettingsIcon,
-  SearchIcon,
-  EditIcon,
-  CheckIcon,
-  CloseIcon,
-  RepeatIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
-} from '@chakra-ui/icons'
-import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
-import { useMemo, useState } from 'react'
-import type { AxiosError } from 'axios'
-import type { Canje } from '../../../types'
-import Head from "next/head";
+import { useState, useMemo } from 'react'
+import { useAdminCanjes } from '../../../hooks/useAdminCanjes'
+import { useUpdateCanjeEstado, useDevolverCanje } from '../../../hooks/useAdminCanjes'
+import { SettingsIcon, SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { MdShoppingBag, MdPending, MdCheckCircle, MdCancel, MdUndo } from 'react-icons/md'
+import Head from 'next/head'
 
 export default function AdminCanjesPage() {
   const { data: canjes, isLoading, error, refetch } = useAdminCanjes()
@@ -91,40 +70,41 @@ export default function AdminCanjesPage() {
   const [filterEstado, setFilterEstado] = useState<string>('todos')
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Theme colors
-  const cardBg = useColorModeValue('black.50', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
-  const headerBg = useColorModeValue('gray.50', 'gray.700')
+  const textColor = useColorModeValue('gray.800', 'white')
+  const mutedColor = useColorModeValue('gray.600', 'gray.400')
+  const statBg = useColorModeValue('gray.50', 'gray.700')
 
-  // Processed data with filters and sorting
   const processedData = useMemo(() => {
     if (!canjes) return []
 
     let filtered = canjes.filter((canje: any) => {
       const searchLower = searchTerm.toLowerCase()
-      const matchesSearch = (
+      const matchesSearch =
         canje?.Usuario?.nickname?.toLowerCase().includes(searchLower) ||
+        canje?.Usuario?.kick_username?.toLowerCase().includes(searchLower) ||
+        canje?.Usuario?.discord_username?.toLowerCase().includes(searchLower) ||
         canje?.Producto?.nombre?.toLowerCase().includes(searchLower) ||
         canje.id.toString().includes(searchLower) ||
         canje.estado.toLowerCase().includes(searchLower)
-      )
 
       const matchesFilter = filterEstado === 'todos' || canje.estado === filterEstado
 
       return matchesSearch && matchesFilter
     })
 
-    filtered.sort((a: any, b: any) => {
+    return filtered.sort((a: any, b: any) => {
       let aVal = a[sortField]
       let bVal = b[sortField]
 
       if (sortField === 'usuario') {
-        aVal = a?.Usuario?.nickname || a?.usuario?.nickname || ''
-        bVal = b?.Usuario?.nickname || b?.usuario?.nickname || ''
+        aVal = a?.Usuario?.nickname || a?.Usuario?.kick_username || ''
+        bVal = b?.Usuario?.nickname || b?.Usuario?.kick_username || ''
       }
 
       if (sortField === 'producto') {
@@ -139,16 +119,10 @@ export default function AdminCanjesPage() {
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-
-    return filtered
   }, [canjes, searchTerm, sortField, sortDirection, filterEstado])
 
-  // Pagination
   const totalPages = Math.ceil(processedData.length / pageSize)
-  const paginatedData = processedData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  )
+  const paginatedData = processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -159,7 +133,6 @@ export default function AdminCanjesPage() {
     }
   }
 
-  // Statistics
   const stats = useMemo(() => {
     if (!canjes) return null
 
@@ -174,32 +147,52 @@ export default function AdminCanjesPage() {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'pendiente': return 'yellow'
-      case 'entregado': return 'green'
-      case 'cancelado': return 'red'
-      case 'devuelto': return 'purple'
-      default: return 'gray'
+      case 'pendiente':
+        return 'yellow'
+      case 'entregado':
+        return 'green'
+      case 'cancelado':
+        return 'red'
+      case 'devuelto':
+        return 'purple'
+      default:
+        return 'gray'
     }
   }
 
-  const handleUpdateEstado = async (
-    canjeId: number,
-    nuevoEstado: 'pendiente' | 'entregado' | 'cancelado'
-  ) => {
+  const getEstadoIcon = (estado: string) => {
+    switch (estado) {
+      case 'pendiente':
+        return MdPending
+      case 'entregado':
+        return MdCheckCircle
+      case 'cancelado':
+        return MdCancel
+      case 'devuelto':
+        return MdUndo
+      default:
+        return MdShoppingBag
+    }
+  }
+
+  const handleUpdateEstado = async (canjeId: number, nuevoEstado: string) => {
     try {
       await updateEstado.mutateAsync({ canjeId, estado: nuevoEstado })
       toast({
-        title: '✅ Estado actualizado',
+        title: 'Actualizado',
         description: `Canje marcado como ${nuevoEstado}`,
-        status: 'success'
+        status: 'success',
+        duration: 3000,
+        isClosable: true
       })
       refetch()
-    } catch (e: unknown) {
-      const err = e as AxiosError<{ error?: string }>
+    } catch (error) {
       toast({
         title: 'Error',
-        description: err.response?.data?.error || 'No se pudo actualizar',
-        status: 'error'
+        description: 'No se pudo actualizar',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
       })
     }
   }
@@ -208,8 +201,10 @@ export default function AdminCanjesPage() {
     if (!selectedCanje || !devolucionMotivo.trim()) {
       toast({
         title: 'Error',
-        description: 'Debe proporcionar un motivo para la devolución',
-        status: 'error'
+        description: 'Debe proporcionar un motivo',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
       })
       return
     }
@@ -220,20 +215,23 @@ export default function AdminCanjesPage() {
         motivo: devolucionMotivo.trim()
       })
       toast({
-        title: '✅ Canje devuelto',
-        description: 'Los puntos han sido devueltos al usuario',
-        status: 'success'
+        title: 'Devuelto',
+        description: 'Los puntos han sido devueltos',
+        status: 'success',
+        duration: 3000,
+        isClosable: true
       })
       onClose()
       setSelectedCanje(null)
       setDevolucionMotivo('')
       refetch()
-    } catch (e: unknown) {
-      const err = e as AxiosError<{ error?: string }>
+    } catch (error) {
       toast({
         title: 'Error',
-        description: err.response?.data?.error || 'No se pudo procesar la devolución',
-        status: 'error'
+        description: 'No se pudo procesar la devolución',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
       })
     }
   }
@@ -249,10 +247,10 @@ export default function AdminCanjesPage() {
       <RequireAdmin>
         <Layout>
           <Container maxW="container.xl" py={8}>
-            <Center minH="50vh">
-              <VStack spacing={4}>
-                <Spinner size="xl" color="blue.500" thickness="4px" />
-                <Text fontSize="lg" color="gray.600">Cargando canjes...</Text>
+            <Center minH="60vh">
+              <VStack spacing={3}>
+                <Spinner size="xl" color="blue.500" thickness="3px" />
+                <Text color={mutedColor}>Cargando canjes...</Text>
               </VStack>
             </Center>
           </Container>
@@ -266,10 +264,10 @@ export default function AdminCanjesPage() {
       <RequireAdmin>
         <Layout>
           <Container maxW="container.xl" py={8}>
-            <Alert status="error" borderRadius="xl">
+            <Alert status="error" borderRadius="lg">
               <AlertIcon />
               <Box>
-                <Text fontWeight="bold">Error al cargar canjes</Text>
+                <Text fontWeight="semibold">Error al cargar canjes</Text>
                 <Text fontSize="sm">{error.message}</Text>
               </Box>
             </Alert>
@@ -281,498 +279,470 @@ export default function AdminCanjesPage() {
 
   return (
     <RequireAdmin>
-        <Head>
-            <title>Gestión de Canjes - Luisardito Shop</title>
-            <meta name="description" content="Administra los canjes de puntos realizados por los usuarios en Luisardito Shop"/>
-        </Head>
+      <Head>
+        <title>Gestión de Canjes - Luisardito Shop</title>
+        <meta
+          name="description"
+          content="Administra los canjes de puntos realizados por los usuarios"
+        />
+      </Head>
       <Layout>
-        <Container maxW="container.xl" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
-          <VStack spacing={{ base: 4, md: 6 }} align="stretch">
+        <Container maxW="container.xl" py={{ base: 4, md: 6 }} px={{ base: 4, md: 6 }}>
+          <VStack spacing={6} align="stretch">
             {/* Header */}
             <Box>
-              <Heading size={{ base: 'lg', md: 'xl' }} mb={2} color="gray.800" _dark={{ color: 'white' }}>
+              <Heading size="lg" mb={2} color={textColor}>
                 Gestión de Canjes
               </Heading>
-              <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-                Administra todos los canjes de puntos realizados por los usuarios
+              <Text fontSize="sm" color={mutedColor}>
+                Administra todos los canjes de puntos realizados
               </Text>
             </Box>
 
-            {/* Statistics Cards */}
+            {/* Estadísticas */}
             {stats && (
-              <SimpleGrid columns={{ base: 2, md: 5 }} spacing={4}>
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.500">Total Canjes</StatLabel>
-                      <StatNumber color="blue.600" fontSize="2xl">
-                        {stats.total}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
+              <SimpleGrid columns={{ base: 3, md: 5 }} spacing={3}>
+                <Box
+                  bg={statBg}
+                  p={4}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                >
+                  <HStack spacing={2} mb={2}>
+                    <MdShoppingBag size={18} color="blue" />
+                    <Text fontSize="xs" color={mutedColor} fontWeight="medium">
+                      Total
+                    </Text>
+                  </HStack>
+                  <Text fontSize="2xl" fontWeight="bold" color={textColor}>
+                    {stats.total}
+                  </Text>
+                </Box>
 
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.500">Pendientes</StatLabel>
-                      <StatNumber color="yellow.600" fontSize="2xl">
-                        {stats.pendientes}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
+                <Box
+                  bg={statBg}
+                  p={4}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                >
+                  <HStack spacing={2} mb={2}>
+                    <MdPending size={18} color="orange" />
+                    <Text fontSize="xs" color={mutedColor} fontWeight="medium">
+                      Pendientes
+                    </Text>
+                  </HStack>
+                  <Text fontSize="2xl" fontWeight="bold" color="yellow.600">
+                    {stats.pendientes}
+                  </Text>
+                </Box>
 
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.500">Entregados</StatLabel>
-                      <StatNumber color="green.600" fontSize="2xl">
-                        {stats.entregados}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
+                <Box
+                  bg={statBg}
+                  p={4}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                >
+                  <HStack spacing={2} mb={2}>
+                    <MdCheckCircle size={18} color="green" />
+                    <Text fontSize="xs" color={mutedColor} fontWeight="medium">
+                      Entregados
+                    </Text>
+                  </HStack>
+                  <Text fontSize="2xl" fontWeight="bold" color="green.600">
+                    {stats.entregados}
+                  </Text>
+                </Box>
 
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.500">Cancelados</StatLabel>
-                      <StatNumber color="red.600" fontSize="2xl">
-                        {stats.cancelados}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
+                <Box
+                  bg={statBg}
+                  p={4}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                >
+                  <HStack spacing={2} mb={2}>
+                    <MdCancel size={18} color="red" />
+                    <Text fontSize="xs" color={mutedColor} fontWeight="medium">
+                      Cancelados
+                    </Text>
+                  </HStack>
+                  <Text fontSize="2xl" fontWeight="bold" color="red.600">
+                    {stats.cancelados}
+                  </Text>
+                </Box>
 
-                <Card bg={cardBg} shadow="md" borderRadius="xl">
-                  <CardBody textAlign="center" py={6}>
-                    <Stat>
-                      <StatLabel color="black.500">Devueltos</StatLabel>
-                      <StatNumber color="purple.600" fontSize="2xl">
-                        {stats.devueltos}
-                      </StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
+                <Box
+                  bg={statBg}
+                  p={4}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                >
+                  <HStack spacing={2} mb={2}>
+                    <MdUndo size={18} color="purple" />
+                    <Text fontSize="xs" color={mutedColor} fontWeight="medium">
+                      Devueltos
+                    </Text>
+                  </HStack>
+                  <Text fontSize="2xl" fontWeight="bold" color="purple.600">
+                    {stats.devueltos}
+                  </Text>
+                </Box>
               </SimpleGrid>
             )}
 
-            {/* Search and Filters */}
-            <Card bg={cardBg} shadow="md" borderRadius="xl">
-              <CardBody>
-                <Stack direction={{ base: 'column', md: 'row' }} spacing={4} align="center">
-                  <InputGroup maxW={{ base: 'full', md: '300px' }}>
-                    <InputLeftElement>
-                      <SearchIcon color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Buscar canjes..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      borderRadius="lg"
-                    />
-                  </InputGroup>
+            {/* Filtros y búsqueda */}
+            <Box bg={cardBg} p={4} borderRadius="lg" borderWidth="1px" borderColor={borderColor}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                gap={3}
+                align={{ base: 'stretch', md: 'center' }}
+              >
+                <InputGroup maxW={{ base: 'full', md: '300px' }}>
+                  <InputLeftElement>
+                    <SearchIcon color={mutedColor} />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Buscar canjes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    borderRadius="lg"
+                  />
+                </InputGroup>
 
-                  <HStack spacing={4} wrap="wrap">
-                    <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="black.500">Estado:</Text>
-                      <Select
-                        value={filterEstado}
-                        onChange={(e) => {
-                          setFilterEstado(e.target.value)
-                          setCurrentPage(1)
-                        }}
-                        size="sm"
-                        w="120px"
-                        borderRadius="lg"
+                <Select
+                  value={filterEstado}
+                  onChange={(e) => setFilterEstado(e.target.value)}
+                  w={{ base: 'full', md: '150px' }}
+                  borderRadius="lg"
+                >
+                  <option value="todos">Todos</option>
+                  <option value="pendiente">Pendientes</option>
+                  <option value="entregado">Entregados</option>
+                  <option value="cancelado">Cancelados</option>
+                  <option value="devuelto">Devueltos</option>
+                </Select>
+
+                <HStack spacing={2}>
+                  <Text fontSize="sm" color={mutedColor} whiteSpace="nowrap">
+                    Mostrar:
+                  </Text>
+                  <Select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value))
+                      setCurrentPage(1)
+                    }}
+                    w="90px"
+                    borderRadius="lg"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </Select>
+                </HStack>
+
+                {(searchTerm || filterEstado !== 'todos') && (
+                  <Badge colorScheme="blue" fontSize="sm" px={3} py={1} borderRadius="full">
+                    {processedData.length} resultados
+                  </Badge>
+                )}
+              </Flex>
+            </Box>
+
+            {/* Tabla de canjes */}
+            <Box
+              bg={cardBg}
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor={borderColor}
+              overflow="hidden"
+            >
+              <TableContainer>
+                <Table variant="simple" size="sm">
+                  <Thead bg={statBg}>
+                    <Tr>
+                      <Th py={3}>Usuario</Th>
+                      <Th py={3}>Producto</Th>
+                      <Th
+                        py={3}
+                        cursor="pointer"
+                        onClick={() => handleSort('fecha')}
+                        _hover={{ bg: hoverBg }}
+                        display={{ base: 'none', md: 'table-cell' }}
                       >
-                        <option value="todos">Todos</option>
-                        <option value="pendiente">Pendientes</option>
-                        <option value="entregado">Entregados</option>
-                        <option value="cancelado">Cancelados</option>
-                        <option value="devuelto">Devueltos</option>
-                      </Select>
-                    </VStack>
-
-                    <VStack spacing={1} align="start">
-                      <Text fontSize="xs" color="black.500">Mostrar:</Text>
-                      <Select
-                        value={pageSize}
-                        onChange={(e) => {
-                          setPageSize(Number(e.target.value))
-                          setCurrentPage(1)
-                        }}
-                        size="sm"
-                        w="80px"
-                        borderRadius="lg"
-                      >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
-                      </Select>
-                    </VStack>
-                  </HStack>
-
-                  {(searchTerm || filterEstado !== 'todos') && (
-                    <Tag
-                      size="md"
-                      colorScheme="blue"
-                      borderRadius="full"
-                    >
-                      <TagLabel>{processedData.length} resultados</TagLabel>
-                      <TagCloseButton onClick={() => {
-                        setSearchTerm('')
-                        setFilterEstado('todos')
-                      }} />
-                    </Tag>
-                  )}
-                </Stack>
-              </CardBody>
-            </Card>
-
-            {/* Canjes Table */}
-            {!canjes || canjes.length === 0 ? (
-              <Card bg={cardBg} shadow="md" borderRadius="xl">
-                <CardBody>
-                  <Center py={20}>
-                    <VStack spacing={6}>
-                      <Box fontSize="6xl">🛒</Box>
-                      <VStack spacing={2}>
-                        <Text fontSize="lg" fontWeight="bold" color="gray.600">
-                          No hay canjes registrados
-                        </Text>
-                        <Text fontSize="sm" color="gray.500" textAlign="center">
-                          Los canjes aparecerán aquí cuando los usuarios canjeen productos
-                        </Text>
-                      </VStack>
-                    </VStack>
-                  </Center>
-                </CardBody>
-              </Card>
-            ) : (
-              <Card bg={cardBg} shadow="md" borderRadius="xl" overflow="hidden">
-                <TableContainer>
-                  <Table variant="simple">
-                    <Thead bg={headerBg}>
-                      <Tr>
-                        <Th
-                          cursor="pointer"
-                          onClick={() => handleSort('usuario')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>Usuario</Text>
-                            {sortField === 'usuario' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
-                        <Th width="80px">Producto</Th>
-                        <Th>Precio</Th>
-                        <Th
-                          cursor="pointer"
-                          onClick={() => handleSort('estado')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>Estado</Text>
-                            {sortField === 'estado' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
-                        <Th
-                          cursor="pointer"
-                          onClick={() => handleSort('fecha')}
-                          _hover={{ bg: hoverBg }}
-                        >
-                          <HStack>
-                            <Text>Fecha</Text>
-                            {sortField === 'fecha' && (
-                              sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                            )}
-                          </HStack>
-                        </Th>
-                        <Th>Acciones</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {paginatedData.map((canje: any) => (
-                        <Tr
-                          key={canje.id}
-                          _hover={{ bg: hoverBg }}
-                          transition="all 0.2s"
-                        >
-                          <Td>
+                        <HStack spacing={1}>
+                          <Text>Fecha</Text>
+                          {sortField === 'fecha' &&
+                            (sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />)}
+                        </HStack>
+                      </Th>
+                      <Th py={3}>Puntos</Th>
+                      <Th py={3}>Estado</Th>
+                      <Th py={3}>Acciones</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {paginatedData.map((canje: any) => (
+                      <Tr key={canje.id} _hover={{ bg: hoverBg }} transition="all 0.2s">
+                        <Td py={3}>
                           <HStack spacing={3}>
-                              <UserAvatarWithBadge user={(canje?.Usuario || canje?.usuario) as any}>
-                                <Avatar
+                            <UserAvatarWithBadge user={(canje?.Usuario || canje?.usuario) as any}>
+                              <Avatar
+                                size="sm"
+                                name={
+                                  canje?.Usuario?.kick_username ||
+                                  canje?.Usuario?.nickname ||
+                                  canje?.usuario?.nickname ||
+                                  'Usuario'
+                                }
+                                src={canje?.Usuario?.kick_avatar || canje?.usuario?.kick_avatar}
+                              />
+                            </UserAvatarWithBadge>
+                            <VStack align="start" spacing={0}>
+                              <HStack spacing={2}>
+                                <Text fontWeight="medium" fontSize="sm">
+                                  {canje?.Usuario?.kick_username ||
+                                    canje?.Usuario?.nickname ||
+                                    canje?.usuario?.nickname ||
+                                    `Usuario #${canje.usuario_id}`}
+                                </Text>
+                                <UserBadge
+                                  user={(canje?.Usuario || canje?.usuario) as any}
                                   size="sm"
-                                  name={canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname}
-                                  src={canje?.Usuario?.kick_avatar || canje?.usuario?.kick_avatar}
                                 />
-                              </UserAvatarWithBadge>
-                              <VStack align="start" spacing={0}>
-                                <HStack>
-                                  <Text fontWeight="medium" fontSize="sm">
-                                    {canje?.Usuario?.kick_username || canje?.Usuario?.nickname || canje?.usuario?.nickname || `Usuario #${canje.usuario_id}`}
-                                  </Text>
-                                  <UserBadge user={(canje?.Usuario || canje?.usuario) as any} size="sm" />
-                                </HStack>
-                                {(canje?.Usuario?.discord_username || canje?.usuario?.discord_username) && (
-                                  <Text fontSize="xs" color="purple.500">
-                                    Discord: {canje?.Usuario?.discord_username || canje?.usuario?.discord_username}
-                                  </Text>
-                                )}
-                              </VStack>
-                            </HStack>
-                          </Td>
-                          <Td>
-                            <HStack spacing={2}>
-                              <Box
-                                boxSize="40px"
-                                borderRadius="lg"
-                                overflow="hidden"
-                                bg="gray.100"
-                                _dark={{ bg: 'gray.700' }}
-                                flexShrink={0}
-                              >
-                                {canje?.Producto?.imagen_url ? (
-                                  <Image
-                                    src={canje?.Producto?.imagen_url}
-                                    alt={canje?.Producto?.nombre}
-                                    w="full"
-                                    h="full"
-                                    objectFit="cover"
-                                  />
-                                ) : (
-                                  <Center w="full" h="full">
-                                    <Text fontSize="xs" color="gray.500">📦</Text>
-                                  </Center>
-                                )}
-                              </Box>
-                              <VStack align="start" spacing={0}>
-                                <Text
-                                  fontWeight="medium"
-                                  fontSize="sm"
-                                  maxW="150px"
-                                  isTruncated
-                                >
-                                  {canje?.Producto?.nombre || `Producto #${canje.producto_id}`}
+                              </HStack>
+                              {(canje?.Usuario?.discord_username ||
+                                canje?.usuario?.discord_username) && (
+                                <Text fontSize="xs" color="purple.500">
+                                  {canje?.Usuario?.discord_username ||
+                                    canje?.usuario?.discord_username}
                                 </Text>
-                                <Text
-                                  fontSize="xs"
-                                  color="gray.500"
-                                  maxW="150px"
-                                  isTruncated
-                                >
-                                  {canje?.Producto?.descripcion}
-                                </Text>
-                              </VStack>
-                            </HStack>
-                          </Td>
-                          <Td>
-                            <Badge
-                              colorScheme="green"
-                              fontSize="sm"
-                              px={3}
-                              py={1}
-                              borderRadius="full"
-                            >
-                              {canje?.Producto?.precio?.toLocaleString() || 0} pts
-                            </Badge>
-                          </Td>
-                          <Td>
-                            <Badge
-                              colorScheme={getEstadoColor(canje.estado)}
-                              fontSize="sm"
-                              px={3}
-                              py={1}
-                              borderRadius="full"
-                            >
-                              {canje.estado}
-                            </Badge>
-                          </Td>
-                          <Td>
-                            <Text fontSize="sm" color="gray.500">
-                              {new Date(canje.fecha).toLocaleDateString('es-ES', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </Text>
-                          </Td>
-                          <Td>
-                            <Menu isLazy placement="bottom-end">
+                              )}
+                            </VStack>
+                          </HStack>
+                        </Td>
+                        <Td py={3}>
+                          <HStack spacing={3}>
+                            <Image
+                              src={canje?.Producto?.imagen_url || '/placeholder.png'}
+                              alt={canje?.Producto?.nombre}
+                              boxSize="40px"
+                              objectFit="cover"
+                              borderRadius="md"
+                              fallbackSrc="/placeholder.png"
+                            />
+                            <VStack align="start" spacing={0}>
+                              <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                                {canje?.Producto?.nombre || 'Producto eliminado'}
+                              </Text>
+                              <Text fontSize="xs" color={mutedColor} noOfLines={1} maxW="200px">
+                                {canje?.Producto?.descripcion}
+                              </Text>
+                            </VStack>
+                          </HStack>
+                        </Td>
+                        <Td py={3} display={{ base: 'none', md: 'table-cell' }}>
+                          <Text fontSize="sm" color={mutedColor}>
+                            {canje.fecha
+                              ? new Date(canje.fecha).toLocaleDateString('es-ES', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                              : 'N/A'}
+                          </Text>
+                        </Td>
+                        <Td py={3}>
+                          <Badge colorScheme="orange" fontSize="sm" fontWeight="semibold">
+                            {canje?.Producto?.precio?.toLocaleString() || 0}
+                          </Badge>
+                        </Td>
+                        <Td py={3}>
+                          <Badge
+                            colorScheme={getEstadoColor(canje.estado)}
+                            fontSize="sm"
+                            display="flex"
+                            alignItems="center"
+                            gap={1}
+                            w="fit-content"
+                          >
+                            <Box as={getEstadoIcon(canje.estado)} size="14px" />
+                            {canje.estado}
+                          </Badge>
+                        </Td>
+                        <Td py={3}>
+                          <Menu placement="bottom-end">
+                            <Tooltip label="Acciones">
                               <MenuButton
                                 as={IconButton}
                                 aria-label="Acciones"
                                 icon={<SettingsIcon />}
                                 size="sm"
                                 variant="ghost"
-                                borderRadius="lg"
-                                _hover={{ bg: 'blue.50', _dark: { bg: 'blue.900' } }}
                               />
-                              <Portal>
-                                <MenuList
-                                  zIndex={1400}
-                                  borderRadius="xl"
-                                  border="1px solid"
-                                  borderColor={borderColor}
-                                  shadow="xl"
-                                  p={2}
-                                  minW="180px"
-                                >
+                            </Tooltip>
+                            <Portal>
+                              <MenuList
+                                zIndex={1400}
+                                borderRadius="lg"
+                                borderWidth="1px"
+                                borderColor={borderColor}
+                                shadow="lg"
+                                minW="160px"
+                              >
+                                {canje.estado !== 'entregado' && (
                                   <MenuItem
-                                    icon={<RepeatIcon />}
-                                    onClick={() => handleUpdateEstado(canje.id, 'pendiente')}
-                                    borderRadius="lg"
-                                    whiteSpace="nowrap"
-                                  >
-                                    Marcar pendiente
-                                  </MenuItem>
-                                  <MenuItem
-                                    icon={<CheckIcon />}
+                                    fontSize="sm"
                                     onClick={() => handleUpdateEstado(canje.id, 'entregado')}
-                                    borderRadius="lg"
-                                    whiteSpace="nowrap"
                                   >
                                     Marcar entregado
                                   </MenuItem>
+                                )}
+                                {canje.estado !== 'cancelado' && (
                                   <MenuItem
-                                    icon={<CloseIcon />}
+                                    fontSize="sm"
                                     onClick={() => handleUpdateEstado(canje.id, 'cancelado')}
-                                    borderRadius="lg"
-                                    whiteSpace="nowrap"
+                                    color="red.500"
                                   >
-                                    Marcar cancelado
+                                    Cancelar canje
                                   </MenuItem>
+                                )}
+                                {canje.estado !== 'devuelto' && (
                                   <MenuItem
-                                    icon={<RepeatIcon />}
+                                    fontSize="sm"
                                     onClick={() => openDevolucionModal(canje)}
-                                    borderRadius="lg"
-                                    whiteSpace="nowrap"
                                     color="purple.500"
                                   >
-                                    Procesar devolución
+                                    Devolver puntos
                                   </MenuItem>
-                                </MenuList>
-                              </Portal>
-                            </Menu>
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                                )}
+                              </MenuList>
+                            </Portal>
+                          </Menu>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <Box p={4} borderTop="1px solid" borderColor={borderColor}>
-                    <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-                      <Text fontSize="sm" color="gray.600">
-                        Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, processedData.length)} de {processedData.length} canjes
-                      </Text>
+              {/* Paginación */}
+              {totalPages > 1 && (
+                <Box p={4} borderTopWidth="1px" borderColor={borderColor}>
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap={3}
+                  >
+                    <Text fontSize="sm" color={mutedColor}>
+                      {(currentPage - 1) * pageSize + 1} -{' '}
+                      {Math.min(currentPage * pageSize, processedData.length)} de{' '}
+                      {processedData.length}
+                    </Text>
 
-                      <HStack spacing={2}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                          isDisabled={currentPage === 1}
-                          borderRadius="lg"
-                        >
-                          Anterior
-                        </Button>
+                    <HStack spacing={2}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        isDisabled={currentPage === 1}
+                      >
+                        Anterior
+                      </Button>
 
-                        <HStack spacing={1}>
-                          {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                            const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i
-                            if (page > totalPages) return null
+                      <HStack spacing={1}>
+                        {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                          const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i
+                          if (page > totalPages) return null
 
-                            return (
-                              <Button
-                                key={page}
-                                size="sm"
-                                variant={currentPage === page ? "solid" : "outline"}
-                                colorScheme={currentPage === page ? "blue" : "gray"}
-                                onClick={() => setCurrentPage(page)}
-                                borderRadius="lg"
-                              >
-                                {page}
-                              </Button>
-                            )
-                          })}
-                        </HStack>
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                          isDisabled={currentPage === totalPages}
-                          borderRadius="lg"
-                        >
-                          Siguiente
-                        </Button>
+                          return (
+                            <Button
+                              key={page}
+                              size="sm"
+                              variant={currentPage === page ? 'solid' : 'outline'}
+                              colorScheme={currentPage === page ? 'blue' : 'gray'}
+                              onClick={() => setCurrentPage(page)}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        })}
                       </HStack>
-                    </Flex>
-                  </Box>
-                )}
-              </Card>
-            )}
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        isDisabled={currentPage === totalPages}
+                      >
+                        Siguiente
+                      </Button>
+                    </HStack>
+                  </Flex>
+                </Box>
+              )}
+            </Box>
           </VStack>
 
-          {/* Devolución Modal */}
+          {/* Modal de devolución */}
           <Modal isOpen={isOpen} onClose={onClose} isCentered>
-            <ModalOverlay backdropFilter="blur(10px)" />
-            <ModalContent borderRadius="2xl" mx={4}>
+            <ModalOverlay />
+            <ModalContent mx={4} borderRadius="xl">
               <ModalHeader>
                 <VStack align="start" spacing={1}>
-                  <Text>↩️ Procesar Devolución</Text>
-                  <Text fontSize="sm" fontWeight="normal" color="gray.600">
-                    Canje #{selectedCanje?.id} - {selectedCanje?.Producto?.nombre}
+                  <Text>Devolver Puntos</Text>
+                  <Text fontSize="sm" fontWeight="normal" color={mutedColor}>
+                    Canje #{selectedCanje?.id}
                   </Text>
                 </VStack>
               </ModalHeader>
               <ModalCloseButton />
               <ModalBody>
                 <VStack spacing={4} align="stretch">
-                  <Alert status="info" borderRadius="lg">
-                    <AlertIcon />
-                    <Text fontSize="sm">
-                      Esta acción devolverá los puntos al usuario y marcará el canje como devuelto.
+                  <Box>
+                    <Text fontSize="sm" mb={2} color={mutedColor}>
+                      Producto:
                     </Text>
-                  </Alert>
+                    <Text fontWeight="medium">{selectedCanje?.Producto?.nombre}</Text>
+                  </Box>
 
-                  <FormControl isRequired>
-                    <FormLabel>Motivo de la devolución</FormLabel>
+                  <Box>
+                    <Text fontSize="sm" mb={2} color={mutedColor}>
+                      Puntos a devolver:
+                    </Text>
+                    <Badge colorScheme="orange" fontSize="lg" px={3} py={1}>
+                      {selectedCanje?.Producto?.precio?.toLocaleString() || 0}
+                    </Badge>
+                  </Box>
+
+                  <FormControl>
+                    <FormLabel fontSize="sm">Motivo de la devolución</FormLabel>
                     <Textarea
                       value={devolucionMotivo}
                       onChange={(e) => setDevolucionMotivo(e.target.value)}
-                      placeholder="Describe el motivo de la devolución..."
-                      borderRadius="lg"
-                      resize="none"
+                      placeholder="Ej: Error en la entrega, producto no disponible, etc."
                       rows={3}
                     />
                   </FormControl>
                 </VStack>
               </ModalBody>
-              <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={onClose} borderRadius="lg">
+              <ModalFooter gap={3}>
+                <Button variant="ghost" onClick={onClose}>
                   Cancelar
                 </Button>
                 <Button
                   colorScheme="purple"
                   onClick={handleDevolucion}
                   isLoading={devolver.isPending}
-                  borderRadius="lg"
-                  isDisabled={!devolucionMotivo.trim()}
                 >
-                  Procesar Devolución
+                  Devolver
                 </Button>
               </ModalFooter>
             </ModalContent>

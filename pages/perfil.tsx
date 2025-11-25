@@ -10,16 +10,11 @@ import {
   Avatar,
   Badge,
   Divider,
-  Card,
-  CardBody,
   Heading,
   useColorModeValue,
   Flex,
   Icon,
-  Stack,
-  SimpleGrid,
   useToast,
-  Input,
   useDisclosure,
   Modal,
   ModalOverlay,
@@ -30,10 +25,13 @@ import {
   ModalFooter,
   FormControl,
   FormLabel,
-  Image,
+  Input,
+  SimpleGrid,
+  HStack,
+  Spinner
 } from '@chakra-ui/react'
-import { DownloadIcon, EditIcon } from '@chakra-ui/icons'
-import { MdSwapHoriz, MdShoppingBag, MdHistory } from 'react-icons/md'
+import { MdHistory, MdShoppingBag, MdLogout, MdSync } from 'react-icons/md'
+import { FaDiscord, FaKickstarter, FaTrophy, FaEdit } from 'react-icons/fa'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import api from '../lib/api'
@@ -47,28 +45,19 @@ export default function PerfilPage() {
   const [isUpdatingKickInfo, setIsUpdatingKickInfo] = useState(false)
   const [isUpdatingDiscord, setIsUpdatingDiscord] = useState(false)
 
-  // Modal para editar Discord
   const { isOpen: isDiscordOpen, onOpen: onDiscordOpen, onClose: onDiscordClose } = useDisclosure()
   const [discordUsername, setDiscordUsername] = useState(user?.discord_username || '')
 
-  const bgGradient = useColorModeValue(
-    'linear(to-br, blue.50, purple.50)',
-    'linear(to-br, blue.900, purple.900)'
-  )
+  const bgColor = useColorModeValue('gray.50', 'gray.900')
   const cardBg = useColorModeValue('white', 'gray.800')
-  const discordWarningBg = useColorModeValue('orange.50', 'orange.900')
-  const discordWarningBorder = useColorModeValue('orange.300', 'orange.600')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const textColor = useColorModeValue('gray.800', 'white')
+  const mutedColor = useColorModeValue('gray.600', 'gray.400')
+  const hoverBg = useColorModeValue('gray.50', 'gray.700')
 
   const handleLogout = () => {
     logout()
-  }
-
-  const goToHistorial = () => {
-    router.push('/historial')
-  }
-
-  const goToCanjes = () => {
-    router.push('/canjes')
+    router.push('/login')
   }
 
   const handleUpdateKickInfo = async () => {
@@ -76,19 +65,19 @@ export default function PerfilPage() {
     try {
       await updateUserKickInfo()
       toast({
-        title: 'Información actualizada',
-        description: 'La información de Kick se ha sincronizado correctamente',
+        title: 'Sincronizado',
+        description: 'Información de Kick actualizada',
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
     } catch (error) {
       toast({
-        title: 'Error al actualizar',
-        description: 'No se pudo sincronizar la información de Kick',
+        title: 'Error',
+        description: 'No se pudo sincronizar',
         status: 'error',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
     } finally {
       setIsUpdatingKickInfo(false)
@@ -101,22 +90,22 @@ export default function PerfilPage() {
       await api.put('/api/usuarios/me', { discord_username: discordUsername })
       await refreshUser()
       toast({
-        title: 'Discord actualizado',
-        description: 'Tu username de Discord se ha actualizado correctamente',
+        title: 'Actualizado',
+        description: 'Username de Discord guardado',
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
       onDiscordClose()
     } catch (error: any) {
-      console.error('Error updating Discord:', error)
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Error desconocido'
+      const errorMessage =
+        error.response?.data?.message || error.response?.data?.error || 'Error al actualizar'
       toast({
-        title: 'Error al actualizar Discord',
-        description: `${errorMessage}`,
+        title: 'Error',
+        description: errorMessage,
         status: 'error',
         duration: 5000,
-        isClosable: true,
+        isClosable: true
       })
     } finally {
       setIsUpdatingDiscord(false)
@@ -132,453 +121,311 @@ export default function PerfilPage() {
     return (
       <RequireAuth>
         <Layout>
-          <Container maxW="container.lg" py={8}>
-            <Text>Cargando...</Text>
+          <Container maxW="container.md" py={8}>
+            <Flex justify="center" align="center" minH="400px">
+              <Spinner size="xl" />
+            </Flex>
           </Container>
         </Layout>
       </RequireAuth>
     )
   }
 
-  // Determinar qué avatar y nombre usar
-  let avatarSrc = user.kick_avatar || undefined
+  const avatarSrc = user.kick_avatar || undefined
   const displayName = user.kick_username || user.nickname || user.nombre || user.email
-
-  // Si el usuario está conectado con Kick pero no tiene avatar, usar un fallback
-  if (user.kick_username && !user.kick_avatar) {
-    avatarSrc = undefined
-  }
 
   return (
     <RequireAuth>
-        <Head>
-            <title>Perfil - Luisardito Shop</title>
-            <meta name="description" content="Perfil de usuario en Luisardito Shop"/>
-        </Head>
+      <Head>
+        <title>Perfil - Luisardito Shop</title>
+        <meta name="description" content={`Perfil de ${displayName} en Luisardito Shop`} />
+      </Head>
       <Layout>
-        <Container maxW="container.lg" py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
-          <VStack spacing={{ base: 4, md: 6 }} align="stretch">
-            {/* Encabezado de perfil con diseño responsive */}
-            <Card
+        <Container maxW="container.md" px={{ base: 4, md: 6 }} py={{ base: 6, md: 10 }}>
+          <VStack spacing={6} align="stretch">
+            {/* Card Principal */}
+            <Box
               bg={cardBg}
-              shadow="lg"
-              borderRadius="2xl"
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor={borderColor}
               overflow="hidden"
             >
-              <Box bgGradient={bgGradient} p={{ base: 4, md: 6 }}>
-                <Stack
-                  direction={{ base: 'column', sm: 'row' }}
-                  spacing={{ base: 4, sm: 6 }}
-                  align="center"
-                  textAlign={{ base: 'center', sm: 'left' }}
-                >
+              {/* Header con Avatar y Puntos */}
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                align="center"
+                justify="space-between"
+                p={{ base: 6, md: 8 }}
+                gap={6}
+              >
+                <Flex align="center" gap={4} flex="1" w={{ base: 'full', md: 'auto' }}>
                   <UserAvatarWithBadge user={user as any}>
                     <Avatar
-                      size={{ base: 'xl', md: '2xl' }}
+                      size="xl"
                       name={displayName}
                       src={avatarSrc}
-                      border="4px solid"
-                      borderColor="white"
-                      shadow="xl"
+                      borderWidth="2px"
+                      borderColor={borderColor}
                     />
                   </UserAvatarWithBadge>
-                  <VStack align={{ base: 'center', sm: 'start' }} spacing={2} flex="1">
-                    <Heading
-                      size={{ base: 'md', md: 'lg' }}
-                      color="black.900"
-                      textShadow="0 2px 4px rgba(0,0,0,0.3)"
-                    >
+                  <VStack align="start" spacing={1} flex="1">
+                    <Heading size="md" color={textColor}>
                       {displayName}
                     </Heading>
-                    <UserBadge user={user as any} size="md" />
-                    <Text
-                      color="black.800"
-                      fontSize={{ base: 'sm', md: 'md' }}
-                      textShadow="0 1px 2px rgba(0,0,0,0.3)"
-                    >
+                    <Text fontSize="sm" color={mutedColor}>
                       {user.email}
                     </Text>
-                    <Badge
-                      colorScheme="yellow"
-                      fontSize={{ base: 'sm', md: 'md' }}
-                      px={4}
-                      py={2}
-                      borderRadius="full"
-                      textTransform="none"
-                      fontWeight="bold"
-                    >
-                      {user.puntos?.toLocaleString()} puntos
-                    </Badge>
-
-                    {/* Indicador de usuario de Kick */}
-                    {user.kick_username && (
-                      <Badge
-                        colorScheme="green"
-                        fontSize="xs"
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                      >
-                        Conectado con Kick
-                      </Badge>
-                    )}
+                    <UserBadge user={user as any} size="sm" />
                   </VStack>
-                </Stack>
-              </Box>
-            </Card>
+                </Flex>
 
-            {/* Estadísticas rápidas - Responsive */}
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4}>
-              <Card
-                bg={cardBg}
-                shadow="md"
-                borderRadius="xl"
-                transition="all 0.2s"
-                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
-                cursor="pointer"
-                onClick={goToHistorial}
-              >
-                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={MdHistory} boxSize={8} color="teal.500" mb={3} />
-                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="teal.600">
+                <VStack spacing={1} align={{ base: 'center', md: 'end' }}>
+                  <Text
+                    fontSize="xs"
+                    color={mutedColor}
+                    textTransform="uppercase"
+                    fontWeight="semibold"
+                  >
+                    Puntos
+                  </Text>
+                  <Text fontSize="3xl" fontWeight="bold" color="green.500" lineHeight="1">
                     {user.puntos?.toLocaleString()}
                   </Text>
-                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Puntos totales</Text>
-                  <Button
-                    mt={3}
-                    size="sm"
-                    colorScheme="teal"
-                    variant="ghost"
-                    rightIcon={<Icon as={MdHistory} />}
-                    fontSize="xs"
-                  >
-                    Ver historial
-                  </Button>
-                </CardBody>
-              </Card>
+                </VStack>
+              </Flex>
 
-              <Card
-                bg={cardBg}
-                shadow="md"
-                borderRadius="xl"
-                transition="all 0.2s"
-                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
-                cursor="pointer"
-                onClick={goToCanjes}
-              >
-                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={MdSwapHoriz} boxSize={8} color="blue.500" mb={3} />
-                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="blue.600">
-                    Canjes
-                  </Text>
-                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Mis canjes realizados</Text>
-                  <Button
-                    mt={3}
-                    size="sm"
-                    colorScheme="blue"
-                    variant="ghost"
-                    rightIcon={<Icon as={MdSwapHoriz} />}
-                    fontSize="xs"
-                  >
-                    Ver canjes
-                  </Button>
-                </CardBody>
-              </Card>
+              <Divider />
 
-              <Card
-                bg={cardBg}
-                shadow="md"
-                borderRadius="xl"
-                transition="all 0.2s"
-                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
-                cursor="pointer"
-                onClick={() => router.push('/')}
-                gridColumn={{ base: 'span 1', sm: 'span 2', md: 'span 1' }}
-              >
-                <CardBody textAlign="center" py={{ base: 6, md: 8 }}>
-                  <Icon as={MdShoppingBag} boxSize={8} color="purple.500" mb={3} />
-                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
-                    Tienda
-                  </Text>
-                  <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>Catálogo de productos</Text>
-                  <Button
-                    mt={3}
-                    size="sm"
-                    colorScheme="purple"
-                    variant="ghost"
-                    rightIcon={<Icon as={MdShoppingBag} />}
-                    fontSize="xs"
-                  >
-                    Ir a la tienda
-                  </Button>
-                </CardBody>
-              </Card>
-            </SimpleGrid>
-
-            {/* Información de cuenta - Responsive */}
-            <Card bg={cardBg} shadow="md" borderRadius="xl">
-              <CardBody p={{ base: 4, md: 6 }}>
+              {/* Información de Cuenta */}
+              <Box p={{ base: 6, md: 8 }}>
+                <Heading size="sm" mb={4} color={textColor}>
+                  Información de Cuenta
+                </Heading>
                 <VStack spacing={4} align="stretch">
-                  <Heading size={{ base: 'sm', md: 'md' }} mb={2} color="black.700">
-                    Información de cuenta
-                  </Heading>
-
-                  <VStack spacing={3} align="stretch">
-                    <Flex
-                      direction={{ base: 'column', sm: 'row' }}
-                      justify="space-between"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={2}
-                    >
-                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        Nombre de usuario:
-                      </Text>
-                      <Text fontSize={{ base: 'sm', md: 'md' }} fontFamily="mono">
-                        {displayName}
-                      </Text>
-                    </Flex>
-
-                    <Flex
-                      direction={{ base: 'column', sm: 'row' }}
-                      justify="space-between"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={2}
-                    >
-                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        Email:
-                      </Text>
-                      <Text fontSize={{ base: 'sm', md: 'md' }} color="blue.600">
-                        {user.email}
-                      </Text>
-                    </Flex>
-
-                    <Flex
-                      direction={{ base: 'column', sm: 'row' }}
-                      justify="space-between"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={2}
-                    >
-                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        Puntos disponibles:
-                      </Text>
-                      <Badge
-                        colorScheme="green"
-                        fontSize={{ base: 'sm', md: 'md' }}
-                        px={3}
-                        py={1}
-                        borderRadius="md"
-                      >
-                        {user.puntos?.toLocaleString()} puntos
-                      </Badge>
-                    </Flex>
-
-                    {user.kick_username && (
-                      <Flex
-                        direction={{ base: 'column', sm: 'row' }}
-                        justify="space-between"
-                        align={{ base: 'start', sm: 'center' }}
-                        gap={2}
-                      >
-                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                          Kick Username:
-                        </Text>
-                        <Badge
-                          colorScheme="green"
-                          fontSize={{ base: 'sm', md: 'md' }}
-                          px={3}
-                          py={1}
-                          borderRadius="md"
-                        >
-                          {user.kick_username}
-                        </Badge>
-                      </Flex>
-                    )}
-
-                    <Flex
-                      direction={{ base: 'column', sm: 'row' }}
-                      justify="space-between"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={2}
-                      p={!user.discord_username ? 3 : 0}
-                      bg={!user.discord_username ? discordWarningBg : 'transparent'}
-                      borderRadius="lg"
-                      border={!user.discord_username ? '2px solid' : 'none'}
-                      borderColor={!user.discord_username ? discordWarningBorder : 'transparent'}
-                    >
-                      <Flex align="center" gap={2}>
-                        <Image src="/images/discordlogo.png" alt="Discord" boxSize={5} />
-                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                          Discord:
-                        </Text>
-                      </Flex>
-                      <Flex align="center" gap={2}>
-                        {user.discord_username ? (
-                          <Badge
-                            colorScheme="purple"
-                            fontSize={{ base: 'sm', md: 'md' }}
-                            px={3}
-                            py={1}
-                            borderRadius="md"
-                          >
-                            {user.discord_username}
-                          </Badge>
-                        ) : (
-                          <Text fontSize={{ base: 'sm', md: 'md' }} color="orange.600" fontWeight="medium">
-                            No configurado - Agrégalo ahora
+                  {/* Kick */}
+                  {user.kick_username && (
+                    <Flex justify="space-between" align="center">
+                      <HStack spacing={3}>
+                        <Icon as={FaKickstarter} color="green.500" boxSize={5} />
+                        <Box>
+                          <Text fontSize="xs" color={mutedColor} lineHeight="1.2">
+                            Kick
                           </Text>
-                        )}
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorScheme={!user.discord_username ? 'orange' : 'purple'}
-                          leftIcon={<EditIcon />}
-                          onClick={openDiscordModal}
-                        >
-                          {user.discord_username ? 'Editar' : 'Agregar'}
-                        </Button>
-                      </Flex>
+                          <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                            {user.kick_username}
+                          </Text>
+                        </Box>
+                      </HStack>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="green"
+                        leftIcon={<Icon as={MdSync} />}
+                        onClick={handleUpdateKickInfo}
+                        isLoading={isUpdatingKickInfo}
+                      >
+                        Sincronizar
+                      </Button>
                     </Flex>
+                  )}
 
-                    {/* Información VIP */}
-                    {user.vip_status?.is_active && (
-                      <Flex
-                        direction={{ base: 'column', sm: 'row' }}
-                        justify="space-between"
-                        align={{ base: 'start', sm: 'center' }}
-                        gap={2}
-                      >
-                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                          Estado VIP:
+                  {/* Discord */}
+                  <Flex justify="space-between" align="center">
+                    <HStack spacing={3}>
+                      <Icon as={FaDiscord} color="purple.500" boxSize={5} />
+                      <Box>
+                        <Text fontSize="xs" color={mutedColor} lineHeight="1.2">
+                          Discord
                         </Text>
-                        <Badge
-                          colorScheme="yellow"
-                          fontSize={{ base: 'sm', md: 'md' }}
-                          px={3}
-                          py={1}
-                          borderRadius="md"
-                        >
-                          VIP {user.vip_status.is_permanent ? 'Permanente' :
-                            `hasta ${new Date(user.vip_status.expires_at!).toLocaleDateString('es-ES')}`}
-                        </Badge>
-                      </Flex>
-                    )}
-
-                    {/* Estado de migración Botrix */}
-                    {user.migration_status?.migrated && (
-                      <Flex
-                        direction={{ base: 'column', sm: 'row' }}
-                        justify="space-between"
-                        align={{ base: 'start', sm: 'center' }}
-                        gap={2}
-                      >
-                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                          Migración Botrix:
+                        <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                          {user.discord_username || 'No configurado'}
                         </Text>
-                        <Badge
-                          colorScheme="cyan"
-                          fontSize={{ base: 'sm', md: 'md' }}
-                          px={3}
-                          py={1}
-                          borderRadius="md"
-                        >
-                          ✅ {user.migration_status.points_migrated?.toLocaleString()} puntos migrados
-                        </Badge>
-                      </Flex>
-                    )}
-
-                    <Flex
-                      direction={{ base: 'column', sm: 'row' }}
-                      justify="space-between"
-                      align={{ base: 'start', sm: 'center' }}
-                      gap={2}
+                      </Box>
+                    </HStack>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="purple"
+                      leftIcon={<Icon as={FaEdit} />}
+                      onClick={openDiscordModal}
                     >
-                      <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>
-                        Miembro desde:
-                      </Text>
-                      <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
-                        {(user.creado || user.created_at) && new Date((user.creado || user.created_at)!).toLocaleDateString('es-ES', {
+                      {user.discord_username ? 'Editar' : 'Agregar'}
+                    </Button>
+                  </Flex>
+
+                  {/* VIP Status */}
+                  {user.vip_status?.is_active && (
+                    <Flex justify="space-between" align="center">
+                      <HStack spacing={3}>
+                        <Icon as={FaTrophy} color="yellow.500" boxSize={5} />
+                        <Box>
+                          <Text fontSize="xs" color={mutedColor} lineHeight="1.2">
+                            Estado VIP
+                          </Text>
+                          <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                            {user.vip_status.is_permanent
+                              ? 'Permanente'
+                              : new Date(user.vip_status.expires_at!).toLocaleDateString('es-ES')}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    </Flex>
+                  )}
+
+                  {/* Migración Botrix */}
+                  {user.migration_status?.migrated && (
+                    <Flex justify="space-between" align="center">
+                      <HStack spacing={3}>
+                        <Box
+                          w={5}
+                          h={5}
+                          borderRadius="full"
+                          bg="cyan.500"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <Text fontSize="xs" color="white" fontWeight="bold">
+                            ✓
+                          </Text>
+                        </Box>
+                        <Box>
+                          <Text fontSize="xs" color={mutedColor} lineHeight="1.2">
+                            Puntos Migrados
+                          </Text>
+                          <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                            {user.migration_status.points_migrated?.toLocaleString()} puntos
+                          </Text>
+                        </Box>
+                      </HStack>
+                    </Flex>
+                  )}
+
+                  {/* Miembro desde */}
+                  <Flex justify="space-between" align="center">
+                    <Text fontSize="sm" color={mutedColor}>
+                      Miembro desde
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                      {(user.creado || user.created_at) &&
+                        new Date((user.creado || user.created_at)!).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
                         })}
-                      </Text>
-                    </Flex>
-                  </VStack>
-
-                  <Divider my={4} />
-
-                  {/* Botón para actualizar información de Kick */}
-                  {user.kick_username && (
-                    <>
-                      <Button
-                        leftIcon={<DownloadIcon />}
-                        colorScheme="blue"
-                        variant="outline"
-                        onClick={handleUpdateKickInfo}
-                        isLoading={isUpdatingKickInfo}
-                        loadingText="Sincronizando..."
-                        size={{ base: 'md', md: 'lg' }}
-                        borderRadius="xl"
-                        fontWeight="bold"
-                        _hover={{
-                          transform: 'translateY(-1px)',
-                          shadow: 'md'
-                        }}
-                      >
-                        Sincronizar información de Kick
-                      </Button>
-                      <Divider my={4} />
-                    </>
-                  )}
-
-                  <Button
-                    colorScheme="red"
-                    variant="outline"
-                    onClick={handleLogout}
-                    size={{ base: 'md', md: 'lg' }}
-                    borderRadius="xl"
-                    fontWeight="bold"
-                    _hover={{
-                      transform: 'translateY(-1px)',
-                      shadow: 'md'
-                    }}
-                  >
-                    Cerrar sesión
-                  </Button>
+                    </Text>
+                  </Flex>
                 </VStack>
-              </CardBody>
-            </Card>
+              </Box>
+            </Box>
+
+            {/* Navegación Rápida */}
+            <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4}>
+              <Button
+                h="80px"
+                bg={cardBg}
+                borderWidth="1px"
+                borderColor={borderColor}
+                borderRadius="xl"
+                onClick={() => router.push('/historial')}
+                _hover={{ bg: hoverBg, transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+                flexDirection="column"
+                gap={2}
+              >
+                <Icon as={MdHistory} boxSize={6} color="blue.500" />
+                <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                  Historial
+                </Text>
+              </Button>
+
+              <Button
+                h="80px"
+                bg={cardBg}
+                borderWidth="1px"
+                borderColor={borderColor}
+                borderRadius="xl"
+                onClick={() => router.push('/canjes')}
+                _hover={{ bg: hoverBg, transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+                flexDirection="column"
+                gap={2}
+              >
+                <Icon as={FaTrophy} boxSize={6} color="purple.500" />
+                <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                  Mis Canjes
+                </Text>
+              </Button>
+
+              <Button
+                h="80px"
+                bg={cardBg}
+                borderWidth="1px"
+                borderColor={borderColor}
+                borderRadius="xl"
+                onClick={() => router.push('/')}
+                _hover={{ bg: hoverBg, transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+                flexDirection="column"
+                gap={2}
+                gridColumn={{ base: 'span 2', md: 'span 1' }}
+              >
+                <Icon as={MdShoppingBag} boxSize={6} color="teal.500" />
+                <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                  Tienda
+                </Text>
+              </Button>
+            </SimpleGrid>
+
+            {/* Botón de Cerrar Sesión */}
+            <Button
+              size="lg"
+              colorScheme="red"
+              variant="outline"
+              leftIcon={<Icon as={MdLogout} />}
+              onClick={handleLogout}
+              borderRadius="xl"
+              h="56px"
+              mb={-2}
+            >
+              Cerrar Sesión
+            </Button>
           </VStack>
         </Container>
 
-        {/* Modal para editar Discord */}
-        <Modal isOpen={isDiscordOpen} onClose={onDiscordClose}>
+        {/* Modal Discord */}
+        <Modal isOpen={isDiscordOpen} onClose={onDiscordClose} isCentered>
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent mx={4} borderRadius="xl">
             <ModalHeader>Configurar Discord</ModalHeader>
             <ModalCloseButton />
-            <ModalBody>
+            <ModalBody pb={6}>
               <FormControl>
-                <FormLabel>Username de Discord</FormLabel>
+                <FormLabel fontSize="sm" color={mutedColor}>
+                  Username de Discord
+                </FormLabel>
                 <Input
                   value={discordUsername}
                   onChange={(e) => setDiscordUsername(e.target.value)}
                   placeholder="usuario#1234"
+                  size="lg"
+                  borderRadius="lg"
                 />
-                <Text fontSize="xs" color="gray.500" mt={1}>
-                  Formato: usuario#1234 o simplemente usuario
+                <Text fontSize="xs" color={mutedColor} mt={2}>
+                  Ejemplo: usuario#1234 o simplemente usuario
                 </Text>
               </FormControl>
             </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onDiscordClose}>
+            <ModalFooter gap={3}>
+              <Button variant="ghost" onClick={onDiscordClose}>
                 Cancelar
               </Button>
               <Button
                 colorScheme="purple"
                 onClick={handleUpdateDiscord}
                 isLoading={isUpdatingDiscord}
-                loadingText="Actualizando..."
+                leftIcon={<Icon as={FaDiscord} />}
               >
                 Guardar
               </Button>

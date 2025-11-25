@@ -1,6 +1,27 @@
-import { Box, Container, Flex, HStack, Link as ChakraLink, Text, useColorModeValue, Icon } from '@chakra-ui/react'
+import {
+  Box,
+  Container,
+  Flex,
+  HStack,
+  Link as ChakraLink,
+  Text,
+  useColorModeValue,
+  Icon
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
+import { keyframes } from '@emotion/react'
+
+// Animaciones navideñas sutiles
+const twinkle = keyframes`
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+`
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+`
 
 function GitHubIcon(props: React.ComponentProps<typeof Icon>) {
   return (
@@ -14,26 +35,118 @@ function GitHubIcon(props: React.ComponentProps<typeof Icon>) {
 }
 
 export function Footer() {
-  const bg = useColorModeValue('rgba(247, 250, 252, 0.8)', 'rgba(26, 32, 44, 0.6)')
+  const bg = useColorModeValue('rgba(247, 250, 252, 0.9)', 'rgba(26, 32, 44, 0.7)')
   const borderClr = useColorModeValue('gray.200', 'gray.700')
   const color = useColorModeValue('gray.700', 'gray.300')
   const year = new Date().getFullYear()
 
   return (
-    <Box as="footer" role="contentinfo" bg={bg} sx={{ backdropFilter: 'saturate(160%) blur(8px)', WebkitBackdropFilter: 'saturate(160%) blur(8px)' }} borderTop="1px solid" borderColor={borderClr}>
-      <Container maxW="6xl" px={4} py={4}>
-        <Flex align="center" gap={3} wrap="wrap">
-          <Text fontSize="sm" color={color} display="inline-flex" alignItems="center" gap={1}>
+    <Box
+      as="footer"
+      role="contentinfo"
+      bg={bg}
+      sx={{
+        backdropFilter: 'saturate(160%) blur(8px)',
+        WebkitBackdropFilter: 'saturate(160%) blur(8px)'
+      }}
+      borderTop="1px solid"
+      borderColor={borderClr}
+      position="relative"
+      overflow="hidden"
+    >
+      {/* Decoración navideña sutil - luces en la parte superior */}
+      <HStack
+        position="absolute"
+        top={2}
+        left="50%"
+        transform="translateX(-50%)"
+        spacing={2}
+        zIndex={1}
+        pointerEvents="none"
+        display={{ base: 'none', md: 'flex' }}
+      >
+        {['red.400', 'green.400', 'yellow.400', 'blue.400', 'purple.400', 'pink.400'].map(
+          (color, i) => (
+            <Box
+              key={i}
+              w="4px"
+              h="4px"
+              bg={color}
+              borderRadius="full"
+              animation={`${twinkle} ${2 + i * 0.15}s ease-in-out infinite`}
+              boxShadow={`0 0 4px ${color}`}
+            />
+          )
+        )}
+      </HStack>
+
+      {/* Copos de nieve decorativos */}
+      <Box
+        position="absolute"
+        left={4}
+        top="50%"
+        transform="translateY(-50%)"
+        fontSize="lg"
+        opacity={0.3}
+        animation={`${float} 3s ease-in-out infinite`}
+        display={{ base: 'none', lg: 'block' }}
+      >
+        ❄️
+      </Box>
+      <Box
+        position="absolute"
+        right={4}
+        top="50%"
+        transform="translateY(-50%)"
+        fontSize="lg"
+        opacity={0.3}
+        animation={`${float} 3.5s ease-in-out infinite`}
+        display={{ base: 'none', lg: 'block' }}
+      >
+        ❄️
+      </Box>
+
+      <Container maxW="6xl" px={4} py={4} position="relative" zIndex={2}>
+        <Flex align="center" gap={3} wrap="wrap" justify={{ base: 'center', md: 'space-between' }}>
+          <Text
+            fontSize="sm"
+            color={color}
+            display="inline-flex"
+            alignItems="center"
+            gap={1}
+            flexWrap="wrap"
+            justifyContent="center"
+          >
             © {year} Luisardito Shop — Creado por{' '}
-            <ChakraLink as={NextLink} href="https://github.com/naferj" isExternal color="blue.400" _hover={{ textDecor: 'underline' }}>
+            <ChakraLink
+              as={NextLink}
+              href="https://github.com/naferj"
+              isExternal
+              color="blue.400"
+              _hover={{ textDecor: 'underline' }}
+            >
               NaferJ
             </ChakraLink>
-            <ChakraLink href="https://github.com/naferj" isExternal aria-label="GitHub de NaferJ" color={color} _hover={{ color: 'gray.500' }}>
+            <ChakraLink
+              href="https://github.com/naferj"
+              isExternal
+              aria-label="GitHub de NaferJ"
+              color={color}
+              _hover={{ color: 'gray.500' }}
+            >
               <GitHubIcon boxSize={5} />
             </ChakraLink>
           </Text>
-          <HStack spacing={2} ml={{ base: 0, md: 'auto' }}>
-            <Text fontSize="sm" color={color}>En caso de cualquier duda o inconveniente contactar a un moderador</Text>
+          <HStack spacing={3} flexWrap="wrap" justifyContent="center">
+            <Text fontSize="xs" color={color} display="flex" alignItems="center" gap={1}>
+              <span role="img" aria-label="regalo">
+                🎄
+              </span>
+              Felices Fiestas
+            </Text>
+            <Text fontSize="xs" color={color}>
+              En caso de dudas contactar a un moderador
+            </Text>
           </HStack>
         </Flex>
       </Container>

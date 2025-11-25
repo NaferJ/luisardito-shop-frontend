@@ -28,7 +28,6 @@ import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@
 import { Producto } from '../types'
 import { useUpdateProducto } from '../hooks/useProductosAdmin'
 import { useRef } from 'react'
-import type { KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
@@ -41,7 +40,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
-  // Todos los hooks DEBEN ejecutarse primero, antes de cualquier return condicional
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement>(null)
   const toast = useToast()
@@ -50,20 +48,54 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const updateProductoMutation = useUpdateProducto()
 
-  // UI theme helpers (light/dark aware) - todos los hooks useColorModeValue
-  const menuBg = useColorModeValue('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.85)')
-  const menuBorder = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
-  const menuColor = useColorModeValue('gray.800', 'gray.100')
-  const menuHoverBg = useColorModeValue('gray.100', 'gray.700')
-  const overlayGradient = useColorModeValue(
-    'linear-gradient(to top, rgba(0,0,0,0.825) 0%, rgba(0,0,0,0.525) 40%, rgba(0,0,0,0) 100%)',
-    'linear-gradient(to top, rgba(0,0,0,0.975) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0) 100%)'
+  // Theme colors - MUST be called before any conditional returns
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const textColor = useColorModeValue('gray.700', 'gray.300')
+  const headingColor = useColorModeValue('gray.900', 'white')
+  const hoverBorderColor = useColorModeValue('blue.300', 'blue.600')
+  const hoverShadow = useColorModeValue(
+    '0 20px 40px rgba(59, 130, 246, 0.2)',
+    '0 20px 40px rgba(59, 130, 246, 0.4)'
   )
-  const gearBg = useColorModeValue('white', 'gray.700')
-  const gearColor = useColorModeValue('blue.600', 'cyan.300')
-  const gearBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  const gearHoverBg = useColorModeValue('gray.50', 'gray.600')
-  const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
+
+  // Menu colors
+  const menuBg = useColorModeValue('white', 'gray.700')
+  const menuHoverBg = useColorModeValue('gray.100', 'gray.600')
+
+  // No image placeholder colors
+  const noImageBg = useColorModeValue('gray.100', 'gray.700')
+  const noImageHoverBg = useColorModeValue('gray.200', 'gray.600')
+
+  // Delete menu colors
+  const deleteHoverBg = useColorModeValue('red.50', 'red.900')
+
+  // Estado colors
+  const estadoThemeMap: Record<
+    string,
+    { light: { bg: string; color: string }; dark: { bg: string; color: string } }
+  > = {
+    publicado: {
+      light: { bg: 'green.100', color: 'green.800' },
+      dark: { bg: 'green.700', color: 'green.100' }
+    },
+    borrador: {
+      light: { bg: 'yellow.100', color: 'yellow.800' },
+      dark: { bg: 'yellow.700', color: 'yellow.100' }
+    },
+    eliminado: {
+      light: { bg: 'red.100', color: 'red.800' },
+      dark: { bg: 'red.700', color: 'red.100' }
+    },
+    default: {
+      light: { bg: 'gray.200', color: 'gray.800' },
+      dark: { bg: 'gray.600', color: 'gray.200' }
+    }
+  }
+
+  const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
+  const estadoBg = useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)
+  const estadoColor = useColorModeValue(estadoColors.light.color, estadoColors.dark.color)
 
   // Solo mostrar productos publicados a usuarios que no pueden ver borradores
   const canSeeDrafts = isAdmin || (user && user.rol_id > 2)
@@ -73,7 +105,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const handleDelete = async () => {
     try {
-      // En lugar de eliminar físicamente, cambiamos el estado a "eliminado"
       await updateProductoMutation.mutateAsync({
         id: producto.id,
         productoData: { estado: 'eliminado' }
@@ -125,19 +156,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     }
   }
 
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'publicado':
-        return 'green'
-      case 'borrador':
-        return 'yellow'
-      case 'eliminado':
-        return 'red'
-      default:
-        return 'gray'
-    }
-  }
-
   const getEstadoText = (estado: string) => {
     switch (estado) {
       case 'publicado':
@@ -151,333 +169,249 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     }
   }
 
-  // Precomputed shadows/borders
-  const adminBadgeShadow = useColorModeValue(
-    '0 2px 6px rgba(0,0,0,0.12)',
-    '0 4px 10px rgba(0,0,0,0.35)'
-  )
-  const gearShadow = useColorModeValue('0 2px 8px rgba(0,0,0,0.18)', '0 6px 16px rgba(0,0,0,0.45)')
-  const menuShadow = useColorModeValue(
-    '0 8px 24px rgba(0,0,0,0.18)',
-    '0 12px 32px rgba(0,0,0,0.65)'
-  )
-
-  // Affordance/stock based hover border colors (light/dark aware)
-  const affordGreen = useColorModeValue('green.400', 'green.300')
-  const outOfStockYellow = useColorModeValue('yellow.400', 'yellow.300')
-  const notEnoughRed = useColorModeValue('red.400', 'red.300')
-
   const outOfStock = producto.stock <= 0
   const canAfford = !!user && user.puntos >= producto.precio
-
-  const derivedHoverBorder = outOfStock
-    ? outOfStockYellow
-    : !!user
-      ? canAfford
-        ? affordGreen
-        : notEnoughRed
-      : undefined
-
-  const ringColorVar = derivedHoverBorder
-    ? `var(--chakra-colors-${derivedHoverBorder.replace('.', '-')})`
-    : undefined
-
-  const hoverStyles = {
-    transform: 'translateY(-2px)',
-    boxShadow: ringColorVar ? `var(--chakra-shadows-md), 0 0 0 3px ${ringColorVar}` : 'md'
-  }
-
-  const estadoThemeMap: Record<
-    string,
-    {
-      light: { bg: string; color: string; border: string }
-      dark: { bg: string; color: string; border: string }
-    }
-  > = {
-    publicado: {
-      light: { bg: 'green.50', color: 'green.700', border: 'green.200' },
-      dark: { bg: 'green.700', color: 'green.50', border: 'green.600' }
-    },
-    borrador: {
-      light: { bg: 'yellow.50', color: 'yellow.800', border: 'yellow.200' },
-      dark: { bg: 'yellow.700', color: 'gray.900', border: 'yellow.600' }
-    },
-    eliminado: {
-      light: { bg: 'red.50', color: 'red.700', border: 'red.200' },
-      dark: { bg: 'red.700', color: 'red.50', border: 'red.600' }
-    },
-    default: {
-      light: { bg: 'gray.100', color: 'gray.700', border: 'gray.300' },
-      dark: { bg: 'gray.700', color: 'gray.100', border: 'gray.600' }
-    }
-  }
-  const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
-  const estadoBg = useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)
-  const estadoColor = useColorModeValue(estadoColors.light.color, estadoColors.dark.color)
-  const estadoBorder = useColorModeValue(estadoColors.light.border, estadoColors.dark.border)
-  const deleteColor = useColorModeValue('red.600', 'red.300')
-  const deleteHoverBg = useColorModeValue('red.50', 'red.700')
-  const deleteHoverColor = useColorModeValue('red.700', 'red.200')
 
   return (
     <>
       <Box
         as={motion.div}
-        borderWidth="1px"
-        borderColor={cardBorder}
-        bg="bg.canvas"
+        bg={cardBg}
         borderRadius="2xl"
         overflow="hidden"
+        border="2px solid"
+        borderColor={borderColor}
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
         transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        boxShadow="md"
         _hover={{
-          ...hoverStyles,
-          transform: 'translateY(-8px) scale(1.02)',
-          boxShadow: useColorModeValue(
-            '0 20px 40px rgba(0,0,0,0.15)',
-            '0 20px 40px rgba(0,0,0,0.4)'
-          ),
-          borderColor: useColorModeValue('blue.200', 'blue.600'),
+          transform: 'translateY(-8px)',
+          boxShadow: hoverShadow,
+          borderColor: hoverBorderColor
         }}
         role="group"
         cursor="pointer"
         onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
-        onKeyDown={(e: any) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            router.push(`/productos/${generateSlug(producto.nombre)}`)
-          }
-        }}
-        tabIndex={0}
-        boxShadow={useColorModeValue(
-          '0 4px 12px rgba(0,0,0,0.1)',
-          '0 4px 12px rgba(0,0,0,0.3)'
-        )}
+        h="full"
+        display="flex"
+        flexDirection="column"
       >
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
-          <Box position="absolute" top={2} left={2} zIndex={2}>
-            <Box
-              as="span"
-              px={3}
-              py={1.5}
-              borderRadius="xl"
-              fontSize="xs"
-              fontWeight="bold"
+          <Box position="absolute" top={3} left={3} zIndex={10}>
+            <Badge
               bg={estadoBg}
               color={estadoColor}
-              border="1px solid"
-              borderColor={estadoBorder}
-              boxShadow="0 4px 12px rgba(0,0,0,0.2)"
-              backdropFilter="blur(8px)"
+              fontSize="xs"
+              fontWeight="bold"
+              px={3}
+              py={1}
+              borderRadius="full"
+              boxShadow="md"
             >
               {getEstadoText(producto.estado)}
-            </Box>
+            </Badge>
           </Box>
         )}
 
-        {/* Imagen del producto (ocupa toda la tarjeta) */}
-        {producto.imagen_url || producto.imagen ? (
-          <Image
-            src={producto.imagen_url || producto.imagen}
-            alt={producto.nombre}
-            w="full"
-            h="260px"
-            objectFit="cover"
-            fallbackSrc="/no-image.png"
-            transition="all 0.3s ease"
-            sx={{
-              filter: outOfStock ? 'grayscale(100%)' : 'none',
-            }}
-            _groupHover={{
-              transform: 'scale(1.05)',
-            }}
-          />
-        ) : (
-          <Box
-            w="full"
-            h="260px"
-            bg={useColorModeValue('gray.100', 'gray.700')}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            transition="all 0.3s ease"
-            _groupHover={{
-              bg: useColorModeValue('gray.200', 'gray.600'),
-            }}
-          >
-            <Text color="gray.500" fontSize="sm" fontWeight="medium">
-              📦 Sin imagen
-            </Text>
-          </Box>
-        )}
-
-        {/* Overlay con info y acciones al hover */}
-        <Box
-          position="absolute"
-          inset={0}
-          bgImage={overlayGradient}
-          bgRepeat="no-repeat"
-          bgSize="cover"
-          color="white"
-          opacity={0}
-          transition="opacity 0.45s ease"
-          _groupHover={{ opacity: 1 }}
-          _focusWithin={{ opacity: 1 }}
-          display="flex"
-          flexDirection="column"
-          justifyContent="flex-end"
-          p={3}
-        >
-          {/* Esquina superior derecha: menú de configuración (solo admin) */}
-          {isAdmin && (
-            <Box position="absolute" top={2} right={2}>
-              <Menu isLazy placement="bottom-end">
-                <Tooltip label="Opciones" hasArrow>
-                  <MenuButton
-                    as={IconButton}
-                    aria-label="Opciones de producto"
-                    icon={<SettingsIcon boxSize={5} />}
-                    variant="solid"
-                    bg={gearBg}
-                    color={gearColor}
-                    size="sm"
-                    borderRadius="xl"
-                    border="1px solid"
-                    borderColor={gearBorder}
-                    boxShadow="0 4px 12px rgba(0,0,0,0.2)"
-                    backdropFilter="blur(8px)"
-                    _hover={{
-                      bg: gearHoverBg,
-                      transform: 'scale(1.1)',
-                      boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)'
-                    }}
-                    _active={{ bg: gearHoverBg, transform: 'scale(1.05)' }}
-                    _expanded={{ bg: gearHoverBg }}
-                    onClick={(e) => e.stopPropagation()}
-                    transition="all 0.2s ease"
-                  />
-                </Tooltip>
-                <MenuList
-                  bg={menuBg}
-                  color={menuColor}
-                  borderColor={menuBorder}
-                  boxShadow="0 12px 28px rgba(0,0,0,0.25)"
-                  borderRadius="xl"
-                  sx={{ backdropFilter: 'saturate(160%) blur(12px)' }}
+        {/* Menú de admin en esquina superior derecha */}
+        {isAdmin && (
+          <Box position="absolute" top={3} right={3} zIndex={10}>
+            <Menu>
+              <Tooltip label="Opciones" hasArrow>
+                <MenuButton
+                  as={IconButton}
+                  aria-label="Opciones de producto"
+                  icon={<SettingsIcon />}
+                  size="sm"
+                  colorScheme="blue"
+                  borderRadius="full"
+                  boxShadow="lg"
                   onClick={(e) => e.stopPropagation()}
-                  p={2}
-                  minW="180px"
+                  _hover={{
+                    transform: 'rotate(90deg)',
+                    boxShadow: 'xl'
+                  }}
+                  transition="all 0.3s"
+                />
+              </Tooltip>
+              <MenuList
+                bg={menuBg}
+                boxShadow="xl"
+                borderRadius="xl"
+                p={2}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MenuItem
+                  icon={<ViewIcon />}
+                  onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
+                  borderRadius="lg"
+                  _hover={{ bg: menuHoverBg }}
                 >
-                  <MenuItem
-                    icon={<ViewIcon />}
-                    bg="transparent"
-                    _hover={{ bg: menuHoverBg }}
-                    _focus={{ bg: menuHoverBg }}
-                    onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
-                    borderRadius="lg"
-                    whiteSpace="nowrap"
-                  >
-                    Ver
-                  </MenuItem>
-                  <MenuItem
-                    icon={<EditIcon />}
-                    bg="transparent"
-                    _hover={{ bg: menuHoverBg }}
-                    _focus={{ bg: menuHoverBg }}
-                    onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
-                    borderRadius="lg"
-                    whiteSpace="nowrap"
-                  >
-                    Editar
-                  </MenuItem>
-                  <MenuItem
-                    icon={<CheckCircleIcon />}
-                    bg="transparent"
-                    _hover={{ bg: menuHoverBg }}
-                    _focus={{ bg: menuHoverBg }}
-                    onClick={toggleEstado}
-                    borderRadius="lg"
-                    whiteSpace="nowrap"
-                  >
-                    {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
-                  </MenuItem>
-                  <MenuDivider />
-                  <MenuItem
-                    icon={<DeleteIcon />}
-                    onClick={onOpen}
-                    bg="transparent"
-                    color={deleteColor}
-                    _hover={{ bg: deleteHoverBg, color: deleteHoverColor }}
-                    _focus={{ bg: deleteHoverBg }}
-                    borderRadius="lg"
-                    whiteSpace="nowrap"
-                  >
-                    Eliminar
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+                  Ver
+                </MenuItem>
+                <MenuItem
+                  icon={<EditIcon />}
+                  onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
+                  borderRadius="lg"
+                  _hover={{ bg: menuHoverBg }}
+                >
+                  Editar
+                </MenuItem>
+                <MenuItem
+                  icon={<CheckCircleIcon />}
+                  onClick={toggleEstado}
+                  borderRadius="lg"
+                  _hover={{ bg: menuHoverBg }}
+                >
+                  {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem
+                  icon={<DeleteIcon />}
+                  onClick={onOpen}
+                  borderRadius="lg"
+                  color="red.500"
+                  _hover={{ bg: deleteHoverBg }}
+                >
+                  Eliminar
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </Box>
+        )}
+
+        {/* Imagen del producto */}
+        <Box position="relative" overflow="hidden">
+          {producto.imagen_url || producto.imagen ? (
+            <Image
+              src={producto.imagen_url || producto.imagen}
+              alt={producto.nombre}
+              w="full"
+              h="220px"
+              objectFit="cover"
+              fallbackSrc="/no-image.png"
+              transition="transform 0.3s ease"
+              filter={outOfStock ? 'grayscale(100%)' : 'none'}
+              _groupHover={{
+                transform: 'scale(1.08)'
+              }}
+            />
+          ) : (
+            <Box
+              w="full"
+              h="220px"
+              bg={noImageBg}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              transition="all 0.3s ease"
+              _groupHover={{
+                bg: noImageHoverBg
+              }}
+            >
+              <Text fontSize="4xl">📦</Text>
             </Box>
           )}
 
-          {/* Contenido inferior: título, descripción y acciones */}
-          <VStack align="start" spacing={2}>
-            <Text fontWeight="bold" fontSize="lg" noOfLines={1}>
+          {/* Badge de sin stock */}
+          {outOfStock && (
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              bg="blackAlpha.700"
+              color="white"
+              px={4}
+              py={2}
+              borderRadius="full"
+              fontWeight="bold"
+              fontSize="sm"
+              backdropFilter="blur(10px)"
+            >
+              Sin Stock
+            </Box>
+          )}
+        </Box>
+
+        {/* Contenido de la tarjeta */}
+        <VStack align="stretch" p={4} spacing={3} flex={1}>
+          <VStack align="start" spacing={1} flex={1}>
+            <Text fontWeight="bold" fontSize="lg" color={headingColor} noOfLines={1} w="full">
               {producto.nombre}
             </Text>
-            <Text fontSize="sm" noOfLines={2} opacity={0.9}>
+            <Text fontSize="sm" color={textColor} noOfLines={2} minH="40px">
               {producto.descripcion}
             </Text>
-            <HStack justify="space-between" w="full">
-              <HStack spacing={2}>
+          </VStack>
+
+          {/* Información de precio y stock */}
+          <HStack justify="space-between" w="full">
+            <Badge
+              colorScheme="blue"
+              fontSize="md"
+              px={3}
+              py={1}
+              borderRadius="lg"
+              fontWeight="bold"
+            >
+              {producto.precio} pts
+            </Badge>
+            <HStack spacing={2}>
+              <Badge
+                colorScheme={producto.stock > 0 ? 'green' : 'red'}
+                fontSize="xs"
+                px={2}
+                py={1}
+                borderRadius="md"
+                display="flex"
+                alignItems="center"
+                gap={1}
+              >
+                📦 {producto.stock}
+              </Badge>
+              {typeof (producto as { canjes_count?: number }).canjes_count === 'number' && (
                 <Badge
-                  colorScheme="blue"
-                  fontSize="sm"
-                  px={3}
-                  py={1}
-                  borderRadius="xl"
-                  fontWeight="bold"
-                >
-                  {producto.precio} pts
-                </Badge>
-                <Badge
-                  colorScheme={producto.stock > 0 ? 'green' : 'red'}
+                  colorScheme="purple"
                   fontSize="xs"
                   px={2}
                   py={1}
-                  borderRadius="lg"
-                  display="inline-flex"
+                  borderRadius="md"
+                  display="flex"
                   alignItems="center"
                   gap={1}
                 >
-                  <Icon as={MdPeople} display="none" />
-                  {/* Usamos un ícono de caja para stock */}
-                  <span role="img" aria-label="stock">📦</span>
-                  {producto.stock}
+                  <Icon as={MdPeople} boxSize={3} />
+                  {(producto as { canjes_count?: number }).canjes_count}
                 </Badge>
-                {typeof (producto as any).canjes_count === 'number' && (
-                  <Badge
-                    colorScheme="purple"
-                    fontSize="xs"
-                    px={2}
-                    py={1}
-                    borderRadius="lg"
-                    display="inline-flex"
-                    alignItems="center"
-                    gap={1}
-                  >
-                    <Icon as={MdPeople} boxSize={3.5} />
-                    {(producto as any).canjes_count}
-                  </Badge>
-                )}
-              </HStack>
+              )}
             </HStack>
-          </VStack>
-        </Box>
+          </HStack>
+
+          {/* Indicador de disponibilidad para el usuario */}
+          {user && !isAdmin && (
+            <Box w="full">
+              {outOfStock ? (
+                <Badge colorScheme="yellow" w="full" textAlign="center" py={1} borderRadius="md">
+                  Agotado
+                </Badge>
+              ) : !canAfford ? (
+                <Badge colorScheme="red" w="full" textAlign="center" py={1} borderRadius="md">
+                  Puntos insuficientes
+                </Badge>
+              ) : (
+                <Badge colorScheme="green" w="full" textAlign="center" py={1} borderRadius="md">
+                  Disponible
+                </Badge>
+              )}
+            </Box>
+          )}
+        </VStack>
       </Box>
 
-      {/* Dialog de confirmación */}
+      {/* Dialog de confirmación de eliminación */}
       <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
@@ -491,7 +425,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button colorScheme="blackAlpha" ref={cancelRef} onClick={onClose}>
+              <Button ref={cancelRef} onClick={onClose}>
                 Cancelar
               </Button>
               <Button

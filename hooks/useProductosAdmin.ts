@@ -4,16 +4,16 @@ import { Producto } from '../types'
 
 // Hook para obtener todos los productos (incluyendo borradores) - SOLO ADMINISTRADORES
 export function useProductosAdmin() {
-  return useQuery<{ total: number, productos: Producto[] }, Error>({
+  return useQuery<{ total: number; productos: Producto[] }, Error>({
     queryKey: ['productos-admin'],
     queryFn: async () => {
       try {
         // Intentar el endpoint de admin primero
         const { data } = await api.get('/api/productos/admin')
         return data
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Si falla (404), usar el endpoint debug como fallback
-        if (error?.response?.status === 404) {
+        if ((error as { response?: { status?: number } })?.response?.status === 404) {
           const { data } = await api.get('/api/productos/debug/all')
           return data
         }
@@ -25,7 +25,7 @@ export function useProductosAdmin() {
 
 // Hook usando directamente el endpoint debug (más directo)
 export function useProductosAdminDebug() {
-  return useQuery<{ total: number, productos: Producto[] }, Error>({
+  return useQuery<{ total: number; productos: Producto[] }, Error>({
     queryKey: ['productos-admin-debug'],
     queryFn: async () => {
       const { data } = await api.get('/api/productos/debug/all')
@@ -57,7 +57,7 @@ export function useUpdateProducto() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, productoData }: { id: number, productoData: Partial<Producto> }) => {
+    mutationFn: async ({ id, productoData }: { id: number; productoData: Partial<Producto> }) => {
       const { data } = await api.put(`/api/productos/${id}`, productoData)
       return data
     },

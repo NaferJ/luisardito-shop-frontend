@@ -1,37 +1,11 @@
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Layout } from '../../../../components/Layout'
 import { RequireAdmin } from '../../../../components/RequireAdmin'
-import {
-  Container,
-  VStack,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Select,
-  Button,
-  HStack,
-  Card,
-  CardBody,
-  useToast,
-  Spinner,
-  Center,
-  Badge,
-  Text,
-  useColorModeValue
-} from '@chakra-ui/react'
+import { Container, useToast, Center, Spinner, Text, VStack, Button } from '@chakra-ui/react'
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
 import { useAdminCanjes } from '../../../../hooks/useAdminCanjes'
-import { ProductoForm } from '../../../../types'
-import ImageUpload from '../../../../components/ImageUpload'
+import { ProductForm } from '../../../../components/ProductForm'
 
 export default function EditarProductoPage() {
   const router = useRouter()
@@ -42,87 +16,8 @@ export default function EditarProductoPage() {
   const updateProductoMutation = useUpdateProducto()
   const { data: canjes } = useAdminCanjes()
 
-  const [formData, setFormData] = useState<{
-    nombre: string
-    descripcion: string
-    precio: number
-    stock: number
-    imagen: string
-    estado: 'borrador' | 'publicado' | 'eliminado'
-  }>({
-    nombre: '',
-    descripcion: '',
-    precio: 100,
-    stock: 0,
-    imagen: '',
-    estado: 'borrador'
-  })
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
-
-  // Theme colors - move all hooks to top level
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const cardBorder = useColorModeValue('gray.200', 'gray.600')
-  const inputBg = useColorModeValue('white', 'gray.700')
-  const inputBorder = useColorModeValue('gray.300', 'gray.600')
-  const infoCardBg = useColorModeValue('gray.50', 'rgba(255,255,255,0.04)')
-  const infoCardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  const infoTextColor = useColorModeValue('gray.700', 'gray.200')
-  const infoSubTextColor = useColorModeValue('gray.600', 'gray.300')
-
-  // Cargar datos del producto cuando esté disponible
-  useEffect(() => {
-    if (producto) {
-      setFormData({
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        stock: producto.stock,
-        imagen: (producto as any).imagen_url || producto.imagen || '',
-        estado: producto.estado || 'publicado' // Fallback para productos existentes
-      })
-      setUploadedImageUrl((producto as any).imagen_url || producto.imagen || null)
-    }
-  }, [producto])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!formData.nombre || !formData.descripcion || formData.precio <= 0) {
-      toast({
-        title: 'Error',
-        description: 'Por favor completa todos los campos requeridos',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
-      return
-    }
-
-    if (formData.precio !== producto.precio) {
-      const canjesPendientes = canjes?.filter(c => c.producto_id === producto.id && c.estado === 'pendiente') || []
-      if (canjesPendientes.length > 0) {
-        toast({
-          title: 'Aun hay usuarios pendientes',
-          description: `Hay ${canjesPendientes.length} canje(s) pendiente(s) para este producto.`,
-          status: 'warning',
-          duration: 5000,
-          isClosable: true,
-        })
-        return
-      }
-    }
-
+  const handleSubmit = async (payload: Record<string, unknown>) => {
     try {
-      const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
-      const payload: any = {
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        precio: formData.precio,
-        stock: formData.stock,
-        estado: formData.estado,
-        ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {})
-      }
-
       await updateProductoMutation.mutateAsync({
         id: producto!.id,
         productoData: payload
@@ -130,10 +25,10 @@ export default function EditarProductoPage() {
 
       toast({
         title: 'Producto actualizado',
-        description: `Producto "${formData.nombre}" actualizado correctamente`,
+        description: `Producto "${payload.nombre}" actualizado correctamente`,
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
 
       router.push('/')
@@ -143,24 +38,9 @@ export default function EditarProductoPage() {
         description: 'No se pudo actualizar el producto',
         status: 'error',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
-    }
-  }
-
-  const handleInputChange = (field: keyof ProductoForm, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'publicado': return 'green'
-      case 'borrador': return 'yellow'
-      case 'eliminado': return 'red'
-      default: return 'gray'
+      throw error
     }
   }
 
@@ -168,7 +48,9 @@ export default function EditarProductoPage() {
     return (
       <RequireAdmin>
         <Layout>
-          <Center mt={10}><Spinner size="xl" /></Center>
+          <Center mt={10}>
+            <Spinner size="xl" />
+          </Center>
         </Layout>
       </RequireAdmin>
     )
@@ -183,9 +65,7 @@ export default function EditarProductoPage() {
               <Text fontSize="lg" color="red.500">
                 Producto no encontrado
               </Text>
-              <Button onClick={() => router.push('/')}>
-                Volver al catálogo
-              </Button>
+              <Button onClick={() => router.push('/')}>Volver al catálogo</Button>
             </VStack>
           </Center>
         </Layout>
@@ -196,153 +76,14 @@ export default function EditarProductoPage() {
   return (
     <RequireAdmin>
       <Layout>
-        <Container maxW="container.md" py={8}>
-          <VStack spacing={6} align="stretch">
-            <VStack spacing={2} align="start">
-              <HStack>
-                <Heading size="xl">Editar Producto</Heading>
-                <Badge colorScheme={getEstadoColor(producto.estado)}>
-                  {producto.estado?.charAt(0).toUpperCase() + producto.estado?.slice(1) || 'Publicado'}
-                </Badge>
-              </HStack>
-              <Text color="gray.600">
-                Creado el {new Date((producto as any).creado).toLocaleDateString('es-ES')}
-              </Text>
-            </VStack>
-
-            <Card>
-              <CardBody>
-                <form onSubmit={handleSubmit}>
-                  <VStack spacing={4} align="stretch">
-                    <FormControl isRequired>
-                      <FormLabel>Nombre del producto</FormLabel>
-                      <Input
-                        value={formData.nombre}
-                        onChange={(e) => handleInputChange('nombre', e.target.value)}
-                        placeholder="Ej: Camiseta Oficial"
-                      />
-                    </FormControl>
-
-                    <FormControl isRequired>
-                      <FormLabel>Descripción</FormLabel>
-                      <Textarea
-                        value={formData.descripcion}
-                        onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                        placeholder="Descripción del producto..."
-                        rows={4}
-                      />
-                    </FormControl>
-
-                    <HStack spacing={4}>
-                      <FormControl isRequired>
-                        <FormLabel>Precio en puntos</FormLabel>
-                        <NumberInput
-                          value={formData.precio}
-                          onChange={(valueString, valueNumber) => 
-                            handleInputChange('precio', valueNumber || 0)
-                          }
-                          min={1}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-
-                      <FormControl>
-                        <FormLabel>Stock disponible</FormLabel>
-                        <NumberInput
-                          value={formData.stock}
-                          onChange={(valueString, valueNumber) => 
-                            handleInputChange('stock', valueNumber || 0)
-                          }
-                          min={0}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-                    </HStack>
-
-                    {/* Subida de imagen a Cloudinary */}
-                    <ImageUpload
-                      label="Imagen del producto (sube desde tu dispositivo)"
-                      value={uploadedImageUrl}
-                      onChange={setUploadedImageUrl}
-                    />
-
-                    {/* Alternativa: pegar una URL directa */}
-                    <FormControl>
-                      <FormLabel>URL de imagen (opcional)</FormLabel>
-                      <Input
-                        value={formData.imagen}
-                        onChange={(e) => handleInputChange('imagen', e.target.value)}
-                        placeholder="https://example.com/imagen.jpg"
-                        type="url"
-                      />
-                    </FormControl>
-
-                    <FormControl isRequired>
-                      <FormLabel>Estado del producto</FormLabel>
-                      <Select
-                        value={formData.estado}
-                        onChange={(e) => handleInputChange('estado', e.target.value as 'borrador' | 'publicado' | 'eliminado')}
-                      >
-                        <option value="borrador">Borrador (no visible para usuarios)</option>
-                        <option value="publicado">Publicado (visible en tienda)</option>
-                        <option value="eliminado">Eliminado (oculto, puede recuperarse)</option>
-                      </Select>
-                    </FormControl>
-
-                    <HStack spacing={4} pt={4}>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                        flex="1"
-                      >
-                        Cancelar
-                      </Button>
-
-                      <Button
-                        type="submit"
-                        colorScheme="teal"
-                        isLoading={updateProductoMutation.isPending}
-                        loadingText="Guardando..."
-                        flex="1"
-                      >
-                        Guardar Cambios
-                      </Button>
-                    </HStack>
-                  </VStack>
-                </form>
-              </CardBody>
-            </Card>
-
-            {/* Información adicional */}
-            <Card
-              bg={infoCardBg}
-              border="1px solid"
-              borderColor={infoCardBorder}
-            >
-              <CardBody>
-                <VStack spacing={2} align="start">
-                  <Text fontWeight="semibold" fontSize="sm" color={infoTextColor}>
-                    Información adicional:
-                  </Text>
-                  <Text fontSize="xs" color={infoSubTextColor}>
-                    Creado: {new Date((producto as any).creado).toLocaleDateString('es-ES')} |
-                    Actualizado: {new Date((producto as any).actualizado).toLocaleDateString('es-ES')}
-                  </Text>
-                </VStack>
-              </CardBody>
-            </Card>
-          </VStack>
+        <Container maxW="container.xl" py={8}>
+          <ProductForm
+            mode="edit"
+            initialData={producto}
+            onSubmit={handleSubmit}
+            isLoading={updateProductoMutation.isPending}
+            canjes={canjes}
+          />
         </Container>
       </Layout>
     </RequireAdmin>

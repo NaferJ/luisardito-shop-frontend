@@ -1,8 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import api from '../lib/api'
 import { Producto } from '../types'
 
-export function useProducto(slugOrId: string | undefined) {
+export function useProducto(
+  slugOrId: string | undefined,
+  options?: Omit<UseQueryOptions<Producto, Error>, 'queryKey' | 'queryFn'>
+) {
   return useQuery<Producto, Error>({
     queryKey: ['producto', slugOrId],
     queryFn: async () => {
@@ -12,6 +15,7 @@ export function useProducto(slugOrId: string | undefined) {
       const { data } = await api.get<Producto>(endpoint)
       return data
     },
-    enabled: !!slugOrId
+    enabled: !!slugOrId,
+    ...options
   })
 }

@@ -1,79 +1,54 @@
-import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
-import {
-  Container,
-  VStack,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Select,
-  Button,
-  HStack,
-  Card,
-  CardBody,
-  useToast
-} from '@chakra-ui/react'
+import { Container, useToast, Center, Spinner } from '@chakra-ui/react'
 import { useCreateProducto } from '../../../hooks/useProductosAdmin'
-import { ProductoForm } from '../../../types'
-import ImageUpload from '../../../components/ImageUpload'
+import { useProducto } from '../../../hooks/useProducto'
+import { ProductForm } from '../../../components/ProductForm'
+import { Producto } from '../../../types'
 
 export default function NuevoProductoPage() {
   const router = useRouter()
   const toast = useToast()
   const createProductoMutation = useCreateProducto()
+  const [duplicateData, setDuplicateData] = useState<Producto | undefined>(undefined)
+  const [isDuplicating, setIsDuplicating] = useState(false)
 
-  const [formData, setFormData] = useState<ProductoForm>({
-    nombre: '',
-    descripcion: '',
-    precio: 100,
-    stock: 0,
-    imagen: '',
-    estado: 'borrador'
+  // Check if we're duplicating a product
+  const duplicateId = router.query.duplicate as string | undefined
+  const { data: productToDuplicate, isLoading: loadingDuplicate } = useProducto(duplicateId || '', {
+    enabled: !!duplicateId && router.isReady
   })
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!formData.nombre || !formData.descripcion || formData.precio <= 0) {
-      toast({
-        title: 'Error',
-        description: 'Por favor completa todos los campos requeridos',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
-      return
-    }
-
-    try {
-      const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
-      const payload: any = {
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        precio: formData.precio,
-        stock: formData.stock,
-        estado: formData.estado,
-        ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {})
+  // When product to duplicate is loaded, set it as initial data
+  useEffect(() => {
+    if (productToDuplicate && duplicateId) {
+      setIsDuplicating(true)
+      const mockProducto: Producto = {
+        ...productToDuplicate,
+        id: 0, // Temporary ID for new product
+        nombre: `${productToDuplicate.nombre} (Copia)`,
+        estado: 'borrador', // Always start as draft when duplicating
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
+      setDuplicateData(mockProducto)
+    }
+  }, [productToDuplicate, duplicateId])
 
-      await createProductoMutation.mutateAsync(payload)
+  const handleSubmit = async (payload: Record<string, unknown>) => {
+    try {
+      await createProductoMutation.mutateAsync(
+        payload as Omit<Producto, 'id' | 'created_at' | 'updated_at'>
+      )
 
       toast({
         title: 'Producto creado',
-        description: `Producto "${formData.nombre}" creado como ${formData.estado}`,
+        description: `Producto "${payload.nombre}" creado exitosamente`,
         status: 'success',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
 
       router.push('/')
@@ -83,138 +58,35 @@ export default function NuevoProductoPage() {
         description: 'No se pudo crear el producto',
         status: 'error',
         duration: 3000,
-        isClosable: true,
+        isClosable: true
       })
+      throw error
     }
   }
 
-  const handleInputChange = (field: keyof ProductoForm, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+  // Show loading spinner while loading product to duplicate
+  if (duplicateId && loadingDuplicate) {
+    return (
+      <RequireAdmin>
+        <Layout>
+          <Center mt={10}>
+            <Spinner size="xl" />
+          </Center>
+        </Layout>
+      </RequireAdmin>
+    )
   }
 
   return (
     <RequireAdmin>
       <Layout>
-        <Container maxW="container.md" py={8}>
-          <VStack spacing={6} align="stretch">
-            <Heading size="xl">Crear Nuevo Producto</Heading>
-
-            <Card>
-              <CardBody>
-                <form onSubmit={handleSubmit}>
-                  <VStack spacing={4} align="stretch">
-                    <FormControl isRequired>
-                      <FormLabel>Nombre del producto</FormLabel>
-                      <Input
-                        value={formData.nombre}
-                        onChange={(e) => handleInputChange('nombre', e.target.value)}
-                        placeholder="Ej: Camiseta Oficial"
-                      />
-                    </FormControl>
-
-                    <FormControl isRequired>
-                      <FormLabel>Descripción</FormLabel>
-                      <Textarea
-                        value={formData.descripcion}
-                        onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                        placeholder="Descripción del producto..."
-                        rows={4}
-                      />
-                    </FormControl>
-
-                    <HStack spacing={4}>
-                      <FormControl isRequired>
-                        <FormLabel>Precio en puntos</FormLabel>
-                        <NumberInput
-                          value={formData.precio}
-                          onChange={(valueString, valueNumber) => 
-                            handleInputChange('precio', valueNumber || 0)
-                          }
-                          min={1}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-
-                      <FormControl>
-                        <FormLabel>Stock inicial</FormLabel>
-                        <NumberInput
-                          value={formData.stock}
-                          onChange={(valueString, valueNumber) => 
-                            handleInputChange('stock', valueNumber || 0)
-                          }
-                          min={0}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-                    </HStack>
-
-                    {/* Subida de imagen a Cloudinary */}
-                    <ImageUpload
-                      label="Imagen del producto (sube desde tu dispositivo)"
-                      value={uploadedImageUrl}
-                      onChange={setUploadedImageUrl}
-                    />
-
-                    {/* Alternativa: pegar una URL directa */}
-                    <FormControl>
-                      <FormLabel>URL de imagen (opcional)</FormLabel>
-                      <Input
-                        value={formData.imagen}
-                        onChange={(e) => handleInputChange('imagen', e.target.value)}
-                        placeholder="https://example.com/imagen.jpg"
-                        type="url"
-                      />
-                    </FormControl>
-
-                    <FormControl isRequired>
-                      <FormLabel>Estado inicial</FormLabel>
-                      <Select
-                        value={formData.estado}
-                        onChange={(e) => handleInputChange('estado', e.target.value as 'borrador' | 'publicado')}
-                      >
-                        <option value="borrador">Borrador (no visible para usuarios)</option>
-                        <option value="publicado">Publicado (visible en tienda)</option>
-                      </Select>
-                    </FormControl>
-
-                    <HStack spacing={4} pt={4}>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                        flex="1"
-                      >
-                        Cancelar
-                      </Button>
-
-                      <Button
-                        type="submit"
-                        colorScheme="teal"
-                        isLoading={createProductoMutation.isPending}
-                        loadingText="Creando..."
-                        flex="1"
-                      >
-                        Crear Producto
-                      </Button>
-                    </HStack>
-                  </VStack>
-                </form>
-              </CardBody>
-            </Card>
-          </VStack>
+        <Container maxW="container.xl" py={8}>
+          <ProductForm
+            mode="create"
+            initialData={isDuplicating ? duplicateData : undefined}
+            onSubmit={handleSubmit}
+            isLoading={createProductoMutation.isPending}
+          />
         </Container>
       </Layout>
     </RequireAdmin>

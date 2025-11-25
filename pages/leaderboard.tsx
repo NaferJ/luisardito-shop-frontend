@@ -70,6 +70,7 @@ interface LeaderboardUser {
   previous_position: number | null
   previous_points: number | null
   is_vip: boolean
+  is_subscriber: boolean
   kick_data: {
     profile_pic?: string
     username?: string
@@ -86,6 +87,7 @@ interface MyPositionData {
   previous_position: number | null
   previous_points: number | null
   is_vip: boolean
+  is_subscriber: boolean
 }
 
 export default function LeaderboardPage() {
@@ -417,8 +419,15 @@ export default function LeaderboardPage() {
                                       rol_id: user.is_vip ? 5 : 1,
                                       nickname: user.nickname,
                                       discord_username: user.kick_data?.username,
-                                      user_type: user.is_vip ? 'vip' : 'regular',
-                                      vip_info: user.is_vip ? { is_active: true } : undefined
+                                      user_type: user.is_subscriber
+                                        ? 'subscriber'
+                                        : user.is_vip
+                                          ? 'vip'
+                                          : 'regular',
+                                      vip_info: user.is_vip ? { is_active: true } : undefined,
+                                      subscriber_status: user.is_subscriber
+                                        ? { is_active: true, expires_soon: false }
+                                        : undefined
                                     }}
                                     size="sm"
                                   />

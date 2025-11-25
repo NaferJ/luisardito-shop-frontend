@@ -46,7 +46,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
   const vipInfo = user.vip_info || user.vip_status
   const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
 
-  // Badge Suscriptor (PRIORIDAD SOBRE VIP)
+  // Badge Suscriptor
   if (isSubscriber) {
     const subBadge = (
       <Badge
@@ -73,11 +73,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
 
     if (showTooltip) {
       badges.push(
-        <Tooltip
-          key="sub-tooltip"
-          label="Suscriptor del canal"
-          hasArrow
-        >
+        <Tooltip key="sub-tooltip" label="Suscriptor del canal" hasArrow>
           {subBadge}
         </Tooltip>
       )
@@ -86,8 +82,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     }
   }
 
-  // Badge VIP (SOLO SI NO ES SUSCRIPTOR)
-  if (vipInfo?.is_active && !isSubscriber) {
+  // Badge VIP
+  if (vipInfo?.is_active) {
     const vipBadge = (
       <Badge
         key="vip"
@@ -117,10 +113,10 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
           key="vip-tooltip"
           label={
             vipInfo.is_permanent
-              ? "Usuario VIP Permanente"
+              ? 'Usuario VIP Permanente'
               : vipInfo.expires_at
-              ? `VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
-              : "Usuario VIP"
+                ? `VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
+                : 'Usuario VIP'
           }
           hasArrow
         >
@@ -176,11 +172,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
     )
 
     badges.push(
-      <Tooltip
-        key="discord-tooltip"
-        label={`Discord: ${user.discord_username}`}
-        hasArrow
-      >
+      <Tooltip key="discord-tooltip" label={`Discord: ${user.discord_username}`} hasArrow>
         {discordBadge}
       </Tooltip>
     )
@@ -212,8 +204,8 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
     <Box position="relative" display="inline-block">
       {children}
 
-      {/* Overlay para Suscriptor (prioridad sobre VIP) */}
-      {isSubscriber && (
+      {/* Overlay para Suscriptor y VIP combinados */}
+      {(isSubscriber || vipInfo?.is_active) && (
         <Box
           position="absolute"
           top="-2px"
@@ -222,8 +214,19 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
           bottom="-2px"
           borderRadius="full"
           border="3px solid"
-          borderColor="green.400"
+          borderColor={
+            isSubscriber && vipInfo?.is_active
+              ? 'linear-gradient(135deg, #48BB78, #FFD700)'
+              : isSubscriber
+                ? 'green.400'
+                : 'gold'
+          }
           pointerEvents="none"
+          background={
+            isSubscriber && vipInfo?.is_active
+              ? 'linear-gradient(135deg, rgba(72, 187, 120, 0.3), rgba(255, 215, 0, 0.3))'
+              : 'transparent'
+          }
           _before={{
             content: '""',
             position: 'absolute',
@@ -233,13 +236,20 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
             bottom: '-1px',
             borderRadius: 'full',
             border: '1px solid',
-            borderColor: 'green.300',
+            borderColor: isSubscriber ? 'green.300' : 'yellow.300'
+          }}
+          animation={vipInfo?.is_active ? 'pulse 2s infinite' : undefined}
+          sx={{
+            '@keyframes pulse': {
+              '0%, 100%': { opacity: 1 },
+              '50%': { opacity: 0.7 }
+            }
           }}
         />
       )}
 
-      {/* Overlay para VIP (solo si no es suscriptor) */}
-      {vipInfo?.is_active && !isSubscriber && (
+      {/* Overlay para VIP solo (ya no se usa, mantenido por compatibilidad) */}
+      {false && vipInfo?.is_active && (
         <Box
           position="absolute"
           top="-2px"
@@ -259,14 +269,14 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
             bottom: '-1px',
             borderRadius: 'full',
             border: '1px solid',
-            borderColor: 'yellow.300',
+            borderColor: 'yellow.300'
           }}
           animation="pulse 2s infinite"
           sx={{
             '@keyframes pulse': {
               '0%, 100%': { opacity: 1 },
-              '50%': { opacity: 0.7 },
-            },
+              '50%': { opacity: 0.7 }
+            }
           }}
         />
       )}

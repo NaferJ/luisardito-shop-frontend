@@ -28,6 +28,7 @@ import {
   Tooltip,
   Icon
 } from '@chakra-ui/react'
+import { useState, useEffect } from 'react'
 import { HamburgerIcon } from '@chakra-ui/icons'
 import {
   MdShoppingCart,
@@ -37,7 +38,8 @@ import {
   MdShoppingBag,
   MdSend,
   MdRedeem,
-  MdInventory
+  MdInventory,
+  MdLeaderboard
 } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
@@ -51,6 +53,22 @@ export default function Navbar() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [showNewBadge, setShowNewBadge] = useState(false)
+
+  // Check if user has visited leaderboard before
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasVisited = localStorage.getItem('leaderboard_visited')
+      setShowNewBadge(!hasVisited)
+    }
+  }, [])
+
+  const handleLeaderboardClick = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('leaderboard_visited', 'true')
+      setShowNewBadge(false)
+    }
+  }
 
   // Definir todos los colores incondicionalmente para evitar cambios en el orden de hooks
   const floatingBg = useColorModeValue('rgba(255, 255, 255, 0.14)', 'rgba(13, 17, 23, 0.14)')
@@ -104,6 +122,9 @@ export default function Navbar() {
   const discordAlertBorder = useColorModeValue('orange.300', 'orange.600')
   const discordAlertTextBold = useColorModeValue('orange.800', 'orange.100')
   const discordAlertText = useColorModeValue('orange.700', 'orange.200')
+
+  // Color para el borde del badge NEW
+  const badgeBorderColor = useColorModeValue('white', 'gray.800')
 
   // Colores para decoraciones navideñas - removidos para optimizar rendimiento
 
@@ -226,66 +247,67 @@ export default function Navbar() {
             </ChakraLink>
 
             {/* Enlaces de navegación con iconos flotantes - Solo desktop */}
-            {isAuthenticated && (
-              <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} flex="1" justify="center">
-                <Tooltip label="Tienda" placement="bottom">
-                  <ChakraLink as={NextLink} href="/">
-                    <IconButton
-                      aria-label="Tienda"
-                      icon={<Icon as={MdShoppingCart} boxSize={5} />}
-                      variant="ghost"
-                      size="sm"
-                      borderRadius="xl"
-                      bg={isActiveRoute('/') ? activeBg : 'transparent'}
-                      boxShadow={isActiveRoute('/') ? activeShadow : 'none'}
-                      transform={isActiveRoute('/') ? 'translateY(-2px)' : 'none'}
-                      _hover={{
-                        bg: hoverBg,
-                        boxShadow: hoverShadow,
-                        transform: 'translateY(-2px)',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                      transition="all 0.2s ease-in-out"
-                    />
-                  </ChakraLink>
-                </Tooltip>
+            <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} flex="1" justify="center">
+              {/* Enlaces para usuarios autenticados */}
+              {isAuthenticated && (
+                <>
+                  <Tooltip label="Tienda" placement="bottom">
+                    <ChakraLink as={NextLink} href="/">
+                      <IconButton
+                        aria-label="Tienda"
+                        icon={<Icon as={MdShoppingCart} boxSize={5} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="xl"
+                        bg={isActiveRoute('/') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/') ? 'translateY(-2px)' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          boxShadow: hoverShadow,
+                          transform: 'translateY(-2px)',
+                          transition: 'all 0.2s ease-in-out'
+                        }}
+                        transition="all 0.2s ease-in-out"
+                      />
+                    </ChakraLink>
+                  </Tooltip>
 
-                <Tooltip label="Mis Canjes" placement="bottom">
-                  <ChakraLink as={NextLink} href="/canjes">
-                    <IconButton
-                      aria-label="Mis Canjes"
-                      icon={<Icon as={MdRedeem} boxSize={5} />}
-                      variant="ghost"
-                      size="sm"
-                      borderRadius="xl"
-                      bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
-                      boxShadow={isActiveRoute('/canjes') ? activeShadow : 'none'}
-                      transform={isActiveRoute('/canjes') ? 'translateY(-2px)' : 'none'}
-                      _hover={{
-                        bg: hoverBg,
-                        boxShadow: hoverShadow,
-                        transform: 'translateY(-2px)',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                      transition="all 0.2s ease-in-out"
-                    />
-                  </ChakraLink>
-                </Tooltip>
+                  <Tooltip label="Mis Canjes" placement="bottom">
+                    <ChakraLink as={NextLink} href="/canjes">
+                      <IconButton
+                        aria-label="Mis Canjes"
+                        icon={<Icon as={MdRedeem} boxSize={5} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="xl"
+                        bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/canjes') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/canjes') ? 'translateY(-2px)' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          boxShadow: hoverShadow,
+                          transform: 'translateY(-2px)',
+                          transition: 'all 0.2s ease-in-out'
+                        }}
+                        transition="all 0.2s ease-in-out"
+                      />
+                    </ChakraLink>
+                  </Tooltip>
 
-                {/* Accesos de administrador */}
-                {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
-                  <>
-                    <Tooltip label="Usuarios" placement="bottom">
-                      <ChakraLink as={NextLink} href="/admin/usuarios">
+                  {/* Leaderboard - Con badge NEW */}
+                  <Tooltip label="Leaderboard" placement="bottom">
+                    <ChakraLink as={NextLink} href="/leaderboard" onClick={handleLeaderboardClick}>
+                      <Box position="relative">
                         <IconButton
-                          aria-label="Usuarios"
-                          icon={<Icon as={MdGroup} boxSize={5} />}
+                          aria-label="Leaderboard"
+                          icon={<Icon as={MdLeaderboard} boxSize={5} />}
                           variant="ghost"
                           size="sm"
                           borderRadius="xl"
-                          bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
-                          boxShadow={isActiveRoute('/admin/usuarios') ? activeShadow : 'none'}
-                          transform={isActiveRoute('/admin/usuarios') ? 'translateY(-2px)' : 'none'}
+                          bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
+                          boxShadow={isActiveRoute('/leaderboard') ? activeShadow : 'none'}
+                          transform={isActiveRoute('/leaderboard') ? 'translateY(-2px)' : 'none'}
                           _hover={{
                             bg: hoverBg,
                             boxShadow: hoverShadow,
@@ -294,63 +316,124 @@ export default function Navbar() {
                           }}
                           transition="all 0.2s ease-in-out"
                         />
-                      </ChakraLink>
-                    </Tooltip>
+                        {showNewBadge && (
+                          <Badge
+                            position="absolute"
+                            top="-4px"
+                            right="-4px"
+                            fontSize="9px"
+                            px={1.5}
+                            py={0.5}
+                            borderRadius="full"
+                            fontWeight="bold"
+                            bg="linear-gradient(135deg, #48BB78, #38A169)"
+                            color="white"
+                            border="2px solid"
+                            borderColor={badgeBorderColor}
+                            boxShadow="0 2px 8px rgba(72, 187, 120, 0.4)"
+                            animation="pulse 2s ease-in-out infinite"
+                            sx={{
+                              '@keyframes pulse': {
+                                '0%, 100%': {
+                                  transform: 'scale(1)',
+                                  opacity: 1
+                                },
+                                '50%': {
+                                  transform: 'scale(1.1)',
+                                  opacity: 0.9
+                                }
+                              }
+                            }}
+                          >
+                            NEW
+                          </Badge>
+                        )}
+                      </Box>
+                    </ChakraLink>
+                  </Tooltip>
 
-                    <Tooltip label="Canjes Admin" placement="bottom">
-                      <ChakraLink as={NextLink} href="/admin/canjes">
-                        <IconButton
-                          aria-label="Canjes Admin"
-                          icon={<Icon as={MdInventory} boxSize={5} />}
-                          variant="ghost"
-                          size="sm"
-                          borderRadius="xl"
-                          bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
-                          boxShadow={isActiveRoute('/admin/canjes') ? activeShadow : 'none'}
-                          transform={isActiveRoute('/admin/canjes') ? 'translateY(-2px)' : 'none'}
-                          _hover={{
-                            bg: hoverBg,
-                            boxShadow: hoverShadow,
-                            transform: 'translateY(-2px)',
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          transition="all 0.2s ease-in-out"
-                        />
-                      </ChakraLink>
-                    </Tooltip>
+                  {/* Accesos de administrador */}
+                  {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
+                    <>
+                      <Tooltip label="Usuarios" placement="bottom">
+                        <ChakraLink as={NextLink} href="/admin/usuarios">
+                          <IconButton
+                            aria-label="Usuarios"
+                            icon={<Icon as={MdGroup} boxSize={5} />}
+                            variant="ghost"
+                            size="sm"
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/usuarios') ? activeShadow : 'none'}
+                            transform={
+                              isActiveRoute('/admin/usuarios') ? 'translateY(-2px)' : 'none'
+                            }
+                            _hover={{
+                              bg: hoverBg,
+                              boxShadow: hoverShadow,
+                              transform: 'translateY(-2px)',
+                              transition: 'all 0.2s ease-in-out'
+                            }}
+                            transition="all 0.2s ease-in-out"
+                          />
+                        </ChakraLink>
+                      </Tooltip>
 
-                    <Tooltip label="Configuración Kick" placement="bottom">
-                      <ChakraLink as={NextLink} href="/admin/kick">
-                        <IconButton
-                          aria-label="Configuración Kick"
-                          icon={
-                            <Image
-                              src="/images/logokick.png"
-                              alt="Kick"
-                              boxSize={5}
-                              filter={kickLogoFilter}
-                            />
-                          }
-                          variant="ghost"
-                          size="sm"
-                          borderRadius="xl"
-                          bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
-                          boxShadow={isActiveRoute('/admin/kick') ? activeShadow : 'none'}
-                          transform={isActiveRoute('/admin/kick') ? 'translateY(-2px)' : 'none'}
-                          _hover={{
-                            bg: hoverBg,
-                            boxShadow: hoverShadow,
-                            transform: 'translateY(-2px)',
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          transition="all 0.2s ease-in-out"
-                        />
-                      </ChakraLink>
-                    </Tooltip>
-                  </>
-                )}
-              </HStack>
-            )}
+                      <Tooltip label="Canjes Admin" placement="bottom">
+                        <ChakraLink as={NextLink} href="/admin/canjes">
+                          <IconButton
+                            aria-label="Canjes Admin"
+                            icon={<Icon as={MdInventory} boxSize={5} />}
+                            variant="ghost"
+                            size="sm"
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/canjes') ? activeShadow : 'none'}
+                            transform={isActiveRoute('/admin/canjes') ? 'translateY(-2px)' : 'none'}
+                            _hover={{
+                              bg: hoverBg,
+                              boxShadow: hoverShadow,
+                              transform: 'translateY(-2px)',
+                              transition: 'all 0.2s ease-in-out'
+                            }}
+                            transition="all 0.2s ease-in-out"
+                          />
+                        </ChakraLink>
+                      </Tooltip>
+
+                      <Tooltip label="Configuración Kick" placement="bottom">
+                        <ChakraLink as={NextLink} href="/admin/kick">
+                          <IconButton
+                            aria-label="Configuración Kick"
+                            icon={
+                              <Image
+                                src="/images/logokick.png"
+                                alt="Kick"
+                                boxSize={5}
+                                filter={kickLogoFilter}
+                              />
+                            }
+                            variant="ghost"
+                            size="sm"
+                            borderRadius="xl"
+                            bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
+                            boxShadow={isActiveRoute('/admin/kick') ? activeShadow : 'none'}
+                            transform={isActiveRoute('/admin/kick') ? 'translateY(-2px)' : 'none'}
+                            _hover={{
+                              bg: hoverBg,
+                              boxShadow: hoverShadow,
+                              transform: 'translateY(-2px)',
+                              transition: 'all 0.2s ease-in-out'
+                            }}
+                            transition="all 0.2s ease-in-out"
+                          />
+                        </ChakraLink>
+                      </Tooltip>
+                    </>
+                  )}
+                </>
+              )}
+            </HStack>
 
             {/* Controles del lado derecho */}
             <HStack
@@ -821,6 +904,7 @@ export default function Navbar() {
                           Tienda
                         </Button>
                       </ChakraLink>
+
                       <ChakraLink as={NextLink} href="/canjes" onClick={onClose}>
                         <Button
                           variant="ghost"
@@ -841,8 +925,53 @@ export default function Navbar() {
                         </Button>
                       </ChakraLink>
 
+                      <ChakraLink
+                        as={NextLink}
+                        href="/leaderboard"
+                        onClick={() => {
+                          handleLeaderboardClick()
+                          onClose()
+                        }}
+                      >
+                        <Button
+                          variant="ghost"
+                          width="full"
+                          justifyContent="flex-start"
+                          leftIcon={<Icon as={MdLeaderboard} />}
+                          borderRadius="xl"
+                          bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
+                          boxShadow={isActiveRoute('/leaderboard') ? 'md' : 'none'}
+                          _hover={{
+                            bg: hoverBg,
+                            transform: 'translateX(4px)',
+                            transition: 'all 0.2s'
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <HStack spacing={2} width="100%" justify="space-between">
+                            <Text>Leaderboard</Text>
+                            {showNewBadge && (
+                              <Badge
+                                fontSize="10px"
+                                px={2}
+                                py={0.5}
+                                borderRadius="full"
+                                fontWeight="bold"
+                                bg="linear-gradient(135deg, #48BB78, #38A169)"
+                                color="white"
+                                boxShadow="0 2px 8px rgba(72, 187, 120, 0.4)"
+                              >
+                                NEW
+                              </Badge>
+                            )}
+                          </HStack>
+                        </Button>
+                      </ChakraLink>
+
                       {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
                         <>
+                          <Divider my={2} />
+
                           <ChakraLink as={NextLink} href="/admin/usuarios" onClick={onClose}>
                             <Button
                               variant="ghost"
@@ -862,6 +991,7 @@ export default function Navbar() {
                               Usuarios
                             </Button>
                           </ChakraLink>
+
                           <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose}>
                             <Button
                               variant="ghost"
@@ -878,7 +1008,7 @@ export default function Navbar() {
                               }}
                               transition="all 0.2s"
                             >
-                              Canjes
+                              Canjes Admin
                             </Button>
                           </ChakraLink>
                           <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose}>
@@ -1015,6 +1145,51 @@ export default function Navbar() {
 
                 return (
                   <VStack align="stretch" spacing={3}>
+                    <ChakraLink
+                      as={NextLink}
+                      href="/leaderboard"
+                      onClick={() => {
+                        handleLeaderboardClick()
+                        onClose()
+                      }}
+                    >
+                      <Button
+                        variant="ghost"
+                        width="full"
+                        justifyContent="flex-start"
+                        leftIcon={<Icon as={MdLeaderboard} />}
+                        borderRadius="xl"
+                        bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/leaderboard') ? 'md' : 'none'}
+                        _hover={{
+                          bg: hoverBg,
+                          transform: 'translateX(4px)',
+                          transition: 'all 0.2s'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        <HStack spacing={2} width="100%" justify="space-between">
+                          <Text>Leaderboard</Text>
+                          {showNewBadge && (
+                            <Badge
+                              fontSize="10px"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              fontWeight="bold"
+                              bg="linear-gradient(135deg, #48BB78, #38A169)"
+                              color="white"
+                              boxShadow="0 2px 8px rgba(72, 187, 120, 0.4)"
+                            >
+                              NEW
+                            </Badge>
+                          )}
+                        </HStack>
+                      </Button>
+                    </ChakraLink>
+
+                    <Divider my={2} />
+
                     <ChakraLink as={NextLink} href="/login" onClick={onClose}>
                       <Button variant="outline" width="full" borderRadius="xl">
                         Iniciar Sesión

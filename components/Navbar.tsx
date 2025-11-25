@@ -154,12 +154,12 @@ export default function Navbar() {
         zIndex={50}
         w="auto"
         maxW={{
-          base: '95vw', // < 480px
-          sm: '92vw', // 480px - 768px
-          md: '88vw', // 768px - 992px (tablet portrait como 768x1024)
-          lg: '85vw', // 992px - 1200px
-          xl: '80vw', // 1200px - 1536px (como 1393x990)
-          '2xl': '75vw' // > 1536px
+          base: 'calc(95vw + 20px)', // < 480px
+          sm: 'calc(92vw + 20px)', // 480px - 768px
+          md: 'calc(88vw + 20px)', // 768px - 992px (tablet portrait como 768x1024)
+          lg: 'calc(85vw + 20px)', // 992px - 1200px
+          xl: 'calc(80vw + 20px)', // 1200px - 1536px (como 1393x990)
+          '2xl': 'calc(75vw + 20px)' // > 1536px
         }}
         minW={{
           base: '300px', // mínimo más pequeño para móvil

@@ -54,6 +54,12 @@ export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [showNewBadge, setShowNewBadge] = useState(false)
 
+  // Determinar qué avatar usar: Kick si está disponible, sino inicial del nombre
+  const avatarSrc = user
+    ? user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
+    : undefined
+  const avatarName = user ? user.kick_username || user.nickname || user.nombre || user.email : ''
+
   // Detectar si el usuario tiene 2 badges (VIP + SUB)
   const vipInfo = user?.vip_info || user?.vip_status
   const isSubscriber = user?.subscriber_status?.is_active || user?.user_type === 'subscriber'
@@ -577,11 +583,7 @@ export default function Navbar() {
                         transition="all 0.3s ease"
                       >
                         <UserAvatarWithBadge user={user as any}>
-                          <Avatar
-                            size="sm"
-                            name={user.kick_username || user.nickname || user.nombre || user.email}
-                            src={user.kick_avatar || undefined}
-                          />
+                          <Avatar size="sm" name={avatarName} src={avatarSrc} />
                         </UserAvatarWithBadge>
                       </MenuButton>
                     </Tooltip>
@@ -608,11 +610,7 @@ export default function Navbar() {
                         mb={1}
                       >
                         <UserAvatarWithBadge user={user as any}>
-                          <Avatar
-                            size="md"
-                            name={user.kick_username || user.nickname || user.nombre || user.email}
-                            src={user.kick_avatar || undefined}
-                          />
+                          <Avatar size="md" name={avatarName} src={avatarSrc} />
                         </UserAvatarWithBadge>
                         <Text fontWeight="medium" fontSize="sm" whiteSpace="nowrap">
                           {user.kick_username || user.nickname || user.nombre || user.email}
@@ -842,12 +840,6 @@ export default function Navbar() {
                 }
 
                 if (isAuthenticated && user) {
-                  // Determinar qué avatar usar: Kick si está disponible, sino inicial del nombre
-                  const avatarSrc =
-                    user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
-                  const avatarName =
-                    user.kick_username || user.nickname || user.nombre || user.email
-
                   return (
                     <VStack align="stretch" spacing={2}>
                       <HStack justify="space-between">

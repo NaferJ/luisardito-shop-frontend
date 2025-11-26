@@ -19,6 +19,7 @@ export interface Usuario {
     username: string
     avatar_url: string
   }
+  avatar_url?: string
 
   // Campo Discord
   discord_username?: string

@@ -843,7 +843,8 @@ export default function Navbar() {
 
                 if (isAuthenticated && user) {
                   // Determinar qué avatar usar: Kick si está disponible, sino inicial del nombre
-                  const avatarSrc = user.kick_data?.avatar_url || user.kick_avatar || undefined
+                  const avatarSrc =
+                    user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
                   const avatarName =
                     user.kick_username || user.nickname || user.nombre || user.email
 

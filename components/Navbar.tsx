@@ -583,7 +583,7 @@ export default function Navbar() {
                         transition="all 0.3s ease"
                       >
                         <UserAvatarWithBadge user={user as any}>
-                          <Avatar size="sm" name={avatarName} src={avatarSrc} />
+                          <Avatar size="sm" name="" src={avatarSrc} />
                         </UserAvatarWithBadge>
                       </MenuButton>
                     </Tooltip>
@@ -610,7 +610,7 @@ export default function Navbar() {
                         mb={1}
                       >
                         <UserAvatarWithBadge user={user as any}>
-                          <Avatar size="md" name={avatarName} src={avatarSrc} />
+                          <Avatar size="md" name="" src={avatarSrc} />
                         </UserAvatarWithBadge>
                         <Text fontWeight="medium" fontSize="sm" whiteSpace="nowrap">
                           {user.kick_username || user.nickname || user.nombre || user.email}
@@ -845,7 +845,7 @@ export default function Navbar() {
                       <HStack justify="space-between">
                         <HStack>
                           <UserAvatarWithBadge user={user as any}>
-                            <Avatar size="sm" name={avatarName} src={avatarSrc} />
+                            <Avatar size="sm" name="" src={avatarSrc} />
                           </UserAvatarWithBadge>
                           <Text fontWeight="medium">{avatarName}</Text>
                         </HStack>

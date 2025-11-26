@@ -131,7 +131,7 @@ export default function PerfilPage() {
     )
   }
 
-  const avatarSrc = user.kick_avatar || undefined
+  const avatarSrc = user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
   const displayName = user.kick_username || user.nickname || user.nombre || user.email
 
   return (

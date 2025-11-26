@@ -222,11 +222,6 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
                 : 'gold'
           }
           pointerEvents="none"
-          background={
-            isSubscriber && vipInfo?.is_active
-              ? 'linear-gradient(135deg, rgba(72, 187, 120, 0.3), rgba(255, 215, 0, 0.3))'
-              : 'transparent'
-          }
           _before={{
             content: '""',
             position: 'absolute',

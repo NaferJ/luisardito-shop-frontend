@@ -25,7 +25,7 @@ import {
   Divider
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import { MdTrendingUp, MdTrendingDown, MdRemove, MdNewReleases } from 'react-icons/md'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown, MdRemove, MdNewReleases } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
 import { UserBadge } from '../components/UserBadge'
 import Head from 'next/head'
@@ -175,7 +175,7 @@ export default function LeaderboardPage() {
       case 'up':
         return (
           <HStack spacing={1} color="green.500">
-            <Icon as={MdTrendingUp} boxSize={5} />
+            <Icon as={MdKeyboardArrowUp} boxSize={5} />
             <Text fontWeight="bold" fontSize="sm">
               {position_change}
             </Text>
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
       case 'down':
         return (
           <HStack spacing={1} color="red.500">
-            <Icon as={MdTrendingDown} boxSize={5} />
+            <Icon as={MdKeyboardArrowDown} boxSize={5} />
             <Text fontWeight="bold" fontSize="sm">
               {position_change}
             </Text>

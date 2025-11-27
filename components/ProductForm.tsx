@@ -501,7 +501,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
                             handleInputChange('precio', valueNumber || 0)
                           }
                           min={1}
-                          max={999999}
                         >
                           <NumberInputField />
                           <NumberInputStepper>

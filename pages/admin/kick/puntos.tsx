@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Box,
   Container,
@@ -9,8 +9,6 @@ import {
   Card,
   CardBody,
   Button,
-  FormControl,
-  FormLabel,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
@@ -19,95 +17,91 @@ import {
   Switch,
   Alert,
   AlertIcon,
-  Spinner,
   useToast,
-  Divider,
   Badge,
   IconButton,
   SimpleGrid,
   useColorModeValue,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Flex,
 } from '@chakra-ui/react'
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { useKickPointsConfig } from '../../../hooks/useKickPointsConfig'
 import Head from "next/head";
 
-const CONFIG_LABELS: Record<string, { label: string; description: string }> = {
+const CONFIG_LABELS: Record<string, { label: string; description: string; category: string }> = {
   chat_points_regular: {
-    label: 'Puntos por Mensaje (Usuario Regular)',
-    description: 'Puntos otorgados por cada mensaje en el chat de usuarios no suscritos',
+    label: 'Mensajes Regulares',
+    description: 'Puntos por mensaje en el chat (usuarios no suscritos)',
+    category: 'Chat',
   },
   chat_points_subscriber: {
-    label: 'Puntos por Mensaje (Suscriptor)',
-    description: 'Puntos otorgados por cada mensaje en el chat de suscriptores',
+    label: 'Mensajes Suscriptores',
+    description: 'Puntos por mensaje en el chat (suscriptores)',
+    category: 'Chat',
   },
   chat_points_vip: {
-    label: 'Puntos por Mensaje (Usuario VIP)',
-    description: 'Puntos otorgados por cada mensaje en el chat de usuarios VIP (prioridad máxima)',
+    label: 'Mensajes VIP',
+    description: 'Puntos por mensaje en el chat (usuarios VIP)',
+    category: 'Chat',
   },
   follow_points: {
-    label: 'Puntos por Follow',
-    description: 'Puntos otorgados cuando un usuario sigue el canal',
+    label: 'Follows',
+    description: 'Puntos cuando un usuario sigue el canal',
+    category: 'Engagement',
   },
   subscription_new_points: {
-    label: 'Puntos por Nueva Suscripción',
-    description: 'Puntos otorgados cuando un usuario se suscribe por primera vez',
+    label: 'Nueva Suscripción',
+    description: 'Puntos por primera suscripción al canal',
+    category: 'Suscripciones',
   },
   subscription_renewal_points: {
-    label: 'Puntos por Renovación',
-    description: 'Puntos otorgados cuando un usuario renueva su suscripción',
+    label: 'Renovación',
+    description: 'Puntos por renovar suscripción existente',
+    category: 'Suscripciones',
   },
   gift_given_points: {
-    label: 'Puntos por Regalar Suscripción',
-    description: 'Puntos por cada suscripción regalada (multiplicado por cantidad)',
+    label: 'Regalar Suscripción',
+    description: 'Puntos por cada suscripción regalada',
+    category: 'Gifts',
   },
   gift_received_points: {
-    label: 'Puntos por Recibir Suscripción Regalo',
-    description: 'Puntos otorgados a quien recibe una suscripción regalada',
+    label: 'Recibir Regalo',
+    description: 'Puntos al recibir una suscripción regalada',
+    category: 'Gifts',
   },
 }
 
 export default function KickPointsConfigPage() {
   const router = useRouter()
   const toast = useToast()
-  const { configs, loading, error, updateConfig, fetchConfigs, initializeConfig, resetToDefaults } = useKickPointsConfig()
+  const { configs, loading, error, updateMultipleConfigs, initializeConfig, resetToDefaults } = useKickPointsConfig()
   const [saving, setSaving] = useState(false)
   const [initializing, setInitializing] = useState(false)
-
-  // Debug logging para ver el estado actual
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Estado de configs en página puntos:', {
-        configs,
-        isArray: Array.isArray(configs),
-        length: Array.isArray(configs) ? configs.length : 'N/A',
-        loading,
-        error
-      })
-    }
-  }, [configs, loading, error])
 
   // Color mode values
   const cardBg = useColorModeValue('white', 'gray.800')
   const cardBorder = useColorModeValue('gray.200', 'gray.600')
-  const enabledCardBg = useColorModeValue('green.50', 'green.900')
-  const enabledCardBorder = useColorModeValue('green.200', 'green.600')
-  const disabledCardBg = useColorModeValue('gray.50', 'gray.700')
-  const disabledCardBorder = useColorModeValue('gray.200', 'gray.600')
-  const enabledCardHoverBorder = useColorModeValue('green.300', 'green.500')
-  const disabledCardHoverBorder = useColorModeValue('gray.300', 'gray.500')
-  const headingEnabledColor = useColorModeValue('green.700', 'green.200')
-  const headingDisabledColor = useColorModeValue('gray.600', 'gray.400')
+  const tableBg = useColorModeValue('white', 'gray.800')
+  const tableHoverBg = useColorModeValue('gray.50', 'gray.700')
+  const statBg = useColorModeValue('gray.50', 'gray.700')
   const labelColor = useColorModeValue('gray.700', 'gray.300')
   const descriptionColor = useColorModeValue('gray.600', 'gray.400')
-  const initCardBg = useColorModeValue('white', 'gray.800')
-  const resetCardBg = useColorModeValue('gray.50', 'gray.700')
+  const mutedColor = useColorModeValue('gray.600', 'gray.400')
+  const textColor = useColorModeValue('gray.800', 'white')
 
   const [formData, setFormData] = useState<Record<string, { value: number; enabled: boolean }>>({})
+  const [hasChanges, setHasChanges] = useState(false)
 
-  // Inicializar formData cuando se carga la config
   useEffect(() => {
     if (Array.isArray(configs) && configs.length > 0) {
       const newFormData: Record<string, { value: number; enabled: boolean }> = {}
@@ -120,6 +114,7 @@ export default function KickPointsConfigPage() {
         }
       })
       setFormData(newFormData)
+      setHasChanges(false)
     }
   }, [configs])
 
@@ -131,6 +126,7 @@ export default function KickPointsConfigPage() {
         value,
       },
     }))
+    setHasChanges(true)
   }
 
   const handleEnabledChange = (key: string, enabled: boolean) => {
@@ -141,30 +137,56 @@ export default function KickPointsConfigPage() {
         enabled,
       },
     }))
+    setHasChanges(true)
   }
 
-  const handleSave = async (key: string) => {
+  const handleSaveAll = async () => {
     try {
       setSaving(true)
-      const data = formData[key]
+      
+      const updates = Object.entries(formData).map(([key, data]) => ({
+        config_key: key,
+        config_value: data.value,
+        enabled: data.enabled,
+      }))
 
-      // Hacer ambas actualizaciones sin recargar hasta el final
-      await updateConfig(key, data.value, true) // skipReload = true
-      await updateConfig(`${key}_enabled`, data.enabled, false) // Solo la última recarga
+      await updateMultipleConfigs(updates)
 
       toast({
         title: 'Configuración actualizada',
+        description: 'Todos los cambios se han guardado correctamente',
         status: 'success',
-        duration: 2000,
+        duration: 3000,
+        isClosable: true,
       })
+      
+      setHasChanges(false)
     } catch (err) {
       toast({
         title: 'Error al guardar',
+        description: 'No se pudieron guardar los cambios',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleReset = () => {
+    if (Array.isArray(configs) && configs.length > 0) {
+      const resetData: Record<string, { value: number; enabled: boolean }> = {}
+      configs.forEach((item) => {
+        if (item && item.config_key) {
+          resetData[item.config_key] = {
+            value: item.config_value || 0,
+            enabled: item.enabled || false,
+          }
+        }
+      })
+      setFormData(resetData)
+      setHasChanges(false)
     }
   }
 
@@ -175,71 +197,66 @@ export default function KickPointsConfigPage() {
 
     try {
       setInitializing(true)
-
-      // Usar la función initializeConfig del hook que ya está optimizada
       await initializeConfig()
 
       toast({
         title: 'Configuración inicializada',
-        description: 'Se han establecido los valores por defecto en una sola operación',
+        description: 'Se han establecido los valores por defecto',
         status: 'success',
         duration: 3000,
+        isClosable: true,
       })
     } catch (err) {
       toast({
         title: 'Error al inicializar',
+        description: 'No se pudo inicializar la configuración',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       })
     } finally {
       setInitializing(false)
     }
   }
 
-  const handleReset = async () => {
-
+  const handleResetToDefaults = async () => {
     if (!confirm('¿Estás seguro de restablecer TODAS las configuraciones a sus valores por defecto? Esto sobrescribirá todos los valores actuales.')) {
       return
     }
 
     try {
       setInitializing(true)
-
-      // Usar la función resetToDefaults que tiene control total
       await resetToDefaults()
 
       toast({
         title: 'Configuración restablecida',
-        description: 'Todos los valores han sido restablecidos a los valores por defecto correctos',
+        description: 'Todos los valores han sido restablecidos',
         status: 'success',
         duration: 3000,
+        isClosable: true,
       })
     } catch (err) {
-      console.error('🎯 handleReset: Error durante restablecimiento:', err)
       toast({
         title: 'Error al restablecer',
+        description: 'No se pudieron restablecer los valores',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       })
     } finally {
       setInitializing(false)
     }
   }
 
-  if (loading) {
-    return (
-      <RequireAdmin>
-        <Layout>
-          <Container maxW="container.xl" py={8}>
-            <VStack spacing={8}>
-              <Spinner size="xl" color="green.500" thickness="4px" />
-              <Text fontSize="lg" color="gray.600">Cargando configuración...</Text>
-            </VStack>
-          </Container>
-        </Layout>
-      </RequireAdmin>
-    )
-  }
+  const groupedConfigs = useMemo(() => {
+    const groups: Record<string, string[]> = {}
+    Object.keys(CONFIG_LABELS).forEach((key) => {
+      const category = CONFIG_LABELS[key].category
+      if (!groups[category]) groups[category] = []
+      groups[category].push(key)
+    })
+    return groups
+  }, [])
 
   return (
     <RequireAdmin>
@@ -249,10 +266,15 @@ export default function KickPointsConfigPage() {
               <meta name="description" content="Configura la cantidad de puntos que se otorgan por cada acción en la tienda." />
           </Head>
         <Container maxW="container.xl" py={8}>
-          <VStack spacing={8} align="stretch">
-            {/* Header mejorado */}
-            <Box>
-              <HStack mb={4}>
+          <VStack spacing={6} align="stretch">
+            {/* Header */}
+            <Flex
+              justify="space-between"
+              align={{ base: 'start', md: 'center' }}
+              direction={{ base: 'column', md: 'row' }}
+              gap={4}
+            >
+              <HStack spacing={4}>
                 <IconButton
                   aria-label="Volver"
                   icon={<ArrowBackIcon />}
@@ -260,36 +282,19 @@ export default function KickPointsConfigPage() {
                   variant="ghost"
                   size="lg"
                 />
-                <VStack align="start" spacing={1} flex={1}>
-                  <Heading size="xl" color="green.600">
+                <VStack align="start" spacing={1}>
+                  <Heading size="lg" color={textColor}>
                     Configuración de Puntos
                   </Heading>
-                  <Text color="gray.600" fontSize="lg">
-                    Define cuántos puntos se otorgan por cada tipo de evento en Kick
+                  <Text color={mutedColor} fontSize="sm">
+                    Define cuántos puntos se otorgan por cada tipo de evento
                   </Text>
                 </VStack>
               </HStack>
-
-              {/* Stats rápidas */}
-              {Array.isArray(configs) && configs.length > 0 && (
-                <HStack spacing={4} flexWrap="wrap">
-                  <Badge colorScheme="blue" fontSize="sm" px={3} py={1}>
-                    {configs.length} configuraciones
-                  </Badge>
-                  <Badge
-                    colorScheme={configs.filter(c => c.enabled).length > 0 ? "green" : "gray"}
-                    fontSize="sm"
-                    px={3}
-                    py={1}
-                  >
-                    {configs.filter(c => c.enabled).length} activas
-                  </Badge>
-                </HStack>
-              )}
-            </Box>
+            </Flex>
 
             {error && (
-              <Alert status="error" borderRadius="xl">
+              <Alert status="error" borderRadius="lg">
                 <AlertIcon />
                 <Box>
                   <Text fontWeight="bold">Error al cargar configuración</Text>
@@ -299,24 +304,23 @@ export default function KickPointsConfigPage() {
             )}
 
             {!loading && (!Array.isArray(configs) || configs.length === 0) ? (
-              <Card borderRadius="xl" bg={initCardBg} border="1px solid" borderColor={cardBorder}>
+              <Card borderRadius="lg" bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
                 <CardBody p={8}>
                   <VStack spacing={6}>
-                    <Alert status="info" borderRadius="lg" bg={initCardBg} boxShadow="sm">
+                    <Alert status="info" borderRadius="lg">
                       <AlertIcon />
                       <Box>
                         <Text fontWeight="bold" mb={1}>Configuración no encontrada</Text>
                         <Text fontSize="sm" color={descriptionColor}>
-                          No hay configuración establecida. Inicializa la configuración para empezar a otorgar puntos.
+                          No hay configuración establecida. Inicializa la configuración para empezar.
                         </Text>
                       </Box>
                     </Alert>
                     <Button
-                      colorScheme="green"
+                      colorScheme="blue"
                       onClick={handleInitialize}
                       isLoading={initializing}
                       size="lg"
-                      borderRadius="xl"
                       px={8}
                     >
                       Inicializar Configuración
@@ -325,153 +329,146 @@ export default function KickPointsConfigPage() {
                 </CardBody>
               </Card>
             ) : (
-              <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-                  {Object.keys(CONFIG_LABELS).map((key) => {
-                    try {
-                      // Validar que config sea un array y contenga elementos válidos
-                      if (!Array.isArray(configs) || configs.length === 0) {
-                        return null
-                      }
+              <>
+                {/* Barra de acciones */}
+                <Card borderRadius="lg" bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
+                  <CardBody p={4}>
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      direction={{ base: 'column', md: 'row' }}
+                      gap={3}
+                    >
+                      <HStack spacing={2}>
+                        {hasChanges && (
+                          <Badge colorScheme="orange" fontSize="sm" px={3} py={1}>
+                            Cambios pendientes
+                          </Badge>
+                        )}
+                      </HStack>
 
-                      const configItem = configs.find((c) => c && typeof c === 'object' && c.config_key === key)
-                      if (!configItem) {
-                        return null
-                      }
-
-                      // Validar que formData[key] existe o crear valores por defecto
-                      const formValue = formData[key] || {
-                        value: configItem.config_value,
-                        enabled: configItem.enabled
-                      }
-
-                      return (
-                        <Card
-                          key={key}
-                          borderRadius="xl"
-                          border="1px solid"
-                          borderColor={formValue.enabled ? enabledCardBorder : disabledCardBorder}
-                          bg={formValue.enabled ? enabledCardBg : disabledCardBg}
-                          _hover={{
-                            transform: "translateY(-2px)",
-                            boxShadow: "lg",
-                            borderColor: formValue.enabled ? enabledCardHoverBorder : disabledCardHoverBorder
-                          }}
-                          transition="all 0.2s"
+                      <HStack spacing={3}>
+                        {hasChanges && (
+                          <Button
+                            variant="outline"
+                            onClick={handleReset}
+                            leftIcon={<CloseIcon />}
+                            size="md"
+                          >
+                            Descartar
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          onClick={handleResetToDefaults}
+                          isLoading={initializing}
+                          size="md"
                         >
-                          <CardBody p={6}>
-                            <VStack spacing={5} align="stretch">
-                              {/* Header de la tarjeta */}
-                              <HStack justify="space-between" align="start">
-                                <VStack align="start" spacing={2} flex={1}>
-                                  <HStack>
-                                    <Heading size="md" color={formValue.enabled ? headingEnabledColor : headingDisabledColor}>
-                                      {CONFIG_LABELS[key].label}
-                                    </Heading>
+                          Restablecer Valores
+                        </Button>
+                        <Button
+                          colorScheme="blue"
+                          onClick={handleSaveAll}
+                          isLoading={saving}
+                          isDisabled={!hasChanges}
+                          leftIcon={<CheckIcon />}
+                          size="md"
+                        >
+                          Guardar Todo
+                        </Button>
+                      </HStack>
+                    </Flex>
+                  </CardBody>
+                </Card>
+
+                {/* Tabla de configuraciones */}
+                <Box
+                  bg={tableBg}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={cardBorder}
+                  overflow="hidden"
+                >
+                  <TableContainer>
+                    <Table variant="simple" size="sm">
+                      <Thead bg={statBg}>
+                        <Tr>
+                          <Th py={3} width="30%">Configuración</Th>
+                          <Th py={3} width="30%">Descripción</Th>
+                          <Th py={3} width="20%">Puntos</Th>
+                          <Th py={3} width="10%" textAlign="center">Estado</Th>
+                          <Th py={3} width="10%" textAlign="center">Activo</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {Object.entries(groupedConfigs).map(([category, keys]) => (
+                          <>
+                            <Tr key={`category-${category}`} bg={statBg}>
+                              <Td colSpan={5} py={2}>
+                                <Text fontSize="xs" fontWeight="bold" color={labelColor}>
+                                  {category}
+                                </Text>
+                              </Td>
+                            </Tr>
+                            {keys.map((key) => {
+                              const formValue = formData[key] || { value: 0, enabled: false }
+                              const config = CONFIG_LABELS[key]
+
+                              return (
+                                <Tr key={key} _hover={{ bg: tableHoverBg }} transition="all 0.2s">
+                                  <Td py={3}>
+                                    <Text fontSize="sm" fontWeight="medium" color={textColor}>
+                                      {config.label}
+                                    </Text>
+                                  </Td>
+                                  <Td py={3}>
+                                    <Text fontSize="xs" color={descriptionColor} noOfLines={2}>
+                                      {config.description}
+                                    </Text>
+                                  </Td>
+                                  <Td py={3}>
+                                    <NumberInput
+                                      value={formValue.value}
+                                      onChange={(_, value) => handleValueChange(key, value)}
+                                      min={0}
+                                      max={10000}
+                                      isDisabled={!formValue.enabled}
+                                      size="sm"
+                                      maxW="120px"
+                                    >
+                                      <NumberInputField />
+                                      <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                      </NumberInputStepper>
+                                    </NumberInput>
+                                  </Td>
+                                  <Td py={3} textAlign="center">
                                     <Badge
                                       colorScheme={formValue.enabled ? 'green' : 'gray'}
                                       fontSize="xs"
-                                      px={2}
-                                      py={1}
-                                      borderRadius="full"
                                     >
                                       {formValue.enabled ? 'Activo' : 'Inactivo'}
                                     </Badge>
-                                  </HStack>
-                                  <Text fontSize="sm" color={descriptionColor} lineHeight={1.5}>
-                                    {CONFIG_LABELS[key].description}
-                                  </Text>
-                                </VStack>
-                              </HStack>
-
-                              <Divider />
-
-                              {/* Controles */}
-                              <HStack spacing={4} align="end">
-                                <FormControl flex={1}>
-                                  <FormLabel fontSize="sm" fontWeight="medium" color={labelColor}>
-                                    Puntos otorgados
-                                  </FormLabel>
-                                  <NumberInput
-                                    value={formValue.value}
-                                    onChange={(_, value) => handleValueChange(key, value)}
-                                    min={0}
-                                    max={10000}
-                                    isDisabled={!formValue.enabled}
-                                  >
-                                    <NumberInputField
-                                      borderRadius="lg"
-                                      _focus={{ borderColor: "green.400", boxShadow: "0 0 0 1px green.400" }}
+                                  </Td>
+                                  <Td py={3} textAlign="center">
+                                    <Switch
+                                      isChecked={formValue.enabled}
+                                      onChange={(e) => handleEnabledChange(key, e.target.checked)}
+                                      colorScheme="green"
+                                      size="md"
                                     />
-                                    <NumberInputStepper>
-                                      <NumberIncrementStepper />
-                                      <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                  </NumberInput>
-                                </FormControl>
-
-                                <FormControl display="flex" alignItems="center" width="auto">
-                                  <FormLabel mb={0} mr={3} fontSize="sm" fontWeight="medium" color={labelColor}>
-                                    Habilitado
-                                  </FormLabel>
-                                  <Switch
-                                    isChecked={formValue.enabled}
-                                    onChange={(e) => handleEnabledChange(key, e.target.checked)}
-                                    colorScheme="green"
-                                    size="lg"
-                                  />
-                                </FormControl>
-
-                                <Button
-                                  colorScheme="green"
-                                  onClick={() => handleSave(key)}
-                                  isLoading={saving}
-                                  borderRadius="lg"
-                                  px={6}
-                                  _hover={{ transform: "translateY(-1px)" }}
-                                >
-                                  Guardar
-                                </Button>
-                              </HStack>
-                            </VStack>
-                          </CardBody>
-                        </Card>
-                      )
-                    } catch (error) {
-                      return (
-                        <Alert key={key} status="warning">
-                          <AlertIcon />
-                          Error al cargar configuración para {CONFIG_LABELS[key]?.label || key}
-                        </Alert>
-                      )
-                    }
-                  })}
-                </SimpleGrid>
-
-                {/* Botón de reinicio mejorado */}
-                <Card borderRadius="xl" bg={resetCardBg} border="1px solid" borderColor={cardBorder}>
-                  <CardBody p={6}>
-                    <VStack spacing={4}>
-                      <VStack spacing={2}>
-                        <Heading size="md" color={labelColor}>Restablecer Configuración</Heading>
-                        <Text fontSize="sm" color={descriptionColor} textAlign="center">
-                          Esto restablecerá todas las configuraciones a sus valores por defecto
-                        </Text>
-                      </VStack>
-                      <Button
-                        colorScheme="gray"
-                        variant="outline"
-                        onClick={handleReset}
-                        isLoading={initializing}
-                        borderRadius="lg"
-                        px={8}
-                      >
-                        Restablecer a Valores por Defecto
-                      </Button>
-                    </VStack>
-                  </CardBody>
-                </Card>
-              </VStack>
+                                  </Td>
+                                </Tr>
+                              )
+                            })}
+                          </>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              </>
             )}
           </VStack>
         </Container>

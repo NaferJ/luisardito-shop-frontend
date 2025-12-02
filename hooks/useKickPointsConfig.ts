@@ -107,6 +107,26 @@ export const useKickPointsConfig = () => {
     }
   }
 
+  const updateMultipleConfigs = async (updates: Array<{ config_key: string; config_value: number; enabled: boolean }>) => {
+    try {
+      // Actualizar cada configuración sin recargar hasta el final
+      for (const update of updates) {
+        await kickPointsConfigApi.updateConfig({
+          config_key: update.config_key,
+          config_value: update.config_value,
+          enabled: update.enabled
+        })
+      }
+
+      // Solo recargar una vez al final
+      await fetchConfigs()
+      return true
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al actualizar configuraciones')
+      throw err
+    }
+  }
+
   const resetToDefaults = async () => {
     // Valores por defecto específicos que sabemos que queremos (según backend)
     const defaultConfigs = [
@@ -241,6 +261,7 @@ export const useKickPointsConfig = () => {
     error,
     fetchConfigs,
     updateConfig,
+    updateMultipleConfigs,
     initializeConfig,
     resetToDefaults
   }

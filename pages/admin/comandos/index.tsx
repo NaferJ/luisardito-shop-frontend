@@ -35,12 +35,6 @@ import {
   InputLeftElement,
   Select,
   Flex,
-  SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Alert,
-  AlertIcon,
   Stack,
   FormControl,
   FormLabel,
@@ -53,17 +47,25 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogContent,
-  AlertDialogOverlay
+  AlertDialogOverlay,
+  Box,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Checkbox,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from '@chakra-ui/react'
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import {
   useBotCommands,
-  useBotCommandStats,
   useCreateBotCommand,
   useUpdateBotCommand,
   useDeleteBotCommand,
-  useToggleBotCommand,
-  useDuplicateBotCommand,
   useTestBotCommand,
   BotCommand,
   CommandFormData
@@ -73,9 +75,9 @@ import {
   SearchIcon,
   EditIcon,
   DeleteIcon,
-  CopyIcon,
   CloseIcon,
-  RepeatIcon
+  RepeatIcon,
+  ChevronDownIcon,
 } from '@chakra-ui/icons'
 import Head from 'next/head'
 
@@ -83,19 +85,17 @@ export default function AdminComandosPage() {
   const toast = useToast()
   const cancelRef = useRef<HTMLButtonElement>(null)
 
-  // Estados
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'simple' | 'dynamic'>('all')
   const [filterEnabled, setFilterEnabled] = useState<'all' | 'true' | 'false'>('all')
   const [selectedCommand, setSelectedCommand] = useState<BotCommand | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
 
-  // Modales
   const { isOpen: isFormOpen, onOpen: onFormOpen, onClose: onFormClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isTestOpen, onOpen: onTestOpen, onClose: onTestClose } = useDisclosure()
 
-  // Form data
+  const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState<CommandFormData>({
     command: '',
     aliases: [],
@@ -114,39 +114,48 @@ export default function AdminComandosPage() {
   const [testArgs, setTestArgs] = useState('')
   const [testResult, setTestResult] = useState('')
 
-  // Queries
   const { data: commandsData, isLoading } = useBotCommands({
     search: searchTerm,
     command_type: filterType !== 'all' ? filterType : undefined,
     enabled: filterEnabled !== 'all' ? filterEnabled === 'true' : undefined
   })
 
-  const { data: statsData } = useBotCommandStats()
-
-  // Mutations
   const createMutation = useCreateBotCommand()
   const updateMutation = useUpdateBotCommand()
   const deleteMutation = useDeleteBotCommand()
-  const toggleMutation = useToggleBotCommand()
-  const duplicateMutation = useDuplicateBotCommand()
   const testMutation = useTestBotCommand()
 
-  // Theme colors
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
-  const statBg = useColorModeValue('blue.50', 'blue.900')
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBorder = useColorModeValue('gray.200', 'gray.600')
+  const tableBg = useColorModeValue('white', 'gray.800')
+  const statBg = useColorModeValue('gray.50', 'gray.700')
+  const textColor = useColorModeValue('gray.800', 'white')
+  const mutedColor = useColorModeValue('gray.600', 'gray.400')
 
-  // Comandos filtrados
-  const commands = commandsData?.data || []
-  const stats = statsData?.data
+  const commands = useMemo(() => commandsData?.data || [], [commandsData])
 
-  // Handlers
+  const filteredCommands = useMemo(() => {
+    return commands.filter((cmd) => {
+      const matchesSearch = cmd.command.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cmd.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cmd.response_message.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesType = filterType === 'all' || cmd.command_type === filterType
+      const matchesEnabled = filterEnabled === 'all' || 
+        (filterEnabled === 'true' ? cmd.enabled : !cmd.enabled)
+      
+      return matchesSearch && matchesType && matchesEnabled
+    })
+  }, [commands, searchTerm, filterType, filterEnabled])
+
   const handleOpenForm = (command?: BotCommand) => {
     if (command) {
       setIsEditing(true)
       setSelectedCommand(command)
       setFormData({
         command: command.command,
-        aliases: command.aliases,
+        aliases: command.aliases || [],
         response_message: command.response_message,
         description: command.description || '',
         command_type: command.command_type,
@@ -201,24 +210,26 @@ export default function AdminComandosPage() {
         toast({
           title: 'Comando actualizado',
           status: 'success',
-          duration: 3000
+          duration: 3000,
+          isClosable: true,
         })
       } else {
         await createMutation.mutateAsync(formData)
         toast({
           title: 'Comando creado',
           status: 'success',
-          duration: 3000
+          duration: 3000,
+          isClosable: true,
         })
       }
       handleCloseForm()
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } } }
+    } catch {
       toast({
         title: 'Error',
-        description: err.response?.data?.message || 'Error al guardar comando',
+        description: 'No se pudo guardar el comando',
         status: 'error',
-        duration: 5000
+        duration: 3000,
+        isClosable: true,
       })
     }
   }
@@ -230,48 +241,16 @@ export default function AdminComandosPage() {
       toast({
         title: 'Comando eliminado',
         status: 'success',
-        duration: 3000
+        duration: 3000,
+        isClosable: true,
       })
       onDeleteClose()
     } catch {
       toast({
         title: 'Error al eliminar',
         status: 'error',
-        duration: 3000
-      })
-    }
-  }
-
-  const handleToggle = async (id: number) => {
-    try {
-      await toggleMutation.mutateAsync(id)
-      toast({
-        title: 'Estado actualizado',
-        status: 'success',
-        duration: 2000
-      })
-    } catch {
-      toast({
-        title: 'Error',
-        status: 'error',
-        duration: 3000
-      })
-    }
-  }
-
-  const handleDuplicate = async (id: number) => {
-    try {
-      await duplicateMutation.mutateAsync(id)
-      toast({
-        title: 'Comando duplicado',
-        status: 'success',
-        duration: 3000
-      })
-    } catch {
-      toast({
-        title: 'Error al duplicar',
-        status: 'error',
-        duration: 3000
+        duration: 3000,
+        isClosable: true,
       })
     }
   }
@@ -290,8 +269,106 @@ export default function AdminComandosPage() {
       toast({
         title: 'Error al probar',
         status: 'error',
-        duration: 3000
+        duration: 3000,
+        isClosable: true,
       })
+    }
+  }
+
+  const handleBulkEnable = async () => {
+    try {
+      for (const id of selectedIds) {
+        const cmd = commands.find(c => c.id === id)
+        if (cmd && !cmd.enabled) {
+          await updateMutation.mutateAsync({ 
+            id, 
+            command: { ...cmd, enabled: true } 
+          })
+        }
+      }
+      toast({
+        title: 'Comandos activados',
+        description: `Se activaron ${selectedIds.length} comando(s)`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+      setSelectedIds([])
+    } catch {
+      toast({
+        title: 'Error',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }
+
+  const handleBulkDisable = async () => {
+    try {
+      for (const id of selectedIds) {
+        const cmd = commands.find(c => c.id === id)
+        if (cmd && cmd.enabled) {
+          await updateMutation.mutateAsync({ 
+            id, 
+            command: { ...cmd, enabled: false } 
+          })
+        }
+      }
+      toast({
+        title: 'Comandos desactivados',
+        description: `Se desactivaron ${selectedIds.length} comando(s)`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+      setSelectedIds([])
+    } catch {
+      toast({
+        title: 'Error',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`¿Estás seguro de eliminar ${selectedIds.length} comando(s)?`)) return
+    
+    try {
+      for (const id of selectedIds) {
+        await deleteMutation.mutateAsync(id)
+      }
+      toast({
+        title: 'Comandos eliminados',
+        description: `Se eliminaron ${selectedIds.length} comando(s)`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+      setSelectedIds([])
+    } catch {
+      toast({
+        title: 'Error al eliminar',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }
+
+  const toggleSelection = (id: number) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredCommands.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filteredCommands.map(c => c.id))
     }
   }
 
@@ -320,120 +397,110 @@ export default function AdminComandosPage() {
         </Head>
 
         <Container maxW="7xl" py={8}>
-          {/* Header */}
-          <Flex justify="space-between" align="center" mb={8}>
-            <VStack align="start" spacing={1}>
-              <Heading size="lg">🤖 Comandos del Bot</Heading>
-              <Text color="gray.500" fontSize="sm">
-                Gestiona los comandos del bot de Kick
-              </Text>
-            </VStack>
-            <Button leftIcon={<AddIcon />} colorScheme="blue" onClick={() => handleOpenForm()}>
-              Nuevo Comando
-            </Button>
-          </Flex>
+          <VStack spacing={6} align="stretch">
+            <Flex
+              justify="space-between"
+              align={{ base: 'start', md: 'center' }}
+              direction={{ base: 'column', md: 'row' }}
+              gap={4}
+            >
+              <VStack align="start" spacing={1}>
+                <Heading size="lg" color={textColor}>
+                  Gestión de Comandos
+                </Heading>
+                <Text color={mutedColor} fontSize="sm">
+                  Administra los comandos del bot de Kick
+                </Text>
+              </VStack>
+              <Button leftIcon={<AddIcon />} colorScheme="blue" onClick={() => handleOpenForm()}>
+                Nuevo Comando
+              </Button>
+            </Flex>
 
-          {/* Estadísticas */}
-          {stats && (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={4} mb={6}>
-              <Card bg={statBg}>
-                <CardBody>
-                  <Stat>
-                    <StatLabel>Total</StatLabel>
-                    <StatNumber>{stats.summary.total}</StatNumber>
-                  </Stat>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <Stat>
-                    <StatLabel>Habilitados</StatLabel>
-                    <StatNumber color="green.500">{stats.summary.enabled}</StatNumber>
-                  </Stat>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <Stat>
-                    <StatLabel>Deshabilitados</StatLabel>
-                    <StatNumber color="red.500">{stats.summary.disabled}</StatNumber>
-                  </Stat>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <Stat>
-                    <StatLabel>Simples</StatLabel>
-                    <StatNumber>{stats.summary.simple}</StatNumber>
-                  </Stat>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <Stat>
-                    <StatLabel>Dinámicos</StatLabel>
-                    <StatNumber>{stats.summary.dynamic}</StatNumber>
-                  </Stat>
-                </CardBody>
-              </Card>
-            </SimpleGrid>
-          )}
-
-          {/* Filtros */}
-          <Card mb={6}>
-            <CardBody>
-              <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
-                <InputGroup maxW={{ base: 'full', md: '300px' }}>
-                  <InputLeftElement>
-                    <SearchIcon color="gray.400" />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="Buscar comando..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-
-                <Select
-                  maxW={{ base: 'full', md: '200px' }}
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value as 'all' | 'simple' | 'dynamic')}
+            <Card bg={cardBg} borderRadius="lg" borderWidth="1px" borderColor={cardBorder}>
+              <CardBody p={4}>
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  direction={{ base: 'column', md: 'row' }}
+                  gap={3}
                 >
-                  <option value="all">Todos los tipos</option>
-                  <option value="simple">Simples</option>
-                  <option value="dynamic">Dinámicos</option>
-                </Select>
+                  <Stack direction={{ base: 'column', md: 'row' }} spacing={3} flex={1}>
+                    <InputGroup maxW={{ base: 'full', md: '300px' }}>
+                      <InputLeftElement>
+                        <SearchIcon color={mutedColor} />
+                      </InputLeftElement>
+                      <Input
+                        placeholder="Buscar comandos..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </InputGroup>
 
-                <Select
-                  maxW={{ base: 'full', md: '200px' }}
-                  value={filterEnabled}
-                  onChange={(e) => setFilterEnabled(e.target.value as 'all' | 'true' | 'false')}
-                >
-                  <option value="all">Todos los estados</option>
-                  <option value="true">Habilitados</option>
-                  <option value="false">Deshabilitados</option>
-                </Select>
-              </Stack>
-            </CardBody>
-          </Card>
+                    <Select
+                      maxW={{ base: 'full', md: '150px' }}
+                      value={filterType}
+                      onChange={(e) => setFilterType(e.target.value as 'all' | 'simple' | 'dynamic')}
+                    >
+                      <option value="all">Todos</option>
+                      <option value="simple">Simples</option>
+                      <option value="dynamic">Dinámicos</option>
+                    </Select>
 
-          {/* Tabla */}
-          <Card>
-            <CardBody>
+                    <Select
+                      maxW={{ base: 'full', md: '150px' }}
+                      value={filterEnabled}
+                      onChange={(e) => setFilterEnabled(e.target.value as 'all' | 'true' | 'false')}
+                    >
+                      <option value="all">Todos</option>
+                      <option value="true">Activos</option>
+                      <option value="false">Inactivos</option>
+                    </Select>
+                  </Stack>
+
+                  {selectedIds.length > 0 && (
+                    <HStack spacing={2}>
+                      <Badge colorScheme="blue" fontSize="sm" px={3} py={1}>
+                        {selectedIds.length} seleccionados
+                      </Badge>
+                      <Menu>
+                        <MenuButton colorScheme="blue" as={Button} rightIcon={<ChevronDownIcon />} size="md">
+                          Acciones
+                        </MenuButton>
+                        <MenuList>
+                          <MenuItem onClick={handleBulkEnable}>Activar seleccionados</MenuItem>
+                          <MenuItem onClick={handleBulkDisable}>Desactivar seleccionados</MenuItem>
+                          <MenuItem onClick={handleBulkDelete} color="red.500">
+                            Eliminar seleccionados
+                          </MenuItem>
+                          <MenuItem onClick={() => setSelectedIds([])}>Deseleccionar</MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </HStack>
+                  )}
+                </Flex>
+              </CardBody>
+            </Card>
+
+            <Box
+              bg={tableBg}
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor={cardBorder}
+              overflow="hidden"
+            >
               {isLoading ? (
                 <Center py={10}>
-                  <Spinner size="xl" />
+                  <VStack spacing={3}>
+                    <Spinner size="xl" />
+                    <Text color={mutedColor}>Cargando comandos...</Text>
+                  </VStack>
                 </Center>
-              ) : commands.length === 0 ? (
+              ) : filteredCommands.length === 0 ? (
                 <Center py={10}>
                   <VStack>
-                    <Text color="gray.500">No se encontraron comandos</Text>
-                    <Button
-                      leftIcon={<AddIcon />}
-                      colorScheme="blue"
-                      variant="outline"
-                      onClick={() => handleOpenForm()}
-                    >
+                    <Text color={mutedColor}>No se encontraron comandos</Text>
+                    <Button leftIcon={<AddIcon />} colorScheme="blue" variant="outline" onClick={() => handleOpenForm()}>
                       Crear primer comando
                     </Button>
                   </VStack>
@@ -441,57 +508,70 @@ export default function AdminComandosPage() {
               ) : (
                 <TableContainer>
                   <Table variant="simple" size="sm">
-                    <Thead>
+                    <Thead bg={statBg}>
                       <Tr>
-                        <Th>Estado</Th>
-                        <Th>Comando</Th>
-                        <Th>Descripción</Th>
-                        <Th>Tipo</Th>
-                        <Th isNumeric>Usos</Th>
-                        <Th>Acciones</Th>
+                        <Th py={3} width="5%">
+                          <Checkbox
+                            isChecked={selectedIds.length === filteredCommands.length}
+                            isIndeterminate={selectedIds.length > 0 && selectedIds.length < filteredCommands.length}
+                            onChange={toggleSelectAll}
+                          />
+                        </Th>
+                        <Th py={3} width="15%">Comando</Th>
+                        <Th py={3} width="30%">Respuesta</Th>
+                        <Th py={3} width="15%">Descripción</Th>
+                        <Th py={3} width="10%">Tipo</Th>
+                        <Th py={3} width="10%" textAlign="center">Estado</Th>
+                        <Th py={3} width="15%" textAlign="center">Acciones</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {commands.map((command) => (
-                        <Tr key={command.id} _hover={{ bg: hoverBg }}>
-                          <Td>
-                            <Switch
-                              isChecked={command.enabled}
-                              onChange={() => handleToggle(command.id)}
-                              colorScheme="green"
+                      {filteredCommands.map((command) => (
+                        <Tr key={command.id} _hover={{ bg: hoverBg }} transition="all 0.2s">
+                          <Td py={3}>
+                            <Checkbox
+                              isChecked={selectedIds.includes(command.id)}
+                              onChange={() => toggleSelection(command.id)}
                             />
                           </Td>
-                          <Td>
-                            <VStack align="start" spacing={0}>
-                              <Text fontWeight="bold">!{command.command}</Text>
+                          <Td py={3}>
+                            <VStack align="start" spacing={1}>
+                              <Text fontWeight="bold" fontSize="sm">
+                                {command.command}
+                              </Text>
                               {command.aliases && command.aliases.length > 0 && (
                                 <HStack spacing={1} flexWrap="wrap">
                                   {command.aliases.map((alias) => (
                                     <Tag key={alias} size="sm" variant="subtle" colorScheme="blue">
-                                      !{alias}
+                                      {alias}
                                     </Tag>
                                   ))}
                                 </HStack>
                               )}
                             </VStack>
                           </Td>
-                          <Td>
-                            <Text fontSize="sm" noOfLines={2} maxW="300px">
-                              {command.description || command.response_message}
+                          <Td py={3}>
+                            <Text fontSize="xs" noOfLines={2}>
+                              {command.response_message}
                             </Text>
                           </Td>
-                          <Td>
-                            <Badge
-                              colorScheme={command.command_type === 'simple' ? 'blue' : 'purple'}
-                            >
+                          <Td py={3}>
+                            <Text fontSize="xs" color={mutedColor} noOfLines={2}>
+                              {command.description || 'Sin descripción'}
+                            </Text>
+                          </Td>
+                          <Td py={3}>
+                            <Badge colorScheme={command.command_type === 'simple' ? 'blue' : 'purple'} fontSize="xs">
                               {command.command_type}
                             </Badge>
                           </Td>
-                          <Td isNumeric>
-                            <Badge>{command.usage_count.toLocaleString()}</Badge>
+                          <Td py={3} textAlign="center">
+                            <Badge colorScheme={command.enabled ? 'green' : 'gray'} fontSize="xs">
+                              {command.enabled ? 'Activo' : 'Inactivo'}
+                            </Badge>
                           </Td>
-                          <Td>
-                            <HStack spacing={1}>
+                          <Td py={3} textAlign="center">
+                            <HStack spacing={1} justify="center">
                               <Tooltip label="Editar">
                                 <IconButton
                                   aria-label="Editar"
@@ -499,15 +579,6 @@ export default function AdminComandosPage() {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => handleOpenForm(command)}
-                                />
-                              </Tooltip>
-                              <Tooltip label="Duplicar">
-                                <IconButton
-                                  aria-label="Duplicar"
-                                  icon={<CopyIcon />}
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleDuplicate(command.id)}
                                 />
                               </Tooltip>
                               <Tooltip label="Eliminar">
@@ -531,11 +602,10 @@ export default function AdminComandosPage() {
                   </Table>
                 </TableContainer>
               )}
-            </CardBody>
-          </Card>
+            </Box>
+          </VStack>
         </Container>
 
-        {/* Modal Crear/Editar */}
         <Modal isOpen={isFormOpen} onClose={handleCloseForm} size="xl">
           <ModalOverlay />
           <ModalContent>
@@ -545,19 +615,15 @@ export default function AdminComandosPage() {
               <VStack spacing={4}>
                 <FormControl isRequired>
                   <FormLabel>Nombre del Comando</FormLabel>
-                  <InputGroup>
-                    <InputLeftElement>!</InputLeftElement>
-                    <Input
-                      pl={8}
-                      value={formData.command}
-                      onChange={(e) => setFormData({ ...formData, command: e.target.value })}
-                      placeholder="tienda"
-                    />
-                  </InputGroup>
+                  <Input
+                    value={formData.command}
+                    onChange={(e) => setFormData({ ...formData, command: e.target.value })}
+                    placeholder="tienda"
+                  />
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Aliases (separados por Enter)</FormLabel>
+                  <FormLabel>Aliases</FormLabel>
                   <HStack>
                     <Input
                       value={aliasInput}
@@ -570,16 +636,16 @@ export default function AdminComandosPage() {
                       }}
                       placeholder="shop, store"
                     />
-                    <Button onClick={addAlias} size="sm">
+                    <Button colorScheme="blue" onClick={addAlias} size="sm">
                       Agregar
                     </Button>
                   </HStack>
                   <HStack mt={2} flexWrap="wrap">
                     {formData.aliases?.map((alias) => (
                       <Tag key={alias} size="sm" borderRadius="full" colorScheme="blue">
-                        !{alias}
+                        {alias}
                         <IconButton
-                          aria-label="Eliminar alias"
+                          aria-label="Eliminar"
                           icon={<CloseIcon />}
                           size="xs"
                           ml={1}
@@ -605,12 +671,11 @@ export default function AdminComandosPage() {
                   <Textarea
                     value={formData.response_message}
                     onChange={(e) => setFormData({ ...formData, response_message: e.target.value })}
-                    placeholder="{channel} tienda del canal: https://shop.example.com"
+                    placeholder="Visita la tienda: https://shop.example.com"
                     rows={3}
                   />
-                  <Text fontSize="xs" color="gray.500" mt={1}>
-                    Variables: {'{username}'} {'{channel}'} {'{args}'} {'{target_user}'}{' '}
-                    {'{points}'}
+                  <Text fontSize="xs" color={mutedColor} mt={1}>
+                    Variables: {'{username}'} {'{channel}'} {'{args}'} {'{target_user}'} {'{points}'}
                   </Text>
                 </FormControl>
 
@@ -618,15 +683,10 @@ export default function AdminComandosPage() {
                   <FormLabel>Tipo de Comando</FormLabel>
                   <Select
                     value={formData.command_type}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        command_type: e.target.value as 'simple' | 'dynamic'
-                      })
-                    }
+                    onChange={(e) => setFormData({ ...formData, command_type: e.target.value as 'simple' | 'dynamic' })}
                   >
-                    <option value="simple">Simple (respuesta estática)</option>
-                    <option value="dynamic">Dinámico (lógica especial)</option>
+                    <option value="simple">Simple</option>
+                    <option value="dynamic">Dinámico</option>
                   </Select>
                 </FormControl>
 
@@ -635,9 +695,7 @@ export default function AdminComandosPage() {
                     <FormLabel>Handler Dinámico</FormLabel>
                     <Input
                       value={formData.dynamic_handler}
-                      onChange={(e) =>
-                        setFormData({ ...formData, dynamic_handler: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, dynamic_handler: e.target.value })}
                       placeholder="puntos_handler"
                     />
                   </FormControl>
@@ -645,13 +703,18 @@ export default function AdminComandosPage() {
 
                 <FormControl>
                   <FormLabel>Cooldown (segundos)</FormLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     value={formData.cooldown_seconds}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cooldown_seconds: parseInt(e.target.value) || 0 })
-                    }
-                  />
+                    onChange={(_, value) => setFormData({ ...formData, cooldown_seconds: value })}
+                    min={0}
+                    max={3600}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
                 </FormControl>
 
                 <FormControl display="flex" alignItems="center">
@@ -689,11 +752,10 @@ export default function AdminComandosPage() {
           </ModalContent>
         </Modal>
 
-        {/* Modal Probar */}
         <Modal isOpen={isTestOpen} onClose={onTestClose}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>🧪 Probar Comando</ModalHeader>
+            <ModalHeader>Probar Comando</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4}>
@@ -708,20 +770,21 @@ export default function AdminComandosPage() {
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Argumentos (opcional)</FormLabel>
+                  <FormLabel>Argumentos</FormLabel>
                   <Input value={testArgs} onChange={(e) => setTestArgs(e.target.value)} />
                 </FormControl>
 
                 {testResult && (
-                  <Alert status="success" borderRadius="md">
-                    <AlertIcon />
-                    <VStack align="start" flex={1} spacing={1}>
-                      <Text fontWeight="bold" fontSize="sm">
-                        Resultado:
-                      </Text>
-                      <Text fontSize="sm">{testResult}</Text>
-                    </VStack>
-                  </Alert>
+                  <Card w="full" bg={statBg}>
+                    <CardBody>
+                      <VStack align="start" spacing={1}>
+                        <Text fontWeight="bold" fontSize="sm">
+                          Resultado:
+                        </Text>
+                        <Text fontSize="sm">{testResult}</Text>
+                      </VStack>
+                    </CardBody>
+                  </Card>
                 )}
               </VStack>
             </ModalBody>
@@ -736,13 +799,12 @@ export default function AdminComandosPage() {
           </ModalContent>
         </Modal>
 
-        {/* Dialog Eliminar */}
         <AlertDialog isOpen={isDeleteOpen} leastDestructiveRef={cancelRef} onClose={onDeleteClose}>
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogHeader>Eliminar Comando</AlertDialogHeader>
               <AlertDialogBody>
-                ¿Estás seguro de eliminar el comando <strong>!{selectedCommand?.command}</strong>?
+                ¿Estás seguro de eliminar el comando <strong>{selectedCommand?.command}</strong>?
                 Esta acción no se puede deshacer.
               </AlertDialogBody>
               <AlertDialogFooter>

@@ -517,12 +517,13 @@ export default function AdminComandosPage() {
                             onChange={toggleSelectAll}
                           />
                         </Th>
-                        <Th py={3} width="15%">Comando</Th>
-                        <Th py={3} width="30%">Respuesta</Th>
-                        <Th py={3} width="15%">Descripción</Th>
-                        <Th py={3} width="10%">Tipo</Th>
-                        <Th py={3} width="10%" textAlign="center">Estado</Th>
-                        <Th py={3} width="15%" textAlign="center">Acciones</Th>
+                        <Th py={3} width="12%">Comando</Th>
+                        <Th py={3} width="25%">Respuesta</Th>
+                        <Th py={3} width="20%">Descripción</Th>
+                        <Th py={3} width="8%">Tipo</Th>
+                        <Th py={3} width="8%" isNumeric>Usos</Th>
+                        <Th py={3} width="8%" textAlign="center">Estado</Th>
+                        <Th py={3} width="14%" textAlign="center">Acciones</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
@@ -551,18 +552,23 @@ export default function AdminComandosPage() {
                             </VStack>
                           </Td>
                           <Td py={3}>
-                            <Text fontSize="xs" noOfLines={2}>
+                            <Text fontSize="xs" noOfLines={2} maxW="300px">
                               {command.response_message}
                             </Text>
                           </Td>
                           <Td py={3}>
-                            <Text fontSize="xs" color={mutedColor} noOfLines={2}>
+                            <Text fontSize="xs" color={mutedColor} noOfLines={2} maxW="250px">
                               {command.description || 'Sin descripción'}
                             </Text>
                           </Td>
                           <Td py={3}>
                             <Badge colorScheme={command.command_type === 'simple' ? 'blue' : 'purple'} fontSize="xs">
                               {command.command_type}
+                            </Badge>
+                          </Td>
+                          <Td py={3} isNumeric>
+                            <Badge colorScheme="gray" fontSize="xs">
+                              {command.usage_count.toLocaleString()}
                             </Badge>
                           </Td>
                           <Td py={3} textAlign="center">

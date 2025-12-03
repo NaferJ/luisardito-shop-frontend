@@ -488,6 +488,7 @@ export default function AdminComandosPage() {
               borderWidth="1px"
               borderColor={cardBorder}
               overflow="hidden"
+              overflowX="auto"
             >
               {isLoading ? (
                 <Center py={10}>
@@ -507,23 +508,23 @@ export default function AdminComandosPage() {
                 </Center>
               ) : (
                 <TableContainer>
-                  <Table variant="simple" size="sm">
+                  <Table variant="simple" size="sm" style={{ tableLayout: 'fixed', width: '100%' }}>
                     <Thead bg={statBg}>
                       <Tr>
-                        <Th py={3} width="5%">
+                        <Th py={3} width="50px">
                           <Checkbox
                             isChecked={selectedIds.length === filteredCommands.length}
                             isIndeterminate={selectedIds.length > 0 && selectedIds.length < filteredCommands.length}
                             onChange={toggleSelectAll}
                           />
                         </Th>
-                        <Th py={3} width="12%">Comando</Th>
-                        <Th py={3} width="25%">Respuesta</Th>
-                        <Th py={3} width="20%">Descripción</Th>
-                        <Th py={3} width="8%">Tipo</Th>
-                        <Th py={3} width="8%" isNumeric>Usos</Th>
-                        <Th py={3} width="8%" textAlign="center">Estado</Th>
-                        <Th py={3} width="14%" textAlign="center">Acciones</Th>
+                        <Th py={3} width="120px">Comando</Th>
+                        <Th py={3} width="280px">Respuesta</Th>
+                        <Th py={3} width="200px">Descripción</Th>
+                        <Th py={3} width="80px">Tipo</Th>
+                        <Th py={3} width="80px" isNumeric>Usos</Th>
+                        <Th py={3} width="90px" textAlign="center">Estado</Th>
+                        <Th py={3} width="120px" textAlign="center">Acciones</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
@@ -552,12 +553,25 @@ export default function AdminComandosPage() {
                             </VStack>
                           </Td>
                           <Td py={3}>
-                            <Text fontSize="xs" noOfLines={2} maxW="300px">
+                            <Text 
+                              fontSize="xs" 
+                              noOfLines={2} 
+                              wordBreak="break-word"
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                            >
                               {command.response_message}
                             </Text>
                           </Td>
                           <Td py={3}>
-                            <Text fontSize="xs" color={mutedColor} noOfLines={2} maxW="250px">
+                            <Text 
+                              fontSize="xs" 
+                              color={mutedColor} 
+                              noOfLines={2}
+                              wordBreak="break-word"
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                            >
                               {command.description || 'Sin descripción'}
                             </Text>
                           </Td>

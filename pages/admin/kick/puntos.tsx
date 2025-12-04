@@ -79,6 +79,11 @@ const CONFIG_LABELS: Record<string, { label: string; description: string; catego
     description: 'Puntos al recibir una suscripción regalada',
     category: 'Gifts',
   },
+  kicks_gifted_multiplier: {
+    label: 'Multiplicador Kicks Regalados',
+    description: 'Puntos = cantidad de kicks × este valor (Ej: 10 kicks × 2 = 20 puntos)',
+    category: 'Gifts',
+  },
 }
 
 export default function KickPointsConfigPage() {

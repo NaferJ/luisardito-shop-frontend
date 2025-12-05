@@ -4,7 +4,6 @@ import { RequireAdmin } from '../../../../components/RequireAdmin'
 import { Container, useToast, Center, Spinner, Text, VStack, Button } from '@chakra-ui/react'
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
-import { useAdminCanjes } from '../../../../hooks/useAdminCanjes'
 import { ProductForm } from '../../../../components/ProductForm'
 
 export default function EditarProductoPage() {
@@ -14,7 +13,6 @@ export default function EditarProductoPage() {
 
   const { data: producto, isLoading: loadingProducto, error } = useProducto(id as string)
   const updateProductoMutation = useUpdateProducto()
-  const { data: canjes } = useAdminCanjes()
 
   const handleSubmit = async (payload: Record<string, unknown>) => {
     try {
@@ -82,7 +80,6 @@ export default function EditarProductoPage() {
             initialData={producto}
             onSubmit={handleSubmit}
             isLoading={updateProductoMutation.isPending}
-            canjes={canjes}
           />
         </Container>
       </Layout>

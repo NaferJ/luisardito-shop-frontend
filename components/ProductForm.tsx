@@ -51,7 +51,7 @@ import {
   AlertDialogOverlay
 } from '@chakra-ui/react'
 import { InfoIcon, ChevronRightIcon, ArrowBackIcon, CopyIcon, WarningIcon } from '@chakra-ui/icons'
-import { ProductoForm as ProductoFormType, Producto, Canje } from '../types'
+import { ProductoForm as ProductoFormType, Producto } from '../types'
 import ImageUpload from './ImageUpload'
 import { ProductFormPreview } from './ProductFormPreview'
 import { generateSlug } from '../utils/slug'
@@ -61,10 +61,9 @@ interface ProductFormProps {
   initialData?: Producto
   onSubmit: (data: Record<string, unknown>) => Promise<void>
   isLoading?: boolean
-  canjes?: Canje[]
 }
 
-export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: ProductFormProps) {
+export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductFormProps) {
   const router = useRouter()
   const toast = useToast()
   const {
@@ -337,7 +336,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
           </HStack>
         </HStack>
 
-        {/* Unsaved changes indicator */
         {hasUnsavedChanges && (
           <Alert status="info" borderRadius="lg" mb={6}>
             <AlertIcon />
@@ -345,7 +343,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
           </Alert>
         )}
 
-        {/* Main form layout */}
         <Grid templateColumns={{ base: '1fr', lg: '1fr 400px' }} gap={6}>
           {/* Left column - Form */}
           <GridItem>

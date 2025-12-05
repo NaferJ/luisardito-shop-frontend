@@ -595,13 +595,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
                           <StatHelpText>veces</StatHelpText>
                         </Stat>
                         <Stat>
-                          <StatLabel>Canjes Pendientes</StatLabel>
-                          <StatNumber color={canjesPendientes > 0 ? 'orange.500' : 'inherit'}>
-                            {canjesPendientes}
-                          </StatNumber>
-                          <StatHelpText>por procesar</StatHelpText>
-                        </Stat>
-                        <Stat>
                           <StatLabel>Valor Inventario</StatLabel>
                           <StatNumber>{totalInventoryValue.toLocaleString()}</StatNumber>
                           <StatHelpText>puntos</StatHelpText>

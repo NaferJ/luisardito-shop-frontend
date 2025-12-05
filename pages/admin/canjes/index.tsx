@@ -559,9 +559,21 @@ export default function AdminCanjesPage() {
                           </Text>
                         </Td>
                         <Td py={3}>
-                          <Badge colorScheme="orange" fontSize="sm" fontWeight="semibold">
-                            {canje?.Producto?.precio?.toLocaleString() || 0}
-                          </Badge>
+                          <VStack spacing={1} align="start">
+                            <Badge colorScheme="orange" fontSize="sm" fontWeight="semibold">
+                              {(canje?.precio_al_canje || canje?.Producto?.precio || 0).toLocaleString()}
+                            </Badge>
+                            {canje?.precio_al_canje && canje?.Producto?.precio !== canje?.precio_al_canje && (
+                              <Tooltip
+                                label={`Precio actual: ${canje?.Producto?.precio?.toLocaleString() || 0} pts`}
+                                fontSize="xs"
+                              >
+                                <Text fontSize="xs" color="yellow.500" cursor="help">
+                                  ⓘ Precio modificado
+                                </Text>
+                              </Tooltip>
+                            )}
+                          </VStack>
                         </Td>
                         <Td py={3}>
                           <Badge
@@ -717,9 +729,16 @@ export default function AdminCanjesPage() {
                     <Text fontSize="sm" mb={2} color={mutedColor}>
                       Puntos a devolver:
                     </Text>
-                    <Badge colorScheme="orange" fontSize="lg" px={3} py={1}>
-                      {selectedCanje?.Producto?.precio?.toLocaleString() || 0}
-                    </Badge>
+                    <VStack align="start" spacing={1}>
+                      <Badge colorScheme="orange" fontSize="lg" px={3} py={1}>
+                        {(selectedCanje?.precio_al_canje || selectedCanje?.Producto?.precio || 0).toLocaleString()}
+                      </Badge>
+                      {selectedCanje?.precio_al_canje && selectedCanje?.Producto?.precio !== selectedCanje?.precio_al_canje && (
+                        <Text fontSize="xs" color={mutedColor}>
+                          Precio pagado al momento del canje. Precio actual: {selectedCanje?.Producto?.precio?.toLocaleString() || 0} pts
+                        </Text>
+                      )}
+                    </VStack>
                   </Box>
 
                   <FormControl>

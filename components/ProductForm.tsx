@@ -227,23 +227,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
       return
     }
 
-    // Check for pending canjes if price changed
-    if (mode === 'edit' && initialData && formData.precio !== initialData.precio) {
-      const canjesPendientes =
-        canjes?.filter((c) => c.producto_id === initialData.id && c.estado === 'pendiente') || []
-
-      if (canjesPendientes.length > 0) {
-        toast({
-          title: 'No se puede cambiar el precio',
-          description: `Hay ${canjesPendientes.length} canje(s) pendiente(s) para este producto.`,
-          status: 'warning',
-          duration: 5000,
-          isClosable: true
-        })
-        return
-      }
-    }
-
     try {
       const imagenUrlToSend = uploadedImageUrl || formData.imagen || undefined
       const estadoFinal = saveAsDraft ? 'borrador' : formData.estado

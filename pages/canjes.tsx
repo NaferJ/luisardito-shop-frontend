@@ -87,9 +87,9 @@ export default function CanjesPage() {
         case 'date-asc':
           return new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
         case 'price-desc':
-          return ((b as any).Producto?.precio || 0) - ((a as any).Producto?.precio || 0)
+          return ((b as any).precio_al_canje || (b as any).Producto?.precio || 0) - ((a as any).precio_al_canje || (a as any).Producto?.precio || 0)
         case 'price-asc':
-          return ((a as any).Producto?.precio || 0) - ((b as any).Producto?.precio || 0)
+          return ((a as any).precio_al_canje || (a as any).Producto?.precio || 0) - ((b as any).precio_al_canje || (b as any).Producto?.precio || 0)
         default:
           return 0
       }
@@ -107,7 +107,7 @@ export default function CanjesPage() {
       pendientes: canjes.filter((c) => c.estado === 'pendiente').length,
       entregados: canjes.filter((c) => c.estado === 'entregado').length,
       cancelados: canjes.filter((c) => c.estado === 'cancelado').length,
-      totalPuntos: canjes.reduce((sum, c) => sum + ((c as any).Producto?.precio || 0), 0)
+      totalPuntos: canjes.reduce((sum, c) => sum + ((c as any).precio_al_canje || (c as any).Producto?.precio || 0), 0)
     }
   }, [canjes])
 
@@ -455,11 +455,30 @@ export default function CanjesPage() {
                         alignSelf={{ base: 'flex-start', sm: 'center' }}
                       >
                         <VStack spacing={0} align="end">
-                          <Text fontSize="xl" fontWeight="bold" color={accentColor} lineHeight="1">
-                            {(canje as any).Producto?.precio || 0}
-                          </Text>
+                          <HStack spacing={1}>
+                            <Text fontSize="xl" fontWeight="bold" color={accentColor} lineHeight="1">
+                              {(canje as any).precio_al_canje || (canje as any).Producto?.precio || 0}
+                            </Text>
+                            {(canje as any).precio_al_canje && (canje as any).Producto?.precio !== (canje as any).precio_al_canje && (
+                              <Tooltip
+                                label={`Precio actual: ${(canje as any).Producto?.precio} pts`}
+                                fontSize="xs"
+                              >
+                                <Box
+                                  as="span"
+                                  fontSize="xs"
+                                  color="yellow.500"
+                                  cursor="help"
+                                  display="inline-flex"
+                                  alignItems="center"
+                                >
+                                  ⓘ
+                                </Box>
+                              </Tooltip>
+                            )}
+                          </HStack>
                           <Text fontSize="xs" color={mutedColor}>
-                            puntos
+                            puntos pagados
                           </Text>
                         </VStack>
                         <Badge

@@ -78,6 +78,7 @@ export interface Canje {
   id: number
   usuario_id: number
   producto_id: number
+  precio_al_canje?: number // Precio del producto al momento del canje
   estado: 'pendiente' | 'entregado' | 'cancelado' | 'devuelto'
   fecha: string
   producto?: Producto

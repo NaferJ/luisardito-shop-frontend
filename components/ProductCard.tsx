@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import {
   Box,
   Image,
@@ -28,12 +29,21 @@ import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@
 import { ActionsMenu } from './ActionsMenu'
 import { Producto } from '../types'
 import { useUpdateProducto } from '../hooks/useProductosAdmin'
-import { useRef } from 'react'
+// @ts-expect-error ColorThief no tiene tipos definidos
+import ColorThief from 'colorthief'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
 import { MdPeople } from 'react-icons/md'
+import { FiPackage } from 'react-icons/fi'
 import { generateSlug } from '../utils/slug'
+
+function formatNumber(num: number): string {
+  if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B'
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
+  return num.toString()
+}
 
 interface ProductCardProps {
   producto: Producto
@@ -49,8 +59,29 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const updateProductoMutation = useUpdateProducto()
 
+  const [dominantColors, setDominantColors] = useState<number[][]>([])
+  const [gradientAngle, setGradientAngle] = useState<number>(0)
+
+  useEffect(() => {
+    const imgSrc = producto.imagen_url || producto.imagen
+    if (!imgSrc) return
+
+    const img = document.createElement('img')
+    img.crossOrigin = 'anonymous'
+    img.src = imgSrc
+    img.onload = () => {
+      try {
+        const colorThief = new ColorThief()
+        const palette = colorThief.getPalette(img, 3) // 3 colores para mejor degradado
+        setDominantColors(palette)
+        setGradientAngle(Math.random() * 360) // Ángulo aleatorio
+      } catch (error) {
+        console.error('Error extracting colors:', error)
+      }
+    }
+  }, [producto.imagen_url, producto.imagen])
+
   // Theme colors - MUST be called before any conditional returns
-  const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const textColor = useColorModeValue('gray.700', 'gray.300')
   const headingColor = useColorModeValue('gray.900', 'white')
@@ -61,15 +92,15 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   )
 
   // Menu colors
-  const menuBg = useColorModeValue('white', 'gray.700')
-  const menuHoverBg = useColorModeValue('gray.100', 'gray.600')
+  // const menuBg = useColorModeValue('white', 'gray.700')
+  // const menuHoverBg = useColorModeValue('gray.100', 'gray.600')
 
   // No image placeholder colors
   const noImageBg = useColorModeValue('gray.100', 'gray.700')
   const noImageHoverBg = useColorModeValue('gray.200', 'gray.600')
 
   // Delete menu colors
-  const deleteHoverBg = useColorModeValue('red.50', 'red.900')
+  // const deleteHoverBg = useColorModeValue('red.50', 'red.900')
 
   // Estado colors
   const estadoThemeMap: Record<
@@ -177,19 +208,19 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
     <>
       <Box
         as={motion.div}
-        bg={cardBg}
+        bg="transparent"
         borderRadius="2xl"
         overflow="hidden"
         border="2px solid"
         borderColor={borderColor}
         opacity={producto.estado === 'borrador' ? 0.7 : 1}
         position="relative"
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        transition="transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease"
         boxShadow="md"
         _hover={{
           transform: 'translateY(-8px)',
-          boxShadow: hoverShadow,
-          borderColor: hoverBorderColor
+          boxShadow: outOfStock ? 'md' : (dominantColors.length > 0 ? `0 20px 40px rgba(${dominantColors[0].join(',')}, 0.3)` : hoverShadow),
+          borderColor: outOfStock ? borderColor : (dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : hoverBorderColor)
         }}
         role="group"
         cursor="pointer"
@@ -197,6 +228,35 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         h="full"
         display="flex"
         flexDirection="column"
+        willChange="transform"
+        sx={{
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundImage: `url(${producto.imagen_url || producto.imagen || '/no-image.png'})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: outOfStock ? 'blur(8px) grayscale(100%)' : 'blur(8px)',
+            opacity: 0.5,
+            zIndex: -2,
+            pointerEvents: 'none'
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: dominantColors.length >= 3 ? `linear-gradient(${gradientAngle}deg, rgba(${dominantColors[0].join(',')}, 0.2), rgba(${dominantColors[1].join(',')}, 0.2), rgba(${dominantColors[2].join(',')}, 0.2))` : 'transparent',
+            zIndex: -1,
+            pointerEvents: 'none'
+          }
+        }}
       >
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
@@ -273,8 +333,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               fallbackSrc="/no-image.png"
               transition="transform 0.3s ease"
               filter={outOfStock ? 'grayscale(100%)' : 'none'}
+              willChange="transform"
               _groupHover={{
-                transform: 'scale(1.08)'
+                transform: 'scale(1.05)'
               }}
             />
           ) : (
@@ -290,7 +351,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                 bg: noImageHoverBg
               }}
             >
-              <Text fontSize="4xl">📦</Text>
+              <Icon as={FiPackage} boxSize="4xl" />
             </Box>
           )}
 
@@ -329,14 +390,15 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           {/* Información de precio y stock */}
           <HStack justify="space-between" w="full">
             <Badge
-              colorScheme="blue"
+              bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
+              color="white"
               fontSize="md"
               px={3}
               py={1}
               borderRadius="lg"
               fontWeight="bold"
             >
-              {producto.precio} pts
+              {formatNumber(producto.precio)} pts
             </Badge>
             <HStack spacing={2}>
               <Badge
@@ -349,7 +411,8 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                 alignItems="center"
                 gap={1}
               >
-                📦 {producto.stock}
+                <Icon as={FiPackage} boxSize={3} />
+                {producto.stock}
               </Badge>
               {typeof (producto as { canjes_count?: number }).canjes_count === 'number' && (
                 <Badge

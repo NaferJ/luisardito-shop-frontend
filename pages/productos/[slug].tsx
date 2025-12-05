@@ -75,7 +75,7 @@ export default function ProductoDetallePage() {
   const accentColor = useColorModeValue('blue.600', 'blue.400')
   const textColor = useColorModeValue('gray.800', 'gray.100')
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
-  const infoBg = useColorModeValue('gray.50', 'gray.750')
+  const infoBg = useColorModeValue('gray.50', 'gray.800')
 
   useEffect(() => {
     if (error && (error as any)?.response?.status === 404) {

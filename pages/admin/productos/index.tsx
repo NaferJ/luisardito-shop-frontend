@@ -496,7 +496,7 @@ export default function AdminProductosPage() {
                         <Td py={3}>
                           <HStack spacing={3}>
                             <Image
-                              src={producto.imagen}
+                              src={producto.imagen_url || producto.imagen}
                               alt={producto.nombre}
                               boxSize="40px"
                               objectFit="cover"

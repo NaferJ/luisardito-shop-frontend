@@ -1,6 +1,7 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
+import { StyledModal } from '../../../components/StyledModal'
 import {
   Box,
   Container,
@@ -12,13 +13,6 @@ import {
   Spinner,
   Center,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   NumberInput,
   NumberInputField,
   useToast,
@@ -46,9 +40,8 @@ import {
   Avatar,
   Alert,
   AlertIcon,
-  FormControl,
-  FormLabel,
-  Tooltip
+  Tooltip,
+  Icon
 } from '@chakra-ui/react'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/router'
@@ -69,7 +62,7 @@ import {
   ChevronUpIcon
 } from '@chakra-ui/icons'
 import { MdPeople, MdStar, MdSwapHoriz, MdTrendingUp } from 'react-icons/md'
-import { FaTrophy, FaUserCheck } from 'react-icons/fa'
+import { FaTrophy, FaUserCheck, FaCoins, FaExchangeAlt } from 'react-icons/fa'
 import Head from 'next/head'
 
 export default function AdminUsuariosPage() {
@@ -95,6 +88,7 @@ export default function AdminUsuariosPage() {
 
   const [selectedUser, setSelectedUser] = useState<UsuarioAdmin | null>(null)
   const [puntos, setPuntos] = useState<number>(0)
+  const [puntosMode, setPuntosMode] = useState<'add' | 'set'>('add') // 'add' para agregar/restar, 'set' para editar directo
   const [motivo, setMotivo] = useState('')
   const [vipDays, setVipDays] = useState<number | undefined>(30)
   const [migrationPoints, setMigrationPoints] = useState<number>(0)
@@ -123,6 +117,7 @@ export default function AdminUsuariosPage() {
   const openPuntosModal = (user: UsuarioAdmin) => {
     setSelectedUser(user)
     setPuntos(0)
+    setPuntosMode('add')
     setMotivo('')
     onPuntosOpen()
   }
@@ -151,11 +146,23 @@ export default function AdminUsuariosPage() {
       return
     }
 
+    if (puntos === 0 && puntosMode === 'add') {
+      toast({
+        title: 'Sin cambios',
+        description: 'No hay cambios en los puntos',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true
+      })
+      return
+    }
+
     try {
       await updatePuntos.mutateAsync({
         usuarioId: selectedUser.id,
-        puntos,
-        motivo
+        puntos: puntos,
+        motivo,
+        operation: puntosMode // Enviamos 'add' o 'set' al backend
       })
       toast({
         title: 'Actualizado',
@@ -828,137 +835,339 @@ export default function AdminUsuariosPage() {
           </VStack>
 
           {/* Modal Editar Puntos */}
-          <Modal isOpen={isPuntosOpen} onClose={onPuntosClose} isCentered>
-            <ModalOverlay />
-            <ModalContent mx={4} borderRadius="xl">
-              <ModalHeader>
-                <VStack align="start" spacing={1}>
-                  <Text>Editar Puntos</Text>
-                  <Text fontSize="sm" fontWeight="normal" color={mutedColor}>
-                    {selectedUser?.nickname || selectedUser?.email}
-                  </Text>
-                </VStack>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <VStack spacing={4} align="stretch">
-                  <Box>
-                    <Text fontSize="sm" mb={2} color={mutedColor}>
-                      Puntos actuales:
-                    </Text>
-                    <Badge colorScheme="green" fontSize="lg" px={3} py={1}>
-                      {selectedUser?.puntos?.toLocaleString() || 0}
-                    </Badge>
-                  </Box>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm">Cambio de puntos</FormLabel>
-                    <NumberInput value={puntos} onChange={(_, val) => setPuntos(val)}>
-                      <NumberInputField placeholder="Ej: 1000 o -500" />
-                    </NumberInput>
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm">Motivo</FormLabel>
-                    <Input
-                      value={motivo}
-                      onChange={(e) => setMotivo(e.target.value)}
-                      placeholder="Ej: Ajuste manual, premio, etc."
-                    />
-                  </FormControl>
-                </VStack>
-              </ModalBody>
-              <ModalFooter gap={3}>
-                <Button variant="ghost" onClick={onPuntosClose}>
+          <StyledModal
+            isOpen={isPuntosOpen}
+            onClose={onPuntosClose}
+            title="Gestionar Puntos"
+            subtitle={selectedUser?.nickname || selectedUser?.email}
+            avatarSrc={selectedUser?.kick_avatar}
+            avatarName={selectedUser?.nickname || 'Usuario'}
+            footer={
+              <>
+                <Button variant="ghost" onClick={onPuntosClose} size="lg">
                   Cancelar
                 </Button>
-                <Button colorScheme="blue" onClick={savePuntos} isLoading={updatePuntos.isPending}>
-                  Guardar
+                <Button
+                  colorScheme={(() => {
+                    if (puntosMode === 'add') return puntos > 0 ? 'green' : puntos < 0 ? 'red' : 'gray'
+                    return 'blue'
+                  })()}
+                  onClick={savePuntos}
+                  isLoading={updatePuntos.isPending}
+                  isDisabled={!motivo.trim() || puntos === 0}
+                  size="lg"
+                >
+                  Confirmar cambios
                 </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+              </>
+            }
+          >
+            <VStack spacing={4} align="stretch">
+              {/* Puntos actuales */}
+              <HStack bg={statBg} p={4} borderRadius="xl" justify="space-between" borderWidth="1px" borderColor={borderColor}>
+                <HStack spacing={2}>
+                  <Icon as={FaCoins} color="green.500" />
+                  <Text fontSize="sm" color={mutedColor} fontWeight="medium">
+                    Puntos actuales
+                  </Text>
+                </HStack>
+                <Text fontSize="2xl" fontWeight="bold" color="green.500">
+                  {selectedUser?.puntos?.toLocaleString() || 0}
+                </Text>
+              </HStack>
+
+              {/* Modo de operación */}
+              <VStack align="stretch" spacing={2}>
+                <Text fontSize="sm" fontWeight="semibold" color={mutedColor}>
+                  Modo de operación
+                </Text>
+                <HStack spacing={2}>
+                  <Button
+                    size="md"
+                    flex={1}
+                    variant={puntosMode === 'add' ? 'solid' : 'outline'}
+                    colorScheme={puntosMode === 'add' ? 'blue' : 'gray'}
+                    leftIcon={<Icon as={FaExchangeAlt} />}
+                    onClick={() => {
+                      setPuntosMode('add')
+                      setPuntos(0)
+                    }}
+                  >
+                    Sumar/Restar
+                  </Button>
+                  <Button
+                    size="md"
+                    flex={1}
+                    variant={puntosMode === 'set' ? 'solid' : 'outline'}
+                    colorScheme={puntosMode === 'set' ? 'purple' : 'gray'}
+                    leftIcon={<EditIcon />}
+                    onClick={() => {
+                      setPuntosMode('set')
+                      setPuntos(selectedUser?.puntos || 0)
+                    }}
+                  >
+                    Establecer
+                  </Button>
+                </HStack>
+              </VStack>
+
+              {/* Input de puntos */}
+              <VStack spacing={3} align="stretch">
+                <VStack align="stretch" spacing={1}>
+                  <Text fontSize="sm" fontWeight="semibold" color={mutedColor}>
+                    {puntosMode === 'add' ? 'Cantidad a agregar/restar' : 'Nuevo total de puntos'}
+                  </Text>
+                  <NumberInput
+                    value={puntos}
+                    onChange={(_, val) => setPuntos(val)}
+                    min={puntosMode === 'set' ? 0 : undefined}
+                    size="lg"
+                  >
+                    <NumberInputField
+                      placeholder={puntosMode === 'add' ? 'Ej: 50000 o -1000' : 'Ej: 1500000'}
+                      fontSize="2xl"
+                      fontWeight="bold"
+                      textAlign="center"
+                      h="64px"
+                    />
+                  </NumberInput>
+                  {puntosMode === 'add' && (
+                    <Text fontSize="xs" color={mutedColor}>
+                      Usa números positivos para agregar o negativos para restar
+                    </Text>
+                  )}
+                </VStack>
+
+                {/* Vista previa del resultado */}
+                {puntos !== 0 && (() => {
+                  const resultado = puntosMode === 'add'
+                    ? (selectedUser?.puntos || 0) + puntos
+                    : puntos
+                  const cambio = puntosMode === 'add' ? puntos : puntos - (selectedUser?.puntos || 0)
+
+                  return (
+                    <Box
+                      bg={cambio > 0 ? 'green.50' : cambio < 0 ? 'red.50' : 'blue.50'}
+                      _dark={{
+                        bg: cambio > 0 ? 'green.900' : cambio < 0 ? 'red.900' : 'blue.900'
+                      }}
+                      p={4}
+                      borderRadius="xl"
+                      borderWidth="2px"
+                      borderColor={cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300'}
+                    >
+                      <VStack spacing={2}>
+                        <HStack justify="space-between" w="full">
+                          <Text fontSize="xs" fontWeight="semibold" color={mutedColor} textTransform="uppercase">
+                            Vista previa
+                          </Text>
+                          {cambio !== 0 && (
+                            <Badge
+                              colorScheme={cambio > 0 ? 'green' : 'red'}
+                              fontSize="xs"
+                              px={2}
+                              py={1}
+                            >
+                              {cambio > 0 ? '+' : ''}
+                              {cambio.toLocaleString()} puntos
+                            </Badge>
+                          )}
+                        </HStack>
+                        <HStack spacing={4} w="full" justify="center">
+                          <VStack spacing={0}>
+                            <Text fontSize="xs" color={mutedColor}>
+                              Actual
+                            </Text>
+                            <Text
+                              fontSize="lg"
+                              fontWeight="semibold"
+                              color={mutedColor}
+                              textDecoration="line-through"
+                            >
+                              {(selectedUser?.puntos || 0).toLocaleString()}
+                            </Text>
+                          </VStack>
+                          <Icon
+                            as={FaExchangeAlt}
+                            boxSize={5}
+                            color={cambio > 0 ? 'green.500' : cambio < 0 ? 'red.500' : 'blue.500'}
+                          />
+                          <VStack spacing={0}>
+                            <Text fontSize="xs" color={mutedColor}>
+                              Nuevo
+                            </Text>
+                            <Text
+                              fontSize="2xl"
+                              fontWeight="bold"
+                              color={cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'}
+                            >
+                              {resultado.toLocaleString()}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  )
+                })()}
+              </VStack>
+
+              {/* Motivo */}
+              <VStack align="stretch" spacing={1}>
+                <Text fontSize="sm" fontWeight="semibold" color={mutedColor}>
+                  Motivo del cambio <Text as="span" color="red.500">*</Text>
+                </Text>
+                <Input
+                  value={motivo}
+                  onChange={(e) => setMotivo(e.target.value)}
+                  placeholder="Ej: Premio por evento, ajuste manual, compensación..."
+                  size="lg"
+                />
+              </VStack>
+            </VStack>
+          </StyledModal>
 
           {/* Modal Otorgar VIP */}
-          <Modal isOpen={isVipOpen} onClose={onVipClose} isCentered>
-            <ModalOverlay />
-            <ModalContent mx={4} borderRadius="xl">
-              <ModalHeader>
-                <VStack align="start" spacing={1}>
-                  <Text>Otorgar VIP</Text>
-                  <Text fontSize="sm" fontWeight="normal" color={mutedColor}>
-                    {selectedUser?.nickname || selectedUser?.email}
-                  </Text>
-                </VStack>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <FormControl>
-                  <FormLabel fontSize="sm">Duración (días)</FormLabel>
-                  <NumberInput value={vipDays} onChange={(_, value) => setVipDays(value)}>
-                    <NumberInputField placeholder="30 (vacío = permanente)" />
-                  </NumberInput>
-                  <Text fontSize="xs" color={mutedColor} mt={1}>
-                    Deja vacío o 0 para VIP permanente
-                  </Text>
-                </FormControl>
-              </ModalBody>
-              <ModalFooter gap={3}>
-                <Button variant="ghost" onClick={onVipClose}>
+          <StyledModal
+            isOpen={isVipOpen}
+            onClose={onVipClose}
+            title="Otorgar VIP"
+            subtitle={selectedUser?.nickname || selectedUser?.email}
+            icon={FaTrophy}
+            avatarSrc={selectedUser?.kick_avatar}
+            avatarName={selectedUser?.nickname || 'Usuario'}
+            footer={
+              <>
+                <Button variant="ghost" onClick={onVipClose} size="lg">
                   Cancelar
                 </Button>
                 <Button
                   colorScheme="yellow"
                   onClick={handleGrantVip}
                   isLoading={grantVip.isPending}
+                  size="lg"
+                  leftIcon={<Icon as={FaTrophy} />}
                 >
                   Otorgar VIP
                 </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+              </>
+            }
+          >
+            <VStack spacing={4} align="stretch">
+              <VStack align="stretch" spacing={1}>
+                <Text fontSize="sm" fontWeight="semibold" color={mutedColor}>
+                  Duración (días)
+                </Text>
+                <NumberInput 
+                  value={vipDays} 
+                  onChange={(_, value) => setVipDays(value)}
+                  size="lg"
+                >
+                  <NumberInputField placeholder="30" />
+                </NumberInput>
+                <Text fontSize="xs" color={mutedColor}>
+                  Deja vacío o 0 para VIP permanente
+                </Text>
+              </VStack>
+
+              {vipDays && vipDays > 0 && (
+                <Box bg={statBg} p={3} borderRadius="lg" borderWidth="1px" borderColor={borderColor}>
+                  <Text fontSize="xs" color={mutedColor} mb={1}>
+                    Vencimiento
+                  </Text>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {new Date(Date.now() + vipDays * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </Text>
+                </Box>
+              )}
+            </VStack>
+          </StyledModal>
 
           {/* Modal Migración Manual */}
-          <Modal isOpen={isMigrationOpen} onClose={onMigrationClose} isCentered>
-            <ModalOverlay />
-            <ModalContent mx={4} borderRadius="xl">
-              <ModalHeader>
-                <VStack align="start" spacing={1}>
-                  <Text>Migración Manual</Text>
-                  <Text fontSize="sm" fontWeight="normal" color={mutedColor}>
-                    {selectedUser?.nickname || selectedUser?.email}
-                  </Text>
-                </VStack>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <FormControl>
-                  <FormLabel fontSize="sm">Puntos a migrar</FormLabel>
-                  <NumberInput
-                    value={migrationPoints}
-                    onChange={(_, value) => setMigrationPoints(value)}
-                  >
-                    <NumberInputField placeholder="Ej: 50000" />
-                  </NumberInput>
-                  <Text fontSize="xs" color={mutedColor} mt={1}>
-                    Cantidad de puntos que tenía en Botrix
-                  </Text>
-                </FormControl>
-              </ModalBody>
-              <ModalFooter gap={3}>
-                <Button variant="ghost" onClick={onMigrationClose}>
+          <StyledModal
+            isOpen={isMigrationOpen}
+            onClose={onMigrationClose}
+            title="Migración Manual"
+            subtitle={selectedUser?.nickname || selectedUser?.email}
+            icon={MdSwapHoriz}
+            avatarSrc={selectedUser?.kick_avatar}
+            avatarName={selectedUser?.nickname || 'Usuario'}
+            footer={
+              <>
+                <Button variant="ghost" onClick={onMigrationClose} size="lg">
                   Cancelar
                 </Button>
                 <Button
                   colorScheme="cyan"
                   onClick={handleManualMigration}
                   isLoading={manualMigration.isPending}
+                  size="lg"
+                  leftIcon={<Icon as={MdSwapHoriz} />}
                 >
-                  Migrar
+                  Migrar Puntos
                 </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+              </>
+            }
+          >
+            <VStack spacing={4} align="stretch">
+              <Alert status="info" borderRadius="lg">
+                <AlertIcon />
+                <Box>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    Migración desde Botrix
+                  </Text>
+                  <Text fontSize="xs" color={mutedColor}>
+                    Esta acción marcará al usuario como migrado
+                  </Text>
+                </Box>
+              </Alert>
+
+              <VStack align="stretch" spacing={1}>
+                <Text fontSize="sm" fontWeight="semibold" color={mutedColor}>
+                  Puntos a migrar <Text as="span" color="red.500">*</Text>
+                </Text>
+                <NumberInput
+                  value={migrationPoints}
+                  onChange={(_, value) => setMigrationPoints(value)}
+                  size="lg"
+                  min={0}
+                >
+                  <NumberInputField 
+                    placeholder="Ej: 50000" 
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    textAlign="center"
+                  />
+                </NumberInput>
+                <Text fontSize="xs" color={mutedColor}>
+                  Cantidad de puntos que tenía en Botrix
+                </Text>
+              </VStack>
+
+              {migrationPoints > 0 && (
+                <Box 
+                  bg="cyan.50" 
+                  _dark={{ bg: 'cyan.900' }}
+                  p={3} 
+                  borderRadius="lg" 
+                  borderWidth="2px" 
+                  borderColor="cyan.300"
+                >
+                  <HStack justify="space-between">
+                    <Text fontSize="xs" color={mutedColor} fontWeight="semibold">
+                      Puntos totales después de la migración
+                    </Text>
+                    <Text fontSize="xl" fontWeight="bold" color="cyan.600">
+                      {((selectedUser?.puntos || 0) + migrationPoints).toLocaleString()}
+                    </Text>
+                  </HStack>
+                </Box>
+              )}
+            </VStack>
+          </StyledModal>
         </Container>
       </Layout>
     </RequireAdmin>

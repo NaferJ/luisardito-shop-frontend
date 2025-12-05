@@ -84,15 +84,18 @@ export function useUpdateUsuarioPuntos() {
     mutationFn: async ({ 
       usuarioId, 
       puntos, 
-      motivo 
+      motivo,
+      operation = 'add' // 'add' para sumar/restar, 'set' para establecer
     }: { 
       usuarioId: number
       puntos: number
-      motivo: string 
+      motivo: string
+      operation?: 'add' | 'set'
     }) => {
       const { data } = await api.put(`/api/usuarios/${usuarioId}/puntos`, {
         puntos,
-        motivo
+        motivo,
+        operation
       })
       return data
     },

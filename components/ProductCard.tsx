@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Box,
   Image,
@@ -23,7 +23,8 @@ import {
   MenuItem,
   MenuDivider,
   Tooltip,
-  Icon
+  Icon,
+  Skeleton
 } from '@chakra-ui/react'
 import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { ActionsMenu } from './ActionsMenu'
@@ -61,25 +62,39 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
   const [dominantColors, setDominantColors] = useState<number[][]>([])
   const [gradientAngle, setGradientAngle] = useState<number>(0)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [bgImageLoaded, setBgImageLoaded] = useState(false)
+
+  // Memoizamos el ángulo del gradiente para que sea consistente por producto
+  const memoizedGradientAngle = useMemo(() => {
+    // Usamos el ID del producto como seed para generar un ángulo consistente
+    const seed = producto.id || 0
+    return (seed * 137.508) % 360 // Golden angle para mejor distribución
+  }, [producto.id])
 
   useEffect(() => {
     const imgSrc = producto.imagen_url || producto.imagen
     if (!imgSrc) return
 
+    // Precargar imagen en background para extracción de colores
     const img = document.createElement('img')
     img.crossOrigin = 'anonymous'
     img.src = imgSrc
     img.onload = () => {
+      setBgImageLoaded(true)
       try {
         const colorThief = new ColorThief()
-        const palette = colorThief.getPalette(img, 3) // 3 colores para mejor degradado
+        const palette = colorThief.getPalette(img, 3)
         setDominantColors(palette)
-        setGradientAngle(Math.random() * 360) // Ángulo aleatorio
+        setGradientAngle(memoizedGradientAngle)
       } catch (error) {
         console.error('Error extracting colors:', error)
       }
     }
-  }, [producto.imagen_url, producto.imagen])
+    img.onerror = () => {
+      setBgImageLoaded(true) // Marcar como cargada incluso en error
+    }
+  }, [producto.imagen_url, producto.imagen, memoizedGradientAngle])
 
   // Theme colors - MUST be called before any conditional returns
   const borderColor = useColorModeValue('gray.200', 'gray.700')
@@ -324,20 +339,34 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         {/* Imagen del producto */}
         <Box position="relative" overflow="hidden">
           {producto.imagen_url || producto.imagen ? (
-            <Image
-              src={producto.imagen_url || producto.imagen}
-              alt={producto.nombre}
-              w="full"
-              h="220px"
-              objectFit="cover"
-              fallbackSrc="/no-image.png"
-              transition="transform 0.3s ease"
-              filter={outOfStock ? 'grayscale(100%)' : 'none'}
-              willChange="transform"
-              _groupHover={{
-                transform: 'scale(1.05)'
-              }}
-            />
+            <>
+              <Skeleton
+                isLoaded={imageLoaded}
+                w="full"
+                h="220px"
+                startColor={dominantColors.length > 0 ? `rgba(${dominantColors[0].join(',')}, 0.1)` : 'gray.200'}
+                endColor={dominantColors.length > 1 ? `rgba(${dominantColors[1].join(',')}, 0.2)` : 'gray.300'}
+              >
+                <Image
+                  src={producto.imagen_url || producto.imagen}
+                  alt=""
+                  w="full"
+                  h="220px"
+                  objectFit="cover"
+                  fallbackSrc="/no-image.png"
+                  loading="lazy"
+                  transition="transform 0.3s ease, opacity 0.3s ease"
+                  filter={outOfStock ? 'grayscale(100%)' : 'none'}
+                  willChange="transform"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageLoaded(true)}
+                  opacity={imageLoaded ? 1 : 0}
+                  _groupHover={{
+                    transform: 'scale(1.05)'
+                  }}
+                />
+              </Skeleton>
+            </>
           ) : (
             <Box
               w="full"

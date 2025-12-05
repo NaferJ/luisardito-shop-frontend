@@ -25,6 +25,7 @@ import {
   Icon
 } from '@chakra-ui/react'
 import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { ActionsMenu } from './ActionsMenu'
 import { Producto } from '../types'
 import { useUpdateProducto } from '../hooks/useProductosAdmin'
 import { useRef } from 'react'
@@ -217,68 +218,46 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
         {/* Menú de admin en esquina superior derecha */}
         {isAdmin && (
-          <Box position="absolute" top={3} right={3} zIndex={10}>
-            <Menu>
-              <Tooltip label="Opciones" hasArrow>
-                <MenuButton
-                  as={IconButton}
-                  aria-label="Opciones de producto"
-                  icon={<SettingsIcon />}
-                  size="sm"
-                  colorScheme="blue"
-                  borderRadius="full"
-                  boxShadow="lg"
-                  onClick={(e) => e.stopPropagation()}
-                  _hover={{
-                    transform: 'rotate(90deg)',
-                    boxShadow: 'xl'
-                  }}
-                  transition="all 0.3s"
-                />
-              </Tooltip>
-              <MenuList
-                bg={menuBg}
-                boxShadow="xl"
-                borderRadius="xl"
-                p={2}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MenuItem
-                  icon={<ViewIcon />}
-                  onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
-                  borderRadius="lg"
-                  _hover={{ bg: menuHoverBg }}
-                >
-                  Ver
-                </MenuItem>
-                <MenuItem
-                  icon={<EditIcon />}
-                  onClick={() => router.push(`/admin/productos/${producto.id}/editar`)}
-                  borderRadius="lg"
-                  _hover={{ bg: menuHoverBg }}
-                >
-                  Editar
-                </MenuItem>
-                <MenuItem
-                  icon={<CheckCircleIcon />}
-                  onClick={toggleEstado}
-                  borderRadius="lg"
-                  _hover={{ bg: menuHoverBg }}
-                >
-                  {producto.estado === 'publicado' ? 'A Borrador' : 'Publicar'}
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem
-                  icon={<DeleteIcon />}
-                  onClick={onOpen}
-                  borderRadius="lg"
-                  color="red.500"
-                  _hover={{ bg: deleteHoverBg }}
-                >
-                  Eliminar
-                </MenuItem>
-              </MenuList>
-            </Menu>
+          <Box 
+            position="absolute" 
+            top={3} 
+            right={3} 
+            zIndex={10}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ActionsMenu
+              items={[
+                {
+                  label: 'Ver',
+                  icon: ViewIcon,
+                  onClick: () => router.push(`/productos/${generateSlug(producto.nombre)}`)
+                },
+                {
+                  label: 'Editar',
+                  icon: EditIcon,
+                  onClick: () => router.push(`/admin/productos/${producto.id}/editar`),
+                  colorScheme: 'blue' as const
+                },
+                {
+                  label: producto.estado === 'publicado' ? 'A Borrador' : 'Publicar',
+                  icon: CheckCircleIcon,
+                  onClick: toggleEstado,
+                  colorScheme: producto.estado === 'publicado' ? 'orange' : 'green'
+                },
+                {
+                  isDivider: true,
+                  label: '',
+                  icon: SettingsIcon,
+                  onClick: () => {}
+                },
+                {
+                  label: 'Eliminar',
+                  icon: DeleteIcon,
+                  onClick: onOpen,
+                  colorScheme: 'red' as const
+                }
+              ]}
+            />
           </Box>
         )}
 

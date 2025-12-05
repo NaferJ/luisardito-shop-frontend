@@ -1,4 +1,6 @@
 import { Layout } from '../components/Layout'
+import { ActionsMenu } from '../components/ActionsMenu'
+import { TransparentCard } from '../components/TransparentCard'
 import {
   SimpleGrid,
   Spinner,
@@ -15,7 +17,10 @@ import {
   MenuItem,
   Portal,
   Badge,
-  Flex
+  Flex,
+  VStack,
+  Heading,
+  Image
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { useState, useEffect } from 'react'
@@ -74,38 +79,42 @@ export default function Home() {
   const adminBannerBorder = useColorModeValue('blue.200', 'blue.700')
   const adminIconBg = useColorModeValue('blue.500', 'blue.400')
 
-  const carouselItems = [
+  const bannerItems = [
     {
-      icon: '🎁',
-      text: '¡Duplicamos tus donaciones! Por cada 1,000 KICKS que dones al canal, recibirás 2,000 puntos.'
+      title: 'Duplicación de Donaciones',
+      description: `Por cada 1,000 KICKS donados al canal, recibirás ${(configs?.find((c) => c.config_key === 'kicks_gifted_multiplier')?.config_value || 2) * 1000} puntos en tu cuenta.`,
+      color: 'blue'
     },
     {
-      icon: '📦',
-      text: 'Los envíos pueden tardar hasta 1 mes. Ten paciencia mientras procesamos tu pedido.'
+      title: 'Tiempo de Envío',
+      description: 'Los pedidos pueden tardar hasta 1 mes en procesarse y enviarse.',
+      color: 'purple'
     },
     {
-      icon: '⭐',
-      text: 'Si anteriormente ya habías canjeado VIP, contacta a un moderador para migrar tu VIP a la página actual.'
+      title: 'Migración VIP',
+      description: 'Si ya canjeaste VIP anteriormente, contacta a un moderador para migrar tu estatus.',
+      color: 'cyan'
     },
     {
-      icon: '💎',
-      text: `Gana puntos participando: ${configs?.find((c) => c.config_key === 'chat_points_regular')?.config_value || 0} por mensaje en chat, ${configs?.find((c) => c.config_key === 'chat_points_vip')?.config_value || 0} si eres VIP, y ${configs?.find((c) => c.config_key === 'chat_points_subscriber')?.config_value || 0} si eres suscriptor.`
+      title: 'Gana Puntos',
+      description: `Participa en el chat: ${configs?.find((c) => c.config_key === 'chat_points_regular')?.config_value || 0} puntos normales, ${configs?.find((c) => c.config_key === 'chat_points_vip')?.config_value || 0} VIP, ${configs?.find((c) => c.config_key === 'chat_points_subscriber')?.config_value || 0} suscriptores.`,
+      color: 'green'
     }
   ]
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % carouselItems.length)
+      setCurrentIndex((prev) => (prev + 1) % bannerItems.length)
     }, 8000)
     return () => clearInterval(interval)
-  }, [carouselItems.length])
+  }, [bannerItems.length])
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % carouselItems.length)
+    setCurrentIndex((prev) => (prev + 1) % bannerItems.length)
   }
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + carouselItems.length) % carouselItems.length)
+    setCurrentIndex((prev) => (prev - 1 + bannerItems.length) % bannerItems.length)
   }
 
   if (isLoading) {
@@ -180,173 +189,151 @@ export default function Home() {
         <Box position="relative" zIndex={1}>
           {/* Banner de modo administrador */}
           {isAdmin && (
-            <Box
+            <TransparentCard
               mb={6}
               mt={4}
-              p={5}
-              bg={adminBannerBg}
-              borderRadius="2xl"
-              border="2px solid"
-              borderColor={adminBannerBorder}
-              boxShadow="xl"
-              backdropFilter="blur(10px)"
+              px={6}
+              py={4}
               position="relative"
               overflow="hidden"
             >
-              <Box
-                position="absolute"
-                top={-2}
-                right={-2}
-                w="100px"
-                h="100px"
-                bg={adminIconBg}
-                opacity={0.1}
-                borderRadius="full"
-                animation={`${pulse} 3s ease-in-out infinite`}
-              />
-
               <Flex
                 justify="space-between"
                 align="center"
                 direction={{ base: 'column', md: 'row' }}
-                gap={4}
+                gap={3}
               >
-                <HStack spacing={4}>
-                  <Box
-                    p={3}
-                    bg={adminIconBg}
-                    color="white"
-                    borderRadius="xl"
-                    animation={`${float} 3s ease-in-out infinite`}
+                <HStack spacing={3}>
+                  <Badge
+                    colorScheme="blue"
+                    fontSize="xs"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    fontWeight="600"
+                    letterSpacing="wider"
                   >
-                    <SettingsIcon boxSize={6} />
-                  </Box>
-                  <Box>
-                    <HStack mb={1}>
-                      <Text fontWeight="bold" fontSize="xl" color={accentColor}>
-                        Modo Administrador
-                      </Text>
-                      <Badge colorScheme="blue" fontSize="xs">
-                        ADMIN
-                      </Badge>
-                    </HStack>
-                    <Text fontSize="sm" color={textColor}>
-                      Gestiona productos, usuarios y canjes con herramientas avanzadas
-                    </Text>
-                  </Box>
+                    ADMIN
+                  </Badge>
+                  <Text
+                    fontSize="sm"
+                    color={textColor}
+                    fontFamily="'Inter', sans-serif"
+                  >
+                    Gestiona productos, usuarios y canjes
+                  </Text>
                 </HStack>
 
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    rightIcon={<SettingsIcon />}
-                    colorScheme="blue"
-                    size="md"
-                    borderRadius="xl"
-                    boxShadow="md"
-                    _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
-                    transition="all 0.2s"
-                  >
-                    Panel Admin
-                  </MenuButton>
-                  <Portal>
-                    <MenuList boxShadow="xl" borderRadius="xl" p={2}>
-                      <MenuItem
-                        icon={<AddIcon />}
-                        onClick={() => router.push('/admin/productos/nuevo')}
-                        borderRadius="lg"
-                      >
-                        Nuevo Producto
-                      </MenuItem>
-                      <MenuItem
-                        icon={<ViewIcon />}
-                        onClick={() => router.push('/admin/productos')}
-                        borderRadius="lg"
-                      >
-                        Gestionar Productos
-                      </MenuItem>
-                      <MenuItem
-                        icon={<EditIcon />}
-                        onClick={() => router.push('/admin/usuarios')}
-                        borderRadius="lg"
-                      >
-                        Gestionar Usuarios
-                      </MenuItem>
-                      <MenuItem
-                        icon={<ChatIcon />}
-                        onClick={() => router.push('/admin/comandos')}
-                        borderRadius="lg"
-                      >
-                        Gestionar Comandos
-                      </MenuItem>
-                      <MenuItem
-                        icon={<RepeatIcon />}
-                        onClick={() => router.push('/admin/canjes')}
-                        borderRadius="lg"
-                      >
-                        Gestionar Canjes
-                      </MenuItem>
-                    </MenuList>
-                  </Portal>
-                </Menu>
+                <ActionsMenu
+                  buttonIcon={<SettingsIcon />}
+                  buttonLabel="Panel"
+                  buttonSize="sm"
+                  items={[
+                    {
+                      label: 'Nuevo Producto',
+                      icon: AddIcon,
+                      onClick: () => router.push('/admin/productos/nuevo'),
+                      colorScheme: 'green' as const
+                    },
+                    {
+                      label: 'Productos',
+                      icon: ViewIcon,
+                      onClick: () => router.push('/admin/productos')
+                    },
+                    {
+                      label: 'Usuarios',
+                      icon: EditIcon,
+                      onClick: () => router.push('/admin/usuarios')
+                    },
+                    {
+                      label: 'Comandos',
+                      icon: ChatIcon,
+                      onClick: () => router.push('/admin/comandos')
+                    },
+                    {
+                      label: 'Canjes',
+                      icon: RepeatIcon,
+                      onClick: () => router.push('/admin/canjes')
+                    }
+                  ]}
+                />
               </Flex>
-            </Box>
+            </TransparentCard>
           )}
 
-          {/* Carrusel de información mejorado */}
-          <Box
+          {/* Banner informativo con imagen de fondo */}
+          <TransparentCard
             mb={8}
-            py={3}
-            px={4}
             mt={4}
-            bg={cardBg}
-            borderRadius="xl"
-            border="1px solid"
-            borderColor={borderColor}
-            boxShadow="lg"
             position="relative"
             overflow="hidden"
+            p={0}
           >
-            <Box
+            {/* Imagen de fondo */}
+            <Image
+              src="/images/banner.png"
+              alt="Banner"
               position="absolute"
               top={0}
               left={0}
-              right={0}
-              h="4px"
-              bg="linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #3B82F6)"
-              backgroundSize="200% 100%"
-              animation={`${keyframes`0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; }`} 3s linear infinite`}
+              w="full"
+              h="full"
+              objectFit="cover"
+              opacity={0.25}
+              filter="brightness(1.4)"
             />
 
-            <Flex align="center" gap={3}>
+            <Flex align="center" justify="space-between" gap={2} px={4} py={3} position="relative">
               <IconButton
                 aria-label="Anterior"
-                icon={<ChevronLeftIcon boxSize={5} />}
+                icon={<ChevronLeftIcon />}
                 onClick={prevSlide}
                 variant="ghost"
                 size="sm"
                 borderRadius="full"
-                color={accentColor}
+                bg={useColorModeValue('rgba(255,255,255,0.6)', 'rgba(0,0,0,0.4)')}
+                backdropFilter="blur(10px)"
+                _hover={{ 
+                  bg: useColorModeValue('rgba(255,255,255,0.8)', 'rgba(0,0,0,0.6)'),
+                  transform: 'translateX(-2px)' 
+                }}
+                transition="all 0.2s"
               />
 
-              <Box flex={1} position="relative" minH="70px" display="flex" alignItems="center">
-                {carouselItems.map((item, index) => (
+              <Box flex={1} position="relative" minH="60px">
+                {bannerItems.map((item, index) => (
                   <Flex
                     key={index}
                     align="center"
-                    gap={4}
+                    justify="center"
+                    direction="column"
+                    gap={1}
                     position="absolute"
                     w="full"
                     opacity={index === currentIndex ? 1 : 0}
-                    transform={index === currentIndex ? 'translateX(0)' : 'translateX(20px)'}
+                    transform={index === currentIndex ? 'scale(1)' : 'scale(0.95)'}
                     transition="all 0.5s ease"
                     pointerEvents={index === currentIndex ? 'auto' : 'none'}
                   >
-                    <Text fontSize="2xl" animation={`${float} 2s ease-in-out infinite`}>
-                      {item.icon}
-                    </Text>
-                    <Text fontSize="sm" color={textColor} lineHeight="short">
-                      {item.text}
+                    <Badge
+                      colorScheme={item.color}
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      fontSize="xs"
+                      fontWeight="600"
+                      letterSpacing="wide"
+                    >
+                      {item.title.toUpperCase()}
+                    </Badge>
+                    <Text
+                      fontSize="sm"
+                      color={textColor}
+                      fontFamily="'Inter', sans-serif"
+                      textAlign="center"
+                      noOfLines={2}
+                    >
+                      {item.description}
                     </Text>
                   </Flex>
                 ))}
@@ -354,31 +341,43 @@ export default function Home() {
 
               <IconButton
                 aria-label="Siguiente"
-                icon={<ChevronRightIcon boxSize={5} />}
+                icon={<ChevronRightIcon />}
                 onClick={nextSlide}
                 variant="ghost"
                 size="sm"
                 borderRadius="full"
-                color={accentColor}
+                bg={useColorModeValue('rgba(255,255,255,0.6)', 'rgba(0,0,0,0.4)')}
+                backdropFilter="blur(10px)"
+                _hover={{ 
+                  bg: useColorModeValue('rgba(255,255,255,0.8)', 'rgba(0,0,0,0.6)'),
+                  transform: 'translateX(2px)' 
+                }}
+                transition="all 0.2s"
               />
             </Flex>
 
-            <HStack spacing={2} justify="center" mt={3}>
-              {carouselItems.map((_, index) => (
+            {/* Indicadores */}
+            <HStack spacing={1} justify="center" pb={2}>
+              {bannerItems.map((_, index) => (
                 <Box
                   key={index}
-                  w={index === currentIndex ? '24px' : '8px'}
-                  h="8px"
+                  w={index === currentIndex ? '20px' : '6px'}
+                  h="6px"
                   borderRadius="full"
-                  bg={index === currentIndex ? accentColor : borderColor}
+                  bg={index === currentIndex ? accentColor : useColorModeValue('gray.400', 'gray.600')}
                   cursor="pointer"
                   onClick={() => setCurrentIndex(index)}
                   transition="all 0.3s"
-                  _hover={{ bg: accentColor }}
+                  boxShadow={index === currentIndex ? `0 0 8px ${accentColor}` : 'none'}
+                  opacity={index === currentIndex ? 1 : 0.6}
+                  _hover={{ 
+                    opacity: 1,
+                    transform: 'scale(1.2)'
+                  }}
                 />
               ))}
             </HStack>
-          </Box>
+          </TransparentCard>
 
           {/* Título de catálogo */}
           <Box mb={6} textAlign="center">

@@ -1,5 +1,6 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
+import { ActionsMenu } from '../../../components/ActionsMenu'
 import {
   Container,
   Heading,
@@ -591,30 +592,24 @@ export default function AdminComandosPage() {
                             </Badge>
                           </Td>
                           <Td py={3} textAlign="center">
-                            <HStack spacing={1} justify="center">
-                              <Tooltip label="Editar">
-                                <IconButton
-                                  aria-label="Editar"
-                                  icon={<EditIcon />}
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleOpenForm(command)}
-                                />
-                              </Tooltip>
-                              <Tooltip label="Eliminar">
-                                <IconButton
-                                  aria-label="Eliminar"
-                                  icon={<DeleteIcon />}
-                                  size="sm"
-                                  variant="ghost"
-                                  colorScheme="red"
-                                  onClick={() => {
+                            <ActionsMenu
+                              items={[
+                                {
+                                  label: 'Editar',
+                                  icon: EditIcon,
+                                  onClick: () => handleOpenForm(command)
+                                },
+                                {
+                                  label: 'Eliminar',
+                                  icon: DeleteIcon,
+                                  onClick: () => {
                                     setSelectedCommand(command)
                                     onDeleteOpen()
-                                  }}
-                                />
-                              </Tooltip>
-                            </HStack>
+                                  },
+                                  colorScheme: 'red' as const
+                                }
+                              ]}
+                            />
                           </Td>
                         </Tr>
                       ))}

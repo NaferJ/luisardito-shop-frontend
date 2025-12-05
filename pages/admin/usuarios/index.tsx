@@ -2,6 +2,7 @@ import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import { StyledModal } from '../../../components/StyledModal'
+import { ActionsMenu, ActionMenuItem } from '../../../components/ActionsMenu'
 import {
   Box,
   Container,
@@ -17,13 +18,7 @@ import {
   NumberInputField,
   useToast,
   Text,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   useColorModeValue,
-  Portal,
   Table,
   Thead,
   Tbody,
@@ -699,75 +694,58 @@ export default function AdminUsuariosPage() {
                           </Text>
                         </Td>
                         <Td py={3}>
-                          <Menu placement="bottom-end">
-                            <Tooltip label="Acciones">
-                              <MenuButton
-                                as={IconButton}
-                                aria-label="Acciones"
-                                icon={<SettingsIcon />}
-                                size="sm"
-                                variant="ghost"
-                              />
-                            </Tooltip>
-                            <Portal>
-                              <MenuList
-                                zIndex={1400}
-                                borderRadius="lg"
-                                borderWidth="1px"
-                                borderColor={borderColor}
-                                shadow="lg"
-                                minW="160px"
-                              >
-                                <MenuItem
-                                  icon={<EditIcon />}
-                                  onClick={() => openPuntosModal(user)}
-                                  fontSize="sm"
-                                >
-                                  Editar puntos
-                                </MenuItem>
-                                <MenuItem
-                                  icon={<ViewIcon />}
-                                  onClick={() =>
-                                    router.push(
-                                      `/admin/usuarios/${user.kick_username || user.nickname || user.id}`
-                                    )
-                                  }
-                                  fontSize="sm"
-                                >
-                                  Ver canjes
-                                </MenuItem>
-                                {user.vip_status?.is_active ? (
-                                  <MenuItem
-                                    icon={<SettingsIcon />}
-                                    onClick={() => handleRemoveVip(user)}
-                                    fontSize="sm"
-                                    color="red.500"
-                                  >
-                                    Remover VIP
-                                  </MenuItem>
-                                ) : (
-                                  <MenuItem
-                                    icon={<SettingsIcon />}
-                                    onClick={() => openVipModal(user)}
-                                    fontSize="sm"
-                                    color="yellow.600"
-                                  >
-                                    Otorgar VIP
-                                  </MenuItem>
-                                )}
-                                {!user.migration_status?.migrated_at && (
-                                  <MenuItem
-                                    icon={<SettingsIcon />}
-                                    onClick={() => openMigrationModal(user)}
-                                    fontSize="sm"
-                                    color="cyan.600"
-                                  >
-                                    Migración manual
-                                  </MenuItem>
-                                )}
-                              </MenuList>
-                            </Portal>
-                          </Menu>
+                          <ActionsMenu
+                            items={[
+                              {
+                                label: 'Editar puntos',
+                                icon: EditIcon,
+                                onClick: () => openPuntosModal(user)
+                              },
+                              {
+                                label: 'Ver canjes',
+                                icon: ViewIcon,
+                                onClick: () =>
+                                  router.push(
+                                    `/admin/usuarios/${
+                                      user.kick_username || user.nickname || user.id
+                                    }`
+                                  )
+                              },
+                              {
+                                isDivider: true,
+                                label: '',
+                                icon: SettingsIcon,
+                                onClick: () => {}
+                              },
+                              ...(user.vip_status?.is_active
+                                ? [
+                                    {
+                                      label: 'Remover VIP',
+                                      icon: SettingsIcon,
+                                      onClick: () => handleRemoveVip(user),
+                                      colorScheme: 'red' as const
+                                    }
+                                  ]
+                                : [
+                                    {
+                                      label: 'Otorgar VIP',
+                                      icon: FaTrophy,
+                                      onClick: () => openVipModal(user),
+                                      colorScheme: 'yellow' as const
+                                    }
+                                  ]),
+                              ...(!user.migration_status?.migrated_at
+                                ? [
+                                    {
+                                      label: 'Migración manual',
+                                      icon: MdSwapHoriz,
+                                      onClick: () => openMigrationModal(user),
+                                      colorScheme: 'cyan' as const
+                                    }
+                                  ]
+                                : [])
+                            ]}
+                          />
                         </Td>
                       </Tr>
                     ))}

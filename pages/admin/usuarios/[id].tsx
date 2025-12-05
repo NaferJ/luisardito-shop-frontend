@@ -1,5 +1,6 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
+import { ActionsMenu } from '../../../components/ActionsMenu'
 import { useRouter } from 'next/router'
 import { useAdminUsuario } from '../../../hooks/useAdminUsuario'
 import { useAdminUsuarioCanjes } from '../../../hooks/useAdminUsuarioCanjes'
@@ -647,54 +648,40 @@ export default function AdminUsuarioGestionPage() {
                           </Badge>
                         </Td>
                         <Td py={3}>
-                          <Menu placement="bottom-end">
-                            <Tooltip label="Acciones">
-                              <MenuButton
-                                as={IconButton}
-                                aria-label="Acciones"
-                                icon={<SettingsIcon />}
-                                size="sm"
-                                variant="ghost"
-                              />
-                            </Tooltip>
-                            <Portal>
-                              <MenuList
-                                zIndex={1400}
-                                borderRadius="lg"
-                                borderWidth="1px"
-                                borderColor={borderColor}
-                                shadow="lg"
-                                minW="160px"
-                              >
-                                {canje.estado !== 'entregado' && (
-                                  <MenuItem
-                                    fontSize="sm"
-                                    onClick={() => handleUpdateEstado(canje.id, 'entregado')}
-                                  >
-                                    Marcar entregado
-                                  </MenuItem>
-                                )}
-                                {canje.estado !== 'cancelado' && (
-                                  <MenuItem
-                                    fontSize="sm"
-                                    onClick={() => handleUpdateEstado(canje.id, 'cancelado')}
-                                    color="red.500"
-                                  >
-                                    Cancelar canje
-                                  </MenuItem>
-                                )}
-                                {canje.estado !== 'devuelto' && (
-                                  <MenuItem
-                                    fontSize="sm"
-                                    onClick={() => openDevolucionModal(canje)}
-                                    color="purple.500"
-                                  >
-                                    Devolver puntos
-                                  </MenuItem>
-                                )}
-                              </MenuList>
-                            </Portal>
-                          </Menu>
+                          <ActionsMenu
+                            items={[
+                              ...(canje.estado !== 'entregado'
+                                ? [
+                                    {
+                                      label: 'Marcar entregado',
+                                      icon: SettingsIcon,
+                                      onClick: () => handleUpdateEstado(canje.id, 'entregado'),
+                                      colorScheme: 'green' as const
+                                    }
+                                  ]
+                                : []),
+                              ...(canje.estado !== 'cancelado'
+                                ? [
+                                    {
+                                      label: 'Cancelar canje',
+                                      icon: SettingsIcon,
+                                      onClick: () => handleUpdateEstado(canje.id, 'cancelado'),
+                                      colorScheme: 'red' as const
+                                    }
+                                  ]
+                                : []),
+                              ...(canje.estado !== 'devuelto'
+                                ? [
+                                    {
+                                      label: 'Devolver puntos',
+                                      icon: SettingsIcon,
+                                      onClick: () => openDevolucionModal(canje),
+                                      colorScheme: 'purple' as const
+                                    }
+                                  ]
+                                : [])
+                            ]}
+                          />
                         </Td>
                       </Tr>
                     ))}

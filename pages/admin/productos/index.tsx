@@ -1,5 +1,6 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
+import { ActionsMenu } from '../../../components/ActionsMenu'
 import {
   Box,
   Container,
@@ -533,54 +534,36 @@ export default function AdminProductosPage() {
                           </Badge>
                         </Td>
                         <Td py={3}>
-                          <Menu placement="bottom-end">
-                            <Tooltip label="Acciones">
-                              <MenuButton
-                                as={IconButton}
-                                aria-label="Acciones"
-                                icon={<SettingsIcon />}
-                                size="sm"
-                                variant="ghost"
-                              />
-                            </Tooltip>
-                            <Portal>
-                              <MenuList
-                                zIndex={1400}
-                                borderRadius="lg"
-                                borderWidth="1px"
-                                borderColor={borderColor}
-                                shadow="lg"
-                                minW="160px"
-                              >
-                                <MenuItem
-                                  icon={<ViewIcon />}
-                                  onClick={() => router.push(`/productos/${producto.slug}`)}
-                                  fontSize="sm"
-                                >
-                                  Ver producto
-                                </MenuItem>
-                                <MenuItem
-                                  icon={<EditIcon />}
-                                  onClick={() =>
-                                    router.push(`/admin/productos/${producto.id}/editar`)
-                                  }
-                                  fontSize="sm"
-                                >
-                                  Editar
-                                </MenuItem>
-                                {producto.estado !== 'eliminado' && (
-                                  <MenuItem
-                                    icon={<DeleteIcon />}
-                                    onClick={() => handleDeleteClick(producto.id)}
-                                    fontSize="sm"
-                                    color="red.500"
-                                  >
-                                    Eliminar
-                                  </MenuItem>
-                                )}
-                              </MenuList>
-                            </Portal>
-                          </Menu>
+                          <ActionsMenu
+                            items={[
+                              {
+                                label: 'Ver producto',
+                                icon: ViewIcon,
+                                onClick: () => router.push(`/productos/${producto.slug}`)
+                              },
+                              {
+                                label: 'Editar',
+                                icon: EditIcon,
+                                onClick: () => router.push(`/admin/productos/${producto.id}/editar`)
+                              },
+                              ...(producto.estado !== 'eliminado'
+                                ? [
+                                    {
+                                      isDivider: true,
+                                      label: '',
+                                      icon: SettingsIcon,
+                                      onClick: () => {}
+                                    },
+                                    {
+                                      label: 'Eliminar',
+                                      icon: DeleteIcon,
+                                      onClick: () => handleDeleteClick(producto.id),
+                                      colorScheme: 'red' as const
+                                    }
+                                  ]
+                                : [])
+                            ]}
+                          />
                         </Td>
                       </Tr>
                     ))}

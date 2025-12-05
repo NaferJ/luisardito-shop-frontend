@@ -267,10 +267,6 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
   const totalInventoryValue = formData.precio * formData.stock
   const canjesCount =
     mode === 'edit' ? (initialData as Producto & { canjes_count?: number })?.canjes_count || 0 : 0
-  const canjesPendientes =
-    canjes?.filter(
-      (c) => mode === 'edit' && c.producto_id === initialData?.id && c.estado === 'pendiente'
-    ).length || 0
 
   return (
     <>
@@ -341,18 +337,7 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading, canjes }: 
           </HStack>
         </HStack>
 
-        {/* Pending canjes warning */}
-        {mode === 'edit' && canjesPendientes > 0 && (
-          <Alert status="warning" borderRadius="lg" mb={6}>
-            <AlertIcon />
-            <AlertDescription>
-              Hay {canjesPendientes} canje(s) pendiente(s) para este producto. No se puede cambiar
-              el precio hasta que se procesen.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Unsaved changes indicator */}
+        {/* Unsaved changes indicator */
         {hasUnsavedChanges && (
           <Alert status="info" borderRadius="lg" mb={6}>
             <AlertIcon />

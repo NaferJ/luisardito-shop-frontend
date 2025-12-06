@@ -59,6 +59,71 @@ export interface Usuario {
   user_type?: 'regular' | 'vip' | 'subscriber'
 }
 
+export interface MetadataVisual {
+  badge: {
+    texto: string
+    posicion: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+    animacion: 'pulse' | 'bounce' | 'none'
+  }
+  gradiente: [string, string]
+  badge_color: string
+  mostrar_countdown: boolean
+  mostrar_ahorro: boolean
+}
+
+export interface ReglasAplicacion {
+  productos_ids: number[]
+  categorias_ids: number[]
+  excluir_productos_ids: number[]
+  minimo_cantidad: number
+}
+
+export interface Promocion {
+  id: number
+  codigo: string | null
+  nombre: string
+  titulo: string
+  descripcion: string | null
+  tipo: 'producto' | 'categoria' | 'global' | 'por_cantidad'
+  tipo_descuento: 'porcentaje' | 'fijo' | '2x1' | '3x2'
+  valor_descuento: number
+  descuento_maximo: number | null
+  fecha_inicio: string
+  fecha_fin: string
+  cantidad_usos_maximos: number | null
+  cantidad_usos_actuales: number
+  usos_por_usuario: number
+  minimo_puntos: number
+  requiere_codigo: boolean
+  prioridad: number
+  estado: 'activo' | 'programado' | 'expirado' | 'inactivo' | 'pausado'
+  aplica_acumulacion: boolean
+  metadata_visual: MetadataVisual
+  reglas_aplicacion: ReglasAplicacion
+  creado_por: number | null
+  creado: string
+  actualizado: string
+  productos?: Producto[]
+}
+
+export interface DescuentoProducto {
+  tieneDescuento: boolean
+  precioOriginal: number
+  precioFinal: number
+  descuento: number
+  porcentajeDescuento: string
+  promocion: {
+    id: number
+    codigo: string | null
+    titulo: string
+    descripcion: string
+    tipo_descuento: string
+    valor_descuento: number
+    fecha_fin: string
+    metadata_visual: MetadataVisual
+  } | null
+}
+
 export interface Producto {
   id: number
   nombre: string
@@ -72,6 +137,58 @@ export interface Producto {
   updated_at: string
   canjes_count?: number
   slug?: string
+  descuento?: DescuentoProducto
+  promocion_id?: number | null
+  promociones_activas?: Array<{
+    id: number
+    codigo: string | null
+    titulo: string
+    tipo_descuento: string
+    valor_descuento: number
+    descripcion?: string
+    fecha_fin?: string
+    metadata_visual?: MetadataVisual
+    requiere_codigo?: boolean
+  }>
+}
+
+export interface PromocionEstadisticas {
+  promocion: {
+    id: number
+    nombre: string
+    titulo: string
+    estado: string
+    fecha_inicio: string
+    fecha_fin: string
+    tipo_descuento: string
+    valor_descuento: number
+  }
+  estadisticas: {
+    total_usos: number
+    usos_maximos: number | null
+    puntos_descontados_total: number
+    descuento_promedio: number
+    usuarios_unicos: number
+    productos_aplicables: number
+  }
+  topUsuarios: Array<{
+    usuario_id: number
+    usos: number
+    ahorro_total: number
+    Usuario: {
+      username: string
+      email: string
+    }
+  }>
+  topProductos: Array<{
+    producto_id: number
+    canjes: number
+    Producto: {
+      nombre: string
+      precio: number
+      imagen_url: string
+    }
+  }>
 }
 
 export interface Canje {

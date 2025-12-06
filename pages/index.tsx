@@ -38,7 +38,8 @@ import {
   RepeatIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ChatIcon
+  ChatIcon,
+  StarIcon
 } from '@chakra-ui/icons'
 
 // Animaciones suaves (reducidas para rendimiento)
@@ -220,7 +221,7 @@ export default function Home() {
                     color={textColor}
                     fontFamily="'Inter', sans-serif"
                   >
-                    Gestiona productos, usuarios y canjes
+                    Gestiona productos, usuarios, canjes y promociones
                   </Text>
                 </HStack>
 
@@ -254,6 +255,11 @@ export default function Home() {
                       label: 'Canjes',
                       icon: RepeatIcon,
                       onClick: () => router.push('/admin/canjes')
+                    },
+                    {
+                      label: 'Promociones',
+                      icon: StarIcon,
+                      onClick: () => router.push('/admin/promociones')
                     }
                   ]}
                 />

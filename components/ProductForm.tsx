@@ -42,6 +42,7 @@ import {
   StatNumber,
   StatHelpText,
   Badge,
+  Checkbox,
   useDisclosure,
   AlertDialog,
   AlertDialogBody,
@@ -55,6 +56,7 @@ import { ProductoForm as ProductoFormType, Producto } from '../types'
 import ImageUpload from './ImageUpload'
 import { ProductFormPreview } from './ProductFormPreview'
 import { generateSlug } from '../utils/slug'
+import { usePromocionesActivas } from '../hooks/usePromociones'
 
 interface ProductFormProps {
   mode: 'create' | 'edit'
@@ -73,6 +75,12 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
   } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement>(null)
 
+  // Hooks
+  const { data: promocionesActivasGlobal } = usePromocionesActivas()
+  
+  // Siempre mostrar todas las promociones activas disponibles
+  const promocionesDisponibles = promocionesActivasGlobal || []
+
   // Form state
   const [formData, setFormData] = useState<ProductoFormType>({
     nombre: initialData?.nombre || '',
@@ -87,6 +95,17 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
     ? (initialData as Producto & { imagen_url?: string }).imagen_url || initialData.imagen || null
     : null
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(initialImageUrl)
+  const [selectedPromociones, setSelectedPromociones] = useState<number[]>(() => {
+    const producto = initialData as Producto & { promocion_id?: number, promocion_ids?: number[] }
+    // Primero intentar con promocion_ids (nuevo), sino promocion_id (legacy)
+    if (producto?.promocion_ids && Array.isArray(producto.promocion_ids)) {
+      return producto.promocion_ids
+    }
+    if (producto?.promocion_id) {
+      return [producto.promocion_id]
+    }
+    return []
+  })
   const [slug, setSlug] = useState<string>(initialData?.slug || '')
   const [autoSlug, setAutoSlug] = useState<boolean>(true)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -98,6 +117,9 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
   const sectionBg = useColorModeValue('gray.50', 'gray.700')
   const labelColor = useColorModeValue('gray.700', 'gray.300')
   const helpTextColor = useColorModeValue('gray.600', 'gray.400')
+  const borderColor = useColorModeValue('gray.300', 'gray.600')
+  const mutedColor = useColorModeValue('gray.600', 'gray.400')
+  const selectedBgColor = useColorModeValue('blue.50', 'blue.900')
 
   // Update form data when initialData changes (for duplicate functionality)
   useEffect(() => {
@@ -237,7 +259,8 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
         stock: isUnlimitedStock ? 999999 : formData.stock,
         estado: estadoFinal,
         ...(imagenUrlToSend ? { imagen_url: imagenUrlToSend } : {}),
-        ...(slug ? { slug } : {})
+        ...(slug ? { slug } : {}),
+        promocion_ids: selectedPromociones
       }
 
       await onSubmit(payload)
@@ -541,6 +564,123 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
                           <option value="eliminado">Eliminado (oculto, puede recuperarse)</option>
                         </Select>
                       </FormControl>
+                    </VStack>
+                  </CardBody>
+                </Card>
+
+                {/* Promociones Section */}
+                <Card bg={cardBg} borderColor={cardBorder} borderWidth="1px">
+                  <CardHeader>
+                    <HStack justify="space-between">
+                      <Heading size="md">Promociones y Descuentos</Heading>
+                      <Button
+                        as="a"
+                        href="/admin/promociones"
+                        size="sm"
+                        colorScheme="blue"
+                        variant="ghost"
+                      >
+                        Ver todas
+                      </Button>
+                    </HStack>
+                  </CardHeader>
+                  <CardBody>
+                    <VStack spacing={4} align="stretch">
+                      {promocionesDisponibles.length > 0 ? (
+                        <>
+                          <Alert status="info" variant="left-accent" size="sm">
+                            <AlertIcon />
+                            <AlertDescription fontSize="sm">
+                              Selecciona las promociones que aplicarán a este producto. El sistema automáticamente mostrará la mejor oferta al usuario.
+                            </AlertDescription>
+                          </Alert>
+                          
+                          {promocionesDisponibles.map((promo) => {
+                            const isSelected = selectedPromociones.includes(promo.id)
+                            const precioFinal = promo.tipo_descuento === 'porcentaje'
+                              ? formData.precio * (1 - promo.valor_descuento / 100)
+                              : formData.precio - promo.valor_descuento
+                            
+                            return (
+                              <Box
+                                key={promo.id}
+                                p={4}
+                                borderWidth="2px"
+                                borderColor={isSelected ? 'blue.500' : borderColor}
+                                borderRadius="lg"
+                                cursor="pointer"
+                                onClick={() => {
+                                  setSelectedPromociones(prev => 
+                                    isSelected 
+                                      ? prev.filter(id => id !== promo.id)
+                                      : [...prev, promo.id]
+                                  )
+                                }}
+                                transition="all 0.2s"
+                                _hover={{
+                                  borderColor: isSelected ? 'blue.600' : 'gray.400',
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: 'md'
+                                }}
+                                bg={isSelected ? selectedBgColor : 'transparent'}
+                              >
+                                <HStack spacing={4} align="start">
+                                  <Checkbox
+                                    isChecked={isSelected}
+                                    onChange={() => {}}
+                                    pointerEvents="none"
+                                    size="lg"
+                                  />
+                                  <VStack align="start" spacing={2} flex={1}>
+                                    <HStack>
+                                      <Text fontWeight="bold" fontSize="md">
+                                        {promo.titulo}
+                                      </Text>
+                                      <Badge colorScheme="green" fontSize="sm">
+                                        {promo.tipo_descuento === 'porcentaje' 
+                                          ? `-${promo.valor_descuento}%` 
+                                          : `-${promo.valor_descuento} pts`}
+                                      </Badge>
+                                    </HStack>
+                                    
+                                    {promo.descripcion && (
+                                      <Text fontSize="sm" color={mutedColor} noOfLines={2}>
+                                        {promo.descripcion}
+                                      </Text>
+                                    )}
+                                    
+                                    {isSelected && (
+                                      <HStack spacing={3} fontSize="sm" flexWrap="wrap">
+                                        <Text color={mutedColor}>
+                                          Precio: <Text as="span" textDecoration="line-through">{formData.precio}</Text> → <Text as="span" fontWeight="bold" color="green.500">{Math.max(0, Math.round(precioFinal))} pts</Text>
+                                        </Text>
+                                        <Text color="green.500" fontWeight="medium">
+                                          Ahorras {Math.round(formData.precio - precioFinal)} pts
+                                        </Text>
+                                      </HStack>
+                                    )}
+                                  </VStack>
+                                </HStack>
+                              </Box>
+                            )
+                          })}
+                        </>
+                      ) : (
+                        <Box textAlign="center" py={6}>
+                          <Text color={mutedColor} mb={3}>
+                            No hay promociones activas disponibles
+                          </Text>
+                          <Button
+                            as="a"
+                            href="/admin/promociones/crear"
+                            size="sm"
+                            colorScheme="blue"
+                            variant="outline"
+                          >
+                            Crear nueva promoción
+                          </Button>
+                        </Box>
+                      )}
                     </VStack>
                   </CardBody>
                 </Card>

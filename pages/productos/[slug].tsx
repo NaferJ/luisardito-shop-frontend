@@ -55,6 +55,7 @@ import {
 } from 'react-icons/md'
 import { FaTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa'
 import NextLink from 'next/link'
+import { Countdown } from '../../components/Countdown'
 
 export default function ProductoDetallePage() {
   const router = useRouter()
@@ -232,9 +233,11 @@ export default function ProductoDetallePage() {
       }
     }
 
-    if (!user || user.puntos < producto.precio) {
+    const precioFinal = producto.descuento?.tieneDescuento ? producto.descuento.precioFinal : producto.precio
+    
+    if (!user || user.puntos < precioFinal) {
       return {
-        text: `Faltan ${producto.precio - (user?.puntos || 0)} puntos`,
+        text: `Faltan ${precioFinal - (user?.puntos || 0)} puntos`,
         colorScheme: 'orange',
         disabled: true,
         isLoading: false,
@@ -350,6 +353,26 @@ export default function ProductoDetallePage() {
                     Borrador
                   </Badge>
                 )}
+                {producto.descuento?.tieneDescuento && producto.descuento.promocion && (
+                  <Badge
+                    position="absolute"
+                    top={3}
+                    right={3}
+                    bgGradient={`linear(135deg, ${producto.descuento.promocion.metadata_visual.gradiente[0]}, ${producto.descuento.promocion.metadata_visual.gradiente[1]})`}
+                    color="white"
+                    fontSize="sm"
+                    fontWeight="bold"
+                    px={4}
+                    py={2}
+                    borderRadius="full"
+                    boxShadow="lg"
+                    textTransform="uppercase"
+                    animation={producto.descuento.promocion.metadata_visual.badge.animacion === 'pulse' ? 'pulse 2s infinite' : producto.descuento.promocion.metadata_visual.badge.animacion === 'bounce' ? 'bounce 2s infinite' : undefined}
+                    zIndex={1}
+                  >
+                    {producto.descuento.promocion.metadata_visual.badge.texto}
+                  </Badge>
+                )}
                 {producto.imagen_url || producto.imagen ? (
                   <Image
                     src={producto.imagen_url || producto.imagen}
@@ -384,9 +407,23 @@ export default function ProductoDetallePage() {
                   <Text fontSize="xs" color={mutedColor} mb={1}>
                     Precio
                   </Text>
-                  <Text fontSize="xl" fontWeight="bold" color={accentColor}>
-                    {producto.precio}
-                  </Text>
+                  {producto.descuento?.tieneDescuento ? (
+                    <VStack spacing={0}>
+                      <Text fontSize="sm" color={mutedColor} textDecoration="line-through">
+                        {producto.descuento.precioOriginal}
+                      </Text>
+                      <Text fontSize="xl" fontWeight="bold" color="green.500">
+                        {producto.descuento.precioFinal}
+                      </Text>
+                      <Badge colorScheme="red" fontSize="xs">
+                        -{producto.descuento.porcentajeDescuento}%
+                      </Badge>
+                    </VStack>
+                  ) : (
+                    <Text fontSize="xl" fontWeight="bold" color={accentColor}>
+                      {producto.precio}
+                    </Text>
+                  )}
                   <Text fontSize="xs" color={mutedColor}>
                     puntos
                   </Text>
@@ -463,6 +500,19 @@ export default function ProductoDetallePage() {
                         Últimas unidades
                       </Badge>
                     )}
+                    {producto.descuento?.tieneDescuento && (
+                      <Badge
+                        bgGradient={`linear(135deg, ${producto.descuento.promocion?.metadata_visual.gradiente[0]}, ${producto.descuento.promocion?.metadata_visual.gradiente[1]})`}
+                        color="white"
+                        fontSize="xs"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        fontWeight="bold"
+                      >
+                        {producto.descuento.promocion?.metadata_visual.badge.texto}
+                      </Badge>
+                    )}
                   </HStack>
                 </Box>
 
@@ -506,6 +556,46 @@ export default function ProductoDetallePage() {
                 </HStack>
               </Flex>
 
+              {/* Promoción activa destacada */}
+              {producto.descuento?.tieneDescuento && producto.descuento.promocion && (
+                <Box
+                  bgGradient={`linear(135deg, ${producto.descuento.promocion.metadata_visual.gradiente[0]}15, ${producto.descuento.promocion.metadata_visual.gradiente[1]}15)`}
+                  borderRadius="lg"
+                  p={4}
+                  border="2px solid"
+                  borderColor={producto.descuento.promocion.metadata_visual.gradiente[0]}
+                >
+                  <VStack align="stretch" spacing={2}>
+                    <HStack justify="space-between">
+                      <Text fontSize="sm" fontWeight="bold" color={textColor}>
+                        🎉 {producto.descuento.promocion.titulo}
+                      </Text>
+                      <Badge
+                        colorScheme="green"
+                        fontSize="xs"
+                        px={2}
+                        py={1}
+                      >
+                        Activa
+                      </Badge>
+                    </HStack>
+                    {producto.descuento.promocion.descripcion && (
+                      <Text fontSize="xs" color={mutedColor}>
+                        {producto.descuento.promocion.descripcion}
+                      </Text>
+                    )}
+                    <HStack justify="space-between" flexWrap="wrap">
+                      <Text fontSize="sm" fontWeight="bold" color="green.500">
+                        Ahorras {producto.descuento.precioOriginal - producto.descuento.precioFinal} puntos ({producto.descuento.porcentajeDescuento}% OFF)
+                      </Text>
+                      {producto.descuento.promocion.metadata_visual.mostrar_countdown && (
+                        <Countdown fecha={producto.descuento.promocion.fecha_fin} />
+                      )}
+                    </HStack>
+                  </VStack>
+                </Box>
+              )}
+
               <Divider />
 
               {/* Descripción */}
@@ -547,9 +637,20 @@ export default function ProductoDetallePage() {
                         Precio de canje
                       </Text>
                     </HStack>
-                    <Text fontSize="lg" fontWeight="bold" color={accentColor}>
-                      {producto.precio} puntos
-                    </Text>
+                    {producto.descuento?.tieneDescuento ? (
+                      <VStack align="end" spacing={0}>
+                        <Text fontSize="sm" color={mutedColor} textDecoration="line-through">
+                          {producto.descuento.precioOriginal} pts
+                        </Text>
+                        <Text fontSize="lg" fontWeight="bold" color="green.500">
+                          {producto.descuento.precioFinal} pts
+                        </Text>
+                      </VStack>
+                    ) : (
+                      <Text fontSize="lg" fontWeight="bold" color={accentColor}>
+                        {producto.precio} puntos
+                      </Text>
+                    )}
                   </Flex>
 
                   {isAuthenticated && user && (

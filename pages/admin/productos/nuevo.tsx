@@ -7,6 +7,7 @@ import { useCreateProducto } from '../../../hooks/useProductosAdmin'
 import { useProducto } from '../../../hooks/useProducto'
 import { ProductForm } from '../../../components/ProductForm'
 import { Producto } from '../../../types'
+import api from '../../../lib/api'
 
 export default function NuevoProductoPage() {
   const router = useRouter()
@@ -39,9 +40,22 @@ export default function NuevoProductoPage() {
 
   const handleSubmit = async (payload: Record<string, unknown>) => {
     try {
-      await createProductoMutation.mutateAsync(
-        payload as Omit<Producto, 'id' | 'created_at' | 'updated_at'>
+      // Extraer promocion_ids antes de crear el producto
+      const promocionIds = payload.promocion_ids as number[] | undefined
+      const productoData = { ...payload }
+      delete productoData.promocion_ids
+      
+      // 1. Crear el producto
+      const result = await createProductoMutation.mutateAsync(
+        productoData as Omit<Producto, 'id' | 'created_at' | 'updated_at'>
       )
+      
+      // 2. Si se creó correctamente y hay promociones, asignarlas
+      if (result && promocionIds && promocionIds.length > 0) {
+        await api.put(`/api/productos/${result.id}/promociones`, {
+          promocion_ids: promocionIds
+        })
+      }
 
       toast({
         title: 'Producto creado',

@@ -5,21 +5,48 @@ import { Container, useToast, Center, Spinner, Text, VStack, Button } from '@cha
 import { useProducto } from '../../../../hooks/useProducto'
 import { useUpdateProducto } from '../../../../hooks/useProductosAdmin'
 import { ProductForm } from '../../../../components/ProductForm'
+import api from '../../../../lib/api'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function EditarProductoPage() {
   const router = useRouter()
   const { id } = router.query
   const toast = useToast()
+  const queryClient = useQueryClient()
 
   const { data: producto, isLoading: loadingProducto, error } = useProducto(id as string)
   const updateProductoMutation = useUpdateProducto()
 
   const handleSubmit = async (payload: Record<string, unknown>) => {
     try {
+      // Extraer promocion_ids antes de actualizar el producto
+      const promocionIds = payload.promocion_ids as number[] | undefined
+      const productoData = { ...payload }
+      delete productoData.promocion_ids
+      
+      // 1. Actualizar el producto
       await updateProductoMutation.mutateAsync({
         id: producto!.id,
-        productoData: payload
+        productoData
       })
+      
+      // 2. Actualizar promociones si se proporcionaron
+      if (promocionIds !== undefined) {
+        await api.put(`/api/productos/${producto!.id}/promociones`, {
+          promocion_ids: promocionIds
+        })
+      }
+      
+      // 3. Invalidar queries para recargar datos actualizados
+      // Invalidar TODAS las queries relacionadas con productos
+      await queryClient.invalidateQueries({ queryKey: ['producto'] })
+      await queryClient.invalidateQueries({ queryKey: ['productos'] })
+      await queryClient.invalidateQueries({ queryKey: ['productos-admin'] })
+      await queryClient.invalidateQueries({ queryKey: ['productos-admin-debug'] })
+      
+      // Forzar refetch inmediato
+      await queryClient.refetchQueries({ queryKey: ['productos'] })
+      await queryClient.refetchQueries({ queryKey: ['productos-admin'] })
 
       toast({
         title: 'Producto actualizado',
@@ -29,6 +56,8 @@ export default function EditarProductoPage() {
         isClosable: true
       })
 
+      // Pequeño delay para asegurar que las queries se actualicen antes de navegar
+      await new Promise(resolve => setTimeout(resolve, 500))
       router.push('/')
     } catch (error) {
       toast({

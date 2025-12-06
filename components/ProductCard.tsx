@@ -46,6 +46,27 @@ function formatNumber(num: number): string {
   return num.toString()
 }
 
+// Calcular la luminosidad de un color RGB
+function getLuminance(r: number, g: number, b: number): number {
+  // Normalizar valores RGB de 0-255 a 0-1
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    c = c / 255
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  })
+  // Fórmula de luminancia relativa
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+}
+
+// Determinar si un color es claro u oscuro
+function isColorLight(r: number, g: number, b: number): boolean {
+  return getLuminance(r, g, b) > 0.5
+}
+
+// Obtener el color de texto apropiado según el fondo
+function getTextColor(bgColor: number[]): string {
+  return isColorLight(bgColor[0], bgColor[1], bgColor[2]) ? 'gray.800' : 'white'
+}
+
 interface ProductCardProps {
   producto: Producto
   isAdmin?: boolean
@@ -64,6 +85,9 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const [gradientAngle, setGradientAngle] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [bgImageLoaded, setBgImageLoaded] = useState(false)
+
+  const descuento = producto.descuento
+  const tieneDescuento = descuento?.tieneDescuento && descuento.promocion
 
   // Memoizamos el ángulo del gradiente para que sea consistente por producto
   const memoizedGradientAngle = useMemo(() => {
@@ -273,6 +297,95 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           }
         }}
       >
+        {/* Badge de oferta/descuento */}
+        {tieneDescuento && descuento.promocion && (
+          <Badge
+            position="absolute"
+            top={3}
+            right={isAdmin ? 14 : 3}
+            bgGradient={`linear(135deg, ${descuento.promocion.metadata_visual.gradiente[0]}, ${descuento.promocion.metadata_visual.gradiente[1]})`}
+            color="white"
+            fontSize="sm"
+            fontWeight="bold"
+            px={4}
+            py={2}
+            borderRadius="full"
+            boxShadow="lg"
+            textTransform="uppercase"
+            animation={
+              descuento.promocion.metadata_visual.badge.animacion === 'pulse'
+                ? 'pulse 2s infinite'
+                : descuento.promocion.metadata_visual.badge.animacion === 'bounce'
+                ? 'bounce 2s infinite'
+                : undefined
+            }
+            zIndex={10}
+          >
+            {descuento.promocion.metadata_visual.badge.texto}
+          </Badge>
+        )}
+
+        {/* Etiqueta flotante de descuento - Estilo Tag */}
+        {tieneDescuento && descuento && (
+          <Box
+            position="absolute"
+            top="50%"
+            left="-8px"
+            transform="translateY(-50%)"
+            zIndex={9}
+          >
+            {/* Tag principal */}
+            <Box
+              bg="red.500"
+              color="white"
+              fontSize="2xl"
+              fontWeight="black"
+              px={4}
+              py={3}
+              position="relative"
+              boxShadow="0 4px 12px rgba(0,0,0,0.3)"
+              transform="rotate(-3deg)"
+              borderRadius="4px"
+              border="2px dashed"
+              borderColor="whiteAlpha.600"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                bottom: '-8px',
+                left: '8px',
+                width: 0,
+                height: 0,
+                borderLeft: '8px solid transparent',
+                borderRight: '8px solid transparent',
+                borderTop: '8px solid',
+                borderTopColor: 'red.700'
+              }}
+            >
+              <VStack spacing={0} align="center">
+                <Text fontSize="3xl" fontWeight="black" lineHeight="1">
+                  {descuento.porcentajeDescuento}%
+                </Text>
+                <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
+                  OFF
+                </Text>
+              </VStack>
+              
+              {/* Agujero del tag */}
+              <Box
+                position="absolute"
+                top="50%"
+                right="8px"
+                transform="translateY(-50%)"
+                width="8px"
+                height="8px"
+                borderRadius="full"
+                bg="white"
+                boxShadow="inset 0 2px 4px rgba(0,0,0,0.2)"
+              />
+            </Box>
+          </Box>
+        )}
+
         {/* Badge de estado (solo para admin) */}
         {isAdmin && (
           <Box position="absolute" top={3} left={3} zIndex={10}>
@@ -418,17 +531,54 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
 
           {/* Información de precio y stock */}
           <HStack justify="space-between" w="full">
-            <Badge
-              bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
-              color="white"
-              fontSize="md"
-              px={3}
-              py={1}
-              borderRadius="lg"
-              fontWeight="bold"
-            >
-              {formatNumber(producto.precio)} pts
-            </Badge>
+            <VStack align="start" spacing={1}>
+              {tieneDescuento && descuento.promocion ? (
+                <>
+                  <HStack spacing={2} align="center">
+                    <Text
+                      fontSize="xs"
+                      color={textColor}
+                      textDecoration="line-through"
+                      opacity={0.6}
+                    >
+                      {formatNumber(descuento.precioOriginal)} pts
+                    </Text>
+                    <Badge
+                      bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
+                      color={dominantColors.length > 0 ? getTextColor(dominantColors[0]) : 'white'}
+                      fontSize="md"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      fontWeight="bold"
+                    >
+                      {formatNumber(descuento.precioFinal)} pts
+                    </Badge>
+                  </HStack>
+                  {descuento.promocion.metadata_visual.mostrar_ahorro && (
+                    <Text
+                      fontSize="2xs"
+                      color="green.500"
+                      fontWeight="medium"
+                    >
+                      Ahorras {formatNumber(descuento.precioOriginal - descuento.precioFinal)} pts
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <Badge
+                  bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
+                  color={dominantColors.length > 0 ? getTextColor(dominantColors[0]) : 'white'}
+                  fontSize="md"
+                  px={3}
+                  py={1}
+                  borderRadius="lg"
+                  fontWeight="bold"
+                >
+                  {formatNumber(producto.precio)} pts
+                </Badge>
+              )}
+            </VStack>
             <HStack spacing={2}>
               <Badge
                 colorScheme={producto.stock > 0 ? 'green' : 'red'}
@@ -470,11 +620,11 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                 </Badge>
               ) : !canAfford ? (
                 <Badge colorScheme="red" w="full" textAlign="center" py={1} borderRadius="md">
-                  Puntos insuficientes
+                  Puntos insuficientes ({formatNumber(user.puntos)} pts)
                 </Badge>
               ) : (
                 <Badge colorScheme="green" w="full" textAlign="center" py={1} borderRadius="md">
-                  Disponible
+                  {tieneDescuento ? 'Disponible con descuento' : 'Disponible'}
                 </Badge>
               )}
             </Box>

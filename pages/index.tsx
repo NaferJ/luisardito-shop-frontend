@@ -1,6 +1,7 @@
 import { Layout } from '../components/Layout'
 import { ActionsMenu } from '../components/ActionsMenu'
 import { TransparentCard } from '../components/TransparentCard'
+import { BroadcasterPanel } from '../components/BroadcasterPanel'
 import {
   SimpleGrid,
   Spinner,
@@ -8,18 +9,10 @@ import {
   Box,
   HStack,
   Text,
-  Button,
   useColorModeValue,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Portal,
   Badge,
   Flex,
-  VStack,
-  Heading,
   Image
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
@@ -384,6 +377,9 @@ export default function Home() {
               ))}
             </HStack>
           </TransparentCard>
+
+          {/* Panel del broadcaster flotante */}
+          <BroadcasterPanel />
 
           {/* Título de catálogo */}
           <Box mb={6} textAlign="center">

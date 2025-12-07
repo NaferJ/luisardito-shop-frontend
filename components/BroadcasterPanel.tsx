@@ -221,7 +221,7 @@ export const BroadcasterPanel = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundImage: isLive ? `url(${profile_picture})` : 'url(/images/banneroff.png)',
+            backgroundImage: isLive ? 'url(/images/logo2.jpg)' : 'url(/images/banneroff.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'blur(8px)',
@@ -236,7 +236,7 @@ export const BroadcasterPanel = () => {
             {/* Foto de perfil - Más pequeña */}
             <Box position="relative" mx="auto">
               <Image
-                src={profile_picture}
+                src={profile_picture.startsWith('http') ? profile_picture : `/images${profile_picture}`}
                 alt={username}
                 boxSize="80px"
                 borderRadius="full"
@@ -426,7 +426,7 @@ export const BroadcasterPanel = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundImage: isLive ? `url(${profile_picture})` : 'url(/images/banneroff.png)',
+            backgroundImage: isLive ? 'url(/images/logo2.jpg)' : 'url(/images/banneroff.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'blur(8px)',
@@ -441,7 +441,7 @@ export const BroadcasterPanel = () => {
             {/* Foto de perfil pequeña */}
             <Box position="relative">
               <Image
-                src={profile_picture}
+                src={profile_picture.startsWith('http') ? profile_picture : `/images${profile_picture}`}
                 alt={username}
                 boxSize="60px"
                 borderRadius="full"

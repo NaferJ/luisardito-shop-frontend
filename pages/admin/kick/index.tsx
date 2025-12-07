@@ -517,15 +517,6 @@ export default function KickAdminPage() {
 
                   <HStack spacing={4} wrap="wrap">
                     <Button
-                      colorScheme="green"
-                      variant="outline"
-                      onClick={() => router.push('/admin/kick/recompensas')}
-                      leftIcon={<SettingsIcon />}
-                      size="md"
-                    >
-                      Gestionar Recompensas
-                    </Button>
-                    <Button
                       colorScheme="purple"
                       variant="outline"
                       onClick={() => router.push('/admin/kick/puntos')}

@@ -148,8 +148,8 @@ export default function PerfilPage() {
     )
   }
 
-  const avatarSrc = user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
-  const displayName = user.kick_username || user.nickname || user.nombre || user.email
+  const avatarSrc = user.discord_info?.avatar || user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
+  const displayName = user.display_name || user.kick_username || user.nickname || user.nombre || user.email
 
   return (
     <RequireAuth>
@@ -256,11 +256,11 @@ export default function PerfilPage() {
                           Discord
                         </Text>
                         <Text fontSize="sm" fontWeight="medium" color={textColor}>
-                          {user.discordLinked ? user.discordUsername : 'No vinculado'}
+                          {user.discord_info?.linked ? user.discord_info.display_name : 'No vinculado'}
                         </Text>
                       </Box>
                     </HStack>
-                    {user.discordLinked ? (
+                    {user.discord_info?.linked ? (
                       <Button
                         size="sm"
                         variant="ghost"

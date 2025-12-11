@@ -54,11 +54,11 @@ export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [showNewBadge, setShowNewBadge] = useState(false)
 
-  // Determinar qué avatar usar: Kick si está disponible, sino inicial del nombre
+  // Determinar qué avatar usar: Discord > Kick > inicial del nombre
   const avatarSrc = user
-    ? user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
+    ? user.discord_info?.avatar || user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
     : undefined
-  const avatarName = user ? user.kick_username || user.nickname || user.nombre || user.email : ''
+  const avatarName = user ? user.display_name || user.kick_username || user.nickname || user.nombre || user.email : ''
 
   // Detectar si el usuario tiene 2 badges (VIP + SUB)
   const vipInfo = user?.vip_info || user?.vip_status
@@ -514,9 +514,9 @@ export default function Navbar() {
                   </Badge>
 
                   {/* Advertencia de Discord no configurado */}
-                  {!user.discord_username && (
+                  {!user.discord_info?.linked && (
                     <Tooltip
-                      label="No has configurado tu Discord. Ve a tu perfil para añadirlo."
+                      label="No has vinculado tu Discord. Ve a tu perfil para añadirlo."
                       placement="bottom"
                       hasArrow
                       bg="orange.500"
@@ -854,8 +854,8 @@ export default function Navbar() {
 
                       <UserBadge user={user as any} size="sm" />
 
-                      {/* Alerta de Discord no configurado */}
-                      {!user.discord_username && (
+                      {/* Alerta de Discord no vinculado */}
+                      {!user.discord_info?.linked && (
                         <Box
                           p={3}
                           bg={discordAlertBg}
@@ -878,10 +878,10 @@ export default function Navbar() {
                             <Image src="/images/discordlogo.png" alt="Discord" boxSize={5} />
                             <VStack align="start" spacing={0} flex={1}>
                               <Text fontSize="xs" fontWeight="bold" color={discordAlertTextBold}>
-                                Discord no configurado
+                                Discord no vinculado
                               </Text>
                               <Text fontSize="xs" color={discordAlertText}>
-                                Toca aquí para agregarlo en tu perfil
+                                Toca aquí para vincularlo en tu perfil
                               </Text>
                             </VStack>
                           </HStack>

@@ -208,7 +208,7 @@ export default function AdminUsuariosPage() {
   const handleRemoveVip = async (user: UsuarioAdmin) => {
     if (
       !confirm(
-        `¿Seguro que quieres remover VIP a ${user.nickname || user.kick_username || 'este usuario'}?`
+        `¿Seguro que quieres remover VIP a ${user.display_name || user.nickname || user.kick_username || 'este usuario'}?`
       )
     )
       return
@@ -279,6 +279,7 @@ export default function AdminUsuariosPage() {
     let filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
+        user.display_name?.toLowerCase().includes(searchLower) ||
         user.nickname?.toLowerCase().includes(searchLower) ||
         user.kick_username?.toLowerCase().includes(searchLower) ||
         user.discord_username?.toLowerCase().includes(searchLower)
@@ -634,20 +635,24 @@ export default function AdminUsuariosPage() {
                             <UserAvatarWithBadge user={user}>
                               <Avatar
                                 size="sm"
-                                name={user.nickname || user.kick_username || 'Usuario'}
-                                src={user.kick_avatar}
+                                name={user.display_name || user.nickname || user.kick_username || 'Usuario'}
+                                src={user.discord_info?.avatar || user.kick_avatar}
                               />
                             </UserAvatarWithBadge>
                             <VStack align="start" spacing={0}>
                               <HStack spacing={2}>
                                 <Text fontWeight="medium" fontSize="sm">
-                                  {user.nickname || user.kick_username || `Usuario #${user.id}`}
+                                  {user.display_name || user.nickname || user.kick_username || `Usuario #${user.id}`}
                                 </Text>
                                 <UserBadge user={user} size="sm" />
                               </HStack>
-                              {user.discord_username && (
+                              {user.discord_info?.linked ? (
                                 <Text fontSize="xs" color="purple.500">
-                                  {user.discord_username}
+                                  ✅ {user.discord_info.display_name}
+                                </Text>
+                              ) : (
+                                <Text fontSize="xs" color="red.500">
+                                  ❌ Sin Discord
                                 </Text>
                               )}
                             </VStack>

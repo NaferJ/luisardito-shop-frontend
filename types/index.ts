@@ -28,6 +28,17 @@ export interface Usuario {
   discordLinked: boolean
   discordUsername?: string
 
+  // Nuevos campos del backend
+  display_name?: string
+  discord_info?: {
+    linked: boolean
+    username: string
+    discriminator: string
+    avatar: string
+    display_name: string
+    linked_at: string
+  }
+
   // Campos VIP
   is_vip?: boolean
   vip_info?: {

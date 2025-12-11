@@ -29,7 +29,7 @@ import {
   Tooltip,
   IconButton
 } from '@chakra-ui/react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   MdSwapHoriz,
   MdChat,
@@ -67,6 +67,13 @@ export default function HistorialPage() {
   const [sortBy, setSortBy] = useState<SortOption>('date-desc')
 
   const { data: historial, isLoading, error } = useHistorialPuntos(user?.id, includeAll)
+
+  // Reset includeAll if user is not admin
+  useEffect(() => {
+    if (user && !(user.rol_id && [3, 4, 5].includes(user.rol_id))) {
+      setIncludeAll(false)
+    }
+  }, [user])
 
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
@@ -281,18 +288,20 @@ export default function HistorialPage() {
                 </Heading>
               </HStack>
               <HStack spacing={2}>
-                <Tooltip
-                  label={includeAll ? 'Mostrar solo tus puntos' : 'Incluir eventos de sistema'}
-                >
-                  <Button
-                    size="sm"
-                    variant={includeAll ? 'solid' : 'ghost'}
-                    colorScheme="blue"
-                    onClick={() => setIncludeAll(!includeAll)}
+                {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
+                  <Tooltip
+                    label={includeAll ? 'Mostrar solo tus puntos' : 'Incluir eventos de sistema'}
                   >
-                    {includeAll ? 'Todos' : 'Solo míos'}
-                  </Button>
-                </Tooltip>
+                    <Button
+                      size="sm"
+                      variant={includeAll ? 'solid' : 'ghost'}
+                      colorScheme="blue"
+                      onClick={() => setIncludeAll(!includeAll)}
+                    >
+                      {includeAll ? 'Todos' : 'Solo míos'}
+                    </Button>
+                  </Tooltip>
+                )}
               </HStack>
             </Flex>
 

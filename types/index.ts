@@ -32,6 +32,7 @@ export interface Usuario {
   display_name?: string
   discord_info?: {
     linked: boolean
+    id: string
     username: string
     discriminator: string
     avatar: string

@@ -109,11 +109,13 @@ export default function AdminUsuarioGestionPage() {
       return {
         id: usuario.id,
         nickname: usuario.nickname || String(usuario.id),
+        display_name: usuario.display_name,
         nombre: usuario.nombre,
         email: usuario.email,
         kick_username: (usuario as any).kick_username,
         kick_avatar: (usuario as any).kick_avatar,
         discord_username: usuario.discord_username,
+        discord_info: usuario.discord_info,
         puntos: usuario.puntos || 0
       }
     }
@@ -125,11 +127,13 @@ export default function AdminUsuarioGestionPage() {
     return {
       id: usuarioFromCanje?.id || id,
       nickname: usuarioFromCanje?.nickname || id,
+      display_name: usuarioFromCanje?.display_name,
       nombre: usuarioFromCanje?.nombre,
       email: usuarioFromCanje?.email,
       kick_username: usuarioFromCanje?.kick_username,
       kick_avatar: usuarioFromCanje?.kick_avatar,
       discord_username: usuarioFromCanje?.discord_username,
+      discord_info: usuarioFromCanje?.discord_info,
       puntos: usuarioFromCanje?.puntos || 0
     }
   }, [usuario, canjes, id])
@@ -330,7 +334,7 @@ export default function AdminUsuarioGestionPage() {
     <RequireAdmin>
       <Head>
         <title>
-          Canjes de {userInfo?.kick_username || userInfo?.nickname || 'Usuario'} - Admin
+          Canjes de {userInfo?.display_name || userInfo?.kick_username || userInfo?.nickname || 'Usuario'} - Admin
         </title>
         <meta name="description" content="Gestión de canjes del usuario" />
       </Head>
@@ -353,25 +357,31 @@ export default function AdminUsuarioGestionPage() {
                   <Avatar
                     size="lg"
                     name={
+                      userInfo.display_name ||
                       userInfo.kick_username ||
                       userInfo.nickname ||
                       userInfo.nombre ||
                       userInfo.email
                     }
-                    src={userInfo.kick_avatar}
+                    src={
+                      userInfo.discord_info?.avatar && userInfo.discord_info?.id
+                        ? `https://cdn.discordapp.com/avatars/${userInfo.discord_info.id}/${userInfo.discord_info.avatar}.png?size=256`
+                        : userInfo.kick_avatar
+                    }
                     borderWidth="2px"
                     borderColor={borderColor}
                   />
                   <VStack align="start" spacing={1}>
                     <Heading size="md" color={textColor}>
-                      {userInfo?.kick_username ||
+                      {userInfo?.display_name ||
+                        userInfo?.kick_username ||
                         userInfo?.nickname ||
                         userInfo?.nombre ||
                         `Usuario #${userInfo.id}`}
                     </Heading>
-                    {userInfo.discord_username && (
+                    {userInfo.discord_info?.linked && (
                       <Text fontSize="sm" color="purple.500">
-                        {userInfo.discord_username}
+                        {userInfo.discord_info.display_name}
                       </Text>
                     )}
                     <HStack spacing={2}>
@@ -380,7 +390,7 @@ export default function AdminUsuarioGestionPage() {
                           Kick
                         </Badge>
                       )}
-                      {userInfo.discord_username && (
+                      {userInfo.discord_info?.linked && (
                         <Badge colorScheme="purple" fontSize="xs">
                           Discord
                         </Badge>

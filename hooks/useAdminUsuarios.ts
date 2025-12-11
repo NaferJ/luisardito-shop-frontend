@@ -7,6 +7,7 @@ export interface UsuarioAdmin {
   id: number
   nombre?: string
   nickname?: string
+  display_name?: string
   email: string
   puntos: number
   rol_id: number
@@ -16,6 +17,15 @@ export interface UsuarioAdmin {
   total_canjes?: number
   canjes_pendientes?: number
   discord_username?: string
+  discord_info?: {
+    linked: boolean
+    id: string
+    username: string
+    discriminator: string
+    avatar: string
+    display_name: string
+    linked_at: string
+  }
 
   // Campos VIP
   is_vip?: boolean

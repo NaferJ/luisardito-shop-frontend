@@ -75,6 +75,15 @@ interface LeaderboardUser {
     profile_pic?: string
     username?: string
   } | null
+  discord_info?: {
+    linked: boolean
+    id: string
+    username: string
+    discriminator: string
+    avatar: string
+    display_name: string
+    linked_at: string
+  }
 }
 
 interface MyPositionData {
@@ -88,6 +97,15 @@ interface MyPositionData {
   previous_points: number | null
   is_vip: boolean
   is_subscriber: boolean
+  discord_info?: {
+    linked: boolean
+    id: string
+    username: string
+    discriminator: string
+    avatar: string
+    display_name: string
+    linked_at: string
+  }
 }
 
 export default function LeaderboardPage() {
@@ -388,7 +406,11 @@ export default function LeaderboardPage() {
                               <Avatar
                                 size="xs"
                                 name={user.nickname}
-                                src={user.kick_data?.profile_pic}
+                                src={
+                                  user.discord_info?.avatar && user.discord_info?.id
+                                    ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
+                                    : user.kick_data?.profile_pic
+                                }
                                 bg="blue.500"
                               />
                               <VStack align="start" spacing={0}>

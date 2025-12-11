@@ -87,6 +87,7 @@ export default function AdminCanjesPage() {
     let filtered = canjes.filter((canje: any) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
+        canje?.Usuario?.display_name?.toLowerCase().includes(searchLower) ||
         canje?.Usuario?.nickname?.toLowerCase().includes(searchLower) ||
         canje?.Usuario?.kick_username?.toLowerCase().includes(searchLower) ||
         canje?.Usuario?.discord_username?.toLowerCase().includes(searchLower) ||
@@ -495,19 +496,32 @@ export default function AdminCanjesPage() {
                               <Avatar
                                 size="sm"
                                 name={
+                                  canje?.Usuario?.display_name ||
                                   canje?.Usuario?.kick_username ||
                                   canje?.Usuario?.nickname ||
+                                  canje?.usuario?.display_name ||
+                                  canje?.usuario?.kick_username ||
                                   canje?.usuario?.nickname ||
                                   'Usuario'
                                 }
-                                src={canje?.Usuario?.kick_avatar || canje?.usuario?.kick_avatar}
+                                src={
+                                  canje?.Usuario?.discord_info?.avatar && canje?.Usuario?.discord_info?.id
+                                    ? `https://cdn.discordapp.com/avatars/${canje?.Usuario?.discord_info?.id}/${canje?.Usuario?.discord_info?.avatar}.png?size=256`
+                                    : canje?.Usuario?.kick_avatar ||
+                                      (canje?.usuario?.discord_info?.avatar && canje?.usuario?.discord_info?.id
+                                        ? `https://cdn.discordapp.com/avatars/${canje?.usuario?.discord_info?.id}/${canje?.usuario?.discord_info?.avatar}.png?size=256`
+                                        : canje?.usuario?.kick_avatar)
+                                }
                               />
                             </UserAvatarWithBadge>
                             <VStack align="start" spacing={0}>
                               <HStack spacing={2}>
                                 <Text fontWeight="medium" fontSize="sm">
-                                  {canje?.Usuario?.kick_username ||
+                                  {canje?.Usuario?.display_name ||
+                                    canje?.Usuario?.kick_username ||
                                     canje?.Usuario?.nickname ||
+                                    canje?.usuario?.display_name ||
+                                    canje?.usuario?.kick_username ||
                                     canje?.usuario?.nickname ||
                                     `Usuario #${canje.usuario_id}`}
                                 </Text>
@@ -516,11 +530,11 @@ export default function AdminCanjesPage() {
                                   size="sm"
                                 />
                               </HStack>
-                              {(canje?.Usuario?.discord_username ||
-                                canje?.usuario?.discord_username) && (
+                              {(canje?.Usuario?.discord_info?.linked ||
+                                canje?.usuario?.discord_info?.linked) && (
                                 <Text fontSize="xs" color="purple.500">
-                                  {canje?.Usuario?.discord_username ||
-                                    canje?.usuario?.discord_username}
+                                  {canje?.Usuario?.discord_info?.display_name ||
+                                    canje?.usuario?.discord_info?.display_name}
                                 </Text>
                               )}
                             </VStack>

@@ -636,7 +636,11 @@ export default function AdminUsuariosPage() {
                               <Avatar
                                 size="sm"
                                 name={user.display_name || user.nickname || user.kick_username || 'Usuario'}
-                                src={user.discord_info?.avatar || user.kick_avatar}
+                                src={
+                                  user.discord_info?.avatar && user.discord_info?.id
+                                    ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
+                                    : user.kick_avatar
+                                }
                               />
                             </UserAvatarWithBadge>
                             <VStack align="start" spacing={0}>
@@ -648,11 +652,11 @@ export default function AdminUsuariosPage() {
                               </HStack>
                               {user.discord_info?.linked ? (
                                 <Text fontSize="xs" color="purple.500">
-                                  ✅ {user.discord_info.display_name}
+                                  {user.discord_info.display_name}
                                 </Text>
                               ) : (
                                 <Text fontSize="xs" color="red.500">
-                                  ❌ Sin Discord
+                                  Sin Discord
                                 </Text>
                               )}
                             </VStack>

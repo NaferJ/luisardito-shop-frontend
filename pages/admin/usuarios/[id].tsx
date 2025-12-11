@@ -381,7 +381,7 @@ export default function AdminUsuarioGestionPage() {
                     </Heading>
                     {userInfo.discord_info?.linked && (
                       <Text fontSize="sm" color="purple.500">
-                        Discord: {userInfo.discord_info.display_name}
+                        {userInfo.discord_info.display_name}
                       </Text>
                     )}
                     <HStack spacing={2}>

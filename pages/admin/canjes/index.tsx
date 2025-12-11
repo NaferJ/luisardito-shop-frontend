@@ -533,7 +533,7 @@ export default function AdminCanjesPage() {
                               {(canje?.Usuario?.discord_info?.linked ||
                                 canje?.usuario?.discord_info?.linked) && (
                                 <Text fontSize="xs" color="purple.500">
-                                  Discord: {canje?.Usuario?.discord_info?.display_name ||
+                                  {canje?.Usuario?.discord_info?.display_name ||
                                     canje?.usuario?.discord_info?.display_name}
                                 </Text>
                               )}

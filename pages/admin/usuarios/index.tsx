@@ -652,7 +652,7 @@ export default function AdminUsuariosPage() {
                               </HStack>
                               {user.discord_info?.linked && (
                                 <Text fontSize="xs" color="purple.500">
-                                  Discord: {user.discord_info.display_name}
+                                  {user.discord_info.display_name}
                                 </Text>
                               )}
                             </VStack>

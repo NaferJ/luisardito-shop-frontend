@@ -177,7 +177,7 @@ export default function AdminCanjesPage() {
     }
   }
 
-  const handleUpdateEstado = async (canjeId: number, nuevoEstado: string) => {
+  const handleUpdateEstado = async (canjeId: number, nuevoEstado: 'pendiente' | 'entregado' | 'cancelado') => {
     try {
       await updateEstado.mutateAsync({ canjeId, estado: nuevoEstado })
       toast({

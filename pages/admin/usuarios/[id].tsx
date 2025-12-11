@@ -123,7 +123,7 @@ export default function AdminUsuarioGestionPage() {
     // Fallback: obtener info del primer canje si no tenemos usuario
     if (!canjes || canjes.length === 0) return null
     const firstCanje = canjes[0]
-    const usuarioFromCanje = firstCanje?.Usuario || firstCanje?.usuario
+    const usuarioFromCanje = firstCanje?.usuario
     return {
       id: usuarioFromCanje?.id || id,
       nickname: usuarioFromCanje?.nickname || id,
@@ -225,7 +225,7 @@ export default function AdminUsuarioGestionPage() {
     }
   }
 
-  const handleUpdateEstado = async (canjeId: number, nuevoEstado: string) => {
+  const handleUpdateEstado = async (canjeId: number, nuevoEstado: 'pendiente' | 'entregado' | 'cancelado') => {
     try {
       await updateEstado.mutateAsync({ canjeId, estado: nuevoEstado })
       toast({

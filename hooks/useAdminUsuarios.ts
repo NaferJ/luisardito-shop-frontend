@@ -14,9 +14,16 @@ export interface UsuarioAdmin {
   user_id_ext?: string | null
   created_at?: string
   updated_at?: string
+  creado?: string
   total_canjes?: number
   canjes_pendientes?: number
   discord_username?: string
+  kick_username?: string
+  kick_avatar?: string
+  subscriber_status?: {
+    is_active: boolean
+  }
+  botrix_migrated?: boolean
   discord_info?: {
     linked: boolean
     id: string

@@ -334,7 +334,7 @@ export default function AdminUsuarioGestionPage() {
     <RequireAdmin>
       <Head>
         <title>
-          Canjes de {userInfo?.kick_username || userInfo?.display_name || userInfo?.nickname || 'Usuario'} - Admin
+          Canjes de {userInfo?.nickname || userInfo?.kick_username || userInfo?.display_name || 'Usuario'} - Admin
         </title>
         <meta name="description" content="Gestión de canjes del usuario" />
       </Head>
@@ -357,9 +357,9 @@ export default function AdminUsuarioGestionPage() {
                   <Avatar
                     size="lg"
                     name={
+                      userInfo.nickname ||
                       userInfo.kick_username ||
                       userInfo.display_name ||
-                      userInfo.nickname ||
                       userInfo.nombre ||
                       userInfo.email
                     }
@@ -373,9 +373,9 @@ export default function AdminUsuarioGestionPage() {
                   />
                   <VStack align="start" spacing={1}>
                     <Heading size="md" color={textColor}>
-                      {userInfo?.kick_username ||
+                      {userInfo?.nickname ||
+                        userInfo?.kick_username ||
                         userInfo?.display_name ||
-                        userInfo?.nickname ||
                         userInfo?.nombre ||
                         `Usuario #${userInfo.id}`}
                     </Heading>

@@ -496,12 +496,12 @@ export default function AdminCanjesPage() {
                               <Avatar
                                 size="sm"
                                 name={
+                                  canje?.Usuario?.nickname ||
                                   canje?.Usuario?.kick_username ||
                                   canje?.Usuario?.display_name ||
-                                  canje?.Usuario?.nickname ||
+                                  canje?.usuario?.nickname ||
                                   canje?.usuario?.kick_username ||
                                   canje?.usuario?.display_name ||
-                                  canje?.usuario?.nickname ||
                                   'Usuario'
                                 }
                                 src={
@@ -517,12 +517,12 @@ export default function AdminCanjesPage() {
                             <VStack align="start" spacing={0}>
                               <HStack spacing={2}>
                                 <Text fontWeight="medium" fontSize="sm">
-                                  {canje?.Usuario?.kick_username ||
+                                  {canje?.Usuario?.nickname ||
+                                    canje?.Usuario?.kick_username ||
                                     canje?.Usuario?.display_name ||
-                                    canje?.Usuario?.nickname ||
+                                    canje?.usuario?.nickname ||
                                     canje?.usuario?.kick_username ||
                                     canje?.usuario?.display_name ||
-                                    canje?.usuario?.nickname ||
                                     `Usuario #${canje.usuario_id}`}
                                 </Text>
                                 <UserBadge

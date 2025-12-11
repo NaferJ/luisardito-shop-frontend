@@ -154,7 +154,7 @@ export default function PerfilPage() {
   const avatarSrc = user.discord_info?.avatar && user.discord_info?.id
     ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
     : user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined
-  const displayName = user.kick_username || user.display_name || user.nickname || user.nombre || user.email
+  const displayName = user.nickname || user.kick_username || user.display_name || user.nombre || user.email
 
   return (
     <RequireAuth>

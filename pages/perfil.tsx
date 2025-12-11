@@ -32,6 +32,7 @@ export default function PerfilPage() {
   const toast = useToast()
   const [isUpdatingKickInfo, setIsUpdatingKickInfo] = useState(false)
   const [isUnlinkingDiscord, setIsUnlinkingDiscord] = useState(false)
+  const [discordToastShown, setDiscordToastShown] = useState(false)
 
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
@@ -43,7 +44,8 @@ export default function PerfilPage() {
     const urlParams = new URLSearchParams(window.location.search)
     const discordLinked = urlParams.get('discord_linked')
     
-    if (discordLinked === 'success') {
+    if (discordLinked === 'success' && !discordToastShown) {
+      setDiscordToastShown(true)
       toast({
         title: 'Cuenta vinculada',
         description: '✅ Cuenta de Discord vinculada exitosamente',
@@ -53,7 +55,8 @@ export default function PerfilPage() {
       })
       refreshUser()
       window.history.replaceState({}, '', window.location.pathname)
-    } else if (discordLinked === 'error') {
+    } else if (discordLinked === 'error' && !discordToastShown) {
+      setDiscordToastShown(true)
       toast({
         title: 'Error',
         description: '❌ Error al vincular cuenta de Discord',
@@ -63,7 +66,7 @@ export default function PerfilPage() {
       })
       window.history.replaceState({}, '', window.location.pathname)
     }
-  }, [refreshUser, toast])
+  }, [refreshUser, toast, discordToastShown])
 
   const handleLogout = () => {
     logout()

@@ -60,7 +60,7 @@ export default function Navbar() {
         ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
         : user.avatar_url || user.kick_data?.avatar_url || user.kick_avatar || undefined)
     : undefined
-  const avatarName = user ? user.display_name || user.kick_username || user.nickname || user.nombre || user.email : ''
+  const avatarName = user ? user.kick_username || user.display_name || user.nickname || user.nombre || user.email : ''
 
   // Detectar si el usuario tiene 2 badges (VIP + SUB)
   const vipInfo = user?.vip_info || user?.vip_status

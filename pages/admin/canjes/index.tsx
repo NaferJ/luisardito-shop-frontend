@@ -496,11 +496,11 @@ export default function AdminCanjesPage() {
                               <Avatar
                                 size="sm"
                                 name={
-                                  canje?.Usuario?.display_name ||
                                   canje?.Usuario?.kick_username ||
+                                  canje?.Usuario?.display_name ||
                                   canje?.Usuario?.nickname ||
-                                  canje?.usuario?.display_name ||
                                   canje?.usuario?.kick_username ||
+                                  canje?.usuario?.display_name ||
                                   canje?.usuario?.nickname ||
                                   'Usuario'
                                 }
@@ -517,11 +517,11 @@ export default function AdminCanjesPage() {
                             <VStack align="start" spacing={0}>
                               <HStack spacing={2}>
                                 <Text fontWeight="medium" fontSize="sm">
-                                  {canje?.Usuario?.display_name ||
-                                    canje?.Usuario?.kick_username ||
+                                  {canje?.Usuario?.kick_username ||
+                                    canje?.Usuario?.display_name ||
                                     canje?.Usuario?.nickname ||
-                                    canje?.usuario?.display_name ||
                                     canje?.usuario?.kick_username ||
+                                    canje?.usuario?.display_name ||
                                     canje?.usuario?.nickname ||
                                     `Usuario #${canje.usuario_id}`}
                                 </Text>
@@ -533,7 +533,7 @@ export default function AdminCanjesPage() {
                               {(canje?.Usuario?.discord_info?.linked ||
                                 canje?.usuario?.discord_info?.linked) && (
                                 <Text fontSize="xs" color="purple.500">
-                                  {canje?.Usuario?.discord_info?.display_name ||
+                                  Discord: {canje?.Usuario?.discord_info?.display_name ||
                                     canje?.usuario?.discord_info?.display_name}
                                 </Text>
                               )}

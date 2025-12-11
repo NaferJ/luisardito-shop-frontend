@@ -208,7 +208,7 @@ export default function AdminUsuariosPage() {
   const handleRemoveVip = async (user: UsuarioAdmin) => {
     if (
       !confirm(
-        `¿Seguro que quieres remover VIP a ${user.display_name || user.nickname || user.kick_username || 'este usuario'}?`
+        `¿Seguro que quieres remover VIP a ${user.kick_username || user.display_name || user.nickname || 'este usuario'}?`
       )
     )
       return
@@ -635,7 +635,7 @@ export default function AdminUsuariosPage() {
                             <UserAvatarWithBadge user={user}>
                               <Avatar
                                 size="sm"
-                                name={user.display_name || user.nickname || user.kick_username || 'Usuario'}
+                                name={user.kick_username || user.display_name || user.nickname || 'Usuario'}
                                 src={
                                   user.discord_info?.avatar && user.discord_info?.id
                                     ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
@@ -646,13 +646,13 @@ export default function AdminUsuariosPage() {
                             <VStack align="start" spacing={0}>
                               <HStack spacing={2}>
                                 <Text fontWeight="medium" fontSize="sm">
-                                  {user.display_name || user.nickname || user.kick_username || `Usuario #${user.id}`}
+                                  {user.kick_username || user.display_name || user.nickname || `Usuario #${user.id}`}
                                 </Text>
                                 <UserBadge user={user} size="sm" />
                               </HStack>
                               {user.discord_info?.linked && (
                                 <Text fontSize="xs" color="purple.500">
-                                  {user.discord_info.display_name}
+                                  Discord: {user.discord_info.display_name}
                                 </Text>
                               )}
                             </VStack>

@@ -21,8 +21,12 @@ export interface Usuario {
   }
   avatar_url?: string
 
-  // Campo Discord
+  // Campo Discord existente (mantener para compatibilidad)
   discord_username?: string
+  
+  // Nuevos campos para OAuth
+  discordLinked: boolean
+  discordUsername?: string
 
   // Campos VIP
   is_vip?: boolean

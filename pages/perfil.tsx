@@ -8,32 +8,20 @@ import {
   Text,
   Button,
   Avatar,
-  Badge,
   Divider,
   Heading,
   useColorModeValue,
   Flex,
   Icon,
   useToast,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  FormLabel,
-  Input,
   SimpleGrid,
   HStack,
   Spinner
 } from '@chakra-ui/react'
 import { MdHistory, MdShoppingBag, MdLogout, MdSync } from 'react-icons/md'
-import { FaDiscord, FaKickstarter, FaTrophy, FaEdit } from 'react-icons/fa'
+import { FaDiscord, FaKickstarter, FaTrophy } from 'react-icons/fa'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import api from '../lib/api'
 import Head from 'next/head'
 import { UserBadge, UserAvatarWithBadge } from '../components/UserBadge'
@@ -43,17 +31,39 @@ export default function PerfilPage() {
   const router = useRouter()
   const toast = useToast()
   const [isUpdatingKickInfo, setIsUpdatingKickInfo] = useState(false)
-  const [isUpdatingDiscord, setIsUpdatingDiscord] = useState(false)
+  const [isUnlinkingDiscord, setIsUnlinkingDiscord] = useState(false)
 
-  const { isOpen: isDiscordOpen, onOpen: onDiscordOpen, onClose: onDiscordClose } = useDisclosure()
-  const [discordUsername, setDiscordUsername] = useState(user?.discord_username || '')
-
-  const bgColor = useColorModeValue('gray.50', 'gray.900')
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const textColor = useColorModeValue('gray.800', 'white')
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const discordLinked = urlParams.get('discord_linked')
+    
+    if (discordLinked === 'success') {
+      toast({
+        title: 'Cuenta vinculada',
+        description: '✅ Cuenta de Discord vinculada exitosamente',
+        status: 'success',
+        duration: 5000,
+        isClosable: true
+      })
+      refreshUser()
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (discordLinked === 'error') {
+      toast({
+        title: 'Error',
+        description: '❌ Error al vincular cuenta de Discord',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [refreshUser, toast])
 
   const handleLogout = () => {
     logout()
@@ -71,7 +81,7 @@ export default function PerfilPage() {
         duration: 3000,
         isClosable: true
       })
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo sincronizar',
@@ -84,22 +94,34 @@ export default function PerfilPage() {
     }
   }
 
-  const handleUpdateDiscord = async () => {
-    setIsUpdatingDiscord(true)
+  const handleVincularDiscord = () => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'Debes iniciar sesión primero',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      })
+      return
+    }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/discord`
+  }
+
+  const handleDesvincularDiscord = async () => {
+    setIsUnlinkingDiscord(true)
     try {
-      await api.put('/api/usuarios/me', { discord_username: discordUsername })
+      await api.post('/api/auth/discord/unlink')
       await refreshUser()
       toast({
-        title: 'Actualizado',
-        description: 'Username de Discord guardado',
+        title: 'Cuenta desvinculada',
+        description: 'Cuenta de Discord desvinculada exitosamente',
         status: 'success',
         duration: 3000,
         isClosable: true
       })
-      onDiscordClose()
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || error.response?.data?.error || 'Error al actualizar'
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al desvincular'
       toast({
         title: 'Error',
         description: errorMessage,
@@ -108,13 +130,8 @@ export default function PerfilPage() {
         isClosable: true
       })
     } finally {
-      setIsUpdatingDiscord(false)
+      setIsUnlinkingDiscord(false)
     }
-  }
-
-  const openDiscordModal = () => {
-    setDiscordUsername(user?.discord_username || '')
-    onDiscordOpen()
   }
 
   if (!user) {
@@ -239,19 +256,31 @@ export default function PerfilPage() {
                           Discord
                         </Text>
                         <Text fontSize="sm" fontWeight="medium" color={textColor}>
-                          {user.discord_username || 'No configurado'}
+                          {user.discordLinked ? user.discordUsername : 'No vinculado'}
                         </Text>
                       </Box>
                     </HStack>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="purple"
-                      leftIcon={<Icon as={FaEdit} />}
-                      onClick={openDiscordModal}
-                    >
-                      {user.discord_username ? 'Editar' : 'Agregar'}
-                    </Button>
+                    {user.discordLinked ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="red"
+                        onClick={handleDesvincularDiscord}
+                        isLoading={isUnlinkingDiscord}
+                      >
+                        Desvincular
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="solid"
+                        colorScheme="purple"
+                        onClick={handleVincularDiscord}
+                        leftIcon={<Icon as={FaDiscord} />}
+                      >
+                        Vincular
+                      </Button>
+                    )}
                   </Flex>
 
                   {/* VIP Status */}
@@ -393,45 +422,6 @@ export default function PerfilPage() {
             </Button>
           </VStack>
         </Container>
-
-        {/* Modal Discord */}
-        <Modal isOpen={isDiscordOpen} onClose={onDiscordClose} isCentered>
-          <ModalOverlay />
-          <ModalContent mx={4} borderRadius="xl">
-            <ModalHeader>Configurar Discord</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody pb={6}>
-              <FormControl>
-                <FormLabel fontSize="sm" color={mutedColor}>
-                  Username de Discord
-                </FormLabel>
-                <Input
-                  value={discordUsername}
-                  onChange={(e) => setDiscordUsername(e.target.value)}
-                  placeholder="usuario#1234"
-                  size="lg"
-                  borderRadius="lg"
-                />
-                <Text fontSize="xs" color={mutedColor} mt={2}>
-                  Ejemplo: usuario#1234 o simplemente usuario
-                </Text>
-              </FormControl>
-            </ModalBody>
-            <ModalFooter gap={3}>
-              <Button variant="ghost" onClick={onDiscordClose}>
-                Cancelar
-              </Button>
-              <Button
-                colorScheme="purple"
-                onClick={handleUpdateDiscord}
-                isLoading={isUpdatingDiscord}
-                leftIcon={<Icon as={FaDiscord} />}
-              >
-                Guardar
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
       </Layout>
     </RequireAuth>
   )

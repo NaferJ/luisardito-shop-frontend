@@ -650,13 +650,9 @@ export default function AdminUsuariosPage() {
                                 </Text>
                                 <UserBadge user={user} size="sm" />
                               </HStack>
-                              {user.discord_info?.linked ? (
+                              {user.discord_info?.linked && (
                                 <Text fontSize="xs" color="purple.500">
                                   {user.discord_info.display_name}
-                                </Text>
-                              ) : (
-                                <Text fontSize="xs" color="red.500">
-                                  Sin Discord
                                 </Text>
                               )}
                             </VStack>

@@ -27,7 +27,7 @@ import {
 import { keyframes } from '@emotion/react'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown, MdRemove, MdNewReleases } from 'react-icons/md'
 import { useAuth } from '../hooks/useAuth'
-import { UserBadge } from '../components/UserBadge'
+import { UserBadge, UserAvatarWithBadge } from '../components/UserBadge'
 import Head from 'next/head'
 import { API_BASE_URL } from '../lib/api'
 import { getAuthCookie } from '../lib/cookies'
@@ -72,7 +72,7 @@ interface LeaderboardUser {
   is_vip: boolean
   is_subscriber: boolean
   kick_data: {
-    profile_pic?: string
+    avatar_url?: string
     username?: string
   } | null
   discord_info?: {
@@ -403,12 +403,32 @@ export default function LeaderboardPage() {
 
                           <Td>
                             <HStack spacing={2}>
-                              <Avatar
-                                size="xs"
-                                name={user.nickname}
-                                src={user.kick_data?.avatar_url}
-                                bg="blue.500"
-                              />
+                              <UserAvatarWithBadge
+                                user={{
+                                  id: user.usuario_id,
+                                  email: '',
+                                  puntos: user.puntos,
+                                  rol_id: user.is_vip ? 5 : 1,
+                                  nickname: user.nickname,
+                                  discord_username: user.kick_data?.username,
+                                  user_type: user.is_subscriber
+                                    ? 'subscriber'
+                                    : user.is_vip
+                                      ? 'vip'
+                                      : 'regular',
+                                  vip_info: user.is_vip ? { is_active: true } : undefined,
+                                  subscriber_status: user.is_subscriber
+                                    ? { is_active: true, expires_soon: false }
+                                    : undefined
+                                }}
+                              >
+                                <Avatar
+                                  size="xs"
+                                  name={user.nickname}
+                                  src={user.kick_data?.avatar_url}
+                                  bg="blue.500"
+                                />
+                              </UserAvatarWithBadge>
                               <VStack align="start" spacing={0}>
                                 <HStack spacing={2}>
                                   <Text fontWeight="medium" fontSize="sm">

@@ -20,6 +20,10 @@ export interface UsuarioAdmin {
   discord_username?: string
   kick_username?: string
   kick_avatar?: string
+  kick_data?: {
+    username: string
+    avatar_url: string
+  }
   subscriber_status?: {
     is_active: boolean
   }

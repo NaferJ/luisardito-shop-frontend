@@ -636,11 +636,7 @@ export default function AdminUsuariosPage() {
                               <Avatar
                                 size="sm"
                                 name={user.nickname || user.kick_username || user.display_name || 'Usuario'}
-                                src={
-                                  user.discord_info?.avatar && user.discord_info?.id
-                                    ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
-                                    : user.kick_avatar
-                                }
+                                src={user.kick_data?.avatar_url || user.kick_avatar}
                               />
                             </UserAvatarWithBadge>
                             <VStack align="start" spacing={0}>

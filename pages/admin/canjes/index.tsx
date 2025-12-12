@@ -505,12 +505,10 @@ export default function AdminCanjesPage() {
                                   'Usuario'
                                 }
                                 src={
-                                  canje?.Usuario?.discord_info?.avatar && canje?.Usuario?.discord_info?.id
-                                    ? `https://cdn.discordapp.com/avatars/${canje?.Usuario?.discord_info?.id}/${canje?.Usuario?.discord_info?.avatar}.png?size=256`
-                                    : canje?.Usuario?.kick_avatar ||
-                                      (canje?.usuario?.discord_info?.avatar && canje?.usuario?.discord_info?.id
-                                        ? `https://cdn.discordapp.com/avatars/${canje?.usuario?.discord_info?.id}/${canje?.usuario?.discord_info?.avatar}.png?size=256`
-                                        : canje?.usuario?.kick_avatar)
+                                  canje?.Usuario?.kick_data?.avatar_url ||
+                                  canje?.Usuario?.kick_avatar ||
+                                  canje?.usuario?.kick_data?.avatar_url ||
+                                  canje?.usuario?.kick_avatar
                                 }
                               />
                             </UserAvatarWithBadge>

@@ -114,6 +114,7 @@ export default function AdminUsuarioGestionPage() {
         email: usuario.email,
         kick_username: (usuario as any).kick_username,
         kick_avatar: (usuario as any).kick_avatar,
+        kick_data: usuario.kick_data,
         discord_username: usuario.discord_username,
         discord_info: usuario.discord_info,
         puntos: usuario.puntos || 0
@@ -132,6 +133,7 @@ export default function AdminUsuarioGestionPage() {
       email: usuarioFromCanje?.email,
       kick_username: usuarioFromCanje?.kick_username,
       kick_avatar: usuarioFromCanje?.kick_avatar,
+      kick_data: usuarioFromCanje?.kick_data,
       discord_username: usuarioFromCanje?.discord_username,
       discord_info: usuarioFromCanje?.discord_info,
       puntos: usuarioFromCanje?.puntos || 0
@@ -363,11 +365,7 @@ export default function AdminUsuarioGestionPage() {
                       userInfo.nombre ||
                       userInfo.email
                     }
-                    src={
-                      userInfo.discord_info?.avatar && userInfo.discord_info?.id
-                        ? `https://cdn.discordapp.com/avatars/${userInfo.discord_info.id}/${userInfo.discord_info.avatar}.png?size=256`
-                        : userInfo.kick_avatar
-                    }
+                    src={userInfo.kick_data?.avatar_url || userInfo.kick_avatar}
                     borderWidth="2px"
                     borderColor={borderColor}
                   />

@@ -406,11 +406,7 @@ export default function LeaderboardPage() {
                               <Avatar
                                 size="xs"
                                 name={user.nickname}
-                                src={
-                                  user.discord_info?.avatar && user.discord_info?.id
-                                    ? `https://cdn.discordapp.com/avatars/${user.discord_info.id}/${user.discord_info.avatar}.png?size=256`
-                                    : user.kick_data?.profile_pic
-                                }
+                                src={user.kick_data?.avatar_url}
                                 bg="blue.500"
                               />
                               <VStack align="start" spacing={0}>

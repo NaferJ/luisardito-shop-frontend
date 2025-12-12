@@ -84,16 +84,24 @@ export default function AdminCanjesPage() {
   const processedData = useMemo(() => {
     if (!canjes) return []
 
+    // Función para normalizar texto: quitar espacios, acentos, minúsculas
+    const normalize = (str: string) =>
+      str
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+
     let filtered = canjes.filter((canje: any) => {
-      const searchLower = searchTerm.toLowerCase()
+      const normalizedSearch = normalize(searchTerm)
       const matchesSearch =
-        canje?.Usuario?.display_name?.toLowerCase().includes(searchLower) ||
-        canje?.Usuario?.nickname?.toLowerCase().includes(searchLower) ||
-        canje?.Usuario?.kick_username?.toLowerCase().includes(searchLower) ||
-        canje?.Usuario?.discord_username?.toLowerCase().includes(searchLower) ||
-        canje?.Producto?.nombre?.toLowerCase().includes(searchLower) ||
-        canje.id.toString().includes(searchLower) ||
-        canje.estado.toLowerCase().includes(searchLower)
+        normalize(canje?.Usuario?.display_name || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.nickname || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.kick_username || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.discord_username || '').includes(normalizedSearch) ||
+        normalize(canje?.Producto?.nombre || '').includes(normalizedSearch) ||
+        canje.id.toString().includes(searchTerm) ||
+        normalize(canje.estado).includes(normalizedSearch)
 
       const matchesFilter = filterEstado === 'todos' || canje.estado === filterEstado
 

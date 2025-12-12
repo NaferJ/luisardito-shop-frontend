@@ -276,13 +276,21 @@ export default function AdminUsuariosPage() {
   const processedData = useMemo(() => {
     if (!usuariosData?.users) return []
 
+    // Función para normalizar texto: quitar espacios, acentos, minúsculas
+    const normalize = (str: string) =>
+      str
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+
     let filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
-      const searchLower = searchTerm.toLowerCase()
+      const normalizedSearch = normalize(searchTerm)
       const matchesSearch =
-        user.display_name?.toLowerCase().includes(searchLower) ||
-        user.nickname?.toLowerCase().includes(searchLower) ||
-        user.kick_username?.toLowerCase().includes(searchLower) ||
-        user.discord_username?.toLowerCase().includes(searchLower)
+        normalize(user.display_name || '').includes(normalizedSearch) ||
+        normalize(user.nickname || '').includes(normalizedSearch) ||
+        normalize(user.kick_username || '').includes(normalizedSearch) ||
+        normalize(user.discord_username || '').includes(normalizedSearch)
 
       if (filter === 'vip') return matchesSearch && user.vip_status?.is_active
       if (filter === 'subscribers') return matchesSearch && user.subscriber_status?.is_active

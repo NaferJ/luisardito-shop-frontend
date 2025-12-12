@@ -46,8 +46,52 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
   const vipInfo = user.vip_info || user.vip_status
   const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
 
-  // Badge Suscriptor
-  if (isSubscriber) {
+  // Badge combinado para Sub + VIP
+  if (isSubscriber && vipInfo?.is_active) {
+    const combinedBadge = (
+      <Badge
+        key="sub-vip"
+        fontSize={size === 'sm' ? 'xs' : 'sm'}
+        px={size === 'sm' ? 2 : 3}
+        py={1}
+        borderRadius="md"
+        fontWeight="bold"
+        bg="linear-gradient(135deg, #48BB78, #FFD700)"
+        color="white"
+        border="1px solid"
+        borderColor="green.400"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: '0 0 15px rgba(72, 187, 120, 0.7), 0 0 15px rgba(255, 215, 0, 0.7)'
+        }}
+        transition="all 0.2s"
+      >
+        SUB+VIP
+      </Badge>
+    )
+
+    if (showTooltip) {
+      badges.push(
+        <Tooltip
+          key="sub-vip-tooltip"
+          label={
+            vipInfo.is_permanent
+              ? 'Suscriptor y VIP Permanente'
+              : vipInfo.expires_at
+                ? `Suscriptor y VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
+                : 'Suscriptor y VIP'
+          }
+          hasArrow
+        >
+          {combinedBadge}
+        </Tooltip>
+      )
+    } else {
+      badges.push(combinedBadge)
+    }
+  }
+  // Badge Suscriptor (solo si no es VIP)
+  else if (isSubscriber) {
     const subBadge = (
       <Badge
         key="sub"
@@ -81,9 +125,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       badges.push(subBadge)
     }
   }
-
-  // Badge VIP
-  if (vipInfo?.is_active) {
+  // Badge VIP (solo si no es Subscriber)
+  else if (vipInfo?.is_active) {
     const vipBadge = (
       <Badge
         key="vip"
@@ -202,7 +245,15 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
 
   return (
     <Box position="relative" display="inline-block">
-      {children}
+      <Box
+        _hover={{
+          transform: 'scale(1.1)',
+          transition: 'transform 0.3s ease'
+        }}
+        transition="transform 0.3s ease"
+      >
+        {children}
+      </Box>
 
       {/* Overlay para Suscriptor y VIP combinados */}
       {(isSubscriber || vipInfo?.is_active) && (
@@ -222,6 +273,14 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
                 : 'gold'
           }
           pointerEvents="none"
+          _hover={{
+            boxShadow: isSubscriber && vipInfo?.is_active
+              ? '0 0 15px rgba(72, 187, 120, 0.7), 0 0 15px rgba(255, 215, 0, 0.7)'
+              : isSubscriber
+                ? '0 0 15px rgba(72, 187, 120, 0.7)'
+                : '0 0 15px rgba(255, 215, 0, 0.7)'
+          }}
+          transition="box-shadow 0.3s ease"
           _before={{
             content: '""',
             position: 'absolute',

@@ -46,52 +46,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
   const vipInfo = user.vip_info || user.vip_status
   const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
 
-  // Badge combinado para Sub + VIP
-  if (isSubscriber && vipInfo?.is_active) {
-    const combinedBadge = (
-      <Badge
-        key="sub-vip"
-        fontSize={size === 'sm' ? 'xs' : 'sm'}
-        px={size === 'sm' ? 2 : 3}
-        py={1}
-        borderRadius="md"
-        fontWeight="bold"
-        bg="linear-gradient(135deg, #48BB78, #FFD700)"
-        color="white"
-        border="1px solid"
-        borderColor="green.400"
-        _hover={{
-          transform: 'scale(1.05)',
-          boxShadow: '0 0 15px rgba(72, 187, 120, 0.7), 0 0 15px rgba(255, 215, 0, 0.7)'
-        }}
-        transition="all 0.2s"
-      >
-        SUB+VIP
-      </Badge>
-    )
-
-    if (showTooltip) {
-      badges.push(
-        <Tooltip
-          key="sub-vip-tooltip"
-          label={
-            vipInfo.is_permanent
-              ? 'Suscriptor y VIP Permanente'
-              : vipInfo.expires_at
-                ? `Suscriptor y VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
-                : 'Suscriptor y VIP'
-          }
-          hasArrow
-        >
-          {combinedBadge}
-        </Tooltip>
-      )
-    } else {
-      badges.push(combinedBadge)
-    }
-  }
-  // Badge Suscriptor (solo si no es VIP)
-  else if (isSubscriber) {
+  // Badge Suscriptor
+  if (isSubscriber) {
     const subBadge = (
       <Badge
         key="sub"
@@ -125,8 +81,9 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       badges.push(subBadge)
     }
   }
-  // Badge VIP (solo si no es Subscriber)
-  else if (vipInfo?.is_active) {
+
+  // Badge VIP
+  if (vipInfo?.is_active) {
     const vipBadge = (
       <Badge
         key="vip"

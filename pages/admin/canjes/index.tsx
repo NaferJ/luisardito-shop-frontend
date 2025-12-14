@@ -59,7 +59,10 @@ import { MdShoppingBag, MdPending, MdCheckCircle, MdCancel, MdUndo } from 'react
 import Head from 'next/head'
 
 export default function AdminCanjesPage() {
-  const { data: canjes, isLoading, error, refetch } = useAdminCanjes()
+  const { data: canjes, isLoading, error, refetch } = useAdminCanjes({
+    search: searchTerm || undefined,
+    estado: filterEstado !== 'todos' ? filterEstado : undefined
+  })
   const updateEstado = useUpdateCanjeEstado()
   const devolver = useDevolverCanje()
   const toast = useToast()
@@ -93,15 +96,8 @@ export default function AdminCanjesPage() {
         .replace(/[\u0300-\u036f]/g, '')
 
     let filtered = canjes.filter((canje: any) => {
-      const normalizedSearch = normalize(searchTerm)
-      const matchesSearch =
-        normalize(canje?.Usuario?.display_name || '').includes(normalizedSearch) ||
-        normalize(canje?.Usuario?.nickname || '').includes(normalizedSearch) ||
-        normalize(canje?.Usuario?.kick_username || '').includes(normalizedSearch) ||
-        normalize(canje?.Usuario?.discord_username || '').includes(normalizedSearch) ||
-        normalize(canje?.Producto?.nombre || '').includes(normalizedSearch) ||
-        canje.id.toString().includes(searchTerm) ||
-        normalize(canje.estado).includes(normalizedSearch)
+      // Si hay searchTerm, la API ya filtró por search
+      const matchesSearch = !searchTerm || true
 
       const matchesFilter = filterEstado === 'todos' || canje.estado === filterEstado
 
@@ -129,7 +125,7 @@ export default function AdminCanjesPage() {
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-  }, [canjes, searchTerm, sortField, sortDirection, filterEstado])
+  }, [canjes, sortField, sortDirection, filterEstado])
 
   const totalPages = Math.ceil(processedData.length / pageSize)
   const paginatedData = processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)

@@ -93,8 +93,9 @@ export default function AdminUsuariosPage() {
     isLoading,
     error
   } = useAdminUsuarios({
-    page: 1,
-    filter: 'all'
+    filter: 'all',
+    search: searchTerm || undefined,
+    limit: 10000 // Cargar todos los usuarios
   })
 
   const updatePuntos = useUpdateUsuarioPuntos()
@@ -285,12 +286,8 @@ export default function AdminUsuariosPage() {
         .replace(/[\u0300-\u036f]/g, '')
 
     let filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
-      const normalizedSearch = normalize(searchTerm)
-      const matchesSearch =
-        normalize(user.display_name || '').includes(normalizedSearch) ||
-        normalize(user.nickname || '').includes(normalizedSearch) ||
-        normalize(user.kick_username || '').includes(normalizedSearch) ||
-        normalize(user.discord_username || '').includes(normalizedSearch)
+      // Si hay searchTerm, la API ya filtró, así que no filtrar de nuevo por search
+      const matchesSearch = !searchTerm || true
 
       if (filter === 'vip') return matchesSearch && user.vip_status?.is_active
       if (filter === 'subscribers') return matchesSearch && user.subscriber_status?.is_active
@@ -316,7 +313,7 @@ export default function AdminUsuariosPage() {
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-  }, [usuariosData?.users, searchTerm, sortField, sortDirection, filter])
+  }, [usuariosData?.users, sortField, sortDirection, filter])
 
   const totalPages = Math.ceil(processedData.length / pageSize)
   const paginatedData = processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)

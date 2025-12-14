@@ -4,11 +4,18 @@ import { Canje } from '../types'
 import { useAuth } from './useAuth'
 
 // Hook para listar canjes (admin ve todos; usuarios ven los propios según backend)
-export function useAdminCanjes() {
+export function useAdminCanjes(params?: { search?: string; estado?: string }) {
+  const { search, estado } = params || {}
+  const qs = new URLSearchParams()
+  if (search) qs.set('search', search)
+  if (estado && estado !== 'todos') qs.set('estado', estado)
+
+  const url = `/api/canjes${qs.toString() ? `?${qs.toString()}` : ''}`
+
   return useQuery<Canje[], Error>({
-    queryKey: ['admin-canjes'],
+    queryKey: ['admin-canjes', search, estado],
     queryFn: async () => {
-      const { data } = await api.get<Canje[]>('/api/canjes')
+      const { data } = await api.get<Canje[]>(url)
       return data
     }
   })

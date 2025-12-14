@@ -22,13 +22,7 @@ import {
   ModalFooter,
   useToast,
   Text,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   useColorModeValue,
-  Portal,
   Table,
   Thead,
   Tbody,
@@ -59,12 +53,6 @@ import { MdShoppingBag, MdPending, MdCheckCircle, MdCancel, MdUndo } from 'react
 import Head from 'next/head'
 
 export default function AdminCanjesPage() {
-  const { data: canjes, isLoading, error, refetch } = useAdminCanjes({
-    search: searchTerm || undefined,
-    estado: filterEstado !== 'todos' ? filterEstado : undefined
-  })
-  const updateEstado = useUpdateCanjeEstado()
-  const devolver = useDevolverCanje()
   const toast = useToast()
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -77,6 +65,13 @@ export default function AdminCanjesPage() {
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
 
+  const { data: canjes, isLoading, error, refetch } = useAdminCanjes({
+    search: searchTerm || undefined,
+    estado: filterEstado !== 'todos' ? filterEstado : undefined
+  })
+  const updateEstado = useUpdateCanjeEstado()
+  const devolver = useDevolverCanje()
+
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
@@ -87,15 +82,7 @@ export default function AdminCanjesPage() {
   const processedData = useMemo(() => {
     if (!canjes) return []
 
-    // Función para normalizar texto: quitar espacios, acentos, minúsculas
-    const normalize = (str: string) =>
-      str
-        .toLowerCase()
-        .replace(/\s+/g, '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-
-    let filtered = canjes.filter((canje: any) => {
+    const filtered = canjes.filter((canje: any) => {
       // Si hay searchTerm, la API ya filtró por search
       const matchesSearch = !searchTerm || true
 
@@ -125,7 +112,7 @@ export default function AdminCanjesPage() {
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-  }, [canjes, sortField, sortDirection, filterEstado])
+  }, [canjes, searchTerm, sortField, sortDirection, filterEstado])
 
   const totalPages = Math.ceil(processedData.length / pageSize)
   const paginatedData = processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -192,7 +179,7 @@ export default function AdminCanjesPage() {
         isClosable: true
       })
       refetch()
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudo actualizar',
@@ -231,7 +218,7 @@ export default function AdminCanjesPage() {
       setSelectedCanje(null)
       setDevolucionMotivo('')
       refetch()
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudo procesar la devolución',

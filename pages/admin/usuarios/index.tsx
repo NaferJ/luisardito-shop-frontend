@@ -2,7 +2,7 @@ import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import { StyledModal } from '../../../components/StyledModal'
-import { ActionsMenu, ActionMenuItem } from '../../../components/ActionsMenu'
+import { ActionsMenu } from '../../../components/ActionsMenu'
 import {
   Box,
   Container,
@@ -35,7 +35,6 @@ import {
   Avatar,
   Alert,
   AlertIcon,
-  Tooltip,
   Icon
 } from '@chakra-ui/react'
 import { useState, useMemo } from 'react'
@@ -168,7 +167,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onPuntosClose()
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudieron actualizar los puntos',
@@ -195,7 +194,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onVipClose()
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudo otorgar VIP',
@@ -226,7 +225,7 @@ export default function AdminUsuariosPage() {
         duration: 3000,
         isClosable: true
       })
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudo remover VIP',
@@ -263,7 +262,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onMigrationClose()
-    } catch (error) {
+    } catch (_) {
       toast({
         title: 'Error',
         description: 'No se pudo completar la migración',
@@ -277,15 +276,7 @@ export default function AdminUsuariosPage() {
   const processedData = useMemo(() => {
     if (!usuariosData?.users) return []
 
-    // Función para normalizar texto: quitar espacios, acentos, minúsculas
-    const normalize = (str: string) =>
-      str
-        .toLowerCase()
-        .replace(/\s+/g, '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-
-    let filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
+    const filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
       // Si hay searchTerm, la API ya filtró, así que no filtrar de nuevo por search
       const matchesSearch = !searchTerm || true
 
@@ -313,7 +304,7 @@ export default function AdminUsuariosPage() {
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-  }, [usuariosData?.users, sortField, sortDirection, filter])
+  }, [usuariosData?.users, searchTerm, sortField, sortDirection, filter])
 
   const totalPages = Math.ceil(processedData.length / pageSize)
   const paginatedData = processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)

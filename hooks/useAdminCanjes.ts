@@ -43,7 +43,7 @@ export function useUpdateCanjeEstado() {
       queryClient.invalidateQueries({ queryKey: ['admin-canjes'] })
       queryClient.invalidateQueries({ queryKey: ['canjes'] })
       // En algunos flujos, cambiar estado puede impactar puntos; refrescar por si acaso
-      try { await refreshUser() } catch (_) { /* noop */ }
+      try { await refreshUser() } catch (error) { /* noop */ }
     }
   })
 }
@@ -69,7 +69,7 @@ export function useDevolverCanje() {
       queryClient.invalidateQueries({ queryKey: ['admin-canjes'] })
       queryClient.invalidateQueries({ queryKey: ['canjes'] })
       queryClient.invalidateQueries({ queryKey: ['productos'] })
-      try { await refreshUser() } catch (_) { queryClient.invalidateQueries({ queryKey: ['user'] }) }
+      try { await refreshUser() } catch (error) { queryClient.invalidateQueries({ queryKey: ['user'] }) }
     }
   })
 }

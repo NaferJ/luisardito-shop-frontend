@@ -176,7 +176,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onPuntosClose()
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudieron actualizar los puntos',
@@ -203,7 +203,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onVipClose()
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo otorgar VIP',
@@ -234,7 +234,7 @@ export default function AdminUsuariosPage() {
         duration: 3000,
         isClosable: true
       })
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo remover VIP',
@@ -271,7 +271,7 @@ export default function AdminUsuariosPage() {
         isClosable: true
       })
       onMigrationClose()
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo completar la migración',
@@ -300,7 +300,7 @@ export default function AdminUsuariosPage() {
       return matchesSearch
     })
 
-    return filtered.sort((a: any, b: any) => {
+    return filtered.sort((a: UsuarioAdmin, b: UsuarioAdmin) => {
       let aVal = a[sortField]
       let bVal = b[sortField]
 
@@ -549,7 +549,7 @@ export default function AdminUsuariosPage() {
 
                 <Select
                   value={filter}
-                  onChange={(e) => setFilter(e.target.value as any)}
+                  onChange={(e) => setFilter(e.target.value as 'all' | 'vip' | 'migrated' | 'pending_migration' | 'subscribers')}
                   w={{ base: 'full', md: '180px' }}
                   borderRadius="lg"
                   size="md"

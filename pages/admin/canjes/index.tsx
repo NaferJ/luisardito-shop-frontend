@@ -2,6 +2,7 @@ import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
 import { UserBadge, UserAvatarWithBadge } from '../../../components/UserBadge'
 import { ActionsMenu } from '../../../components/ActionsMenu'
+import { Canje } from '../../../types'
 import {
   Box,
   Container,
@@ -57,7 +58,7 @@ export default function AdminCanjesPage() {
   const toast = useToast()
 
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedCanje, setSelectedCanje] = useState<any>(null)
+  const [selectedCanje, setSelectedCanje] = useState<Canje | null>(null)
   const [devolucionMotivo, setDevolucionMotivo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -91,7 +92,7 @@ export default function AdminCanjesPage() {
   const processedData = useMemo(() => {
     if (!canjes) return []
 
-    const filtered = canjes.filter((canje: any) => {
+    const filtered = canjes.filter((canje: Canje) => {
       // Si hay searchTerm, la API ya filtró por search
       const matchesSearch = !searchTerm || true
 
@@ -100,7 +101,7 @@ export default function AdminCanjesPage() {
       return matchesSearch && matchesFilter
     })
 
-    return filtered.sort((a: any, b: any) => {
+    return filtered.sort((a: Canje, b: Canje) => {
       let aVal = a[sortField]
       let bVal = b[sortField]
 
@@ -139,10 +140,10 @@ export default function AdminCanjesPage() {
     if (!canjes) return null
 
     const total = canjes.length
-    const pendientes = canjes.filter((c: any) => c.estado === 'pendiente').length
-    const entregados = canjes.filter((c: any) => c.estado === 'entregado').length
-    const cancelados = canjes.filter((c: any) => c.estado === 'cancelado').length
-    const devueltos = canjes.filter((c: any) => c.estado === 'devuelto').length
+    const pendientes = canjes.filter((c: Canje) => c.estado === 'pendiente').length
+    const entregados = canjes.filter((c: Canje) => c.estado === 'entregado').length
+    const cancelados = canjes.filter((c: Canje) => c.estado === 'cancelado').length
+    const devueltos = canjes.filter((c: Canje) => c.estado === 'devuelto').length
 
     return { total, pendientes, entregados, cancelados, devueltos }
   }, [canjes])
@@ -188,7 +189,7 @@ export default function AdminCanjesPage() {
         isClosable: true
       })
       refetch()
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo actualizar',
@@ -227,7 +228,7 @@ export default function AdminCanjesPage() {
       setSelectedCanje(null)
       setDevolucionMotivo('')
       refetch()
-    } catch (_) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo procesar la devolución',
@@ -238,7 +239,7 @@ export default function AdminCanjesPage() {
     }
   }
 
-  const openDevolucionModal = (canje: any) => {
+  const openDevolucionModal = (canje: Canje) => {
     setSelectedCanje(canje)
     setDevolucionMotivo('')
     onOpen()
@@ -493,7 +494,7 @@ export default function AdminCanjesPage() {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {paginatedData.map((canje: any) => (
+                    {paginatedData.map((canje: Canje) => (
                       <Tr key={canje.id} _hover={{ bg: hoverBg }} transition="all 0.2s">
                         <Td py={3}>
                           <HStack spacing={3}>

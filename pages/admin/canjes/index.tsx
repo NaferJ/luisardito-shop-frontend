@@ -34,7 +34,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Select,
   Flex,
   SimpleGrid,
@@ -47,7 +46,7 @@ import {
   Image,
   Tooltip
 } from '@chakra-ui/react'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useAdminCanjes } from '../../../hooks/useAdminCanjes'
 import { useUpdateCanjeEstado, useDevolverCanje } from '../../../hooks/useAdminCanjes'
 import { SettingsIcon, SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
@@ -61,24 +60,13 @@ export default function AdminCanjesPage() {
   const [selectedCanje, setSelectedCanje] = useState<Canje | null>(null)
   const [devolucionMotivo, setDevolucionMotivo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
-    }, 200)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
   const [filterEstado, setFilterEstado] = useState<string>('todos')
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { data: canjes, isLoading, error, refetch } = useAdminCanjes({
-    search: debouncedSearch || undefined,
-    estado: filterEstado !== 'todos' ? filterEstado : undefined
-  })
+  const { data: canjes, isLoading, error, refetch } = useAdminCanjes()
   const updateEstado = useUpdateCanjeEstado()
   const devolver = useDevolverCanje()
 
@@ -92,9 +80,24 @@ export default function AdminCanjesPage() {
   const processedData = useMemo(() => {
     if (!canjes) return []
 
+    // Función para normalizar texto: quitar espacios, acentos, minúsculas
+    const normalize = (str: string) =>
+      str
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+
     const filtered = canjes.filter((canje: Canje) => {
-      // Si hay searchTerm, la API ya filtró por search
-      const matchesSearch = !searchTerm || true
+      const normalizedSearch = normalize(searchTerm)
+      const matchesSearch =
+        normalize(canje?.Usuario?.display_name || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.nickname || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.kick_username || '').includes(normalizedSearch) ||
+        normalize(canje?.Usuario?.discord_username || '').includes(normalizedSearch) ||
+        normalize(canje?.Producto?.nombre || '').includes(normalizedSearch) ||
+        canje.id.toString().includes(searchTerm) ||
+        normalize(canje.estado).includes(normalizedSearch)
 
       const matchesFilter = filterEstado === 'todos' || canje.estado === filterEstado
 
@@ -414,11 +417,6 @@ export default function AdminCanjesPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     borderRadius="lg"
                   />
-                  {isLoading && (
-                    <InputRightElement>
-                      <Spinner size="sm" color={mutedColor} />
-                    </InputRightElement>
-                  )}
                 </InputGroup>
 
                 <Select

@@ -29,7 +29,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Select,
   Flex,
   SimpleGrid,
@@ -38,7 +37,7 @@ import {
   AlertIcon,
   Icon
 } from '@chakra-ui/react'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import {
   useAdminUsuarios,
@@ -65,14 +64,6 @@ export default function AdminUsuariosPage() {
   const toast = useToast()
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
-    }, 200)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [pageSize, setPageSize] = useState(20)
@@ -102,7 +93,6 @@ export default function AdminUsuariosPage() {
     error
   } = useAdminUsuarios({
     filter: 'all',
-    search: debouncedSearch || undefined,
     limit: 10000 // Cargar todos los usuarios
   })
 
@@ -285,9 +275,21 @@ export default function AdminUsuariosPage() {
   const processedData = useMemo(() => {
     if (!usuariosData?.users) return []
 
+    // Función para normalizar texto: quitar espacios, acentos, minúsculas
+    const normalize = (str: string) =>
+      str
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+
     const filtered = usuariosData.users.filter((user: UsuarioAdmin) => {
-      // Si hay searchTerm, la API ya filtró, así que no filtrar de nuevo por search
-      const matchesSearch = !searchTerm || true
+      const normalizedSearch = normalize(searchTerm)
+      const matchesSearch =
+        normalize(user.display_name || '').includes(normalizedSearch) ||
+        normalize(user.nickname || '').includes(normalizedSearch) ||
+        normalize(user.kick_username || '').includes(normalizedSearch) ||
+        normalize(user.discord_username || '').includes(normalizedSearch)
 
       if (filter === 'vip') return matchesSearch && user.vip_status?.is_active
       if (filter === 'subscribers') return matchesSearch && user.subscriber_status?.is_active
@@ -540,11 +542,6 @@ export default function AdminUsuariosPage() {
                     borderRadius="lg"
                     size="md"
                   />
-                  {isLoading && (
-                    <InputRightElement>
-                      <Spinner size="sm" color={mutedColor} />
-                    </InputRightElement>
-                  )}
                 </InputGroup>
 
                 <Select

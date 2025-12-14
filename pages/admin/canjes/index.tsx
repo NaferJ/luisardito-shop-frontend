@@ -33,6 +33,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
   Select,
   Flex,
   SimpleGrid,
@@ -45,7 +46,7 @@ import {
   Image,
   Tooltip
 } from '@chakra-ui/react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAdminCanjes } from '../../../hooks/useAdminCanjes'
 import { useUpdateCanjeEstado, useDevolverCanje } from '../../../hooks/useAdminCanjes'
 import { SettingsIcon, SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
@@ -59,6 +60,14 @@ export default function AdminCanjesPage() {
   const [selectedCanje, setSelectedCanje] = useState<any>(null)
   const [devolucionMotivo, setDevolucionMotivo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+    }, 200)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
   const [filterEstado, setFilterEstado] = useState<string>('todos')
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
@@ -66,7 +75,7 @@ export default function AdminCanjesPage() {
   const [currentPage, setCurrentPage] = useState(1)
 
   const { data: canjes, isLoading, error, refetch } = useAdminCanjes({
-    search: searchTerm || undefined,
+    search: debouncedSearch || undefined,
     estado: filterEstado !== 'todos' ? filterEstado : undefined
   })
   const updateEstado = useUpdateCanjeEstado()
@@ -404,6 +413,11 @@ export default function AdminCanjesPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     borderRadius="lg"
                   />
+                  {isLoading && (
+                    <InputRightElement>
+                      <Spinner size="sm" color={mutedColor} />
+                    </InputRightElement>
+                  )}
                 </InputGroup>
 
                 <Select

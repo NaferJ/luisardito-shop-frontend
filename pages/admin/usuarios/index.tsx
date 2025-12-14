@@ -29,6 +29,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
   Select,
   Flex,
   SimpleGrid,
@@ -37,7 +38,7 @@ import {
   AlertIcon,
   Icon
 } from '@chakra-ui/react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import {
   useAdminUsuarios,
@@ -64,6 +65,14 @@ export default function AdminUsuariosPage() {
   const toast = useToast()
 
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+    }, 200)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
   const [sortField, setSortField] = useState<string>('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [pageSize, setPageSize] = useState(20)
@@ -93,7 +102,7 @@ export default function AdminUsuariosPage() {
     error
   } = useAdminUsuarios({
     filter: 'all',
-    search: searchTerm || undefined,
+    search: debouncedSearch || undefined,
     limit: 10000 // Cargar todos los usuarios
   })
 
@@ -531,6 +540,11 @@ export default function AdminUsuariosPage() {
                     borderRadius="lg"
                     size="md"
                   />
+                  {isLoading && (
+                    <InputRightElement>
+                      <Spinner size="sm" color={mutedColor} />
+                    </InputRightElement>
+                  )}
                 </InputGroup>
 
                 <Select

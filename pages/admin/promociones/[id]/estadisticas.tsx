@@ -189,9 +189,6 @@ export default function EstadisticasPromocionPage() {
                                   <Text fontWeight="semibold" fontSize="sm">
                                     {user.Usuario.username}
                                   </Text>
-                                  <Text fontSize="xs" color={textColor}>
-                                    {user.Usuario.email}
-                                  </Text>
                                 </VStack>
                               </HStack>
                             </Td>

@@ -825,7 +825,7 @@ export default function AdminUsuariosPage() {
             isOpen={isPuntosOpen}
             onClose={onPuntosClose}
             title="Gestionar Puntos"
-            subtitle={selectedUser?.nickname || selectedUser?.email}
+            subtitle={selectedUser?.nickname}
             avatarSrc={selectedUser?.kick_avatar}
             avatarName={selectedUser?.nickname || 'Usuario'}
             footer={
@@ -1017,7 +1017,7 @@ export default function AdminUsuariosPage() {
             isOpen={isVipOpen}
             onClose={onVipClose}
             title="Otorgar VIP"
-            subtitle={selectedUser?.nickname || selectedUser?.email}
+            subtitle={selectedUser?.nickname}
             icon={FaTrophy}
             avatarSrc={selectedUser?.kick_avatar}
             avatarName={selectedUser?.nickname || 'Usuario'}
@@ -1077,7 +1077,7 @@ export default function AdminUsuariosPage() {
             isOpen={isMigrationOpen}
             onClose={onMigrationClose}
             title="Migración Manual"
-            subtitle={selectedUser?.nickname || selectedUser?.email}
+            subtitle={selectedUser?.nickname}
             icon={MdSwapHoriz}
             avatarSrc={selectedUser?.kick_avatar}
             avatarName={selectedUser?.nickname || 'Usuario'}

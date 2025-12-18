@@ -152,7 +152,7 @@ export default function PerfilPage() {
   }
 
   const avatarSrc = user.kick_data?.avatar_url || user.avatar_url || user.kick_avatar || undefined
-  const displayName = user.nickname || user.kick_username || user.display_name || user.nombre || user.email
+  const displayName = user.nickname || user.kick_username || user.display_name || user.nombre
 
   return (
     <RequireAuth>
@@ -193,9 +193,6 @@ export default function PerfilPage() {
                     <Heading size="md" color={textColor}>
                       {displayName}
                     </Heading>
-                    <Text fontSize="sm" color={mutedColor}>
-                      {user.email}
-                    </Text>
                     <UserBadge user={user as any} size="sm" />
                   </VStack>
                 </Flex>

@@ -10,18 +10,18 @@ export default function ColorModeToggle() {
         <Icon
           as={SunIcon}
           color={!isDark ? 'yellow.400' : 'gray.400'}
-          boxSize={{ base: 3, md: 4 }}
+          boxSize={{ base: 4, md: 4 }}
         />
         <Switch
           isChecked={isDark}
           onChange={toggleColorMode}
           colorScheme="blue"
-          size={{ base: "sm", md: "md" }}
+          size={{ base: "md", md: "md" }}
         />
         <Icon
           as={MoonIcon}
           color={isDark ? 'blue.400' : 'gray.400'}
-          boxSize={{ base: 3, md: 4 }}
+          boxSize={{ base: 4, md: 4 }}
         />
       </HStack>
     </Tooltip>

@@ -766,6 +766,14 @@ export default function Navbar() {
                   transform: 'translateY(-2px)',
                   transition: 'all 0.2s ease-in-out'
                 }}
+                // Optimización para móviles: reducir animaciones costosas
+                sx={{
+                  '@media (max-width: 768px)': {
+                    willChange: 'transform',
+                    transform: 'translate3d(0, 0, 0)',
+                    transition: 'all 0.15s ease-out'
+                  }
+                }}
               />
             </HStack>
           </HStack>
@@ -781,8 +789,13 @@ export default function Navbar() {
           <DrawerOverlay
             bg="rgba(0, 0, 0, 0.4)"
             sx={{
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)'
+              backdropFilter: 'blur(2px)',
+              WebkitBackdropFilter: 'blur(2px)',
+              // Optimización para móviles: reducir blur costoso
+              '@media (max-width: 768px)': {
+                backdropFilter: 'none',
+                WebkitBackdropFilter: 'none'
+              }
             }}
           />
           <DrawerContent
@@ -793,10 +806,19 @@ export default function Navbar() {
             maxH={{ base: '100vh', sm: '95vh' }}
             bg={drawerBg}
             sx={{
-              backdropFilter: 'saturate(180%) blur(20px)',
-              WebkitBackdropFilter: 'saturate(180%) blur(20px)'
+              backdropFilter: 'saturate(180%) blur(10px)',
+              WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+              // Optimización para móviles: reducir blur y agregar hardware acceleration
+              '@media (max-width: 768px)': {
+                backdropFilter: 'saturate(180%) blur(4px)',
+                WebkitBackdropFilter: 'saturate(180%) blur(4px)',
+                willChange: 'transform',
+                transform: 'translate3d(0, 0, 0)'
+              }
             }}
             boxShadow={drawerShadow}
+            // Optimización adicional para animaciones
+            transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
           >
             <DrawerHeader display="flex" alignItems="center" justifyContent="space-between">
               <ChakraLink
@@ -846,11 +868,11 @@ export default function Navbar() {
                             <Avatar size="sm" name={avatarName} src={avatarSrc} />
                           </UserAvatarWithBadge>
                           <Text fontWeight="medium">{avatarName}</Text>
+                          <UserBadge user={user as any} size="sm" />
                         </HStack>
                         <Badge colorScheme="yellow">{user.puntos?.toLocaleString()} pts</Badge>
                       </HStack>
 
-                      <UserBadge user={user as any} size="sm" />
 
                       {/* Alerta de Discord no vinculado */}
                       {!user.discord_info?.linked && (
@@ -888,6 +910,13 @@ export default function Navbar() {
 
                       <Divider my={2} />
 
+                      {/* Toggle de modo - Movido arriba para mejor accesibilidad */}
+                      <Box width="full" py={2}>
+                        <ColorModeToggle />
+                      </Box>
+
+                      <Divider my={2} />
+
                       <ChakraLink as={NextLink} href="/" onClick={onClose}>
                         <Button
                           variant="ghost"
@@ -903,6 +932,13 @@ export default function Navbar() {
                             transition: 'all 0.2s'
                           }}
                           transition="all 0.2s"
+                          sx={{
+                            '@media (max-width: 768px)': {
+                              willChange: 'transform',
+                              transform: 'translate3d(0, 0, 0)',
+                              transition: 'all 0.15s ease-out'
+                            }
+                          }}
                         >
                           Tienda
                         </Button>
@@ -1014,6 +1050,7 @@ export default function Navbar() {
                               Canjes Admin
                             </Button>
                           </ChakraLink>
+
                           <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose}>
                             <Button
                               variant="ghost"
@@ -1069,6 +1106,7 @@ export default function Navbar() {
                           </HStack>
                         </Button>
                       </ChakraLink>
+
                       <ChakraLink as={NextLink} href="/historial" onClick={onClose}>
                         <Button
                           variant="ghost"
@@ -1088,6 +1126,7 @@ export default function Navbar() {
                           Historial de Puntos
                         </Button>
                       </ChakraLink>
+
                       <ChakraLink as={NextLink} href="/" onClick={onClose}>
                         <Button
                           variant="ghost"
@@ -1140,8 +1179,6 @@ export default function Navbar() {
                       </Button>
 
                       <Divider my={2} />
-
-                      <ColorModeToggle />
                     </VStack>
                   )
                 }
@@ -1193,6 +1230,13 @@ export default function Navbar() {
 
                     <Divider my={2} />
 
+                    {/* Toggle de modo - Movido arriba para mejor accesibilidad */}
+                    <Box width="full" mb={2} py={2}>
+                      <ColorModeToggle />
+                    </Box>
+
+                    <Divider my={2} />
+
                     <ChakraLink as={NextLink} href="/login" onClick={onClose}>
                       <Button variant="outline" width="full" borderRadius="xl">
                         Iniciar Sesión
@@ -1225,8 +1269,6 @@ export default function Navbar() {
                     </Button>
 
                     <Divider my={2} />
-
-                    <ColorModeToggle />
                   </VStack>
                 )
               })()}

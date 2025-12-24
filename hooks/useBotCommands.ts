@@ -14,6 +14,7 @@ export interface BotCommand {
   requires_permission: boolean
   permission_level: 'viewer' | 'vip' | 'moderator' | 'broadcaster'
   cooldown_seconds: number
+  auto_send_interval_seconds?: number
   usage_count: number
   last_used_at?: string
   created_at: string
@@ -31,6 +32,7 @@ export interface CommandFormData {
   requires_permission?: boolean
   permission_level?: 'viewer' | 'vip' | 'moderator' | 'broadcaster'
   cooldown_seconds?: number
+  auto_send_interval_seconds?: number
 }
 
 export interface CommandStats {

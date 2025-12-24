@@ -107,7 +107,8 @@ export default function AdminComandosPage() {
     enabled: true,
     requires_permission: false,
     permission_level: 'viewer',
-    cooldown_seconds: 0
+    cooldown_seconds: 0,
+    auto_send_interval_seconds: 0
   })
 
   const [aliasInput, setAliasInput] = useState('')
@@ -164,7 +165,8 @@ export default function AdminComandosPage() {
         enabled: command.enabled,
         requires_permission: command.requires_permission,
         permission_level: command.permission_level,
-        cooldown_seconds: command.cooldown_seconds
+        cooldown_seconds: command.cooldown_seconds,
+        auto_send_interval_seconds: command.auto_send_interval_seconds || 0
       })
     } else {
       setIsEditing(false)
@@ -179,7 +181,8 @@ export default function AdminComandosPage() {
         enabled: true,
         requires_permission: false,
         permission_level: 'viewer',
-        cooldown_seconds: 0
+        cooldown_seconds: 0,
+        auto_send_interval_seconds: 0
       })
     }
     onFormOpen()
@@ -196,7 +199,8 @@ export default function AdminComandosPage() {
       enabled: true,
       requires_permission: false,
       permission_level: 'viewer',
-      cooldown_seconds: 0
+      cooldown_seconds: 0,
+      auto_send_interval_seconds: 0
     })
     setAliasInput('')
     setIsEditing(false)
@@ -730,6 +734,30 @@ export default function AdminComandosPage() {
                       <NumberDecrementStepper />
                     </NumberInputStepper>
                   </NumberInput>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>
+                    Intervalo Auto-envío (segundos)
+                    <Tooltip label="Si es mayor a 0, el comando se enviará automáticamente cada X segundos. Útil para anuncios o recordatorios.">
+                      <Text as="span" fontSize="xs" color={mutedColor} ml={2}>ℹ️</Text>
+                    </Tooltip>
+                  </FormLabel>
+                  <NumberInput
+                    value={formData.auto_send_interval_seconds}
+                    onChange={(_, value) => setFormData({ ...formData, auto_send_interval_seconds: value })}
+                    min={0}
+                    max={86400}
+                  >
+                    <NumberInputField placeholder="0 = desactivado" />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <Text fontSize="xs" color={mutedColor} mt={1}>
+                    0 = desactivado. Mínimo recomendado: 15 segundos. Máximo: 86400 (24 horas)
+                  </Text>
                 </FormControl>
 
                 <FormControl display="flex" alignItems="center">

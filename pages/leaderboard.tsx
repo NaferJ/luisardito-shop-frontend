@@ -478,11 +478,6 @@ export default function LeaderboardPage() {
                                     size="sm"
                                   />
                                 </HStack>
-                                {user.kick_data?.username && (
-                                  <Text fontSize="xs" color={textSecondary}>
-                                    @{user.kick_data.username}
-                                  </Text>
-                                )}
                               </VStack>
                             </HStack>
                           </Td>
@@ -493,7 +488,9 @@ export default function LeaderboardPage() {
                             </Text>
                           </Td>
 
-                          <Td textAlign="center">{renderChangeIndicator(user)}</Td>
+                          <Td textAlign="center">
+                            {renderChangeIndicator(user)}
+                          </Td>
                         </Tr>
                       ))}
                     </Tbody>

@@ -187,7 +187,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
   }
 
   return (
-    <HStack spacing={1} flexWrap="wrap" maxW={maxW}>
+    <HStack spacing={1} maxW={maxW}>
       {badges}
     </HStack>
   )

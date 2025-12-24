@@ -31,6 +31,7 @@ import { UserBadge, UserAvatarWithBadge } from '../components/UserBadge'
 import Head from 'next/head'
 import { API_BASE_URL } from '../lib/api'
 import { getAuthCookie } from '../lib/cookies'
+import { SearchUserCombobox } from '../components/SearchUserCombobox'
 
 // Animación elegante y sutil para top 3
 const subtleGlow = keyframes`
@@ -282,6 +283,13 @@ export default function LeaderboardPage() {
             </Text>
           </Box>
 
+          {/* Search User Combobox */}
+          {!loading && !error && (
+            <Box textAlign="center" mb={4}>
+              <SearchUserCombobox users={leaderboard} />
+            </Box>
+          )}
+
           {/* My Position Card */}
           {isAuthenticated && myPosition && (
             <Card
@@ -381,6 +389,7 @@ export default function LeaderboardPage() {
                       {leaderboard.map((user) => (
                         <Tr
                           key={user.usuario_id}
+                          id={`user-${user.usuario_id}`}
                           bg={
                             user.usuario_id === myPosition?.usuario_id ? highlightBg : 'transparent'
                           }

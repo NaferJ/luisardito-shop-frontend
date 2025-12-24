@@ -37,9 +37,13 @@ interface UserBadgeProps {
   user: Usuario
   size?: 'sm' | 'md' | 'lg'
   showTooltip?: boolean
+  fontSize?: string
+  px?: number
+  py?: number
+  maxW?: string
 }
 
-export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgeProps) => {
+export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px, py, maxW }: UserBadgeProps) => {
   const badges = []
 
   // Compatibilidad: usar vip_info o vip_status
@@ -52,9 +56,9 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       <Badge
         key="sub"
         colorScheme="green"
-        fontSize={size === 'sm' ? 'xs' : 'sm'}
-        px={size === 'sm' ? 2 : 3}
-        py={1}
+        fontSize={fontSize || (size === 'sm' ? 'xs' : 'sm')}
+        px={px || (size === 'sm' ? 2 : 3)}
+        py={py || 1}
         borderRadius="md"
         fontWeight="bold"
         bg="linear-gradient(135deg, #48BB78, #38A169)"
@@ -88,9 +92,9 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
       <Badge
         key="vip"
         colorScheme="yellow"
-        fontSize={size === 'sm' ? 'xs' : 'sm'}
-        px={size === 'sm' ? 2 : 3}
-        py={1}
+        fontSize={fontSize || (size === 'sm' ? 'xs' : 'sm')}
+        px={px || (size === 'sm' ? 2 : 3)}
+        py={py || 1}
         borderRadius="md"
         fontWeight="bold"
         bg="linear-gradient(135deg, #FFD700, #FFA500)"
@@ -183,7 +187,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true }: UserBadgePr
   }
 
   return (
-    <HStack spacing={1} flexWrap="wrap">
+    <HStack spacing={1} flexWrap="wrap" maxW={maxW}>
       {badges}
     </HStack>
   )

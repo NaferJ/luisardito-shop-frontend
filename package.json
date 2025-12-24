@@ -20,6 +20,7 @@
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
     "colorthief": "^2.6.0",
+    "downshift": "^9.0.13",
     "framer-motion": "^6.5.1",
     "next": "15.4.7",
     "react": "19.1.0",

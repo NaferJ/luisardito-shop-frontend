@@ -607,7 +607,7 @@ export default function Navbar() {
                         borderColor={borderClr}
                         mb={1}
                       >
-                        <UserAvatarWithBadge user={user as any}>
+                        <UserAvatarWithBadge user={user as any} imageUrl={avatarSrc}>
                           <Avatar size="md" name={avatarName} src={avatarSrc} />
                         </UserAvatarWithBadge>
                         <Text fontWeight="medium" fontSize="sm" whiteSpace="nowrap">

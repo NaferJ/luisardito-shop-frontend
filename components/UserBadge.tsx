@@ -225,8 +225,10 @@ export const UserAvatarWithBadge = ({ user, children, imageUrl }: UserAvatarWith
   // Colores adaptativos para claro/oscuro
   const modalBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(13, 17, 23, 0.98)')
   const textColor = useColorModeValue('gray.800', 'gray.100')
-  const placeholderTextColor = useColorModeValue('gray.600', 'gray.300')
   const placeholderSubtextColor = useColorModeValue('gray.500', 'gray.400')
+  const closeButtonBg = useColorModeValue('white', 'gray.800')
+  const closeButtonColor = useColorModeValue('black', 'white')
+  const closeButtonHoverBg = useColorModeValue('gray.100', 'gray.700')
 
   return (
     <Box position="relative" display="inline-block">
@@ -338,15 +340,15 @@ export const UserAvatarWithBadge = ({ user, children, imageUrl }: UserAvatarWith
           maxH="90vh"
         >
           <ModalCloseButton
-            bg={useColorModeValue('white', 'gray.800')}
-            color={useColorModeValue('black', 'white')}
+            bg={closeButtonBg}
+            color={closeButtonColor}
             rounded="full"
             size="lg"
             position="absolute"
             top={-4}
             right={-4}
             _hover={{
-              bg: useColorModeValue('gray.100', 'gray.700'),
+              bg: closeButtonHoverBg,
               boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
             }}
             zIndex={10}

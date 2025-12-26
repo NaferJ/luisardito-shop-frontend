@@ -496,7 +496,15 @@ export default function AdminCanjesPage() {
                       <Tr key={canje.id} _hover={{ bg: hoverBg }} transition="all 0.2s">
                         <Td py={3}>
                           <HStack spacing={3}>
-                            <UserAvatarWithBadge user={(canje?.Usuario || canje?.usuario) as any}>
+                            <UserAvatarWithBadge
+                              user={(canje?.Usuario || canje?.usuario) as any}
+                              imageUrl={
+                                canje?.Usuario?.kick_data?.avatar_url ||
+                                canje?.Usuario?.kick_avatar ||
+                                canje?.usuario?.kick_data?.avatar_url ||
+                                canje?.usuario?.kick_avatar
+                              }
+                            >
                               <Avatar
                                 size="sm"
                                 name={

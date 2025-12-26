@@ -1,5 +1,6 @@
 import { Layout } from '../../../components/Layout'
 import { RequireAdmin } from '../../../components/RequireAdmin'
+import { UserAvatarWithBadge } from '../../../components/UserBadge'
 import { ActionsMenu } from '../../../components/ActionsMenu'
 import { useRouter } from 'next/router'
 import { useAdminUsuario } from '../../../hooks/useAdminUsuario'
@@ -356,19 +357,31 @@ export default function AdminUsuarioGestionPage() {
 
               {userInfo && (
                 <Flex align="center" gap={4} flex="1">
-                  <Avatar
-                    size="lg"
-                    name={
-                      userInfo.nickname ||
-                      userInfo.kick_username ||
-                      userInfo.display_name ||
-                      userInfo.nombre ||
-                      userInfo.email
-                    }
-                    src={userInfo.kick_data?.avatar_url || userInfo.kick_avatar}
-                    borderWidth="2px"
-                    borderColor={borderColor}
-                  />
+                  <UserAvatarWithBadge
+                    user={{
+                      id: userInfo.id,
+                      email: userInfo.email,
+                      puntos: userInfo.puntos || 0,
+                      nickname: userInfo.nickname || userInfo.kick_username || userInfo.display_name,
+                      rol_id: userInfo.rol_id,
+                      vip_info: userInfo.vip_data
+                    } as any}
+                    imageUrl={userInfo.kick_data?.avatar_url || userInfo.kick_avatar}
+                  >
+                    <Avatar
+                      size="lg"
+                      name={
+                        userInfo.nickname ||
+                        userInfo.kick_username ||
+                        userInfo.display_name ||
+                        userInfo.nombre ||
+                        userInfo.email
+                      }
+                      src={userInfo.kick_data?.avatar_url || userInfo.kick_avatar}
+                      borderWidth="2px"
+                      borderColor={borderColor}
+                    />
+                  </UserAvatarWithBadge>
                   <VStack align="start" spacing={1}>
                     <Heading size="md" color={textColor}>
                       {userInfo?.nickname ||

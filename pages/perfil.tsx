@@ -180,7 +180,7 @@ export default function PerfilPage() {
                 gap={6}
               >
                 <Flex align="center" gap={4} flex="1" w={{ base: 'full', md: 'auto' }}>
-                  <UserAvatarWithBadge user={user as any}>
+                  <UserAvatarWithBadge user={user as any} imageUrl={avatarSrc}>
                     <Avatar
                       size="xl"
                       name={displayName}

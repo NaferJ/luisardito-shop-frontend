@@ -430,6 +430,7 @@ export default function LeaderboardPage() {
                                     ? { is_active: true, expires_soon: false }
                                     : undefined
                                 }}
+                                imageUrl={user.kick_data?.avatar_url}
                               >
                                 <Avatar
                                   size="xs"

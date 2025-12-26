@@ -639,7 +639,7 @@ export default function AdminUsuariosPage() {
                       <Tr key={user.id} _hover={{ bg: hoverBg }} transition="all 0.2s">
                         <Td py={3}>
                           <HStack spacing={3}>
-                            <UserAvatarWithBadge user={user}>
+                            <UserAvatarWithBadge user={user} imageUrl={user.kick_data?.avatar_url || user.kick_avatar}>
                               <Avatar
                                 size="sm"
                                 name={user.nickname || user.kick_username || user.display_name || 'Usuario'}

@@ -1,4 +1,20 @@
-import { Box, Badge, Tooltip, HStack } from '@chakra-ui/react'
+import {
+  Box,
+  Badge,
+  Tooltip,
+  HStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Image,
+  Flex,
+  Avatar,
+  Text,
+  useColorModeValue
+} from '@chakra-ui/react'
 
 // Tipos actualizados para soportar las nuevas funcionalidades
 interface VipInfo {
@@ -197,21 +213,34 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
 interface UserAvatarWithBadgeProps {
   user: Usuario
   children: React.ReactNode // El Avatar del usuario
+  imageUrl?: string // URL de la imagen para preview (Ej: kick_data?.avatar_url)
 }
 
-export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps) => {
+export const UserAvatarWithBadge = ({ user, children, imageUrl }: UserAvatarWithBadgeProps) => {
   // Compatibilidad: usar vip_info o vip_status
   const vipInfo = user.vip_info || user.vip_status
   const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  // Colores adaptativos para claro/oscuro
+  const modalBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(13, 17, 23, 0.98)')
+  const textColor = useColorModeValue('gray.800', 'gray.100')
+  const placeholderTextColor = useColorModeValue('gray.600', 'gray.300')
+  const placeholderSubtextColor = useColorModeValue('gray.500', 'gray.400')
 
   return (
     <Box position="relative" display="inline-block">
       <Box
+        onClickCapture={(e) => {
+          e.stopPropagation()
+          onOpen()
+        }}
         _hover={{
           transform: 'scale(1.1)',
           transition: 'transform 0.3s ease'
         }}
         transition="transform 0.3s ease"
+        cursor="pointer"
       >
         {children}
       </Box>
@@ -295,6 +324,80 @@ export const UserAvatarWithBadge = ({ user, children }: UserAvatarWithBadgeProps
           }}
         />
       )}
+
+      {/* Modal para preview de imagen con desenfoque */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+        <ModalOverlay
+          backdropFilter="blur(8px)"
+          bg="rgba(0, 0, 0, 0.6)"
+        />
+        <ModalContent
+          bg="transparent"
+          shadow="none"
+          maxW="600px"
+          maxH="90vh"
+        >
+          <ModalCloseButton
+            bg={useColorModeValue('white', 'gray.800')}
+            color={useColorModeValue('black', 'white')}
+            rounded="full"
+            size="lg"
+            position="absolute"
+            top={-4}
+            right={-4}
+            _hover={{
+              bg: useColorModeValue('gray.100', 'gray.700'),
+              boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
+            }}
+            zIndex={10}
+          />
+          <ModalBody
+            p={0}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Flex
+              position="relative"
+              rounded="lg"
+              overflow="hidden"
+              boxShadow="0 20px 60px rgba(0, 0, 0, 0.5)"
+              bg={modalBg}
+              w="full"
+              maxW="600px"
+              minH="300px"
+              alignItems="center"
+              justifyContent="center"
+            >
+              {imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt={`${user.nickname || 'Usuario'} profile`}
+                  maxW="100%"
+                  maxH="80vh"
+                  objectFit="contain"
+                  rounded="lg"
+                />
+              ) : (
+                <Box textAlign="center" p={8}>
+                  <Avatar
+                    size="2xl"
+                    name={user.nickname || 'Usuario'}
+                    src={undefined}
+                    mb={4}
+                  />
+                  <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+                    {user.nickname || 'Usuario'}
+                  </Text>
+                  <Text fontSize="sm" color={placeholderSubtextColor} mt={2}>
+                    No hay foto de perfil disponible
+                  </Text>
+                </Box>
+              )}
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }

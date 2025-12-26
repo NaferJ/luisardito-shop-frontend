@@ -580,7 +580,7 @@ export default function Navbar() {
                         }}
                         transition="all 0.3s ease"
                       >
-                        <UserAvatarWithBadge user={user as any}>
+                        <UserAvatarWithBadge user={user as any} imageUrl={avatarSrc}>
                           <Avatar size="sm" name={avatarName} src={avatarSrc} />
                         </UserAvatarWithBadge>
                       </MenuButton>

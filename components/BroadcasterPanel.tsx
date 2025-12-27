@@ -308,6 +308,7 @@ export const BroadcasterPanel = () => {
                     borderColor={isLive ? onlineBg : offlineBg}
                     boxShadow={isLive ? `0 0 15px ${onlineBg}` : 'sm'}
                     transition="all 0.3s"
+                    onDragStart={(e) => e.preventDefault()}
                   />
                   {isLive && (
                     <Box
@@ -399,6 +400,7 @@ export const BroadcasterPanel = () => {
                     borderColor={isLive ? onlineBg : offlineBg}
                     boxShadow={isLive ? `0 0 15px ${onlineBg}` : 'sm'}
                     transition="all 0.3s"
+                    onDragStart={(e) => e.preventDefault()}
                   />
 
                   {/* Indicador de estado pulsante - Más pequeño */}

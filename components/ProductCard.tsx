@@ -610,25 +610,6 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               )}
             </HStack>
           </HStack>
-
-          {/* Indicador de disponibilidad para el usuario */}
-          {user && !isAdmin && (
-            <Box w="full">
-              {outOfStock ? (
-                <Badge colorScheme="yellow" w="full" textAlign="center" py={1} borderRadius="md">
-                  Agotado
-                </Badge>
-              ) : !canAfford ? (
-                <Badge colorScheme="red" w="full" textAlign="center" py={1} borderRadius="md">
-                  Puntos insuficientes ({formatNumber(user.puntos)} pts)
-                </Badge>
-              ) : (
-                <Badge colorScheme="green" w="full" textAlign="center" py={1} borderRadius="md">
-                  {tieneDescuento ? 'Disponible con descuento' : 'Disponible'}
-                </Badge>
-              )}
-            </Box>
-          )}
         </VStack>
       </Box>
 

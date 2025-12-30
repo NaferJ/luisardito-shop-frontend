@@ -72,7 +72,7 @@ export default function Home() {
   const { configs } = usePublicKickPointsConfig()
 
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [sortBy, setSortBy] = useState<'precio_asc' | 'precio_desc' | 'stock_desc' | 'canjes_desc'>('precio_asc')
+  const [sortBy, setSortBy] = useState<'precio_asc' | 'precio_desc' | 'stock_desc' | 'canjes_desc'>('precio_desc')
   const [searchTerm, setSearchTerm] = useState('')
 
   const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))

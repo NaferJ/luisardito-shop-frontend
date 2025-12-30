@@ -13,10 +13,14 @@ import {
   IconButton,
   Badge,
   Flex,
-  Image
+  Image,
+  Button,
+  Input,
+  InputGroup,
+  InputLeftElement
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useProductos } from '../hooks/useProductos'
 import { ProductCard } from '../components/ProductCard'
 import { useAuth } from '../hooks/useAuth'
@@ -32,8 +36,16 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChatIcon,
-  StarIcon
+  StarIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  TriangleUpIcon,
+  TriangleDownIcon,
+  SearchIcon
 } from '@chakra-ui/icons'
+import { FaCoins } from 'react-icons/fa'
+import { FiPackage } from 'react-icons/fi'
+import { MdPeople } from 'react-icons/md'
 
 // Animaciones suaves (reducidas para rendimiento)
 const snowfall = keyframes`
@@ -60,6 +72,8 @@ export default function Home() {
   const { configs } = usePublicKickPointsConfig()
 
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [sortBy, setSortBy] = useState<'precio_asc' | 'precio_desc' | 'stock_desc' | 'canjes_desc'>('precio_asc')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))
 
@@ -72,6 +86,11 @@ export default function Home() {
   const adminBannerBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(26, 32, 44, 0.95)')
   const adminBannerBorder = useColorModeValue('blue.200', 'blue.700')
   const adminIconBg = useColorModeValue('blue.500', 'blue.400')
+  const glassBg = useColorModeValue('rgba(255, 255, 255, 0.05)', 'rgba(0, 0, 0, 0.05)')
+  const glassBorder = useColorModeValue('rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)')
+  const shadowColor = useColorModeValue('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)')
+  const shadowHover = useColorModeValue('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)')
+  const hoverBorder = useColorModeValue('blue.500', 'whiteAlpha.300')
 
   const bannerItems = [
     {
@@ -110,6 +129,35 @@ export default function Home() {
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + bannerItems.length) % bannerItems.length)
   }
+
+  const sortedProductos = useMemo(() => {
+    if (!productos) return []
+
+    const sorted = [...productos]
+
+    switch (sortBy) {
+      case 'precio_asc':
+        sorted.sort((a, b) => a.precio - b.precio)
+        break
+      case 'precio_desc':
+        sorted.sort((a, b) => b.precio - a.precio)
+        break
+      case 'stock_desc':
+        sorted.sort((a, b) => b.stock - a.stock)
+        break
+      case 'canjes_desc':
+        sorted.sort((a, b) => (b.canjes_count || 0) - (a.canjes_count || 0))
+        break
+    }
+
+    return sorted
+  }, [productos, sortBy])
+
+  const filteredProductos = useMemo(() => {
+    return sortedProductos.filter((producto) =>
+      producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [sortedProductos, searchTerm])
 
   if (isLoading) {
     return (
@@ -382,7 +430,7 @@ export default function Home() {
           <BroadcasterPanel />
 
           {/* Título de catálogo */}
-          <Box mb={6} textAlign="center">
+          <Box mb={2} textAlign="center">
             <Text
               fontSize={{ base: '2xl', md: '3xl' }}
               fontWeight="bold"
@@ -392,14 +440,80 @@ export default function Home() {
             >
               Catálogo de Productos
             </Text>
-            <Text fontSize="sm" color={textColor}>
+          </Box>
+
+          {/* Barra de filtros */}
+          <Box mb={8}>
+            <Text fontSize="sm" color={textColor} textAlign="center" mb={4}>
               Descubre increíbles recompensas y canjea tus puntos
             </Text>
+            <Box
+              bg={glassBg}
+              border={`1px solid ${glassBorder}`}
+              borderRadius="xl"
+              p={4}
+              position="relative"
+              overflow="hidden"
+              backdropFilter="blur(15px)"
+              _hover={{
+                boxShadow: `0 0 5px ${shadowHover}, 0 0 5px ${shadowHover}`,
+                border: `1px solid ${hoverBorder}`
+              }}
+              transition="box-shadow 0.3s ease"
+              sx={{
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(147, 197, 253, 0.05), rgba(59, 130, 246, 0.05))',
+                  filter: 'blur(10px)',
+                  zIndex: -1
+                }
+              }}
+            >
+              <Flex justify="space-between" align="center" w="full" flexWrap="wrap" gap={4}>
+                <InputGroup size="sm" w="200px">
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<SearchIcon color={useColorModeValue('gray.500', 'gray.400')} />}
+                  />
+                  <Input
+                    placeholder="Buscar productos..."
+                    bg="transparent"
+                    border={`1px solid ${glassBorder}`}
+                    borderRadius="full"
+                    _focus={{
+                      borderColor: accentColor,
+                      boxShadow: `0 0 0 1px ${accentColor}`
+                    }}
+                    _placeholder={{ color: useColorModeValue('gray.500', 'gray.400') }}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
+                <HStack spacing={4} flexWrap="wrap">
+                  <Button leftIcon={<FaCoins />} rightIcon={<TriangleDownIcon />} onClick={() => setSortBy('precio_asc')} colorScheme={sortBy === 'precio_asc' ? 'blue' : undefined} variant={sortBy === 'precio_asc' ? 'solid' : 'ghost'} size="sm">
+                    Menor precio
+                  </Button>
+                  <Button leftIcon={<FaCoins />} rightIcon={<TriangleUpIcon />} onClick={() => setSortBy('precio_desc')} colorScheme={sortBy === 'precio_desc' ? 'blue' : undefined} variant={sortBy === 'precio_desc' ? 'solid' : 'ghost'} size="sm">
+                    Mayor precio
+                  </Button>
+                  <Button leftIcon={<FiPackage />} onClick={() => setSortBy('stock_desc')} colorScheme={sortBy === 'stock_desc' ? 'blue' : undefined} variant={sortBy === 'stock_desc' ? 'solid' : 'ghost'} size="sm">
+                    Más stock
+                  </Button>
+                  <Button leftIcon={<MdPeople />} onClick={() => setSortBy('canjes_desc')} colorScheme={sortBy === 'canjes_desc' ? 'blue' : undefined} variant={sortBy === 'canjes_desc' ? 'solid' : 'ghost'} size="sm">
+                    Más canjeados
+                  </Button>
+                </HStack>
+              </Flex>
+            </Box>
           </Box>
 
           {/* Grid de productos */}
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6} mb={8}>
-            {productos?.map((producto, index) => (
+            {filteredProductos?.map((producto, index) => (
               <Box
                 key={producto.id}
                 opacity={0}
@@ -413,6 +527,15 @@ export default function Home() {
               </Box>
             ))}
           </SimpleGrid>
+
+          {/* Mensaje cuando no hay productos en la búsqueda */}
+          {filteredProductos.length === 0 && searchTerm && (
+            <Center mt={10}>
+              <Text color={textColor} fontSize="lg">
+                No se encontraron productos que coincidan con tu búsqueda.
+              </Text>
+            </Center>
+          )}
 
           {/* Mensaje de temporada navideña */}
           <Box
@@ -449,3 +572,4 @@ export default function Home() {
     </>
   )
 }
+

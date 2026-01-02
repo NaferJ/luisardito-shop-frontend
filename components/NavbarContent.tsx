@@ -52,6 +52,10 @@ export default function NavbarContent() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [showNewBadge, setShowNewBadge] = useState(true)
 
+  // Estados para controlar animaciones independientes
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null)
+  const [animatingButtons, setAnimatingButtons] = useState<Set<string>>(new Set())
+
   // Determinar qué avatar usar: Kick > inicial del nombre
   const avatarSrc = user ? user.kick_data?.avatar_url || user.avatar_url || user.kick_avatar || undefined : undefined
   const avatarName = user ? user.nickname || user.kick_username || user.display_name || user.nombre || user.email : ''
@@ -72,19 +76,36 @@ export default function NavbarContent() {
     setShowNewBadge(false)
   }
 
+  const handleMouseEnter = (buttonId: string) => {
+    setHoveredButton(buttonId)
+    setAnimatingButtons(prev => new Set(prev).add(buttonId))
+  }
+
+  const handleMouseLeave = (buttonId: string) => {
+    setHoveredButton(null)
+    // Mantener la animación durante 0.8s más después de quitar el cursor
+    setTimeout(() => {
+      setAnimatingButtons(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(buttonId)
+        return newSet
+      })
+    }, 800)
+  }
+
   // Definir todos los colores incondicionalmente para evitar cambios en el orden de hooks
   const floatingBg = useColorModeValue('rgba(255, 255, 255, 0.10)', 'rgba(13, 17, 23, 0.10)')
   const borderClr = useColorModeValue('rgba(208, 215, 222, 0.02)', 'rgba(66, 74, 83, 0.02)')
   const shadow = useColorModeValue('0 8px 32px rgba(0,0,0,0.080)', '0 8px 32px rgba(0,0,0,0.14)')
-  const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.1)', 'rgba(96, 165, 250, 0.15)')
+  const hoverBg = useColorModeValue('rgba(59, 130, 246, 0.12)', 'rgba(96, 165, 250, 0.18)')
   const hoverShadow = useColorModeValue(
-    '0 0 20px rgba(59, 130, 246, 0.4)',
-    '0 0 25px rgba(96, 165, 250, 0.5)'
+    '0 4px 12px rgba(59, 130, 246, 0.2)',
+    '0 4px 12px rgba(96, 165, 250, 0.3)'
   )
-  const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.25)')
+  const activeBg = useColorModeValue('rgba(59, 130, 246, 0.2)', 'rgba(96, 165, 250, 0.28)')
   const activeShadow = useColorModeValue(
-    '0 0 25px rgba(59, 130, 246, 0.6)',
-    '0 0 30px rgba(96, 165, 250, 0.7)'
+    '0 4px 12px rgba(59, 130, 246, 0.3)',
+    '0 4px 12px rgba(96, 165, 250, 0.4)'
   )
 
   // Colores para el menú
@@ -244,181 +265,407 @@ export default function NavbarContent() {
             <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} flex="1" justify="center">
               {isAuthenticated && (
                 <>
-                  <Tooltip label="Tienda" placement="bottom">
-                    <ChakraLink as={NextLink} href="/productos">
-                      <IconButton
-                        aria-label="Tienda"
-                        icon={<Icon as={MdShoppingCart} boxSize={5} />}
+                  <ChakraLink as={NextLink} href="/productos">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      borderRadius="xl"
+                      bg={isActiveRoute('/productos') ? activeBg : 'transparent'}
+                      boxShadow={isActiveRoute('/productos') ? activeShadow : 'none'}
+                      p={2}
+                      minW="auto"
+                      h="auto"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      border="none"
+                      onMouseEnter={() => handleMouseEnter('tienda')}
+                      onMouseLeave={() => handleMouseLeave('tienda')}
+                      _hover={{
+                        bg: hoverBg,
+                        boxShadow: hoverShadow,
+                        transform: 'translateY(-1px)',
+                        transition: 'all 0.3s ease',
+                        border: 'none',
+                        '& span': {
+                          borderBottom: 'none !important',
+                          textDecoration: 'none !important'
+                        }
+                      }}
+                      transition="all 0.3s ease"
+                      sx={{
+                        '& > svg': {
+                          flexShrink: 0
+                        },
+                        '& > span': {
+                          overflow: 'hidden',
+                          maxWidth: isActiveRoute('/productos') || animatingButtons.has('tienda') ? '100px' : 0,
+                          opacity: isActiveRoute('/productos') || animatingButtons.has('tienda') ? 1 : 0,
+                          transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          whiteSpace: 'nowrap',
+                          borderBottom: 'none',
+                          textDecoration: 'none'
+                        }
+                      }}
+                    >
+                      <Icon as={MdShoppingCart} boxSize={5} />
+                      <Text
+                        as="span"
+                        fontSize="sm"
+                        fontWeight="500"
+                        borderBottom="none"
+                        textDecoration="none"
+                        _hover={{
+                          borderBottom: 'none',
+                          textDecoration: 'none'
+                        }}
+                      >
+                        Tienda
+                      </Text>
+                    </Button>
+                  </ChakraLink>
+
+                  <ChakraLink as={NextLink} href="/canjes">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      borderRadius="xl"
+                      bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
+                      boxShadow={isActiveRoute('/canjes') ? activeShadow : 'none'}
+                      p={2}
+                      minW="auto"
+                      h="auto"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      border="none"
+                      onMouseEnter={() => handleMouseEnter('canjes')}
+                      onMouseLeave={() => handleMouseLeave('canjes')}
+                      _hover={{
+                        bg: hoverBg,
+                        boxShadow: hoverShadow,
+                        transform: 'translateY(-1px)',
+                        transition: 'all 0.3s ease',
+                        border: 'none',
+                        '& span': {
+                          borderBottom: 'none !important',
+                          textDecoration: 'none !important'
+                        }
+                      }}
+                      transition="all 0.3s ease"
+                      sx={{
+                        '& > svg': {
+                          flexShrink: 0
+                        },
+                        '& > span': {
+                          overflow: 'hidden',
+                          maxWidth: isActiveRoute('/canjes') || animatingButtons.has('canjes') ? '120px' : 0,
+                          opacity: isActiveRoute('/canjes') || animatingButtons.has('canjes') ? 1 : 0,
+                          transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          whiteSpace: 'nowrap',
+                          borderBottom: 'none',
+                          textDecoration: 'none'
+                        }
+                      }}
+                    >
+                      <Icon as={MdRedeem} boxSize={5} />
+                      <Text
+                        as="span"
+                        fontSize="sm"
+                        fontWeight="500"
+                        borderBottom="none"
+                        textDecoration="none"
+                        _hover={{
+                          borderBottom: 'none',
+                          textDecoration: 'none'
+                        }}
+                      >
+                        Mis Canjes
+                      </Text>
+                    </Button>
+                  </ChakraLink>
+
+                  <ChakraLink as={NextLink} href="/leaderboard" onClick={handleLeaderboardClick}>
+                    <Box position="relative" width="auto">
+                      <Button
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
-                        bg={isActiveRoute('/productos') ? activeBg : 'transparent'}
-                        boxShadow={isActiveRoute('/productos') ? activeShadow : 'none'}
-                        transform={isActiveRoute('/productos') ? 'translateY(-2px)' : 'none'}
+                        bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/leaderboard') ? activeShadow : 'none'}
+                        p={2}
+                        minW="auto"
+                        h="auto"
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                        border="none"
+                        onMouseEnter={() => handleMouseEnter('leaderboard')}
+                        onMouseLeave={() => handleMouseLeave('leaderboard')}
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
-                          transform: 'translateY(-2px)',
-                          transition: 'all 0.2s ease-in-out'
+                          transform: 'translateY(-1px)',
+                          transition: 'all 0.3s ease',
+                          border: 'none',
+                          '& span': {
+                            borderBottom: 'none !important',
+                            textDecoration: 'none !important'
+                          }
                         }}
-                        transition="all 0.2s ease-in-out"
-                      />
-                    </ChakraLink>
-                  </Tooltip>
-
-                  <Tooltip label="Mis Canjes" placement="bottom">
-                    <ChakraLink as={NextLink} href="/canjes">
-                      <IconButton
-                        aria-label="Mis Canjes"
-                        icon={<Icon as={MdRedeem} boxSize={5} />}
-                        variant="ghost"
-                        size="sm"
-                        borderRadius="xl"
-                        bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
-                        boxShadow={isActiveRoute('/canjes') ? activeShadow : 'none'}
-                        transform={isActiveRoute('/canjes') ? 'translateY(-2px)' : 'none'}
-                        _hover={{
-                          bg: hoverBg,
-                          boxShadow: hoverShadow,
-                          transform: 'translateY(-2px)',
-                          transition: 'all 0.2s ease-in-out'
+                        transition="all 0.3s ease"
+                        sx={{
+                          '& > svg': {
+                            flexShrink: 0
+                          },
+                          '& > span': {
+                            overflow: 'hidden',
+                            maxWidth: isActiveRoute('/leaderboard') || animatingButtons.has('leaderboard') ? '120px' : 0,
+                            opacity: isActiveRoute('/leaderboard') || animatingButtons.has('leaderboard') ? 1 : 0,
+                            transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                            whiteSpace: 'nowrap',
+                            borderBottom: 'none',
+                            textDecoration: 'none'
+                          }
                         }}
-                        transition="all 0.2s ease-in-out"
-                      />
-                    </ChakraLink>
-                  </Tooltip>
-
-                  <Tooltip label="Leaderboard" placement="bottom">
-                    <ChakraLink as={NextLink} href="/leaderboard" onClick={handleLeaderboardClick}>
-                      <Box position="relative">
-                        <IconButton
-                          aria-label="Leaderboard"
-                          icon={<Icon as={MdLeaderboard} boxSize={5} />}
-                          variant="ghost"
-                          size="sm"
-                          borderRadius="xl"
-                          bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
-                          boxShadow={isActiveRoute('/leaderboard') ? activeShadow : 'none'}
-                          transform={isActiveRoute('/leaderboard') ? 'translateY(-2px)' : 'none'}
+                      >
+                        <Icon as={MdLeaderboard} boxSize={5} />
+                        <Text
+                          as="span"
+                          fontSize="sm"
+                          fontWeight="500"
+                          borderBottom="none"
+                          textDecoration="none"
                           _hover={{
-                            bg: hoverBg,
-                            boxShadow: hoverShadow,
-                            transform: 'translateY(-2px)',
-                            transition: 'all 0.2s ease-in-out'
+                            borderBottom: 'none',
+                            textDecoration: 'none'
                           }}
-                          transition="all 0.2s ease-in-out"
-                        />
-                        {showNewBadge && (
-                          <Badge
-                            position="absolute"
-                            top="-4px"
-                            right="-4px"
-                            fontSize="9px"
-                            px={1.5}
-                            py={0.5}
-                            borderRadius="full"
-                            fontWeight="bold"
-                            bg="linear-gradient(135deg, #48BB78, #38A169)"
-                            color="white"
-                            border="2px solid"
-                            borderColor={badgeBorderColor}
-                            boxShadow="0 2px 8px rgba(72, 187, 120, 0.4)"
-                            animation="pulse 2s ease-in-out infinite"
-                            sx={{
-                              '@keyframes pulse': {
-                                '0%, 100%': {
-                                  transform: 'scale(1)',
-                                  opacity: 1
-                                },
-                                '50%': {
-                                  transform: 'scale(1.1)',
-                                  opacity: 0.9
-                                }
+                        >
+                          Leaderboard
+                        </Text>
+                      </Button>
+                      {showNewBadge && (
+                        <Badge
+                          position="absolute"
+                          top="-4px"
+                          right="-4px"
+                          fontSize="9px"
+                          px={1.5}
+                          py={0.5}
+                          borderRadius="full"
+                          fontWeight="bold"
+                          bg="linear-gradient(135deg, #48BB78, #38A169)"
+                          color="white"
+                          border="2px solid"
+                          borderColor={badgeBorderColor}
+                          boxShadow="0 2px 8px rgba(72, 187, 120, 0.4)"
+                          animation="pulse 2s ease-in-out infinite"
+                          sx={{
+                            '@keyframes pulse': {
+                              '0%, 100%': {
+                                transform: 'scale(1)',
+                                opacity: 1
+                              },
+                              '50%': {
+                                transform: 'scale(1.1)',
+                                opacity: 0.9
                               }
-                            }}
-                          >
-                            NEW
-                          </Badge>
-                        )}
-                      </Box>
-                    </ChakraLink>
-                  </Tooltip>
+                            }
+                          }}
+                        >
+                          NEW
+                        </Badge>
+                      )}
+                    </Box>
+                  </ChakraLink>
 
                   {/* Admin links */}
                   {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
                     <>
-                      <Tooltip label="Usuarios" placement="bottom">
-                        <ChakraLink as={NextLink} href="/admin/usuarios">
-                          <IconButton
-                            aria-label="Usuarios"
-                            icon={<Icon as={MdGroup} boxSize={5} />}
-                            variant="ghost"
-                            size="sm"
-                            borderRadius="xl"
-                            bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
-                            boxShadow={isActiveRoute('/admin/usuarios') ? activeShadow : 'none'}
-                            transform={isActiveRoute('/admin/usuarios') ? 'translateY(-2px)' : 'none'}
-                            _hover={{
-                              bg: hoverBg,
-                              boxShadow: hoverShadow,
-                              transform: 'translateY(-2px)',
-                              transition: 'all 0.2s ease-in-out'
-                            }}
-                            transition="all 0.2s ease-in-out"
-                          />
-                        </ChakraLink>
-                      </Tooltip>
-
-                      <Tooltip label="Canjes Admin" placement="bottom">
-                        <ChakraLink as={NextLink} href="/admin/canjes">
-                          <IconButton
-                            aria-label="Canjes Admin"
-                            icon={<Icon as={MdInventory} boxSize={5} />}
-                            variant="ghost"
-                            size="sm"
-                            borderRadius="xl"
-                            bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
-                            boxShadow={isActiveRoute('/admin/canjes') ? activeShadow : 'none'}
-                            transform={isActiveRoute('/admin/canjes') ? 'translateY(-2px)' : 'none'}
-                            _hover={{
-                              bg: hoverBg,
-                              boxShadow: hoverShadow,
-                              transform: 'translateY(-2px)',
-                              transition: 'all 0.2s ease-in-out'
-                            }}
-                            transition="all 0.2s ease-in-out"
-                          />
-                        </ChakraLink>
-                      </Tooltip>
-
-                      <Tooltip label="Configuración Kick" placement="bottom">
-                        <ChakraLink as={NextLink} href="/admin/kick">
-                          <IconButton
-                            aria-label="Configuración Kick"
-                            icon={
-                              <Image
-                                src="/images/logokick.png"
-                                alt="Kick"
-                                boxSize={5}
-                                filter={kickLogoFilter}
-                              />
+                      <ChakraLink as={NextLink} href="/admin/usuarios">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          borderRadius="xl"
+                          bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
+                          boxShadow={isActiveRoute('/admin/usuarios') ? activeShadow : 'none'}
+                          p={2}
+                          minW="auto"
+                          h="auto"
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                          border="none"
+                          onMouseEnter={() => handleMouseEnter('usuarios')}
+                          onMouseLeave={() => handleMouseLeave('usuarios')}
+                          _hover={{
+                            bg: hoverBg,
+                            boxShadow: hoverShadow,
+                            transform: 'translateY(-1px)',
+                            transition: 'all 0.3s ease',
+                            border: 'none',
+                            '& span': {
+                              borderBottom: 'none !important',
+                              textDecoration: 'none !important'
                             }
-                            variant="ghost"
-                            size="sm"
-                            borderRadius="xl"
-                            bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
-                            boxShadow={isActiveRoute('/admin/kick') ? activeShadow : 'none'}
-                            transform={isActiveRoute('/admin/kick') ? 'translateY(-2px)' : 'none'}
+                          }}
+                          transition="all 0.3s ease"
+                          sx={{
+                            '& > svg': {
+                              flexShrink: 0
+                            },
+                            '& > span': {
+                              overflow: 'hidden',
+                              maxWidth: isActiveRoute('/admin/usuarios') || animatingButtons.has('usuarios') ? '100px' : 0,
+                              opacity: isActiveRoute('/admin/usuarios') || animatingButtons.has('usuarios') ? 1 : 0,
+                              transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                              whiteSpace: 'nowrap',
+                              borderBottom: 'none',
+                              textDecoration: 'none'
+                            }
+                          }}
+                        >
+                          <Icon as={MdGroup} boxSize={5} />
+                          <Text
+                            as="span"
+                            fontSize="sm"
+                            fontWeight="500"
+                            borderBottom="none"
+                            textDecoration="none"
                             _hover={{
-                              bg: hoverBg,
-                              boxShadow: hoverShadow,
-                              transform: 'translateY(-2px)',
-                              transition: 'all 0.2s ease-in-out'
+                              borderBottom: 'none',
+                              textDecoration: 'none'
                             }}
-                            transition="all 0.2s ease-in-out"
+                          >
+                            Usuarios
+                          </Text>
+                        </Button>
+                      </ChakraLink>
+
+                      <ChakraLink as={NextLink} href="/admin/canjes">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          borderRadius="xl"
+                          bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
+                          boxShadow={isActiveRoute('/admin/canjes') ? activeShadow : 'none'}
+                          p={2}
+                          minW="auto"
+                          h="auto"
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                          border="none"
+                          onMouseEnter={() => handleMouseEnter('canjesadmin')}
+                          onMouseLeave={() => handleMouseLeave('canjesadmin')}
+                          _hover={{
+                            bg: hoverBg,
+                            boxShadow: hoverShadow,
+                            transform: 'translateY(-1px)',
+                            transition: 'all 0.3s ease',
+                            border: 'none',
+                            '& span': {
+                              borderBottom: 'none !important',
+                              textDecoration: 'none !important'
+                            }
+                          }}
+                          transition="all 0.3s ease"
+                          sx={{
+                            '& > svg': {
+                              flexShrink: 0
+                            },
+                            '& > span': {
+                              overflow: 'hidden',
+                              maxWidth: isActiveRoute('/admin/canjes') || animatingButtons.has('canjesadmin') ? '150px' : 0,
+                              opacity: isActiveRoute('/admin/canjes') || animatingButtons.has('canjesadmin') ? 1 : 0,
+                              transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                              whiteSpace: 'nowrap',
+                              borderBottom: 'none',
+                              textDecoration: 'none'
+                            }
+                          }}
+                        >
+                          <Icon as={MdInventory} boxSize={5} />
+                          <Text
+                            as="span"
+                            fontSize="sm"
+                            fontWeight="500"
+                            borderBottom="none"
+                            textDecoration="none"
+                            _hover={{
+                              borderBottom: 'none',
+                              textDecoration: 'none'
+                            }}
+                          >
+                            Canjes Admin
+                          </Text>
+                        </Button>
+                      </ChakraLink>
+
+                      <ChakraLink as={NextLink} href="/admin/kick">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          borderRadius="xl"
+                          bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
+                          boxShadow={isActiveRoute('/admin/kick') ? activeShadow : 'none'}
+                          p={2}
+                          minW="auto"
+                          h="auto"
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                          border="none"
+                          onMouseEnter={() => handleMouseEnter('kick')}
+                          onMouseLeave={() => handleMouseLeave('kick')}
+                          _hover={{
+                            bg: hoverBg,
+                            boxShadow: hoverShadow,
+                            transform: 'translateY(-1px)',
+                            transition: 'all 0.3s ease',
+                            border: 'none',
+                            '& span': {
+                              borderBottom: 'none !important',
+                              textDecoration: 'none !important'
+                            }
+                          }}
+                          transition="all 0.3s ease"
+                          sx={{
+                            '& > img': {
+                              flexShrink: 0
+                            },
+                            '& > span': {
+                              overflow: 'hidden',
+                              maxWidth: isActiveRoute('/admin/kick') || animatingButtons.has('kick') ? '60px' : 0,
+                              opacity: isActiveRoute('/admin/kick') || animatingButtons.has('kick') ? 1 : 0,
+                              transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                              whiteSpace: 'nowrap',
+                              borderBottom: 'none',
+                              textDecoration: 'none'
+                            }
+                          }}
+                        >
+                          <Image
+                            src="/images/logokick.png"
+                            alt="Kick"
+                            boxSize={5}
+                            filter={kickLogoFilter}
                           />
-                        </ChakraLink>
-                      </Tooltip>
+                          <Text
+                            as="span"
+                            fontSize="sm"
+                            fontWeight="500"
+                            borderBottom="none"
+                            textDecoration="none"
+                            _hover={{
+                              borderBottom: 'none',
+                              textDecoration: 'none'
+                            }}
+                          >
+                            Kick
+                          </Text>
+                        </Button>
+                      </ChakraLink>
                     </>
                   )}
                 </>
@@ -548,7 +795,7 @@ export default function NavbarContent() {
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
-                          transform: 'translateY(-2px)'
+                          transform: 'translateY(-1px)'
                         }}
                         _active={{
                           bg: activeBg,
@@ -702,8 +949,8 @@ export default function NavbarContent() {
                     _hover={{
                       bg: hoverBg,
                       boxShadow: hoverShadow,
-                      transform: 'translateY(-2px)',
-                      transition: 'all 0.2s ease-in-out'
+                      transform: 'translateY(-1px)',
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     Iniciar Sesión

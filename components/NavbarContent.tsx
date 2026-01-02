@@ -27,7 +27,7 @@ import {
   Tooltip,
   Icon
 } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { HamburgerIcon } from '@chakra-ui/icons'
 import {
   MdShoppingCart,
@@ -53,8 +53,10 @@ export default function NavbarContent() {
   const [showNewBadge, setShowNewBadge] = useState(true)
 
   // Estados para controlar animaciones independientes
-  const [hoveredButton, setHoveredButton] = useState<string | null>(null)
   const [animatingButtons, setAnimatingButtons] = useState<Set<string>>(new Set())
+
+  // useRef para mantener track de los timeouts y evitar conflictos
+  const timeoutRefs = useRef<Record<string, NodeJS.Timeout>>({})
 
   // Determinar qué avatar usar: Kick > inicial del nombre
   const avatarSrc = user ? user.kick_data?.avatar_url || user.avatar_url || user.kick_avatar || undefined : undefined
@@ -71,25 +73,42 @@ export default function NavbarContent() {
     setShowNewBadge(!hasVisited)
   }, [])
 
+  // Limpiar timeouts al desmontar el componente
+  useEffect(() => {
+    return () => {
+      Object.values(timeoutRefs.current).forEach(timeout => clearTimeout(timeout))
+    }
+  }, [])
+
   const handleLeaderboardClick = () => {
     localStorage.setItem('leaderboard_visited', 'true')
     setShowNewBadge(false)
   }
 
   const handleMouseEnter = (buttonId: string) => {
-    setHoveredButton(buttonId)
+    // Limpiar timeout existente si lo hay
+    if (timeoutRefs.current[buttonId]) {
+      clearTimeout(timeoutRefs.current[buttonId])
+      delete timeoutRefs.current[buttonId]
+    }
+
     setAnimatingButtons(prev => new Set(prev).add(buttonId))
   }
 
   const handleMouseLeave = (buttonId: string) => {
-    setHoveredButton(null)
+    // Limpiar timeout anterior si existe
+    if (timeoutRefs.current[buttonId]) {
+      clearTimeout(timeoutRefs.current[buttonId])
+    }
+
     // Mantener la animación durante 0.8s más después de quitar el cursor
-    setTimeout(() => {
+    timeoutRefs.current[buttonId] = setTimeout(() => {
       setAnimatingButtons(prev => {
         const newSet = new Set(prev)
         newSet.delete(buttonId)
         return newSet
       })
+      delete timeoutRefs.current[buttonId]
     }, 800)
   }
 

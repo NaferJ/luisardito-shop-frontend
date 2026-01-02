@@ -242,7 +242,8 @@ export default function NavbarContent() {
                 _hover={{
                   opacity: 0.8,
                   transform: 'scale(1.05)',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  textDecoration: 'none'
                 }}
               >
                 <Image
@@ -957,7 +958,7 @@ export default function NavbarContent() {
               )}
 
               {!isAuthenticated && !isLoading && (
-                <ChakraLink as={NextLink} href="/login">
+                <ChakraLink as={NextLink} href="/login" _hover={{ textDecoration: 'none' }}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -1056,6 +1057,7 @@ export default function NavbarContent() {
                 alignItems="center"
                 gap={2}
                 onClick={onClose}
+                _hover={{ textDecoration: 'none' }}
               >
                 <Image
                   src="/images/logo2.jpg"
@@ -1142,7 +1144,7 @@ export default function NavbarContent() {
 
                       <Divider my={2} />
 
-                      <ChakraLink as={NextLink} href="/productos" onClick={onClose}>
+                      <ChakraLink as={NextLink} href="/productos" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                         <Button
                           variant="ghost"
                           width="full"
@@ -1157,7 +1159,7 @@ export default function NavbarContent() {
                         </Button>
                       </ChakraLink>
 
-                      <ChakraLink as={NextLink} href="/canjes" onClick={onClose}>
+                      <ChakraLink as={NextLink} href="/canjes" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                         <Button
                           variant="ghost"
                           width="full"
@@ -1178,6 +1180,7 @@ export default function NavbarContent() {
                           handleLeaderboardClick()
                           onClose()
                         }}
+                        _hover={{ textDecoration: 'none' }}
                       >
                         <Button
                           variant="ghost"
@@ -1202,17 +1205,17 @@ export default function NavbarContent() {
                       {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
                         <>
                           <Divider my={2} />
-                          <ChakraLink as={NextLink} href="/admin/usuarios" onClick={onClose}>
+                          <ChakraLink as={NextLink} href="/admin/usuarios" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                             <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Icon as={MdGroup} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                               Usuarios
                             </Button>
                           </ChakraLink>
-                          <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose}>
+                          <ChakraLink as={NextLink} href="/admin/canjes" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                             <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Icon as={MdInventory} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                               Canjes Admin
                             </Button>
                           </ChakraLink>
-                          <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose}>
+                          <ChakraLink as={NextLink} href="/admin/kick" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                             <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Image src="/images/logokick.png" alt="Kick" boxSize={5} filter={kickLogoFilter} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                               Kick
                             </Button>
@@ -1222,7 +1225,7 @@ export default function NavbarContent() {
 
                       <Divider my={2} />
 
-                      <ChakraLink as={NextLink} href="/perfil" onClick={onClose}>
+                      <ChakraLink as={NextLink} href="/perfil" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                         <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Icon as={MdPerson} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                           <HStack spacing={2} width="100%" justify="space-between">
                             <Text>Mi Perfil</Text>
@@ -1231,7 +1234,7 @@ export default function NavbarContent() {
                         </Button>
                       </ChakraLink>
 
-                      <ChakraLink as={NextLink} href="/historial" onClick={onClose}>
+                      <ChakraLink as={NextLink} href="/historial" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                         <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Icon as={MdHistory} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                           Historial de Puntos
                         </Button>
@@ -1254,7 +1257,7 @@ export default function NavbarContent() {
 
                 return (
                   <VStack align="stretch" spacing={3}>
-                    <ChakraLink as={NextLink} href="/leaderboard" onClick={() => { handleLeaderboardClick(); onClose() }}>
+                    <ChakraLink as={NextLink} href="/leaderboard" onClick={() => { handleLeaderboardClick(); onClose() }} _hover={{ textDecoration: 'none' }}>
                       <Button variant="ghost" width="full" justifyContent="flex-start" leftIcon={<Icon as={MdLeaderboard} />} borderRadius="xl" _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }} transition="all 0.2s">
                         <HStack spacing={2} width="100%" justify="space-between">
                           <Text>Leaderboard</Text>
@@ -1273,7 +1276,7 @@ export default function NavbarContent() {
 
                     <Divider my={2} />
 
-                    <ChakraLink as={NextLink} href="/login" onClick={onClose}>
+                    <ChakraLink as={NextLink} href="/login" onClick={onClose} _hover={{ textDecoration: 'none' }}>
                       <Button variant="outline" width="full" borderRadius="xl">
                         Iniciar Sesión
                       </Button>

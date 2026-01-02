@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 
 // Icono de SUB (Suscriptor) de Kick.com - Estrella brillante
-const KickSubIcon = ({ size = 60 }: { size?: number }) => (
+export const KickSubIcon = ({ size = 60 }: { size?: number }) => (
   <svg
     width={size}
     height={size}
@@ -55,7 +55,7 @@ const KickSubIcon = ({ size = 60 }: { size?: number }) => (
 )
 
 // Icono de VIP de Kick.com
-const KickVipIcon = ({ size = 60 }: { size?: number }) => (
+export const KickVipIcon = ({ size = 60 }: { size?: number }) => (
   <svg
     width={size}
     height={size}

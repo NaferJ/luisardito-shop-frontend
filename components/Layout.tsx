@@ -12,7 +12,7 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <Box minH="100vh" bg="bg.canvas" display="flex" flexDir="column">
       <Navbar />
-      <Container maxW="6xl" px={4} pt={16} pb={8} flex="1">
+      <Container maxW="6xl" px={4} pt={{ base: 20, md: 16 }} pb={8} flex="1">
         {children}
       </Container>
       <Footer />

@@ -48,18 +48,6 @@ import { FiPackage } from 'react-icons/fi'
 import { MdPeople } from 'react-icons/md'
 
 // Animaciones suaves (reducidas para rendimiento)
-const snowfall = keyframes`
-  0% { transform: translateY(-100px) translateX(0px); opacity: 0; }
-  5% { opacity: 1; }
-  95% { opacity: 1; }
-  100% { transform: translateY(calc(100vh + 100px)) translateX(20px); opacity: 0; }
-`
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`
-
 const pulse = keyframes`
   0%, 100% { transform: scale(1); opacity: 0.8; }
   50% { transform: scale(1.05); opacity: 1; }
@@ -191,49 +179,13 @@ export default function Tienda() {
         />
       </Head>
       <Layout>
-        {/* Fondo desactivado por rendimiento */}
-
-        {/* Decoración navideña - Nieve ULTRA reducida (solo 5 copos) */}
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          pointerEvents="none"
-          zIndex={0}
-          overflow="hidden"
-          display={{ base: 'none', md: 'block' }}
-        >
-          {/* Solo 5 copos sutiles para rendimiento óptimo */}
-          {[...Array(5)].map((_, i) => {
-            const delay = -(Math.random() * 30)
-            const duration = 20 + Math.random() * 15
-            return (
-              <Box
-                key={`snow-${i}`}
-                position="absolute"
-                left={`${(i + 1) * 20}%`}
-                w="3px"
-                h="3px"
-                bg={snowColor}
-                borderRadius="full"
-                animation={`${snowfall} ${duration}s linear infinite`}
-                sx={{ animationDelay: `${delay}s`, willChange: 'transform' }}
-                opacity={0.5}
-              />
-            )
-          })}
-        </Box>
-
-        {/* Luces desactivadas por rendimiento */}
 
         <Box position="relative" zIndex={1}>
           {/* Banner de modo administrador */}
           {isAdmin && (
             <TransparentCard
               mb={6}
-              mt={4}
+              mt={{ base: 0, md: 4 }}
               px={6}
               py={4}
               position="relative"
@@ -535,37 +487,6 @@ export default function Tienda() {
               </Text>
             </Center>
           )}
-
-          {/* Mensaje de temporada navideña */}
-          <Box
-            mt={8}
-            p={6}
-            bg={cardBg}
-            borderRadius="2xl"
-            border="2px solid"
-            borderColor={borderColor}
-            textAlign="center"
-            position="relative"
-            overflow="hidden"
-          >
-            <Box
-              position="absolute"
-              top={-4}
-              right={-4}
-              fontSize="6xl"
-              opacity={0.1}
-              animation={`${float} 4s ease-in-out infinite`}
-            >
-              ❄️
-            </Box>
-            <Text fontSize="lg" fontWeight="bold" color={accentColor} mb={2}>
-              ¡Felices Fiestas! 🎄
-            </Text>
-            <Text fontSize="sm" color={textColor}>
-              Gracias por ser parte de nuestra comunidad. Disfruta canjeando tus puntos por
-              increíbles recompensas.
-            </Text>
-          </Box>
         </Box>
       </Layout>
     </>

@@ -11,18 +11,6 @@ import {
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
-import { keyframes } from '@emotion/react'
-
-// Animaciones navideñas sutiles
-const twinkle = keyframes`
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-`
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-`
 
 function GitHubIcon(props: React.ComponentProps<typeof Icon>) {
   return (
@@ -77,57 +65,6 @@ export function Footer() {
       position="relative"
       overflow="hidden"
     >
-      {/* Decoración navideña sutil - luces en la parte superior */}
-      <HStack
-        position="absolute"
-        top={2}
-        left="50%"
-        transform="translateX(-50%)"
-        spacing={2}
-        zIndex={1}
-        pointerEvents="none"
-        display={{ base: 'none', md: 'flex' }}
-      >
-        {['red.400', 'green.400', 'yellow.400', 'blue.400', 'purple.400', 'pink.400'].map(
-          (color, i) => (
-            <Box
-              key={i}
-              w="4px"
-              h="4px"
-              bg={color}
-              borderRadius="full"
-              animation={`${twinkle} ${2 + i * 0.15}s ease-in-out infinite`}
-              boxShadow={`0 0 4px ${color}`}
-            />
-          )
-        )}
-      </HStack>
-
-      {/* Copos de nieve decorativos */}
-      <Box
-        position="absolute"
-        left={4}
-        top="50%"
-        transform="translateY(-50%)"
-        fontSize="lg"
-        opacity={0.3}
-        animation={`${float} 3s ease-in-out infinite`}
-        display={{ base: 'none', lg: 'block' }}
-      >
-        ❄️
-      </Box>
-      <Box
-        position="absolute"
-        right={4}
-        top="50%"
-        transform="translateY(-50%)"
-        fontSize="lg"
-        opacity={0.3}
-        animation={`${float} 3.5s ease-in-out infinite`}
-        display={{ base: 'none', lg: 'block' }}
-      >
-        ❄️
-      </Box>
 
       <Container maxW="6xl" px={4} py={4} position="relative" zIndex={2}>
         <Flex align="center" gap={3} wrap="wrap" justify={{ base: 'center', md: 'space-between' }}>

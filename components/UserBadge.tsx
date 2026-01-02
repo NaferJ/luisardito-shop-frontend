@@ -156,8 +156,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         key="sub"
         align="center"
         justify="center"
-        w={size === 'sm' ? '50px' : size === 'md' ? '60px' : '76px'}
-        h={size === 'sm' ? '50px' : size === 'md' ? '60px' : '76px'}
+        w={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
+        h={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
         borderRadius="full"
         bg="transparent"
         _hover={{
@@ -166,7 +166,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         }}
         transition="all 0.2s"
       >
-        <KickSubIcon size={size === 'sm' ? 28 : size === 'md' ? 32 : 40} />
+        <KickSubIcon size={size === 'sm' ? 22 : size === 'md' ? 26 : 32} />
       </Flex>
     )
 
@@ -188,8 +188,8 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         key="vip"
         align="center"
         justify="center"
-        w={size === 'sm' ? '50px' : size === 'md' ? '60px' : '76px'}
-        h={size === 'sm' ? '50px' : size === 'md' ? '60px' : '76px'}
+        w={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
+        h={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
         borderRadius="full"
         bg="transparent"
         _hover={{
@@ -198,7 +198,7 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         }}
         transition="all 0.2s"
       >
-        <KickVipIcon size={size === 'sm' ? 28 : size === 'md' ? 32 : 40} />
+        <KickVipIcon size={size === 'sm' ? 22 : size === 'md' ? 26 : 32} />
       </Flex>
     )
 

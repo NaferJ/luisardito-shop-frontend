@@ -127,8 +127,8 @@ export default function NavbarContent() {
     '0 4px 12px rgba(96, 165, 250, 0.4)'
   )
 
-  // Colores para el menú
-  const menuBg = useColorModeValue('rgba(255, 255, 255, 0.29)', 'rgba(13, 17, 23, 0.29)')
+  // Colores para el menú - con efecto de absorción de colores del fondo
+  const menuBg = useColorModeValue('rgba(255, 255, 255, 0.05)', 'rgba(13, 17, 23, 0.05)')
   const menuShadow = useColorModeValue(
     '0 20px 40px rgba(0,0,0,0.15)',
     '0 20px 40px rgba(0,0,0,0.5)'
@@ -140,7 +140,7 @@ export default function NavbarContent() {
   const logoutHoverColor = useColorModeValue('red.600', 'red.400')
 
   // Colores para el drawer
-  const drawerBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(13, 17, 23, 0.95)')
+  const drawerBg = useColorModeValue('rgba(255, 255, 255, 0.05)', 'rgba(13, 17, 23, 0.05)')
   const drawerShadow = useColorModeValue(
     '0 20px 40px rgba(0,0,0,0.15)',
     '0 20px 40px rgba(0,0,0,0.6)'
@@ -839,8 +839,8 @@ export default function NavbarContent() {
                       p={2}
                       bg={menuBg}
                       sx={{
-                        backdropFilter: 'saturate(180%) blur(20px)',
-                        WebkitBackdropFilter: 'saturate(180%) blur(20px)'
+                        backdropFilter: 'saturate(200%) blur(10px) contrast(1.1)',
+                        WebkitBackdropFilter: 'saturate(200%) blur(10px) contrast(1.1)'
                       }}
                     >
                       <VStack
@@ -1037,11 +1037,11 @@ export default function NavbarContent() {
             maxH={{ base: '100vh', sm: '95vh' }}
             bg={drawerBg}
             sx={{
-              backdropFilter: 'saturate(180%) blur(10px)',
-              WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+              backdropFilter: 'saturate(200%) blur(10px) contrast(1.1)',
+              WebkitBackdropFilter: 'saturate(200%) blur(10px) contrast(1.1)',
               '@media (max-width: 768px)': {
-                backdropFilter: 'saturate(180%) blur(4px)',
-                WebkitBackdropFilter: 'saturate(180%) blur(4px)',
+                backdropFilter: 'saturate(200%) blur(4px) contrast(1.05)',
+                WebkitBackdropFilter: 'saturate(200%) blur(4px) contrast(1.05)',
                 willChange: 'transform',
                 transform: 'translate3d(0, 0, 0)'
               }

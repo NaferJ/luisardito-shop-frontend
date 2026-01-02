@@ -245,16 +245,16 @@ export default function NavbarContent() {
               {isAuthenticated && (
                 <>
                   <Tooltip label="Tienda" placement="bottom">
-                    <ChakraLink as={NextLink} href="/">
+                    <ChakraLink as={NextLink} href="/productos">
                       <IconButton
                         aria-label="Tienda"
                         icon={<Icon as={MdShoppingCart} boxSize={5} />}
                         variant="ghost"
                         size="sm"
                         borderRadius="xl"
-                        bg={isActiveRoute('/') ? activeBg : 'transparent'}
-                        boxShadow={isActiveRoute('/') ? activeShadow : 'none'}
-                        transform={isActiveRoute('/') ? 'translateY(-2px)' : 'none'}
+                        bg={isActiveRoute('/productos') ? activeBg : 'transparent'}
+                        boxShadow={isActiveRoute('/productos') ? activeShadow : 'none'}
+                        transform={isActiveRoute('/productos') ? 'translateY(-2px)' : 'none'}
                         _hover={{
                           bg: hoverBg,
                           boxShadow: hoverShadow,
@@ -876,14 +876,14 @@ export default function NavbarContent() {
 
                       <Divider my={2} />
 
-                      <ChakraLink as={NextLink} href="/" onClick={onClose}>
+                      <ChakraLink as={NextLink} href="/productos" onClick={onClose}>
                         <Button
                           variant="ghost"
                           width="full"
                           justifyContent="flex-start"
                           leftIcon={<Icon as={MdShoppingCart} />}
                           borderRadius="xl"
-                          bg={isActiveRoute('/') ? activeBg : 'transparent'}
+                          bg={isActiveRoute('/productos') ? activeBg : 'transparent'}
                           _hover={{ bg: hoverBg, transform: 'translateX(4px)', transition: 'all 0.2s' }}
                           transition="all 0.2s"
                         >

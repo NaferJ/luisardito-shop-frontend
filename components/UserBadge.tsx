@@ -423,8 +423,7 @@ export const UserAvatarWithBadge = ({ user, children, imageUrl }: UserAvatarWith
             top={-4}
             right={-4}
             _hover={{
-              bg: closeButtonHoverBg,
-              boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
+              bg: closeButtonHoverBg
             }}
             zIndex={10}
           />

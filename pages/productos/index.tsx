@@ -456,7 +456,6 @@ export default function Tienda() {
               overflow="hidden"
               backdropFilter="blur(15px)"
               _hover={{
-                boxShadow: `0 0 5px ${shadowHover}, 0 0 5px ${shadowHover}`,
                 border: `1px solid ${hoverBorder}`
               }}
               transition="box-shadow 0.3s ease"

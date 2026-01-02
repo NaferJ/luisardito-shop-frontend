@@ -405,7 +405,7 @@ export const UserAvatarWithBadge = ({ user, children, imageUrl }: UserAvatarWith
       {/* Modal para preview de imagen con desenfoque */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
         <ModalOverlay
-          backdropFilter="blur(8px)"
+          backdropFilter="blur(2px)"
           bg="rgba(0, 0, 0, 0.6)"
         />
         <ModalContent

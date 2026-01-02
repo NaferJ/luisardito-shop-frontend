@@ -128,7 +128,7 @@ export default function NavbarContent() {
   )
 
   // Colores para el menú
-  const menuBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(13, 17, 23, 0.95)')
+  const menuBg = useColorModeValue('rgba(255, 255, 255, 0.29)', 'rgba(13, 17, 23, 0.29)')
   const menuShadow = useColorModeValue(
     '0 20px 40px rgba(0,0,0,0.15)',
     '0 20px 40px rgba(0,0,0,0.5)'

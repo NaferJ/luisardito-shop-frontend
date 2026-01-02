@@ -284,8 +284,19 @@ export default function NavbarContent() {
               </ChakraLink>
             </Box>
 
+            {/* Separador vertical entre logo e iconos */}
+            {isAuthenticated && (
+              <Divider
+                orientation="vertical"
+                h="24px"
+                borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                borderWidth="1px"
+                display={{ base: 'none', lg: 'block' }}
+              />
+            )}
+
             {/* ============ SECCIÓN CENTRO: Iconos de Navegación para TODAS las resoluciones ============ */}
-            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5, lg: 1.5 }} flex={1} justify="center" display={isAuthenticated ? 'flex' : 'none'}>
+            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5, lg: 1.5 }} flex={1} justify="center" display={isAuthenticated ? { base: 'flex', md: 'none', lg: 'flex' } : 'none'}>
               {isAuthenticated && (
                 <>
                   {/* Tienda */}
@@ -353,6 +364,15 @@ export default function NavbarContent() {
                       </Box>
                     </ChakraLink>
                   </Tooltip>
+
+                  {/* Separador vertical entre usuario y admin */}
+                  <Divider
+                    orientation="vertical"
+                    h="24px"
+                    borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                    borderWidth="1px"
+                    display={{ base: 'none', sm: 'block' }}
+                  />
 
                   {/* Usuarios (Admin) - Si es admin */}
                   {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
@@ -429,6 +449,17 @@ export default function NavbarContent() {
               )}
             </HStack>
 
+            {/* Separador vertical entre centro y derecha */}
+            {isAuthenticated && (
+              <Divider
+                orientation="vertical"
+                h="24px"
+                borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                borderWidth="1px"
+                display={{ base: 'none', lg: 'block' }}
+              />
+            )}
+
             {/* ============ SECCIÓN DERECHA: Sugerencia, Controles, Badges, Perfil ============ */}
             <HStack spacing={{ base: 0.5, sm: 1, md: 1.5 }} flexShrink={0} align="center">
               {/* Botón Sugerencia - Desktop */}
@@ -436,7 +467,7 @@ export default function NavbarContent() {
                 leftIcon={<Icon as={MdSend} />}
                 size="xs"
                 borderRadius="lg"
-                display={{ base: 'none', md: 'inline-flex' }}
+                display={{ base: 'none', lg: 'inline-flex' }}
                 flexShrink={0}
                 onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank')}
                 bg={suggestionBtnBg}
@@ -457,6 +488,17 @@ export default function NavbarContent() {
               <Box flexShrink={0}>
                 <ColorModeToggle />
               </Box>
+
+              {/* Separador vertical antes de badges VIP/SUB */}
+              {isAuthenticated && user && (
+                <Divider
+                  orientation="vertical"
+                  h="24px"
+                  borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                  borderWidth="1px"
+                  display={{ base: 'none', lg: 'block' }}
+                />
+              )}
 
               {/* Badges VIP y SUB */}
               {isAuthenticated && user && (
@@ -492,7 +534,7 @@ export default function NavbarContent() {
                   px={{ base: 4, sm: 5, md: 5, lg: 4 }}
                   py={{ base: 1.5, sm: 2.5, lg: 1 }}
                   borderRadius="full"
-                  display={{ base: 'none', sm: 'block' }}
+                  display={{ base: 'none', lg: 'block' }}
                   flexShrink={0}
                   whiteSpace="nowrap"
                   fontWeight="bold"
@@ -511,7 +553,7 @@ export default function NavbarContent() {
                       icon={<Avatar size={{ base: 'xs', sm: 'sm' }} name={avatarName} src={avatarSrc} />}
                       variant="ghost"
                       borderRadius="full"
-                      display={{ base: 'none', sm: 'inline-flex' }}
+                      display={{ base: 'none', lg: 'inline-flex' }}
                       flexShrink={0}
                       minW="auto"
                       h="auto"
@@ -549,20 +591,20 @@ export default function NavbarContent() {
                   </MenuList>
                 </Menu>
               ) : (
-                <ChakraLink as={NextLink} href="/login" display={{ base: 'none', sm: 'block' }} flexShrink={0}>
+                <ChakraLink as={NextLink} href="/login" display={{ base: 'none', lg: 'block' }} flexShrink={0}>
                   <Button size="xs" borderRadius="lg">
                     Login
                   </Button>
                 </ChakraLink>
               )}
 
-              {/* Hamburguesa - Solo móvil */}
+              {/* Hamburguesa - Solo móvil y tablet */}
               <IconButton
                 aria-label="Abrir menú"
                 icon={<HamburgerIcon boxSize={4} />}
                 variant="ghost"
                 onClick={onOpen}
-                display={{ base: 'inline-flex', sm: 'none' }}
+                display={{ base: 'inline-flex', lg: 'none' }}
                 borderRadius="lg"
                 size="xs"
                 minW="auto"
@@ -578,12 +620,12 @@ export default function NavbarContent() {
             </HStack>
           </HStack>
         </Box>
-        {/* Drawer del menú móvil */}
+        {/* Drawer del menú móvil y tablet */}
         <Drawer
           isOpen={isOpen}
           placement="right"
           onClose={onClose}
-          size={{ base: 'full', sm: 'xs' }}
+          size={{ base: 'full', md: 'xs' }}
         >
           <DrawerOverlay
             bg="rgba(0, 0, 0, 0.75)"
@@ -597,11 +639,11 @@ export default function NavbarContent() {
             }}
           />
           <DrawerContent
-            borderRadius={{ base: '0', sm: 'xl' }}
-            mr={{ base: 0, sm: 2 }}
-            mt={{ base: 0, sm: 2 }}
-            mb={{ base: 0, sm: 2 }}
-            maxH={{ base: '100vh', sm: '95vh' }}
+            borderRadius={{ base: '0', md: 'xl' }}
+            mr={{ base: 0, md: 2 }}
+            mt={{ base: 0, md: 2 }}
+            mb={{ base: 0, md: 2 }}
+            maxH={{ base: '100vh', md: '95vh' }}
             bg={drawerBg}
             sx={{
               backdropFilter: 'saturate(200%) blur(10px) contrast(1.1)',

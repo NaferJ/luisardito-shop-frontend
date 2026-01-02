@@ -568,24 +568,84 @@ export default function NavbarContent() {
                     maxW="250px"
                     minW="200px"
                     zIndex={1000}
-                    p={2}
-                    bg={menuBg}
+                    p={3}
+                    bg={useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(13, 17, 23, 0.95)')}
                     sx={{
-                      backdropFilter: 'saturate(200%) blur(10px) contrast(1.1)',
-                      WebkitBackdropFilter: 'saturate(200%) blur(10px) contrast(1.1)'
+                      backdropFilter: 'saturate(200%) blur(20px) contrast(1.2)',
+                      WebkitBackdropFilter: 'saturate(200%) blur(20px) contrast(1.2)',
+                      borderColor: useColorModeValue('rgba(208, 215, 222, 0.3)', 'rgba(66, 74, 83, 0.3)'),
+                      boxShadow: useColorModeValue(
+                        '0 20px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)',
+                        '0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
+                      )
                     }}
                   >
-                    <VStack spacing={1} p={2} borderBottom="1px solid" borderColor={borderClr} mb={1}>
+                    <VStack spacing={2} p={2} borderBottom="1px solid" borderColor={borderClr} mb={2}>
                       <Avatar size="md" name={avatarName} src={avatarSrc} />
-                      <Text fontWeight="medium" fontSize="sm">
+                      <Text fontWeight="bold" fontSize="sm">
                         {user.nickname || user.nombre || user.email}
                       </Text>
+                      <UserBadge user={user as any} size="sm" />
                     </VStack>
-                    <MenuItem onClick={() => router.push('/perfil')}>Mi Perfil</MenuItem>
-                    <MenuItem onClick={() => router.push('/historial')}>Historial</MenuItem>
-                    <MenuItem onClick={() => router.push('/canjes')}>Mis Canjes</MenuItem>
-                    <Divider my={1} />
-                    <MenuItem onClick={handleLogout} color="red.500">
+                    <MenuItem
+                      onClick={() => router.push('/perfil')}
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      color={useColorModeValue('gray.800', 'gray.50')}
+                      bg={useColorModeValue('transparent', 'rgba(66, 74, 83, 0.00)')}
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.15)', 'rgba(96, 165, 250, 0.25)'),
+                        color: useColorModeValue('blue.600', 'blue.200')
+                      }}
+                      transition="all 0.2s"
+                    >
+                      Mi Perfil
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/historial')}
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      color={useColorModeValue('gray.800', 'gray.50')}
+                      bg={useColorModeValue('transparent', 'rgba(66, 74, 83, 0.00)')}
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.15)', 'rgba(96, 165, 250, 0.25)'),
+                        color: useColorModeValue('blue.600', 'blue.200')
+                      }}
+                      transition="all 0.2s"
+                    >
+                      Historial
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => router.push('/canjes')}
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      color={useColorModeValue('gray.800', 'gray.50')}
+                      bg={useColorModeValue('transparent', 'rgba(66, 74, 83, 0.00)')}
+                      _hover={{
+                        bg: useColorModeValue('rgba(59, 130, 246, 0.15)', 'rgba(96, 165, 250, 0.25)'),
+                        color: useColorModeValue('blue.600', 'blue.200')
+                      }}
+                      transition="all 0.2s"
+                    >
+                      Mis Canjes
+                    </MenuItem>
+                    <Divider my={2} />
+                    <MenuItem
+                      onClick={handleLogout}
+                      color={useColorModeValue('red.600', 'red.400')}
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      bg={useColorModeValue('transparent', 'rgba(66, 74, 83, 0.00)')}
+                      _hover={{
+                        bg: useColorModeValue('rgba(239, 68, 68, 0.15)', 'rgba(248, 113, 113, 0.25)'),
+                        color: useColorModeValue('red.700', 'red.300')
+                      }}
+                      transition="all 0.2s"
+                    >
                       Cerrar Sesión
                     </MenuItem>
                   </MenuList>

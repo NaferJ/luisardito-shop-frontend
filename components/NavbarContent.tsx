@@ -244,7 +244,7 @@ export default function NavbarContent() {
             h={{ base: '37px', sm: '41px', md: '37px', lg: '41px' }}
           >
             {/* ============ SECCIÓN IZQUIERDA: Logo ============ */}
-            <Box flexShrink={0} minW="auto">
+            <Box flex={1} display="flex" alignItems="center" minW="0">
               <ChakraLink
                 as={NextLink}
                 href="/"
@@ -479,7 +479,7 @@ export default function NavbarContent() {
             )}
 
             {/* ============ SECCIÓN DERECHA: Sugerencia, Controles, Badges, Perfil ============ */}
-            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5 }} flexShrink={0} align="center">
+            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5 }} flex={1} justify="flex-end" align="center">
               {/* Botón Sugerencia - Desktop */}
               <Button
                 leftIcon={<Icon as={MdSend} />}

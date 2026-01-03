@@ -350,7 +350,7 @@ export default function ProductoDetallePage() {
           <BreadcrumbItem>
             <BreadcrumbLink
               as={NextLink}
-              href="/"
+              href="/productos"
               color={mutedColor}
               _hover={{ color: accentColor }}
             >

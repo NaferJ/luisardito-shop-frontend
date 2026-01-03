@@ -8,11 +8,9 @@ import {
 } from '../components/LandingPage'
 import Navbar from '../components/Navbar'
 import { Footer } from '../components/Footer'
+import { Layout } from '../components/Layout'
 
 export default function Landing() {
-  const bgColor = useColorModeValue('white', 'gray.950')
-  const textColor = useColorModeValue('gray.800', 'gray.50')
-
   return (
     <>
       <Head>
@@ -20,8 +18,7 @@ export default function Landing() {
         <meta name="description" content="Canjea tus puntos por increíbles premios" />
       </Head>
 
-      <Box bg={bgColor} color={textColor} minH="100vh" suppressHydrationWarning>
-        <Navbar />
+      <Layout>
         <HeroSection />
         <ContentSection
           id="people"
@@ -46,8 +43,7 @@ export default function Landing() {
           showList
         />
         <FAQSection />
-        <Footer />
-      </Box>
+      </Layout>
     </>
   )
 }

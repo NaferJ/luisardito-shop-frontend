@@ -138,6 +138,22 @@ export function HeroSection() {
         opacity={animateCards ? 1 : 0}
         transform={animateCards ? 'scale(1)' : 'scale(0.95)'}
         transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+        position="relative"
+        overflow="hidden"
+        sx={{
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(147, 197, 253, 0.05), rgba(59, 130, 246, 0.05))',
+            filter: 'blur(10px)',
+            zIndex: -1,
+            pointerEvents: 'none'
+          }
+        }}
       >
         <Text fontSize="sm" fontWeight="bold">Catálogo de tienda</Text>
 

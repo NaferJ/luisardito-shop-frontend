@@ -382,14 +382,16 @@ export default function NavbarContent() {
                   </Tooltip>
 
                   {/* Separador vertical entre usuario y admin */}
-                  <Divider
-                    orientation="vertical"
-                    h="24px"
-                    my="auto"
-                    borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
-                    borderWidth="1px"
-                    display={{ base: 'none', sm: 'block' }}
-                  />
+                  {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
+                    <Divider
+                      orientation="vertical"
+                      h="24px"
+                      my="auto"
+                      borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                      borderWidth="1px"
+                      display={{ base: 'none', sm: 'block' }}
+                    />
+                  )}
 
                   {/* Usuarios (Admin) - Si es admin */}
                   {user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
@@ -524,7 +526,7 @@ export default function NavbarContent() {
 
               {/* Badges VIP y SUB */}
               {isAuthenticated && user && (
-                <HStack spacing={1} display="flex" flexShrink={0} mx={{ base: 1, sm: 2 }}>
+                <HStack spacing={1} display="flex" flexShrink={0} mx={hasTwoBadges ? { base: 2, sm: 3 } : { base: 1, sm: 2 }}>
                   {(user.subscriber_status?.is_active || user.user_type === 'subscriber') && (
                     <Tooltip label="Suscriptor" placement="bottom" hasArrow fontSize="xs">
                       <Box w={{ base: '20px', sm: '24px', lg: '28px' }} h={{ base: '20px', sm: '24px', lg: '28px' }} display="flex" alignItems="center" justifyContent="center" flexShrink={0} cursor="pointer" transition="all 0.2s ease-in-out" _hover={{ transform: 'scale(1.2)' }}>

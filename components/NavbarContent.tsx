@@ -505,7 +505,7 @@ export default function NavbarContent() {
                 <HStack spacing={0.5} display="flex" flexShrink={0} mx={{ base: 1, sm: 2 }}>
                   {(user.subscriber_status?.is_active || user.user_type === 'subscriber') && (
                     <Tooltip label="Suscriptor" placement="bottom" hasArrow fontSize="xs">
-                      <Box w={{ base: '20px', sm: '24px', lg: '28px' }} h={{ base: '20px', sm: '24px', lg: '28px' }} display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
+                      <Box w={{ base: '20px', sm: '24px', lg: '28px' }} h={{ base: '20px', sm: '24px', lg: '28px' }} display="flex" alignItems="center" justifyContent="center" flexShrink={0} cursor="pointer" transition="all 0.2s ease-in-out" _hover={{ transform: 'scale(1.2)' }}>
                         <KickSubIcon size={{ base: 14, sm: 18, lg: 20 }} />
                       </Box>
                     </Tooltip>
@@ -518,7 +518,7 @@ export default function NavbarContent() {
                       hasArrow
                       fontSize="xs"
                     >
-                      <Box w={{ base: '20px', sm: '24px', lg: '28px' }} h={{ base: '20px', sm: '24px', lg: '28px' }} display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
+                      <Box w={{ base: '20px', sm: '24px', lg: '28px' }} h={{ base: '20px', sm: '24px', lg: '28px' }} display="flex" alignItems="center" justifyContent="center" flexShrink={0} cursor="pointer" transition="all 0.2s ease-in-out" _hover={{ transform: 'scale(1.2)' }}>
                         <KickVipIcon size={{ base: 14, sm: 18, lg: 20 }} />
                       </Box>
                     </Tooltip>

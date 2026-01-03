@@ -310,6 +310,18 @@ export default function NavbarContent() {
 
             {/* ============ SECCIÓN CENTRO: Iconos de Navegación para TODAS las resoluciones ============ */}
             <HStack spacing={{ base: 0.5, sm: 1, md: 1.5, lg: 1.5 }} flex={1} justify={user?.rol_id && [3, 4, 5].includes(user.rol_id) ? "center" : "flex-end"} display={isAuthenticated ? { base: 'flex', md: 'none', lg: 'flex' } : 'none'}>
+              {/* Separador vertical antes de iconos (solo si NO es admin) */}
+              {isAuthenticated && !(user?.rol_id && [3, 4, 5].includes(user.rol_id)) && (
+                <Divider
+                  orientation="vertical"
+                  h="24px"
+                  my="auto"
+                  borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                  borderWidth="1px"
+                  display={{ base: 'none', lg: 'block' }}
+                />
+              )}
+
               {isAuthenticated && (
                 <>
                   {/* Tienda */}

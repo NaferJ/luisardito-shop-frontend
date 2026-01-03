@@ -265,7 +265,7 @@ export default function ProductoDetallePage() {
   const stockPercentage = Math.min(100, (producto.stock / 50) * 100)
 
   return (
-    <Layout>
+    <Layout productImageUrl={producto.imagen_url || producto.imagen}>
       <Head>
         <title>{producto.nombre} - Luisardito Shop</title>
         <meta

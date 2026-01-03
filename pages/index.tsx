@@ -32,16 +32,16 @@ export default function Home() {
         />
         <ContentSection
           id="performance"
-          label="Estadísticas"
-          title="Visualiza en tiempo real qué productos son los favoritos"
-          description="Accede a dashboards completos con estadísticas sobre los canjes más populares, tendencias del catálogo, productos agotados y disponibles. Información valiosa para tomar las mejores decisiones sobre qué canjear."
+          label="Leaderboard"
+          title="Compite y sigue tu posición en la comunidad"
+          description="Visualiza el leaderboard en tiempo real para ver tu posición respecto a otros usuarios. Sigue tu progreso, compite amistosamente y descubre quiénes son los miembros más activos de la comunidad."
           imagePosition="left"
         />
         <ContentSection
           id="realtime"
-          label="En Tiempo Real"
-          title="Observa cada canje que se realiza en la plataforma"
-          description="Sigue en vivo todas las transacciones de la comunidad. Visualiza qué premios están siendo canjeados, quiénes están celebrando sus canjes y mantente conectado con la actividad del ecosistema."
+          label="Historial de Canjes"
+          title="Sigue el estado de tus canjes en tiempo real"
+          description="Accede a tu historial completo de canjes y sigue el estado de cada uno. Desde que realizas el canje hasta que llega a tu puerta, tienes toda la información en un solo lugar. Transparencia total sobre tus transacciones."
           imagePosition="right"
           showList
         />

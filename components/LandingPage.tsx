@@ -21,28 +21,29 @@ import { FaCheck } from 'react-icons/fa'
 
 // Real content for Luisardito Shop
 export const loremContent = {
-  short: 'La plataforma oficial de canjes de Luisardito.',
-  medium: 'Gana puntos viendo streams, suscribiéndote y donando. Canjea tus puntos por productos exclusivos, accesos VIP y mucho más. Todo en una plataforma segura y transparente.',
-  long: 'Luisardito Shop es la tienda de rewards oficial donde puedes canjear todos tus puntos acumulados. Desde productos exclusivos hasta accesos VIP, experiencias especiales y donaciones a caridad. Cada punto cuenta y cada canje es una celebración de tu apoyo.',
+  short: 'La plataforma oficial de recompensas de Luisardito.',
+  medium: 'Gana puntos de lealtad escribiendo en el chat, regalando suscripciones, regalando KICKS y participando en streams. Canjea tus puntos por productos exclusivos, accesos VIP y mucho más. Todo en una plataforma segura y transparente.',
+  long: 'Luisardito Shop es tu tienda oficial de recompensas. Cada punto que ganas contabiliza hacia productos exclusivos, pases VIP, accesos prioritarios y sorpresas especiales. Tu actividad en la comunidad se recompensa de forma justa y directa.',
   longList: [
-    'Gana puntos en cada suscripción, donación y participación en chat.',
-    'Catálogo exclusivo actualizado constantemente con nuevos productos.',
-    'Transacciones transparentes y verificadas en tiempo real.',
+    'Gana puntos escribiendo en chat, regalando suscripciones, regalando KICKS y siendo parte activa de la comunidad.',
+    'Catálogo exclusivo con merchandising oficial, accesos VIP y experiencias de comunidad.',
+    'Historial completo y transparente de tu actividad y canjes personales.',
   ]
 }
 
 export const featuresList = [
-  { title: 'Puntos Confiables', description: 'Cada punto que ganas es real y verificado. Sin sorpresas, solo transparencia.' },
-  { title: 'Canjes Rápidos', description: 'Desde que canjes hasta que recibes, todo sucede rápido y sin complicaciones.' },
-  { title: 'Seguridad Total', description: 'Tu cuenta y tus puntos están protegidos con la máxima seguridad.' }
+  { title: 'Puntos Verificados', description: 'Cada punto que ganas es contabilizado de forma real y verificada. Tu historial muestra exactamente cómo ganaste cada punto.' },
+  { title: 'Canjes Personales', description: 'Canjea tus puntos cuando quieras y sigue el estado de tu pedido en tu historial de canjes.' },
+  { title: 'Seguridad Total', description: 'Tu cuenta, tus puntos y tu información personal están completamente protegidos.' }
 ]
 
 export const faqItems = [
-  { question: '¿Cómo gano puntos?', answer: 'Ganas puntos viendo streams en vivo, suscribiéndote al canal, donando KICKS y participando en el chat. La cantidad varía según tu nivel (VIP, suscriptor o normal).' },
-  { question: '¿Qué puedo canjear?', answer: 'Puedes canjear desde merchandising oficial, accesos VIP, experiencias exclusivas hasta donaciones benéficas. El catálogo se actualiza constantemente con nuevos productos.' },
-  { question: '¿Cuánto tarda en llegar mi pedido?', answer: 'Los pedidos pueden tardar hasta 1 mes en procesarse y enviarse dependiendo del tipo de producto y tu ubicación.' },
-  { question: '¿Puedo transferir mis puntos?', answer: 'No, los puntos son personales y no transferibles. Se usan para canjear en la tienda oficial de Luisardito.' },
-  { question: '¿Mi información es segura?', answer: 'Sí, usamos encriptación de última generación y cumplimos con todas las regulaciones de protección de datos.' },
+  { question: '¿Cómo gano puntos?', answer: 'Ganas puntos de lealtad escribiendo en el chat durante los streams de Luisardito. También ganas puntos regalando suscripciones, regalando KICKS y siendo parte activa de la comunidad. Cada acción tiene un valor de puntos definido.' },
+  { question: '¿Qué puedo canjear?', answer: 'Puedes canjear merchandising oficial, accesos VIP prioritarios, emojis exclusivos y otras recompensas especiales. El catálogo se actualiza regularmente con nuevos productos, cada uno con su valor en puntos.' },
+  { question: '¿Cómo veo mi historial?', answer: 'En tu perfil personal puedes ver tu historial completo de puntos ganados y canjes realizados. Accede a la sección "Historial" para ver toda tu actividad y estado actual de puntos.' },
+  { question: '¿Cuándo me llega mi canje?', answer: 'El tiempo depende del tipo de producto. Merchandising físico puede tomar hasta 30 días para procesarse y enviarse. Accesos digitales se activan de forma inmediata. Puedes seguir el estado en tu historial.' },
+  { question: '¿Puedo ver lo que otros canjearon?', answer: 'Tu historial es personal y privado. Solo tú ves tus canjes y actividad. Sí puedes ver el leaderboard de usuarios para comparar tu posición en la comunidad.' },
+  { question: '¿Es seguro canjear aquí?', answer: 'Completamente. Tus puntos, información personal y datos de canje están completamente protegidos. Tu actividad es verificable y transparente en tu historial personal.' },
 ]
 
 
@@ -69,7 +70,7 @@ export function HeroSection() {
               color={useColorModeValue('rgb(59, 130, 246)', 'rgb(96, 165, 250)')}
               textTransform="uppercase"
             >
-              Tu tienda de rewards oficial
+              Tu tienda de recompensas oficial
             </Text>
 
             <Heading

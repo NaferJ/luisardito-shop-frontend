@@ -232,6 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (nickname: string, password: string) => {
     try {
+      console.log('Intentando login con:', nickname)
       const { data } = await api.post('/api/auth/login', { nickname, password })
 
       // El backend ahora devuelve accessToken y refreshToken
@@ -253,10 +254,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(user)
 
+      console.log('Login exitoso para:', nickname)
 
     } catch (error: any) {
-      console.error('Error en login:', error.response?.data || error.message)
-      throw new Error(error.response?.data?.error || 'Error en el login')
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Error desconocido en login'
+      console.error('Error en login:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: errorMessage,
+      })
+      throw new Error(errorMessage)
     }
   }
 

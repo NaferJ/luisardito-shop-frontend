@@ -392,6 +392,7 @@ export default function CanjesPage() {
               <VStack spacing={2} align="stretch">
                 {filteredAndSortedCanjes.map((canje) => (
                   <Box
+                    id={`canje-${canje.id}`}
                     key={canje.id}
                     bg={cardBg}
                     border="1px solid"

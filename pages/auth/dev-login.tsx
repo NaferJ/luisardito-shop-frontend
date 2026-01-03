@@ -66,13 +66,19 @@ export default function DevLoginPage() {
       window.location.href = '/'
 
     } catch (err: any) {
-      console.error('Error en login dev:', err)
-      setError(err.message || 'Error de autenticación')
+      const errorMsg = err?.message || err?.response?.data?.error || 'Error de autenticación'
+      console.error('Error completo en login:', {
+        message: err?.message,
+        status: err?.response?.status,
+        data: err?.response?.data,
+        error: err
+      })
+      setError(errorMsg)
       toast({
-        title: 'Error de login',
-        description: err.message || 'Error de autenticación',
+        title: 'Error en el login',
+        description: errorMsg,
         status: 'error',
-        duration: 5000,
+        duration: 4000,
       })
     } finally {
       setLoading(false)

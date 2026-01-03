@@ -45,6 +45,7 @@ import { useRouter } from 'next/router'
 import NextLink from 'next/link'
 import ColorModeToggle from './ColorModeToggle'
 import { UserBadge, UserAvatarWithBadge, KickVipIcon, KickSubIcon } from './UserBadge'
+import { NotificationBell } from './NotificationBell'
 
 // Componente de contenido de navbar con soporte para badges VIP y SUB
 export default function NavbarContent() {
@@ -563,21 +564,22 @@ export default function NavbarContent() {
 
               {/* Perfil o Login - Desktop */}
               {isAuthenticated && user ? (
-                <Menu>
-                  <Tooltip label="Perfil" placement="bottom" hasArrow>
-                    <MenuButton
-                      as={IconButton}
-                      icon={<Avatar size={{ base: 'xs', sm: 'sm' }} name={avatarName} src={avatarSrc} />}
-                      variant="ghost"
-                      borderRadius="full"
-                      display={{ base: 'none', lg: 'inline-flex' }}
-                      flexShrink={0}
-                      minW="auto"
-                      h="auto"
-                      p={0}
-                    />
-                  </Tooltip>
-                  <MenuList
+                <HStack spacing={1} flexShrink={0}>
+                  <Menu>
+                    <Tooltip label="Perfil" placement="bottom" hasArrow>
+                      <MenuButton
+                        as={IconButton}
+                        icon={<Avatar size={{ base: 'xs', sm: 'sm' }} name={avatarName} src={avatarSrc} />}
+                        variant="ghost"
+                        borderRadius="full"
+                        display={{ base: 'none', lg: 'inline-flex' }}
+                        flexShrink={0}
+                        minW="auto"
+                        h="auto"
+                        p={0}
+                      />
+                    </Tooltip>
+                    <MenuList
                     borderRadius="xl"
                     border="1px solid"
                     borderColor={borderClr}
@@ -667,7 +669,11 @@ export default function NavbarContent() {
                     </MenuItem>
                   </MenuList>
                 </Menu>
-              ) : (
+
+                {/* Notificaciones Bell - A la derecha del avatar */}
+                <NotificationBell />
+              </HStack>
+            ) : (
                 <ChakraLink as={NextLink} href="/login" display={{ base: 'none', lg: 'block' }} flexShrink={0}>
                   <Button size="xs" borderRadius="lg">
                     Login

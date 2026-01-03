@@ -194,7 +194,6 @@ export default function ProductoDetallePage() {
         duration: 5000,
         isClosable: true
       })
-      router.push('/canjes')
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || 'Error al realizar el canje'
       setCanjeError(errorMessage)

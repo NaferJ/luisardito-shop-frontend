@@ -297,7 +297,7 @@ export default function NavbarContent() {
             </Box>
 
             {/* Separador vertical entre logo e iconos */}
-            {isAuthenticated && (
+            {isAuthenticated && user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
               <Divider
                 orientation="vertical"
                 h="24px"
@@ -309,7 +309,7 @@ export default function NavbarContent() {
             )}
 
             {/* ============ SECCIÓN CENTRO: Iconos de Navegación para TODAS las resoluciones ============ */}
-            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5, lg: 1.5 }} flex={1} justify="center" display={isAuthenticated ? { base: 'flex', md: 'none', lg: 'flex' } : 'none'}>
+            <HStack spacing={{ base: 0.5, sm: 1, md: 1.5, lg: 1.5 }} flex={1} justify={user?.rol_id && [3, 4, 5].includes(user.rol_id) ? "center" : "flex-end"} display={isAuthenticated ? { base: 'flex', md: 'none', lg: 'flex' } : 'none'}>
               {isAuthenticated && (
                 <>
                   {/* Tienda */}
@@ -472,7 +472,7 @@ export default function NavbarContent() {
             </HStack>
 
             {/* Separador vertical entre centro y derecha */}
-            {isAuthenticated && (
+            {isAuthenticated && user?.rol_id && [3, 4, 5].includes(user.rol_id) && (
               <Divider
                 orientation="vertical"
                 h="24px"

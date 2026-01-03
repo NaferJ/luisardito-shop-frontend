@@ -9,7 +9,7 @@ import {
 import Navbar from '../components/Navbar'
 import { Footer } from '../components/Footer'
 
-export default function Home() {
+export default function Landing() {
   const bgColor = useColorModeValue('white', 'gray.950')
   const textColor = useColorModeValue('gray.800', 'gray.50')
 

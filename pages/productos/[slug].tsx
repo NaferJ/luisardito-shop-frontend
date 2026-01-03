@@ -7,6 +7,9 @@ import { useAuth } from '../../hooks/useAuth'
 import { useCreateCanje } from '../../hooks/useCanjes'
 import { useProductos } from '../../hooks/useProductos'
 import { ProductCard } from '../../components/ProductCard'
+// @ts-expect-error ColorThief no tiene tipos definidos
+import ColorThief from 'colorthief'
+import { motion } from 'framer-motion'
 import {
   Box,
   Container,
@@ -66,9 +69,32 @@ export default function ProductoDetallePage() {
   const { data: productos } = useProductos()
   const toast = useToast()
   const [canjeError, setCanjeError] = useState<string | null>(null)
+  const [dominantColor, setDominantColor] = useState<number[] | null>(null)
 
   const productUrl = typeof window !== 'undefined' ? window.location.href : ''
   const { hasCopied, onCopy } = useClipboard(productUrl)
+
+  // Extraer color dominante de la imagen del producto
+  useEffect(() => {
+    if (!producto?.imagen_url && !producto?.imagen) {
+      setDominantColor(null)
+      return
+    }
+
+    const imgSrc = producto.imagen_url || producto.imagen
+    const img = document.createElement('img')
+    img.crossOrigin = 'anonymous'
+    img.src = imgSrc
+    img.onload = () => {
+      try {
+        const colorThief = new ColorThief()
+        const palette = colorThief.getPalette(img, 3)
+        setDominantColor(palette[0])
+      } catch (error) {
+        console.error('Error extracting colors:', error)
+      }
+    }
+  }, [producto?.imagen_url, producto?.imagen])
 
   // Theme colors
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -168,7 +194,6 @@ export default function ProductoDetallePage() {
         duration: 5000,
         isClosable: true
       })
-      router.push('/canjes')
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || 'Error al realizar el canje'
       setCanjeError(errorMessage)
@@ -190,6 +215,20 @@ export default function ProductoDetallePage() {
       duration: 3000,
       isClosable: true
     })
+  }
+
+  // Función para calcular luminancia
+  const getLuminance = (r: number, g: number, b: number): number => {
+    const [rs, gs, bs] = [r, g, b].map(c => {
+      c = c / 255
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+    })
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+  }
+
+  // Función para obtener color de texto basado en contraste
+  const getButtonTextColor = (bgColor: number[]): string => {
+    return getLuminance(bgColor[0], bgColor[1], bgColor[2]) > 0.5 ? 'gray.800' : 'white'
   }
 
   const shareOnTwitter = () => {
@@ -216,10 +255,12 @@ export default function ProductoDetallePage() {
     if (!isAuthenticated) {
       return {
         text: 'Iniciar sesión para canjear',
-        colorScheme: 'blue',
+        colorScheme: dominantColor ? undefined : 'blue',
         disabled: false,
         isLoading: false,
-        variant: 'solid'
+        variant: 'solid',
+        bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
+        textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
       }
     }
 
@@ -229,7 +270,9 @@ export default function ProductoDetallePage() {
         colorScheme: 'gray',
         disabled: true,
         isLoading: false,
-        variant: 'outline'
+        variant: 'outline',
+        bgColor: undefined,
+        textColor: undefined
       }
     }
 
@@ -241,16 +284,20 @@ export default function ProductoDetallePage() {
         colorScheme: 'orange',
         disabled: true,
         isLoading: false,
-        variant: 'outline'
+        variant: 'outline',
+        bgColor: undefined,
+        textColor: undefined
       }
     }
 
     return {
       text: createCanjeMutation.isPending ? 'Procesando...' : 'Canjear ahora',
-      colorScheme: 'blue',
+      colorScheme: dominantColor ? undefined : 'blue',
       disabled: createCanjeMutation.isPending,
       isLoading: createCanjeMutation.isPending,
-      variant: 'solid'
+      variant: 'solid',
+      bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
+      textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
     }
   }
 
@@ -265,7 +312,7 @@ export default function ProductoDetallePage() {
   const stockPercentage = Math.min(100, (producto.stock / 50) * 100)
 
   return (
-    <Layout>
+    <Layout productImageUrl={producto.imagen_url || producto.imagen}>
       <Head>
         <title>{producto.nombre} - Luisardito Shop</title>
         <meta
@@ -689,23 +736,35 @@ export default function ProductoDetallePage() {
 
               {/* Botón de canje */}
               <Box pt={2}>
-                <Button
-                  size="lg"
-                  w="100%"
-                  colorScheme={buttonState.colorScheme}
-                  variant={buttonState.variant}
-                  isDisabled={buttonState.disabled}
-                  isLoading={buttonState.isLoading}
-                  onClick={handleCanjeAction}
-                  leftIcon={<Icon as={MdShoppingCart} />}
-                  _hover={{
-                    transform: buttonState.disabled ? 'none' : 'translateY(-2px)',
-                    boxShadow: buttonState.disabled ? 'none' : 'lg'
-                  }}
-                  transition="all 0.2s"
+                <motion.div
+                  key={dominantColor ? `${dominantColor.join(',')}` : 'default'}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7, ease: 'easeInOut' }}
+                  style={{ width: '100%' }}
                 >
-                  {buttonState.text}
-                </Button>
+                  <Button
+                    size="lg"
+                    w="100%"
+                    colorScheme={buttonState.colorScheme}
+                    variant={buttonState.variant}
+                    isDisabled={buttonState.disabled}
+                    isLoading={buttonState.isLoading}
+                    onClick={handleCanjeAction}
+                    leftIcon={<Icon as={MdShoppingCart} />}
+                    bg={buttonState.bgColor}
+                    color={buttonState.textColor}
+                    _hover={{
+                      transform: buttonState.disabled ? 'none' : 'translateY(-2px)',
+                      boxShadow: buttonState.disabled ? 'none' : 'lg',
+                      bg: buttonState.bgColor && !buttonState.disabled ? `rgba(${dominantColor?.join(',')}, 0.9)` : undefined
+                    }}
+                    transition="all 0.2s"
+                  >
+                    {buttonState.text}
+                  </Button>
+                </motion.div>
 
                 {!isAuthenticated && (
                   <Text mt={2} textAlign="center" fontSize="xs" color={mutedColor}>

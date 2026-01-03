@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import Footer from './Footer'
 // @ts-expect-error ColorThief no tiene tipos definidos
 import ColorThief from 'colorthief'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Import dinámico sin SSR para evitar problemas de hidratación
 const Navbar = dynamic(() => import('./Navbar'), {
@@ -15,8 +16,11 @@ interface LayoutProps {
   productImageUrl?: string
 }
 
+const MotionBox = motion(Box)
+
 export function Layout({ children, productImageUrl }: LayoutProps) {
   const [dominantColor, setDominantColor] = useState<number[] | null>(null)
+  const [animationKey, setAnimationKey] = useState(0)
 
   // Colores adaptados según el tema
   const defaultBgGradient = useColorModeValue(
@@ -41,6 +45,8 @@ export function Layout({ children, productImageUrl }: LayoutProps) {
         const palette = colorThief.getPalette(img, 3)
         // Usar el primer color dominante, igual que ProductCard usa para bordes
         setDominantColor(palette[0])
+        // Trigger animación al cambiar el color
+        setAnimationKey(prev => prev + 1)
       } catch (error) {
         console.error('Error extracting colors:', error)
       }
@@ -54,6 +60,26 @@ export function Layout({ children, productImageUrl }: LayoutProps) {
   const bgGradient = dominantColor ? productBgGradient : defaultBgGradient
   const bgColor = dominantColor ? useColorModeValue('white', 'brand.900') : defaultBgColor
 
+  const animationVariants = {
+    exit: {
+      opacity: 0,
+      transition: {
+        duration: 0.7,
+        ease: 'easeInOut',
+      },
+    },
+    initial: {
+      opacity: 0,
+    },
+    animate: {
+      opacity: 1,
+      transition: {
+        duration: 1.2,
+        ease: 'easeInOut',
+      },
+    },
+  }
+
   return (
     <Box
       minH="100vh"
@@ -63,14 +89,21 @@ export function Layout({ children, productImageUrl }: LayoutProps) {
       position="relative"
     >
       {/* Indigo Cosmos Background with Top Glow */}
-      <Box
-        position="absolute"
-        inset={0}
-        zIndex={0}
-        style={{
-          background: bgGradient,
-        }}
-      />
+      <AnimatePresence mode="wait">
+        <MotionBox
+          key={animationKey}
+          position="absolute"
+          inset={0}
+          zIndex={0}
+          variants={animationVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          style={{
+            background: bgGradient,
+          }}
+        />
+      </AnimatePresence>
       {/* Content on top of background */}
       <Box position="relative" zIndex={1} display="flex" flexDir="column" minH="100vh">
         <Navbar />

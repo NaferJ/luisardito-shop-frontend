@@ -458,26 +458,28 @@ export default function LeaderboardPage() {
                                         Tú
                                       </Badge>
                                     )}
-                                  <UserBadge
-                                    user={{
-                                      id: user.usuario_id,
-                                      email: '',
-                                      puntos: user.puntos,
-                                      rol_id: user.is_vip ? 5 : 1,
-                                      nickname: user.nickname,
-                                      discord_username: user.kick_data?.username,
-                                      user_type: user.is_subscriber
-                                        ? 'subscriber'
-                                        : user.is_vip
-                                          ? 'vip'
-                                          : 'regular',
-                                      vip_info: user.is_vip ? { is_active: true } : undefined,
-                                      subscriber_status: user.is_subscriber
-                                        ? { is_active: true, expires_soon: false }
-                                        : undefined
-                                    }}
-                                    size="sm"
-                                  />
+                                  <Box ml="auto">
+                                    <UserBadge
+                                      user={{
+                                        id: user.usuario_id,
+                                        email: '',
+                                        puntos: user.puntos,
+                                        rol_id: user.is_vip ? 5 : 1,
+                                        nickname: user.nickname,
+                                        discord_username: user.kick_data?.username,
+                                        user_type: user.is_subscriber
+                                          ? 'subscriber'
+                                          : user.is_vip
+                                            ? 'vip'
+                                            : 'regular',
+                                        vip_info: user.is_vip ? { is_active: true } : undefined,
+                                        subscriber_status: user.is_subscriber
+                                          ? { is_active: true, expires_soon: false }
+                                          : undefined
+                                      }}
+                                      size="sm"
+                                    />
+                                  </Box>
                                 </HStack>
                               </VStack>
                             </HStack>

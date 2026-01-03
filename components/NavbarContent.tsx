@@ -128,6 +128,17 @@ export default function NavbarContent() {
     '0 4px 12px rgba(96, 165, 250, 0.4)'
   )
 
+  // Sombras interiores con desenfoque gaussiano para hover y active en iconos
+  // Efecto de burbuja con múltiples capas y glow
+  const iconHoverInset = useColorModeValue(
+    'inset 0 0 12px rgba(59, 130, 246, 0.4), inset 0 0 20px rgba(59, 130, 246, 0.15), inset 0 -2px 4px rgba(255, 255, 255, 0.3)',
+    'inset 0 0 12px rgba(96, 165, 250, 0.5), inset 0 0 20px rgba(96, 165, 250, 0.2), inset 0 -2px 4px rgba(255, 255, 255, 0.1)'
+  )
+  const iconActiveInset = useColorModeValue(
+    'inset 0 0 16px rgba(59, 130, 246, 0.5), inset 0 0 28px rgba(59, 130, 246, 0.25), inset 0 -2px 6px rgba(255, 255, 255, 0.4)',
+    'inset 0 0 16px rgba(96, 165, 250, 0.6), inset 0 0 28px rgba(96, 165, 250, 0.3), inset 0 -2px 6px rgba(255, 255, 255, 0.15)'
+  )
+
   // Colores para el menú - con efecto de absorción de colores del fondo
   const menuBg = useColorModeValue('rgba(255, 255, 255, 0.075)', 'rgba(13, 17, 23, 0.075)')
   const menuShadow = useColorModeValue(
@@ -309,11 +320,12 @@ export default function NavbarContent() {
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="lg"
-                        bg={isActiveRoute('/productos') ? activeBg : 'transparent'}
+                        bg="transparent"
                         cursor="pointer"
-                        transition="all 0.2s"
+                        transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        boxShadow={isActiveRoute('/productos') ? iconActiveInset : 'none'}
                         _hover={{
-                          bg: hoverBg
+                          boxShadow: iconHoverInset
                         }}
                       >
                         <Icon as={MdShoppingCart} boxSize={{ base: 4, sm: 5, lg: 5 }} />
@@ -331,11 +343,12 @@ export default function NavbarContent() {
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="lg"
-                        bg={isActiveRoute('/canjes') ? activeBg : 'transparent'}
+                        bg="transparent"
                         cursor="pointer"
-                        transition="all 0.2s"
+                        transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        boxShadow={isActiveRoute('/canjes') ? iconActiveInset : 'none'}
                         _hover={{
-                          bg: hoverBg
+                          boxShadow: iconHoverInset
                         }}
                       >
                         <Icon as={MdRedeem} boxSize={{ base: 4, sm: 5, lg: 5 }} />
@@ -353,11 +366,12 @@ export default function NavbarContent() {
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="lg"
-                        bg={isActiveRoute('/leaderboard') ? activeBg : 'transparent'}
+                        bg="transparent"
                         cursor="pointer"
-                        transition="all 0.2s"
+                        transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        boxShadow={isActiveRoute('/leaderboard') ? iconActiveInset : 'none'}
                         _hover={{
-                          bg: hoverBg
+                          boxShadow: iconHoverInset
                         }}
                       >
                         <Icon as={MdLeaderboard} boxSize={{ base: 4, sm: 5, lg: 5 }} />
@@ -385,11 +399,12 @@ export default function NavbarContent() {
                           alignItems="center"
                           justifyContent="center"
                           borderRadius="lg"
-                          bg={isActiveRoute('/admin/usuarios') ? activeBg : 'transparent'}
+                          bg="transparent"
                           cursor="pointer"
-                          transition="all 0.2s"
+                          transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                          boxShadow={isActiveRoute('/admin/usuarios') ? iconActiveInset : 'none'}
                           _hover={{
-                            bg: hoverBg
+                            boxShadow: iconHoverInset
                           }}
                         >
                           <Icon as={MdGroup} boxSize={{ base: 4, sm: 5, lg: 5 }} />
@@ -409,11 +424,12 @@ export default function NavbarContent() {
                           alignItems="center"
                           justifyContent="center"
                           borderRadius="lg"
-                          bg={isActiveRoute('/admin/canjes') ? activeBg : 'transparent'}
+                          bg="transparent"
                           cursor="pointer"
-                          transition="all 0.2s"
+                          transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                          boxShadow={isActiveRoute('/admin/canjes') ? iconActiveInset : 'none'}
                           _hover={{
-                            bg: hoverBg
+                            boxShadow: iconHoverInset
                           }}
                         >
                           <Icon as={MdInventory} boxSize={{ base: 4, sm: 5, lg: 5 }} />
@@ -433,11 +449,12 @@ export default function NavbarContent() {
                           alignItems="center"
                           justifyContent="center"
                           borderRadius="lg"
-                          bg={isActiveRoute('/admin/kick') ? activeBg : 'transparent'}
+                          bg="transparent"
                           cursor="pointer"
-                          transition="all 0.2s"
+                          transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                          boxShadow={isActiveRoute('/admin/kick') ? iconActiveInset : 'none'}
                           _hover={{
-                            bg: hoverBg
+                            boxShadow: iconHoverInset
                           }}
                         >
                           <Image src="/images/logokick.png" alt="Kick" boxSize={5} filter={kickLogoFilter} />
@@ -671,10 +688,10 @@ export default function NavbarContent() {
                 h="auto"
                 p={1}
                 flexShrink={0}
+                transition="all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
                 _hover={{
-                  bg: hoverBg,
-                  transform: 'translateY(-1px)',
-                  transition: 'all 0.2s'
+                  boxShadow: iconHoverInset,
+                  transform: 'translateY(-1px)'
                 }}
               />
             </HStack>

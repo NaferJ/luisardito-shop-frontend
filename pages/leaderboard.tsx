@@ -440,7 +440,7 @@ export default function LeaderboardPage() {
                                 />
                               </UserAvatarWithBadge>
                               <VStack align="start" spacing={0}>
-                                <HStack spacing={2}>
+                                <HStack spacing={1.5}>
                                   <Text fontWeight="medium" fontSize="sm">
                                     {user.nickname}
                                   </Text>

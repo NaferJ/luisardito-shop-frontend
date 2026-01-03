@@ -485,6 +485,18 @@ export default function NavbarContent() {
 
             {/* ============ SECCIÓN DERECHA: Sugerencia, Controles, Badges, Perfil ============ */}
             <HStack spacing={{ base: 0.5, sm: 1, md: 1.5 }} flex={1} justify="flex-end" align="center">
+              {/* Separador vertical antes de sugerencia (solo si NO es admin) */}
+              {isAuthenticated && !(user?.rol_id && [3, 4, 5].includes(user.rol_id)) && (
+                <Divider
+                  orientation="vertical"
+                  h="24px"
+                  my="auto"
+                  borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
+                  borderWidth="1px"
+                  display={{ base: 'none', lg: 'block' }}
+                />
+              )}
+
               {/* Botón Sugerencia - Desktop */}
               <Button
                 leftIcon={<Icon as={MdSend} />}

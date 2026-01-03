@@ -301,6 +301,7 @@ export default function NavbarContent() {
               <Divider
                 orientation="vertical"
                 h="24px"
+                my="auto"
                 borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
                 borderWidth="1px"
                 display={{ base: 'none', lg: 'block' }}
@@ -384,6 +385,7 @@ export default function NavbarContent() {
                   <Divider
                     orientation="vertical"
                     h="24px"
+                    my="auto"
                     borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
                     borderWidth="1px"
                     display={{ base: 'none', sm: 'block' }}
@@ -472,6 +474,7 @@ export default function NavbarContent() {
               <Divider
                 orientation="vertical"
                 h="24px"
+                my="auto"
                 borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
                 borderWidth="1px"
                 display={{ base: 'none', lg: 'block' }}
@@ -512,6 +515,7 @@ export default function NavbarContent() {
                 <Divider
                   orientation="vertical"
                   h="24px"
+                  my="auto"
                   borderColor={useColorModeValue('rgba(208, 215, 222, 0.6)', 'rgba(66, 74, 83, 0.6)')}
                   borderWidth="1px"
                   display={{ base: 'none', lg: 'block' }}

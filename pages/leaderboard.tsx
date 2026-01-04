@@ -277,11 +277,56 @@ export default function LeaderboardPage() {
   }
 
   const formatWatchtime = (minutes?: number) => {
-    if (!minutes) return '0 min'
-    if (minutes < 60) return `${minutes} min`
-    const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`
+    if (!minutes || minutes === 0) return '0 min'
+
+    // Convertir a diferentes unidades
+    const totalSeconds = minutes * 60
+    const totalDays = minutes / (60 * 24)
+    const totalWeeks = minutes / (60 * 24 * 7)
+    const totalMonths = minutes / (60 * 24 * 30) // aproximado
+    const totalYears = minutes / (60 * 24 * 365) // aproximado
+
+    // Si es menor a 60 minutos, mostrar solo minutos
+    if (minutes < 60) {
+      return `${Math.round(minutes)} min`
+    }
+
+    // Si es menor a 24 horas, mostrar horas y minutos
+    if (minutes < 60 * 24) {
+      const hours = Math.floor(minutes / 60)
+      const mins = Math.round(minutes % 60)
+      return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`
+    }
+
+    // Si es menor a 7 días, mostrar días y horas
+    if (minutes < 60 * 24 * 7) {
+      const days = Math.floor(minutes / (60 * 24))
+      const remainingMinutes = minutes % (60 * 24)
+      const hours = Math.round(remainingMinutes / 60)
+      return hours > 0 ? `${days}d ${hours}h` : `${days}d`
+    }
+
+    // Si es menor a 30 días, mostrar semanas y días
+    if (minutes < 60 * 24 * 30) {
+      const weeks = Math.floor(minutes / (60 * 24 * 7))
+      const remainingMinutes = minutes % (60 * 24 * 7)
+      const days = Math.round(remainingMinutes / (60 * 24))
+      return days > 0 ? `${weeks}s ${days}d` : `${weeks}s`
+    }
+
+    // Si es menor a 365 días, mostrar meses y días
+    if (minutes < 60 * 24 * 365) {
+      const months = Math.floor(minutes / (60 * 24 * 30))
+      const remainingMinutes = minutes % (60 * 24 * 30)
+      const days = Math.round(remainingMinutes / (60 * 24))
+      return days > 0 ? `${months}m ${days}d` : `${months}m`
+    }
+
+    // Si es 365 días o más, mostrar años
+    const years = Math.floor(minutes / (60 * 24 * 365))
+    const remainingMinutes = minutes % (60 * 24 * 365)
+    const months = Math.round(remainingMinutes / (60 * 24 * 30))
+    return months > 0 ? `${years}a ${months}m` : `${years}a`
   }
 
   return (

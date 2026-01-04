@@ -473,13 +473,13 @@ export default function LeaderboardPage() {
                           Pos
                         </Th>
                         <Th fontSize="xs">Usuario</Th>
-                        <Th w="500px" isNumeric fontSize="xs">
+                        <Th isNumeric fontSize="xs">
                           Watchtime
                         </Th>
-                        <Th isNumeric fontSize="xs">
+                        <Th w="120px" isNumeric fontSize="xs">
                           Max Puntos
                         </Th>
-                        <Th w="100px" isNumeric fontSize="xs">
+                        <Th w="90px" isNumeric fontSize="xs">
                           Puntos
                         </Th>
                         <Th w="100px" textAlign="center" fontSize="xs">

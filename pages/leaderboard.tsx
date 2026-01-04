@@ -284,18 +284,24 @@ export default function LeaderboardPage() {
       return `${Math.round(minutes)} min`
     }
 
-    // Si es menor a 24 horas, mostrar horas y minutos
+    // Si es menor a 24 horas, mostrar horas (sin minutos si cumple hora)
     if (minutes < 60 * 24) {
       const hours = Math.floor(minutes / 60)
-      const mins = Math.round(minutes % 60)
-      return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`
+      const mins = minutes % 60
+      // Si hay minutos pero no llega a cumplir otra hora, mostrar minutos
+      return mins > 0 ? `${hours}h ${Math.round(mins)} min` : `${hours}h`
     }
 
     // Si es menor a 7 días, mostrar días y horas
     if (minutes < 60 * 24 * 7) {
       const days = Math.floor(minutes / (60 * 24))
       const remainingMinutes = minutes % (60 * 24)
-      const hours = Math.round(remainingMinutes / 60)
+      const hours = Math.floor(remainingMinutes / 60)
+      const mins = remainingMinutes % 60
+      // Solo mostrar minutos si no hay horas o si hay minutos sin llegar a otra hora
+      if (hours === 0 && mins > 0) {
+        return `${days}d ${Math.round(mins)} min`
+      }
       return hours > 0 ? `${days}d ${hours}h` : `${days}d`
     }
 
@@ -305,10 +311,19 @@ export default function LeaderboardPage() {
       const remainingMinutes = minutes % (60 * 24 * 7)
       const days = Math.floor(remainingMinutes / (60 * 24))
       const remainingMinsAfterDays = remainingMinutes % (60 * 24)
-      const hours = Math.round(remainingMinsAfterDays / 60)
+      const hours = Math.floor(remainingMinsAfterDays / 60)
+      const mins = remainingMinsAfterDays % 60
+
+      // Si no hay horas pero hay minutos, mostrar minutos
+      if (hours === 0 && mins > 0) {
+        if (days > 0) {
+          return `${weeks}s ${days}d ${Math.round(mins)} min`
+        }
+        return `${weeks}s ${Math.round(mins)} min`
+      }
 
       if (hours > 0) {
-        return `${weeks}s ${days}d ${hours}h`
+        return days > 0 ? `${weeks}s ${days}d ${hours}h` : `${weeks}s ${hours}h`
       } else if (days > 0) {
         return `${weeks}s ${days}d`
       }
@@ -321,10 +336,19 @@ export default function LeaderboardPage() {
       const remainingMinutes = minutes % (60 * 24 * 30)
       const days = Math.floor(remainingMinutes / (60 * 24))
       const remainingMinsAfterDays = remainingMinutes % (60 * 24)
-      const hours = Math.round(remainingMinsAfterDays / 60)
+      const hours = Math.floor(remainingMinsAfterDays / 60)
+      const mins = remainingMinsAfterDays % 60
+
+      // Si no hay horas pero hay minutos, mostrar minutos
+      if (hours === 0 && mins > 0) {
+        if (days > 0) {
+          return `${months}m ${days}d ${Math.round(mins)} min`
+        }
+        return `${months}m ${Math.round(mins)} min`
+      }
 
       if (hours > 0) {
-        return `${months}m ${days}d ${hours}h`
+        return days > 0 ? `${months}m ${days}d ${hours}h` : `${months}m ${hours}h`
       } else if (days > 0) {
         return `${months}m ${days}d`
       }
@@ -340,12 +364,28 @@ export default function LeaderboardPage() {
     const remainingMinsAfterWeeks = remainingMinsAfterMonths % (60 * 24 * 7)
     const days = Math.floor(remainingMinsAfterWeeks / (60 * 24))
     const remainingMinsAfterDays = remainingMinsAfterWeeks % (60 * 24)
-    const hours = Math.round(remainingMinsAfterDays / 60)
+    const hours = Math.floor(remainingMinsAfterDays / 60)
+    const mins = remainingMinsAfterDays % 60
+
+    // Si no hay horas pero hay minutos, mostrar minutos
+    if (hours === 0 && mins > 0) {
+      if (weeks > 0) {
+        return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d ${Math.round(mins)} min` : `${years}a ${months}m ${weeks}s ${Math.round(mins)} min`
+      } else if (days > 0) {
+        return `${years}a ${months}m ${days}d ${Math.round(mins)} min`
+      }
+      return `${years}a ${months}m ${Math.round(mins)} min`
+    }
 
     if (hours > 0) {
-      return `${years}a ${months}m ${weeks}s ${hours}h`
+      if (weeks > 0) {
+        return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d ${hours}h` : `${years}a ${months}m ${weeks}s ${hours}h`
+      } else if (days > 0) {
+        return `${years}a ${months}m ${days}d ${hours}h`
+      }
+      return `${years}a ${months}m ${hours}h`
     } else if (weeks > 0) {
-      return `${years}a ${months}m ${weeks}s`
+      return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d` : `${years}a ${months}m ${weeks}s`
     } else if (days > 0) {
       return `${years}a ${months}m ${days}d`
     } else if (months > 0) {

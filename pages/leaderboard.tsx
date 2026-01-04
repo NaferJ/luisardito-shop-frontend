@@ -72,6 +72,9 @@ interface LeaderboardUser {
   previous_points: number | null
   is_vip: boolean
   is_subscriber: boolean
+  watchtime_minutes?: number
+  max_puntos?: number
+  message_count?: number
   kick_data: {
     avatar_url?: string
     username?: string
@@ -98,6 +101,8 @@ interface MyPositionData {
   previous_points: number | null
   is_vip: boolean
   is_subscriber: boolean
+  watchtime_minutes?: number
+  max_puntos?: number
   discord_info?: {
     linked: boolean
     id: string
@@ -115,6 +120,8 @@ export default function LeaderboardPage() {
   const [myPosition, setMyPosition] = useState<MyPositionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [daysUntilReset, setDaysUntilReset] = useState<number | null>(null)
+  const [hoursUntilReset, setHoursUntilReset] = useState<number | null>(null)
 
   // Theme colors - must be called unconditionally
   const bgCard = useColorModeValue('white', 'gray.800')
@@ -150,6 +157,11 @@ export default function LeaderboardPage() {
 
       if (data.success && data.data) {
         setLeaderboard(data.data)
+        // Capturar información de reset si está disponible
+        if (data.meta) {
+          setDaysUntilReset(data.meta.days_until_reset ?? null)
+          setHoursUntilReset(data.meta.hours_until_reset ?? null)
+        }
       } else {
         setError(data.message || 'Error al cargar el leaderboard')
         console.error('Error en respuesta:', data)
@@ -264,6 +276,14 @@ export default function LeaderboardPage() {
     return {}
   }
 
+  const formatWatchtime = (minutes?: number) => {
+    if (!minutes) return '0 min'
+    if (minutes < 60) return `${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`
+  }
+
   return (
     <Layout>
       <Head>
@@ -279,8 +299,17 @@ export default function LeaderboardPage() {
               Tabla de Clasificación
             </Heading>
             <Text color={textSecondary} fontSize="sm">
-              Rankings en tiempo real basados en puntos
+              Rankings en tiempo real
             </Text>
+            {(daysUntilReset !== null || hoursUntilReset !== null) && (
+              <Text color={textSecondary} fontSize="xs" mt={2}>
+                {daysUntilReset && daysUntilReset > 0
+                  ? `Reinicia en ${daysUntilReset} día${daysUntilReset !== 1 ? 's' : ''}`
+                  : hoursUntilReset && hoursUntilReset > 0
+                    ? `Reinicia en ${hoursUntilReset} hora${hoursUntilReset !== 1 ? 's' : ''}`
+                    : 'Reinicia pronto'}
+              </Text>
+            )}
           </Box>
 
           {/* Search User Combobox */}
@@ -316,6 +345,28 @@ export default function LeaderboardPage() {
                   </HStack>
 
                   <HStack spacing={4} divider={<Divider orientation="vertical" h="30px" />}>
+                    {myPosition.watchtime_minutes !== undefined && (
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="xs" color={textSecondary}>
+                          Watchtime
+                        </Text>
+                        <Text fontSize="lg" fontWeight="semibold">
+                          {formatWatchtime(myPosition.watchtime_minutes)}
+                        </Text>
+                      </VStack>
+                    )}
+
+                    {myPosition.max_puntos !== undefined && (
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="xs" color={textSecondary}>
+                          Max Puntos
+                        </Text>
+                        <Text fontSize="lg" fontWeight="semibold">
+                          {myPosition.max_puntos.toLocaleString()}
+                        </Text>
+                      </VStack>
+                    )}
+
                     <VStack align="start" spacing={0}>
                       <Text fontSize="xs" color={textSecondary}>
                         Puntos
@@ -377,7 +428,13 @@ export default function LeaderboardPage() {
                           Pos
                         </Th>
                         <Th fontSize="xs">Usuario</Th>
+                        <Th w="500px" isNumeric fontSize="xs">
+                          Watchtime
+                        </Th>
                         <Th isNumeric fontSize="xs">
+                          Max Puntos
+                        </Th>
+                        <Th w="100px" isNumeric fontSize="xs">
                           Puntos
                         </Th>
                         <Th w="100px" textAlign="center" fontSize="xs">
@@ -483,6 +540,18 @@ export default function LeaderboardPage() {
                                 </HStack>
                               </VStack>
                             </HStack>
+                          </Td>
+
+                          <Td isNumeric>
+                            <Text fontSize="sm" color={textSecondary}>
+                              {formatWatchtime(user.watchtime_minutes)}
+                            </Text>
+                          </Td>
+
+                          <Td isNumeric>
+                            <Text fontSize="sm" color={textSecondary}>
+                              {(user.max_puntos ?? 0).toLocaleString()}
+                            </Text>
                           </Td>
 
                           <Td isNumeric>

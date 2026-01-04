@@ -48,6 +48,7 @@ export default function KickAdminPage() {
     error: configError,
     updateMigrationConfig,
     updateVipConfig,
+    updateWatchtimeMigrationConfig,
     cleanupExpiredVips
   } = useKickAdminConfig()
 
@@ -59,6 +60,7 @@ export default function KickAdminPage() {
 
   const [updatingMigration, setUpdatingMigration] = useState(false)
   const [updatingVip, setUpdatingVip] = useState(false)
+  const [updatingWatchtime, setUpdatingWatchtime] = useState(false)
   const [cleaningVips, setCleaningVips] = useState(false)
 
   // Solo desarrolladores (rol_id 4) pueden ver información completa
@@ -165,6 +167,33 @@ export default function KickAdminPage() {
     }
   }
 
+  const handleWatchtimeToggle = async (enabled: boolean) => {
+    try {
+      setUpdatingWatchtime(true)
+      await updateWatchtimeMigrationConfig(enabled)
+      toast({
+        title: 'Configuración actualizada',
+        description: `Migración de watchtime ${enabled ? 'activada' : 'desactivada'}`,
+        status: 'success',
+        duration: 3000
+      })
+    } catch (error: any) {
+      const errorMessage = handleApiError(
+        error,
+        'No se pudo actualizar la configuración de migración de watchtime'
+      )
+
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        status: 'error',
+        duration: 5000
+      })
+    } finally {
+      setUpdatingWatchtime(false)
+    }
+  }
+
   const handleCleanupVips = async () => {
     if (!confirm('¿Estás seguro de limpiar todos los VIPs expirados?')) return
 
@@ -250,6 +279,7 @@ export default function KickAdminPage() {
 
   // Determinar estados actuales de la configuración con nombres REALES del backend
   const migrationEnabled = config?.migration?.enabled ?? false
+  const watchtimeMigrationEnabled = config?.watchtime_migration?.enabled ?? false
   const vipEnabled = config?.vip?.points_enabled ?? false
 
   // Calcular estadísticas REALES desde los datos de usuarios (en tiempo real)
@@ -259,6 +289,8 @@ export default function KickAdminPage() {
       (sum, user) => sum + (user.migration_status?.points_migrated || 0),
       0
     ) ?? 0
+  const watchtimeMigratedUsers = config?.watchtime_migration?.stats?.migrated_users ?? 0
+  const totalWatchtimeMigrated = config?.watchtime_migration?.stats?.total_minutes_migrated ?? 0
   const activeVips = usuariosData?.users?.filter((user) => user.vip_status?.is_active).length ?? 0
   const expiredVips = config?.vip?.stats?.expired_vips ?? 0
 
@@ -497,6 +529,91 @@ export default function KickAdminPage() {
                         >
                           Limpiar VIPs expirados
                         </Button>
+                      </>
+                    )}
+                  </VStack>
+                </CardBody>
+              </Card>
+
+              {/* Migración de Watchtime */}
+              <Card
+                bg={watchtimeMigrationEnabled ? enabledBg : disabledBg}
+                borderRadius="xl"
+                border="2px solid"
+                borderColor={watchtimeMigrationEnabled ? enabledBorder : disabledBorder}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg',
+                  borderColor: watchtimeMigrationEnabled ? 'green.300' : 'gray.300'
+                }}
+                transition="all 0.2s"
+              >
+                <CardHeader pb={3}>
+                  <HStack justify="space-between" align="start">
+                    <VStack align="start" spacing={1}>
+                      <HStack>
+                        <Icon as={SettingsIcon} color="purple.500" />
+                        <Heading size="md" color={watchtimeMigrationEnabled ? 'green.400' : textPrimary}>
+                          Migración de Watchtime
+                        </Heading>
+                      </HStack>
+                      <Text fontSize="sm" color={textSecondary}>
+                        Migra el tiempo de visualización de usuarios desde el bot Botrix automáticamente
+                      </Text>
+                    </VStack>
+                    <Badge
+                      colorScheme={watchtimeMigrationEnabled ? 'green' : 'gray'}
+                      fontSize="sm"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      {watchtimeMigrationEnabled ? 'Activo' : 'Inactivo'}
+                    </Badge>
+                  </HStack>
+                </CardHeader>
+                <CardBody pt={0}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                      <FormLabel mb={0} fontWeight="semibold">
+                        Migración automática de watchtime
+                      </FormLabel>
+                      <Switch
+                        isChecked={watchtimeMigrationEnabled}
+                        onChange={(e) => handleWatchtimeToggle(e.target.checked)}
+                        isDisabled={updatingWatchtime || !hasConfig}
+                        colorScheme="green"
+                        size="lg"
+                      />
+                    </FormControl>
+
+                    <Text fontSize="sm" color={textSecondary}>
+                      {hasConfig
+                        ? 'Detecta automáticamente mensajes de watchtime del bot Botrix y migra los datos'
+                        : 'Funcionalidad no disponible - endpoint no configurado'}
+                    </Text>
+
+                    {watchtimeMigrationEnabled && (
+                      <>
+                        <Divider />
+                        <SimpleGrid columns={2} spacing={4}>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              Usuarios migrados
+                            </Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="purple.500">
+                              {watchtimeMigratedUsers}
+                            </Text>
+                          </Box>
+                          <Box>
+                            <Text fontSize="xs" color={textSecondary} mb={1}>
+                              Total minutos migrados
+                            </Text>
+                            <Text fontSize="2xl" fontWeight="bold" color="purple.500">
+                              {totalWatchtimeMigrated.toLocaleString()}
+                            </Text>
+                          </Box>
+                        </SimpleGrid>
                       </>
                     )}
                   </VStack>

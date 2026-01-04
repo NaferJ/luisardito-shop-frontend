@@ -154,6 +154,33 @@ export const useKickAdminConfig = () => {
     }
   }
 
+  const updateWatchtimeMigrationConfig = async (enabled: boolean) => {
+    try {
+      const payload = { watchtime_migration_enabled: enabled }
+
+      console.log('🔄 updateWatchtimeMigrationConfig: Enviando payload:', payload)
+      console.log('🔄 updateWatchtimeMigrationConfig: Endpoint:', '/api/kick-admin/watchtime-migration')
+
+      const response = await api.put('/api/kick-admin/watchtime-migration', payload)
+
+      console.log('✅ updateWatchtimeMigrationConfig: Respuesta exitosa:', response.data)
+
+      await fetchConfig() // Recargar configuración
+      return true
+    } catch (err: any) {
+      console.error('❌ updateWatchtimeMigrationConfig: Error:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message,
+        payload: { watchtime_migration_enabled: enabled }
+      })
+
+      setError(err.response?.data?.message || 'Error al actualizar migración de watchtime')
+      throw err
+    }
+  }
+
   useEffect(() => {
     // Solo hacer la llamada si hay un token de autenticación
     const authToken = getAuthCookie()
@@ -178,6 +205,7 @@ export const useKickAdminConfig = () => {
     fetchConfig,
     updateMigrationConfig,
     updateVipConfig,
+    updateWatchtimeMigrationConfig,
     grantVipToCanje,
     removeVipFromUser,
     cleanupExpiredVips,

@@ -282,31 +282,61 @@ curl http://localhost:3002
 
 ```tsx
 // components/ProductCard.tsx
-import { Box, Image, Text, Button } from '@chakra-ui/react';
+import { Box, Image, Text, Button, VStack, HStack, Badge } from '@chakra-ui/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image: string;
-  };
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  stock?: number;
+  isPromotion?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ 
+  id, 
+  name, 
+  price, 
+  image, 
+  stock = 0,
+  isPromotion = false 
+}: ProductCardProps) {
   const router = useRouter();
 
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
-      <Image src={product.image} alt={product.name} />
-      <Box p="6">
-        <Text fontWeight="bold">{product.name}</Text>
-        <Text>${product.price}</Text>
-        <Button onClick={() => router.push(`/productos/${product.id}`)}>
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      _hover={{ shadow: 'lg' }}
+      transition="all 0.2s"
+    >
+      <Box position="relative" height="200px" overflow="hidden">
+        <Image 
+          src={image} 
+          alt={name}
+          objectFit="cover"
+          width="100%"
+          height="100%"
+        />
+        {isPromotion && <Badge colorScheme="red">Promo</Badge>}
+      </Box>
+      <VStack p="6" spacing="3" align="start" w="100%">
+        <Text fontWeight="bold" fontSize="lg">{name}</Text>
+        <HStack spacing="2">
+          <Text fontSize="2xl" fontWeight="bold">${price}</Text>
+          {stock > 0 && <Badge colorScheme="green">Stock: {stock}</Badge>}
+        </HStack>
+        <Button 
+          width="100%"
+          colorScheme="teal"
+          onClick={() => router.push(`/productos/${id}`)}
+        >
           Ver Detalles
         </Button>
-      </Box>
+      </VStack>
     </Box>
   );
 }

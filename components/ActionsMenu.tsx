@@ -7,7 +7,6 @@ import {
   IconButton,
   Tooltip,
   useColorModeValue,
-  Portal,
   Icon,
   Text
 } from '@chakra-ui/react'
@@ -95,23 +94,22 @@ export const ActionsMenu = ({
           }}
         />
       </Tooltip>
-      <Portal>
-        <MenuList
-          zIndex={1400}
-          bg={menuBg}
-          sx={{
-            backdropFilter: 'saturate(180%) blur(20px)',
-            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-            background: fallbackBg
-          }}
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor={borderColor}
-          shadow={menuShadow}
-          minW="200px"
-          py={2}
-          overflow="hidden"
-        >
+      <MenuList
+        zIndex={1400}
+        bg={menuBg}
+        sx={{
+          backdropFilter: 'saturate(180%) blur(20px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+          background: fallbackBg
+        }}
+        borderRadius="xl"
+        borderWidth="1px"
+        borderColor={borderColor}
+        shadow={menuShadow}
+        minW="200px"
+        py={2}
+        overflow="hidden"
+      >
           {items.map((item, index) => {
             if (item.isDivider) {
               return (
@@ -157,7 +155,6 @@ export const ActionsMenu = ({
             )
           })}
         </MenuList>
-      </Portal>
-    </Menu>
+      </Menu>
   )
 }

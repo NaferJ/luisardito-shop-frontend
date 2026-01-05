@@ -159,14 +159,16 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   // Icon colors
   const iconColor = useColorModeValue('black', 'white')
 
-  // Gradient and text colors for overlay
+  // Adaptive overlay based on theme mode - Gaussian-like blur effect
   const overlayGradient = useColorModeValue(
-    'linear-gradient(to top, rgba(255,255,255,0.9), rgba(255,255,255,0.7), rgba(255,255,255,0.3), transparent)',
-    'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7), rgba(0,0,0,0.3), transparent)'
+    'linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.95), rgba(0,0,0,0.88), rgba(0,0,0,0.75), rgba(0,0,0,0.75), rgba(0,0,0,0.55), rgba(0,0,0,0.3), transparent)',
+    'linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.95), rgba(255,255,255,0.88), rgba(255,255,255,0.75), rgba(255,255,255,0.75), rgba(255,255,255,0.55), rgba(255,255,255,0.3), transparent)'
   )
-  const overlayTextColor = useColorModeValue('gray.800', 'white')
-  const overlayTextSecondaryColor = useColorModeValue('gray.600', 'whiteAlpha.800')
-  const overlayTextMutedColor = useColorModeValue('gray.500', 'whiteAlpha.700')
+
+  // Adaptive text colors for overlay based on theme
+  const overlayTextColor = useColorModeValue('white', 'black')
+  const overlayTextSecondaryColor = useColorModeValue('whiteAlpha.800', 'gray.700')
+  const overlayTextMutedColor = useColorModeValue('whiteAlpha.700', 'gray.600')
 
   // Solo mostrar productos publicados a usuarios que no pueden ver borradores
   const canSeeDrafts = isAdmin || (user && user.rol_id > 2)
@@ -497,23 +499,27 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
           )}
 
           {/* Contenido con degradado oscuro directo - SIN backdrop-filter */}
-          <VStack
-            align="stretch"
-            p={4}
-            spacing={3}
+          <Box
             position="absolute"
             bottom="0"
             left="0"
             right="0"
             zIndex={2}
             sx={{
-              background: overlayGradient,
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              maskImage: 'linear-gradient(to top, black, black 30%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to top, black, black 90%, transparent 100%)',
+              maskImage: 'linear-gradient(to top, black, black 100%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to top, black, black 100%, transparent 100%)',
             }}
           >
+            <VStack
+              align="stretch"
+              p={4}
+              spacing={3}
+              background={overlayGradient}
+              backdropFilter="blur(40px)"
+              _css={{
+                WebkitBackdropFilter: 'blur(40px)',
+              }}
+            >
             <VStack align="start" spacing={1}>
               <Text fontWeight="bold" fontSize="lg" color={overlayTextColor} noOfLines={1} w="full">
                 {producto.nombre}
@@ -587,6 +593,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
               </HStack>
             </HStack>
           </VStack>
+          </Box>
 
           {/* Badge de sin stock */}
           {outOfStock && (

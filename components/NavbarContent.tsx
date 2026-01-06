@@ -178,8 +178,11 @@ export default function NavbarContent() {
   const discordAlertTextBold = useColorModeValue('orange.800', 'orange.100')
   const discordAlertText = useColorModeValue('orange.700', 'orange.200')
 
-  // Color para el borde del badge NEW
-  const badgeBorderColor = useColorModeValue('white', 'gray.800')
+  // Colores para el botón de login
+  const loginBtnBg = useColorModeValue('blue.500', 'blue.400')
+  const loginBtnHoverBg = useColorModeValue('blue.600', 'blue.500')
+  const loginBtnOutlineColor = useColorModeValue('blue.500', 'blue.400')
+  const loginBtnOutlineHoverBg = useColorModeValue('blue.50', 'blue.900')
 
   const handleLogout = () => {
     logout()
@@ -705,8 +708,14 @@ export default function NavbarContent() {
               </HStack>
             ) : (
                 <ChakraLink as={NextLink} href="/login" display={{ base: 'none', lg: 'block' }} flexShrink={0}>
-                  <Button size="xs" borderRadius="lg">
-                    Login
+                  <Button 
+                    size="xs" 
+                    borderRadius="lg"
+                    bg={loginBtnBg}
+                    color="white"
+                    _hover={{ bg: loginBtnHoverBg }}
+                  >
+                    Iniciar sesión
                   </Button>
                 </ChakraLink>
               )}
@@ -999,7 +1008,14 @@ export default function NavbarContent() {
                     <Divider my={2} />
 
                     <ChakraLink as={NextLink} href="/login" onClick={onClose} _hover={{ textDecoration: 'none' }}>
-                      <Button variant="outline" width="full" borderRadius="xl">
+                      <Button 
+                        variant="outline" 
+                        width="full" 
+                        borderRadius="xl"
+                        borderColor={loginBtnOutlineColor}
+                        color={loginBtnOutlineColor}
+                        _hover={{ bg: loginBtnOutlineHoverBg }}
+                      >
                         Iniciar Sesión
                       </Button>
                     </ChakraLink>

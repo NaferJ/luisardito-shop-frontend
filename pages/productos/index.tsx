@@ -180,12 +180,12 @@ export default function Tienda() {
       </Head>
       <Layout>
 
-        <Box position="relative" zIndex={1}>
+        <Box position="relative" zIndex={1} mt={9}>
           {/* Banner de modo administrador */}
           {isAdmin && (
             <TransparentCard
               mb={6}
-              mt={{ base: 0, md: 9 }}
+              mt={{ base: 0, md: 4 }}
               px={6}
               py={4}
               position="relative"

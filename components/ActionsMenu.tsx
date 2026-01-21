@@ -8,7 +8,8 @@ import {
   Tooltip,
   useColorModeValue,
   Icon,
-  Text
+  Text,
+  Portal
 } from '@chakra-ui/react'
 import { ReactElement } from 'react'
 import { IconType } from 'react-icons'
@@ -78,7 +79,7 @@ export const ActionsMenu = ({
   }
 
   return (
-    <Menu placement={placement} strategy="fixed">
+    <Menu placement={placement} strategy="absolute">
       <Tooltip label={buttonLabel} placement="top">
         <MenuButton
           as={IconButton}
@@ -94,22 +95,23 @@ export const ActionsMenu = ({
           }}
         />
       </Tooltip>
-      <MenuList
-        zIndex={1400}
-        bg={menuBg}
-        sx={{
-          backdropFilter: 'saturate(180%) blur(20px)',
-          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          background: fallbackBg
-        }}
-        borderRadius="xl"
-        borderWidth="1px"
-        borderColor={borderColor}
-        shadow={menuShadow}
-        minW="200px"
-        py={2}
-        overflow="hidden"
-      >
+      <Portal>
+        <MenuList
+          zIndex={2000}
+          bg={menuBg}
+          sx={{
+            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+            background: fallbackBg
+          }}
+          borderRadius="xl"
+          borderWidth="1px"
+          borderColor={borderColor}
+          shadow={menuShadow}
+          minW="200px"
+          py={2}
+          overflow="hidden"
+        >
           {items.map((item, index) => {
             if (item.isDivider) {
               return (
@@ -155,6 +157,7 @@ export const ActionsMenu = ({
             )
           })}
         </MenuList>
-      </Menu>
+      </Portal>
+    </Menu>
   )
 }

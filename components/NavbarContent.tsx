@@ -177,7 +177,7 @@ export default function NavbarContent() {
         zIndex={1000}
         w="full"
         px={{ base: 3, md: 8 }}
-        maxW="930px"
+        maxW={user?.rol_id && [3, 4, 5].includes(user.rol_id) ? "930px" : "700px"}
       >
         <Flex
           bg={glassBg}

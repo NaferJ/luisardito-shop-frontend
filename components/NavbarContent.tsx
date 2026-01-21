@@ -177,7 +177,7 @@ export default function NavbarContent() {
         zIndex={1000}
         w="full"
         px={{ base: 3, md: 8 }}
-        maxW="900px"
+        maxW="930px"
       >
         <Flex
           bg={glassBg}
@@ -310,7 +310,7 @@ export default function NavbarContent() {
                 </Tooltip>
                 <Portal>
                   <MenuList
-                    bg={useColorModeValue('white', 'gray.900')}
+                    bg={useColorModeValue('white', 'gray.700')}
                     backdropFilter="blur(20px)"
                     borderColor={glassBorder}
                     boxShadow="0 10px 30px rgba(0,0,0,0.15)"
@@ -318,7 +318,7 @@ export default function NavbarContent() {
                     p={1.5}
                     minW="200px"
                   >
-                    <Box px={3} py={2.5} mb={1}>
+                    <Box px={3} py={2.5} mb={1} mt={1}>
                       <Text fontWeight="800" fontSize="xs" noOfLines={1} color={useColorModeValue('gray.800', 'white')}>{avatarName}</Text>
                       <UserBadge user={user} size="sm" />
                     </Box>

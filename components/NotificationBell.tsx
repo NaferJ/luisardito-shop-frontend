@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react'
 import { BellIcon, DeleteIcon, CheckIcon } from '@chakra-ui/icons'
 import {
-  MdGift,
+  MdCardGiftcard,
   MdAttachMoney,
   MdShoppingCart,
   MdCheckCircle,
@@ -30,7 +30,7 @@ import { useNotificaciones, useNoLeidasCount, useMarcarComoLeida, useMarcarTodas
 import { useRouter } from 'next/router'
 
 const iconMap: Record<string, JSX.Element> = {
-  sub_regalada: <MdGift />,
+  sub_regalada: <MdCardGiftcard />,
   puntos_ganados: <MdAttachMoney />,
   canje_creado: <MdShoppingCart />,
   canje_entregado: <MdCheckCircle />,

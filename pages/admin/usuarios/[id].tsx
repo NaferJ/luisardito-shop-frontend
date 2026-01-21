@@ -144,7 +144,7 @@ export default function AdminUsuarioGestionPage() {
   const processedData = useMemo(() => {
     if (!canjes) return []
 
-    let filtered = canjes.filter((canje: any) => {
+    const filtered = canjes.filter((canje: any) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
         canje?.Producto?.nombre?.toLowerCase().includes(searchLower) ||

@@ -132,7 +132,7 @@ export default function AdminProductosPage() {
   const processedData = useMemo(() => {
     if (!productos) return []
 
-    let filtered = productos.filter((producto: any) => {
+    const filtered = productos.filter((producto: any) => {
       const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
         producto.nombre?.toLowerCase().includes(searchLower) ||

@@ -185,7 +185,7 @@ export default function Tienda() {
           {isAdmin && (
             <TransparentCard
               mb={6}
-              mt={{ base: 0, md: 4 }}
+              mt={{ base: 0, md: 9 }}
               px={6}
               py={4}
               position="relative"

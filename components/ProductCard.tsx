@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   Box,
   Image,
@@ -15,21 +15,28 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   useToast,
-  useColorModeValue,
   Icon,
-  Skeleton
+  Skeleton,
+  AspectRatio,
 } from '@chakra-ui/react'
-import { SettingsIcon, ViewIcon, EditIcon, DeleteIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { 
+  EditIcon, 
+  DeleteIcon, 
+  CheckCircleIcon 
+} from '@chakra-ui/icons'
 import { ActionsMenu } from './ActionsMenu'
 import { Producto } from '../types'
 import { useUpdateProducto } from '../hooks/useProductosAdmin'
 // @ts-expect-error ColorThief no tiene tipos definidos
 import ColorThief from 'colorthief'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
-import { FiArchive, FiUsers } from 'react-icons/fi'
+import { FiArchive, FiUsers, FiTag } from 'react-icons/fi'
 import { generateSlug } from '../utils/slug'
+import { useColorModeValue } from '@chakra-ui/react'
+
+const MotionBox = motion(Box)
 
 function formatNumber(num: number): string {
   if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B'
@@ -38,25 +45,16 @@ function formatNumber(num: number): string {
   return num.toString()
 }
 
-// Calcular la luminosidad de un color RGB
 function getLuminance(r: number, g: number, b: number): number {
-  // Normalizar valores RGB de 0-255 a 0-1
   const [rs, gs, bs] = [r, g, b].map(c => {
     c = c / 255
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
   })
-  // Fórmula de luminancia relativa
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
 
-// Determinar si un color es claro u oscuro
-function isColorLight(r: number, g: number, b: number): boolean {
-  return getLuminance(r, g, b) > 0.5
-}
-
-// Obtener el color de texto apropiado según el fondo
 function getTextColor(bgColor: number[]): string {
-  return isColorLight(bgColor[0], bgColor[1], bgColor[2]) ? 'gray.800' : 'white'
+  return getLuminance(bgColor[0], bgColor[1], bgColor[2]) > 0.5 ? 'gray.800' : 'white'
 }
 
 interface ProductCardProps {
@@ -70,29 +68,23 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
   const toast = useToast()
   const router = useRouter()
   const { user } = useAuth()
-
   const updateProductoMutation = useUpdateProducto()
 
   const [dominantColors, setDominantColors] = useState<number[][]>([])
-  const [gradientAngle, setGradientAngle] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   const descuento = producto.descuento
   const tieneDescuento = descuento?.tieneDescuento && descuento.promocion
 
-  // Memoizamos el ángulo del gradiente para que sea consistente por producto
-  const memoizedGradientAngle = useMemo(() => {
-    // Usamos el ID del producto como seed para generar un ángulo consistente
-    const seed = producto.id || 0
-    return (seed * 137.508) % 360 // Golden angle para mejor distribución
-  }, [producto.id])
-
   useEffect(() => {
     const imgSrc = producto.imagen_url || producto.imagen
-    if (!imgSrc) return
+    if (!imgSrc) {
+      setImageLoaded(true)
+      return
+    }
 
-    // Precargar imagen en background para extracción de colores
-    const img = document.createElement('img')
+    const img = new window.Image()
     img.crossOrigin = 'anonymous'
     img.src = imgSrc
     img.onload = () => {
@@ -100,81 +92,29 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         const colorThief = new ColorThief()
         const palette = colorThief.getPalette(img, 3)
         setDominantColors(palette)
-        setGradientAngle(memoizedGradientAngle)
+        setImageLoaded(true)
       } catch (error) {
         console.error('Error extracting colors:', error)
+        setImageLoaded(true)
       }
     }
-    img.onerror = () => {
-      // No need to set bgImageLoaded
-    }
-  }, [producto.imagen_url, producto.imagen, memoizedGradientAngle])
+    img.onerror = () => setImageLoaded(true)
+  }, [producto.imagen_url, producto.imagen])
 
-  // Theme colors - MUST be called before any conditional returns
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const hoverBorderColor = useColorModeValue('blue.300', 'blue.600')
-  const hoverShadow = useColorModeValue(
-    '0 20px 40px rgba(59, 130, 246, 0.2)',
-    '0 20px 40px rgba(59, 130, 246, 0.4)'
-  )
-
-  // Menu colors
-  // const menuBg = useColorModeValue('white', 'gray.700')
-  // const menuHoverBg = useColorModeValue('gray.100', 'gray.600')
-
-  // No image placeholder colors
-  const noImageBg = useColorModeValue('gray.100', 'gray.700')
-  const noImageHoverBg = useColorModeValue('gray.200', 'gray.600')
-
-  // Delete menu colors
-  // const deleteHoverBg = useColorModeValue('red.50', 'red.900')
-
-  // Estado colors
-  const estadoThemeMap: Record<
-    string,
-    { light: { bg: string; color: string }; dark: { bg: string; color: string } }
-  > = {
-    publicado: {
-      light: { bg: 'green.100', color: 'green.800' },
-      dark: { bg: 'green.700', color: 'green.100' }
-    },
-    borrador: {
-      light: { bg: 'yellow.100', color: 'yellow.800' },
-      dark: { bg: 'yellow.700', color: 'yellow.100' }
-    },
-    eliminado: {
-      light: { bg: 'red.100', color: 'red.800' },
-      dark: { bg: 'red.700', color: 'red.100' }
-    },
-    default: {
-      light: { bg: 'gray.200', color: 'gray.800' },
-      dark: { bg: 'gray.600', color: 'gray.200' }
-    }
-  }
-
-  const estadoColors = estadoThemeMap[producto.estado] || estadoThemeMap.default
-  const estadoBg = useColorModeValue(estadoColors.light.bg, estadoColors.dark.bg)
-  const estadoColor = useColorModeValue(estadoColors.light.color, estadoColors.dark.color)
-
-  // Icon colors
-  const iconColor = useColorModeValue('black', 'white')
-
-  // Adaptive overlay based on theme mode - Gaussian-like blur effect
+  // Estilos base
+  const borderColor = useColorModeValue('rgba(0,0,0,0.06)', 'rgba(255,255,255,0.08)')
+  const cardBg = useColorModeValue('white', 'gray.900')
   const overlayGradient = useColorModeValue(
-    'linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.95), rgba(0,0,0,0.88), rgba(0,0,0,0.75), rgba(0,0,0,0.75), rgba(0,0,0,0.55), rgba(0,0,0,0.3), transparent)',
-    'linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.95), rgba(255,255,255,0.88), rgba(255,255,255,0.75), rgba(255,255,255,0.75), rgba(255,255,255,0.55), rgba(255,255,255,0.3), transparent)'
+    'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%)',
+    'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.85) 50%, transparent 100%)'
   )
+  const overlayTextColor = useColorModeValue('white', 'gray.100')
+  const overlayTextMutedColor = useColorModeValue('whiteAlpha.700', 'gray.300')
+  const overlayIconColor = useColorModeValue('whiteAlpha.800', 'gray.200')
+  const modalTextColor = useColorModeValue('gray.600', 'gray.300')
+  const cardShadow = useColorModeValue('lg', 'dark-lg')
 
-  // Adaptive text colors for overlay based on theme
-  const overlayTextColor = useColorModeValue('white', 'black')
-  const overlayTextSecondaryColor = useColorModeValue('whiteAlpha.800', 'gray.700')
-  const overlayTextMutedColor = useColorModeValue('whiteAlpha.700', 'gray.600')
-
-  // Solo mostrar productos publicados a usuarios que no pueden ver borradores
   const canSeeDrafts = isAdmin || (user && user.rol_id > 2)
-  if (!canSeeDrafts && producto.estado !== 'publicado') {
-    return null
-  }
 
   const handleDelete = async () => {
     try {
@@ -182,466 +122,209 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
         id: producto.id,
         productoData: { estado: 'eliminado' }
       })
-
-      toast({
-        title: 'Producto eliminado',
-        description: 'El producto se movió a eliminados',
-        status: 'success',
-        duration: 3000,
-        isClosable: true
-      })
+      toast({ title: 'Eliminado', description: 'Producto movido a papelera', status: 'success' })
       onClose()
     } catch {
-      toast({
-        title: 'Error',
-        description: 'No se pudo eliminar el producto',
-        status: 'error',
-        duration: 3000,
-        isClosable: true
-      })
+      toast({ title: 'Error', description: 'No se pudo eliminar', status: 'error' })
     }
   }
 
-  const toggleEstado = async () => {
+  const toggleEstado = useCallback(async () => {
     const nuevoEstado = producto.estado === 'publicado' ? 'borrador' : 'publicado'
-
     try {
-      await updateProductoMutation.mutateAsync({
-        id: producto.id,
-        productoData: { estado: nuevoEstado }
-      })
-
-      toast({
-        title: 'Estado actualizado',
-        description: `Producto cambiado a ${nuevoEstado}`,
-        status: 'success',
-        duration: 3000,
-        isClosable: true
-      })
+      await updateProductoMutation.mutateAsync({ id: producto.id, productoData: { estado: nuevoEstado } })
+      toast({ title: 'Actualizado', description: `Estado: ${nuevoEstado}`, status: 'success' })
     } catch {
-      toast({
-        title: 'Error',
-        description: 'No se pudo actualizar el estado',
-        status: 'error',
-        duration: 3000,
-        isClosable: true
-      })
+      toast({ title: 'Error', status: 'error' })
     }
-  }
+  }, [producto.id, producto.estado, updateProductoMutation, toast])
 
-  const getEstadoText = (estado: string) => {
-    switch (estado) {
-      case 'publicado':
-        return 'Publicado'
-      case 'borrador':
-        return 'Borrador'
-      case 'eliminado':
-        return 'Eliminado'
-      default:
-        return estado
-    }
-  }
+  if (!canSeeDrafts && producto.estado !== 'publicado') return null
 
   const outOfStock = producto.stock <= 0
+  const accentRGB = dominantColors[0] ? `${dominantColors[0].join(',')}` : '66, 153, 225'
+  const accentColor = `rgb(${accentRGB})`
 
   return (
     <>
-      <Box
-        as={motion.div}
-        bg="transparent"
-        borderRadius="2xl"
-        overflow="hidden"
-        border="3px solid"
-        borderColor={borderColor}
-        opacity={producto.estado === 'borrador' ? 0.7 : 1}
-        position="relative"
-        transition="transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease"
-        boxShadow="md"
-        _hover={{
-          transform: 'translateY(-8px)',
-          boxShadow: outOfStock ? 'md' : (dominantColors.length > 0 ? `0 20px 40px rgba(${dominantColors[0].join(',')}, 0.3)` : hoverShadow),
-          borderColor: outOfStock ? borderColor : (dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : hoverBorderColor)
-        }}
-        role="group"
-        cursor="pointer"
+      <MotionBox
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -8 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
         onClick={() => router.push(`/productos/${generateSlug(producto.nombre)}`)}
+        position="relative"
+        borderRadius="3xl"
+        overflow="hidden"
+        bg={cardBg}
+        border="3px solid"
+        borderColor={isHovered ? accentColor : borderColor}
+        boxShadow={isHovered ? `0 20px 40px -10px rgba(${accentRGB}, 0.4)` : cardShadow}
+        cursor="pointer"
+        transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
         h="full"
         display="flex"
         flexDirection="column"
-        willChange="transform"
-        sx={{
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundImage: `url(${producto.imagen_url || producto.imagen || '/no-image.png'})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: outOfStock ? 'grayscale(100%)' : 'none',
-            opacity: 0.5,
-            zIndex: -2,
-            pointerEvents: 'none'
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: dominantColors.length >= 3 ? `linear-gradient(${gradientAngle}deg, rgba(${dominantColors[0].join(',')}, 0.2), rgba(${dominantColors[1].join(',')}, 0.2), rgba(${dominantColors[2].join(',')}, 0.2))` : 'transparent',
-            zIndex: -1,
-            pointerEvents: 'none'
-          }
-        }}
       >
-        {/* Badge de oferta/descuento */}
-        {tieneDescuento && descuento.promocion && (
-          <Badge
-            position="absolute"
-            top={3}
-            right={isAdmin ? 14 : 3}
-            bgGradient={`linear(135deg, ${descuento.promocion.metadata_visual.gradiente[0]}, ${descuento.promocion.metadata_visual.gradiente[1]})`}
-            color="white"
-            fontSize="sm"
-            fontWeight="bold"
-            px={4}
-            py={2}
-            borderRadius="full"
-            boxShadow="lg"
-            textTransform="uppercase"
-            animation={
-              descuento.promocion.metadata_visual.badge.animacion === 'pulse'
-                ? 'pulse 2s infinite'
-                : descuento.promocion.metadata_visual.badge.animacion === 'bounce'
-                ? 'bounce 2s infinite'
-                : undefined
-            }
-            zIndex={10}
-          >
-            {descuento.promocion.metadata_visual.badge.texto}
-          </Badge>
+        {/* Skeleton de carga */}
+        {!imageLoaded && (
+          <Box position="absolute" inset={0} zIndex={20}>
+            <Skeleton h="full" w="full" borderRadius="3xl" />
+          </Box>
         )}
 
-        {/* Etiqueta flotante de descuento - Estilo Tag */}
-        {tieneDescuento && descuento && (
+        {/* Badges de Estado */}
+        <AnimatePresence>
+          {isAdmin && (
+            <Box position="absolute" top={4} left={4} zIndex={10}>
+              <Badge 
+                variant="solid" 
+                colorScheme={producto.estado === 'publicado' ? 'green' : 'orange'}
+                borderRadius="full" px={3} py={1} fontSize="2xs" fontWeight="black"
+                boxShadow="xl"
+              >
+                {producto.estado.toUpperCase()}
+              </Badge>
+            </Box>
+          )}
+        </AnimatePresence>
+
+        {/* Tag de Descuento Pro */}
+        {tieneDescuento && (
           <Box
             position="absolute"
-            top="50%"
-            left="-8px"
-            transform="translateY(-50%)"
-            zIndex={9}
-          >
-            {/* Tag principal */}
-            <Box
-              bg="red.500"
-              color="white"
-              fontSize="2xl"
-              fontWeight="black"
-              px={4}
-              py={3}
-              position="relative"
-              boxShadow="0 4px 12px rgba(0,0,0,0.3)"
-              transform="rotate(-3deg)"
-              borderRadius="4px"
-              border="2px dashed"
-              borderColor="whiteAlpha.600"
-              _before={{
-                content: '""',
-                position: 'absolute',
-                bottom: '-8px',
-                left: '8px',
-                width: 0,
-                height: 0,
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderTop: '8px solid',
-                borderTopColor: 'red.700'
-              }}
-            >
-              <VStack spacing={0} align="center">
-                <Text fontSize="3xl" fontWeight="black" lineHeight="1">
-                  {descuento.porcentajeDescuento}%
-                </Text>
-                <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
-                  OFF
-                </Text>
-              </VStack>
-              
-              {/* Agujero del tag */}
-              <Box
-                position="absolute"
-                top="50%"
-                right="8px"
-                transform="translateY(-50%)"
-                width="8px"
-                height="8px"
-                borderRadius="full"
-                bg="white"
-                boxShadow="inset 0 2px 4px rgba(0,0,0,0.2)"
-              />
-            </Box>
-          </Box>
-        )}
-
-        {/* Badge de estado (solo para admin) */}
-        {isAdmin && (
-          <Box position="absolute" top={3} left={3} zIndex={10}>
-            <Badge
-              bg={estadoBg}
-              color={estadoColor}
-              fontSize="xs"
-              fontWeight="bold"
-              px={3}
-              py={1}
-              borderRadius="full"
-              boxShadow="md"
-            >
-              {getEstadoText(producto.estado)}
-            </Badge>
-          </Box>
-        )}
-
-        {/* Menú de admin en esquina superior derecha */}
-        {isAdmin && (
-          <Box 
-            position="absolute" 
-            top={3} 
-            right={3} 
+            top={4}
+            right={isAdmin ? 16 : 4}
             zIndex={10}
-            onClick={(e) => e.stopPropagation()}
+            transform={isHovered ? "scale(1.1) rotate(5deg)" : "scale(1) rotate(0deg)"}
+            transition="transform 0.3s ease"
           >
+            <VStack spacing={0} bg="red.500" color="white" p={2} borderRadius="xl" boxShadow="2xl" minW="50px">
+              <Text fontSize="lg" fontWeight="900" lineHeight="1">{descuento.porcentajeDescuento}%</Text>
+              <Text fontSize="8px" fontWeight="black">OFF</Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Acciones Admin */}
+        {isAdmin && (
+          <Box position="absolute" top={4} right={4} zIndex={11} onClick={e => e.stopPropagation()}>
             <ActionsMenu
               items={[
-                {
-                  label: 'Ver',
-                  icon: ViewIcon,
-                  onClick: () => router.push(`/productos/${generateSlug(producto.nombre)}`)
-                },
-                {
-                  label: 'Editar',
-                  icon: EditIcon,
-                  onClick: () => router.push(`/admin/productos/${producto.id}/editar`),
-                  colorScheme: 'blue' as const
-                },
-                {
-                  label: producto.estado === 'publicado' ? 'A Borrador' : 'Publicar',
-                  icon: CheckCircleIcon,
-                  onClick: toggleEstado,
-                  colorScheme: producto.estado === 'publicado' ? 'orange' : 'green'
-                },
-                {
-                  isDivider: true,
-                  label: '',
-                  icon: SettingsIcon,
-                  onClick: () => {}
-                },
-                {
-                  label: 'Eliminar',
-                  icon: DeleteIcon,
-                  onClick: onOpen,
-                  colorScheme: 'red' as const
-                }
+                { label: 'Editar', icon: EditIcon, onClick: () => router.push(`/admin/productos/${producto.id}/editar`) },
+                { label: producto.estado === 'publicado' ? 'Ocultar' : 'Publicar', icon: CheckCircleIcon, onClick: toggleEstado },
+                { label: 'Eliminar', icon: DeleteIcon, onClick: onOpen, colorScheme: 'red' }
               ]}
             />
           </Box>
         )}
 
-        {/* Imagen del producto */}
-        <Box position="relative" overflow="hidden" h="320px">
-          {producto.imagen_url || producto.imagen ? (
-            <>
-              <Skeleton
-                isLoaded={imageLoaded}
-                w="full"
-                h="full"
-                startColor={dominantColors.length > 0 ? `rgba(${dominantColors[0].join(',')}, 0.1)` : 'gray.200'}
-                endColor={dominantColors.length > 1 ? `rgba(${dominantColors[1].join(',')}, 0.2)` : 'gray.300'}
-              >
-                <Image
-                  src={producto.imagen_url || producto.imagen}
-                  alt=""
-                  w="full"
-                  h="full"
-                  objectFit="cover"
-                  fallbackSrc="/no-image.png"
-                  loading="lazy"
-                  transition="transform 0.3s ease, opacity 0.3s ease"
-                  filter={outOfStock ? 'grayscale(100%)' : 'none'}
-                  willChange="transform"
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageLoaded(true)}
-                  opacity={imageLoaded ? 1 : 0}
-                  _groupHover={{
-                    transform: 'scale(1.05)'
-                  }}
-                />
-              </Skeleton>
-            </>
-          ) : (
-            <Box
+        {/* Imagen Principal */}
+        <AspectRatio ratio={4/5} w="full">
+          <Box overflow="hidden" position="relative">
+            <Image
+              src={producto.imagen_url || producto.imagen || '/no-image.png'}
+              alt={producto.nombre}
+              objectFit="cover"
               w="full"
               h="full"
-              bg={noImageBg}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              transition="all 0.3s ease"
-              _groupHover={{
-                bg: noImageHoverBg
-              }}
-            >
-              <Icon as={FiArchive} boxSize="4xl" />
-            </Box>
-          )}
+              transition="transform 0.6s ease"
+              transform={isHovered ? "scale(1.1)" : "scale(1)"}
+              filter={outOfStock ? 'grayscale(100%)' : 'none'}
+              opacity={producto.estado === 'borrador' ? 0.6 : 1}
+            />
+            
+            {/* Overlay Gradiente */}
+            <Box position="absolute" inset={0} bg={overlayGradient} zIndex={1} />
 
-          {/* Contenido con degradado oscuro directo - SIN backdrop-filter */}
-          <Box
-            position="absolute"
-            bottom="0"
-            left="0"
-            right="0"
-            zIndex={2}
-            sx={{
-              maskImage: 'linear-gradient(to top, black, black 100%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to top, black, black 100%, transparent 100%)',
-            }}
-          >
-            <VStack
-              align="stretch"
-              p={4}
-              spacing={3}
-              background={overlayGradient}
-              backdropFilter="blur(40px)"
-              _css={{
-                WebkitBackdropFilter: 'blur(40px)',
-              }}
+            {/* Texto y Contenido Overlay */}
+            <VStack 
+              position="absolute" 
+              bottom={0} left={0} right={0} 
+              p={6} spacing={3} align="start" 
+              zIndex={2}
             >
-            <VStack align="start" spacing={1}>
-              <Text fontWeight="bold" fontSize="lg" color={overlayTextColor} noOfLines={1} w="full">
-                {producto.nombre}
-              </Text>
-              <Text fontSize="sm" color={overlayTextSecondaryColor} noOfLines={2} minH="40px">
-                {producto.descripcion}
-              </Text>
-            </VStack>
-
-            {/* Información de precio y stock */}
-            <HStack justify="space-between" w="full">
-              <VStack align="start" spacing={1}>
-                {tieneDescuento && descuento.promocion ? (
-                  <>
-                    <HStack spacing={2} align="center">
-                      <Text
-                        fontSize="xs"
-                        color={overlayTextMutedColor}
-                        textDecoration="line-through"
-                        opacity={0.6}
-                      >
-                        {formatNumber(descuento.precioOriginal)} pts
-                      </Text>
-                      <Badge
-                        bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
-                        color={dominantColors.length > 0 ? getTextColor(dominantColors[0]) : overlayTextColor}
-                        fontSize="md"
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        fontWeight="bold"
-                      >
-                        {formatNumber(descuento.precioFinal)} pts
-                      </Badge>
-                    </HStack>
-                    {descuento.promocion.metadata_visual.mostrar_ahorro && (
-                      <Text
-                        fontSize="2xs"
-                        color="green.300"
-                        fontWeight="medium"
-                      >
-                        Ahorras {formatNumber(descuento.precioOriginal - descuento.precioFinal)} pts
-                      </Text>
-                    )}
-                  </>
-                ) : (
-                  <Badge
-                    bg={dominantColors.length > 0 ? `rgb(${dominantColors[0].join(',')})` : undefined}
-                    color={dominantColors.length > 0 ? getTextColor(dominantColors[0]) : overlayTextColor}
-                    fontSize="md"
-                    px={3}
-                    py={1}
-                    borderRadius="lg"
-                    fontWeight="bold"
-                  >
-                    {formatNumber(producto.precio)} pts
-                  </Badge>
-                )}
+              <VStack align="start" spacing={1} w="full">
+                <Text color={overlayTextColor} fontWeight="900" fontSize="xl" noOfLines={1} letterSpacing="-0.5px">
+                  {producto.nombre}
+                </Text>
+                <Text color={overlayTextMutedColor} fontSize="xs" noOfLines={2} fontWeight="medium">
+                  {producto.descripcion}
+                </Text>
               </VStack>
-              <HStack spacing={2}>
-                <HStack spacing={1} align="center">
-                  <Icon as={FiArchive} boxSize={4} color={overlayTextColor} />
-                  <Text fontSize="sm" color={overlayTextColor}>{producto.stock}</Text>
-                </HStack>
-                {typeof (producto as { canjes_count?: number }).canjes_count === 'number' && (
-                  <HStack spacing={1} align="center">
-                    <Icon as={FiUsers} boxSize={4} color={overlayTextColor} />
-                    <Text fontSize="sm" color={overlayTextColor}>{(producto as { canjes_count?: number }).canjes_count}</Text>
+
+              <HStack w="full" justify="space-between" align="flex-end">
+                <VStack align="start" spacing={0}>
+                  {tieneDescuento && (
+                    <Text fontSize="10px" color={overlayTextMutedColor} textDecoration="line-through" fontWeight="bold">
+                      {formatNumber(descuento.precioOriginal)} PTS
+                    </Text>
+                  )}
+                  <HStack 
+                    bg={accentColor} 
+                    color={getTextColor(dominantColors[0] || [66,153,225])} 
+                    px={3} py={1} borderRadius="lg" spacing={1.5}
+                    boxShadow={`0 8px 16px -4px rgba(${accentRGB}, 0.5)`}
+                  >
+                    <Icon as={FiTag} boxSize={3} />
+                    <Text fontWeight="900" fontSize="sm">
+                      {formatNumber(tieneDescuento ? descuento.precioFinal : producto.precio)} 
+                      <Text as="span" fontSize="10px" ml={1}>PTS</Text>
+                    </Text>
                   </HStack>
-                )}
+                </VStack>
+
+                <HStack spacing={3}>
+                  <HStack spacing={1} color={overlayIconColor}>
+                    <Icon as={FiArchive} boxSize={3} />
+                    <Text fontSize="xs" fontWeight="bold">{producto.stock}</Text>
+                  </HStack>
+                  {typeof producto.canjes_count === 'number' && (
+                    <HStack spacing={1} align="center" color={overlayIconColor}>
+                      <Icon as={FiUsers} boxSize={3} />
+                      <Text fontSize="xs" fontWeight="bold">{producto.canjes_count}</Text>
+                    </HStack>
+                  )}
+                </HStack>
               </HStack>
-            </HStack>
-          </VStack>
+            </VStack>
           </Box>
+        </AspectRatio>
 
-          {/* Badge de sin stock */}
-          {outOfStock && (
-            <Box
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              bg="blackAlpha.700"
-              color="white"
-              px={4}
-              py={2}
-              borderRadius="full"
-              fontWeight="bold"
-              fontSize="sm"
-              backdropFilter="blur(10px)"
-              zIndex={3}
-            >
-              Sin Stock
-            </Box>
-          )}
-        </Box>
-      </Box>
+        {/* Sin Stock Overlay */}
+        {outOfStock && (
+          <Box 
+            position="absolute" inset={0} bg="blackAlpha.600" 
+            backdropFilter="blur(4px)" zIndex={5} 
+            display="flex" alignItems="center" justifyContent="center"
+          >
+            <Badge colorScheme="red" variant="solid" px={6} py={2} borderRadius="full" fontSize="sm" fontWeight="black" transform="rotate(-10deg)">
+              AGOTADO
+            </Badge>
+          </Box>
+        )}
+      </MotionBox>
 
-      {/* Dialog de confirmación de eliminación */}
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+      {/* Modal de Confirmación */}
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Eliminar Producto
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              ¿Estás seguro de que quieres eliminar &quot;{producto.nombre}&quot;? El producto se
-              moverá a eliminados y no será visible para los usuarios.
+          <AlertDialogContent borderRadius="3xl">
+            <AlertDialogHeader fontWeight="900" fontSize="xl">Eliminar Producto</AlertDialogHeader>
+            <AlertDialogBody color={modalTextColor}>
+              ¿Confirmas que deseas mover &quot;{producto.nombre}&quot; a la papelera? No será visible para los clientes.
             </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+            <AlertDialogFooter gap={3}>
+              <Button variant="ghost" borderRadius="xl" ref={cancelRef} onClick={onClose}>
                 Cancelar
               </Button>
-              <Button
-                colorScheme="red"
-                onClick={handleDelete}
-                ml={3}
-                isLoading={updateProductoMutation.isPending}
-              >
-                Eliminar
+              <Button colorScheme="red" borderRadius="xl" fontWeight="bold" onClick={handleDelete} isLoading={updateProductoMutation.isPending}>
+                Eliminar Definitivamente
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

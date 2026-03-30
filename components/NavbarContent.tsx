@@ -93,6 +93,18 @@ export default function NavbarContent() {
   // Filtro para el logo de Kick (blanco en modo oscuro, normal en modo claro)
   const kickLogoFilter = useColorModeValue('none', 'brightness(0) invert(1)')
 
+  // Tokens de color para NavItem (extraidos aqui para evitar hooks dentro de JSX condicional)
+  const navActiveBg = useColorModeValue('blue.50', 'whiteAlpha.100')
+  const navInactiveColor = useColorModeValue('gray.600', 'gray.400')
+  const navHoverBg = useColorModeValue('gray.100', 'whiteAlpha.200')
+  const navPillBg = useColorModeValue('rgba(0,0,0,0.02)', 'rgba(255,255,255,0.04)')
+  const pointsBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.12)')
+  const pointsBorder = useColorModeValue('orange.100', 'rgba(251, 146, 60, 0.2)')
+  const pointsColor = useColorModeValue('orange.600', 'orange.300')
+  const menuBg = useColorModeValue('white', 'gray.700')
+  const menuNameColor = useColorModeValue('gray.800', 'white')
+  const drawerBg = useColorModeValue('white', 'gray.900')
+
   const NavItem = ({ href, icon, label, badge = false, customIcon = null }: { href: string; icon: any; label: string; badge?: boolean; customIcon?: any }) => {
     const active = isActiveRoute(href)
     return (
@@ -107,12 +119,12 @@ export default function NavbarContent() {
           px={3}
           h="36px"
           borderRadius="lg"
-          bg={active ? useColorModeValue('blue.50', 'whiteAlpha.100') : 'transparent'}
-          color={active ? accentColor : useColorModeValue('gray.600', 'gray.400')}
+          bg={active ? navActiveBg : 'transparent'}
+          color={active ? accentColor : navInactiveColor}
           transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
           cursor="pointer"
           _hover={{
-            bg: useColorModeValue('gray.100', 'whiteAlpha.200'),
+            bg: navHoverBg,
             color: accentColor,
             transform: 'translateY(-1px)'
           }}
@@ -174,7 +186,7 @@ export default function NavbarContent() {
           </HStack>
 
           {/* CENTER: Nav items simulados */}
-          <HStack spacing={1} display={{ base: 'none', lg: 'flex' }} bg={useColorModeValue('rgba(0,0,0,0.02)', 'rgba(255,255,255,0.04)')} p={1} borderRadius="xl">
+          <HStack spacing={1} display={{ base: 'none', lg: 'flex' }} bg={navPillBg} p={1} borderRadius="xl">
             <Skeleton borderRadius="lg" width="36px" height="36px" />
             <Skeleton borderRadius="lg" width="36px" height="36px" />
             <Skeleton borderRadius="lg" width="36px" height="36px" />
@@ -237,7 +249,7 @@ export default function NavbarContent() {
           <HStack 
             spacing={0.5} 
             display={{ base: 'none', lg: 'flex' }}
-            bg={useColorModeValue('rgba(0,0,0,0.02)', 'rgba(255,255,255,0.04)')}
+            bg={navPillBg}
             p={1}
             borderRadius="xl"
           >
@@ -260,9 +272,9 @@ export default function NavbarContent() {
             {isAuthenticated && user && (
               <Box 
                 display={{ base: 'none', md: 'flex' }}
-                bg={useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.12)')}
+                bg={pointsBg}
                 border="1px solid"
-                borderColor={useColorModeValue('orange.100', 'rgba(251, 146, 60, 0.2)')}
+                borderColor={pointsBorder}
                 px={4}
                 h="32px"
                 alignItems="center"
@@ -270,7 +282,7 @@ export default function NavbarContent() {
                 mr={0}
                 ml={2}
               >
-                <Text fontWeight="900" fontSize="xs" color={useColorModeValue('orange.600', 'orange.300')} whiteSpace="nowrap">
+                <Text fontWeight="900" fontSize="xs" color={pointsColor} whiteSpace="nowrap">
                   {user.puntos?.toLocaleString()} <Text as="span" fontSize="9px" fontWeight="black" ml={0.5}>PTS</Text>
                 </Text>
               </Box>
@@ -287,7 +299,7 @@ export default function NavbarContent() {
                 mr={2}
                 borderRadius="lg"
                 onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank')}
-                _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
+                _hover={{ bg: navHoverBg }}
               />
               <ColorModeToggle />
               {isAuthenticated && <NotificationBell />}
@@ -336,7 +348,7 @@ export default function NavbarContent() {
                 </Tooltip>
                 <Portal>
                   <MenuList
-                    bg={useColorModeValue('white', 'gray.700')}
+                    bg={menuBg}
                     backdropFilter="blur(20px)"
                     borderColor={glassBorder}
                     boxShadow="0 10px 30px rgba(0,0,0,0.15)"
@@ -345,7 +357,7 @@ export default function NavbarContent() {
                     minW="200px"
                   >
                     <Box px={3} py={2.5} mb={1} mt={1}>
-                      <Text fontWeight="800" fontSize="xs" noOfLines={1} color={useColorModeValue('gray.800', 'white')}>{avatarName}</Text>
+                      <Text fontWeight="800" fontSize="xs" noOfLines={1} color={menuNameColor}>{avatarName}</Text>
                       <UserBadge user={user} size="sm" />
                     </Box>
                     <Divider opacity={0.5} />
@@ -408,7 +420,7 @@ export default function NavbarContent() {
         size={{ base: 'full', md: 'xs' }}
       >
         <DrawerOverlay backdropFilter="blur(8px)" bg="blackAlpha.400" />
-        <DrawerContent bg={useColorModeValue('white', 'gray.900')} borderLeft="1px solid" borderColor={glassBorder} width="280px">
+        <DrawerContent bg={drawerBg} borderLeft="1px solid" borderColor={glassBorder} width="280px">
           <DrawerHeader borderBottomWidth="1px" py={5} px={5}>
             <Flex align="center" justify="space-between">
               <Text fontWeight="900" fontSize="md" letterSpacing="-0.5px">MENÚ LUISARDITO</Text>
@@ -419,7 +431,7 @@ export default function NavbarContent() {
           <DrawerBody py={5} px={5}>
             <VStack spacing={5} align="stretch">
               {isAuthenticated && user && (
-                <Box p={3.5} borderRadius="xl" bg={useColorModeValue('blue.50', 'whiteAlpha.50')} border="1px solid" borderColor="blue.100" _dark={{ borderColor: 'whiteAlpha.100' }}>
+                <Box p={3.5} borderRadius="xl" bg={navActiveBg} border="1px solid" borderColor="blue.100" _dark={{ borderColor: 'whiteAlpha.100' }}>
                   <HStack spacing={3} mb={3}>
                     <UserAvatarWithBadge user={user}>
                       <Avatar size="sm" name={avatarName} src={avatarSrc} />

@@ -32,6 +32,7 @@ import Head from 'next/head'
 import { API_BASE_URL } from '../lib/api'
 import { getAuthCookie } from '../lib/cookies'
 import { SearchUserCombobox } from '../components/SearchUserCombobox'
+import { formatWatchtime } from '../utils/formatWatchtime'
 
 // Animación elegante y sutil para top 3
 const subtleGlow = keyframes`
@@ -276,123 +277,6 @@ export default function LeaderboardPage() {
     return {}
   }
 
-  const formatWatchtime = (minutes?: number) => {
-    if (!minutes || minutes === 0) return '0 min'
-
-    // Si es menor a 60 minutos, mostrar solo minutos
-    if (minutes < 60) {
-      return `${Math.round(minutes)} min`
-    }
-
-    // Si es menor a 24 horas, mostrar horas (sin minutos si cumple hora)
-    if (minutes < 60 * 24) {
-      const hours = Math.floor(minutes / 60)
-      const mins = minutes % 60
-      // Si hay minutos pero no llega a cumplir otra hora, mostrar minutos
-      return mins > 0 ? `${hours}h ${Math.round(mins)} min` : `${hours}h`
-    }
-
-    // Si es menor a 7 días, mostrar días y horas
-    if (minutes < 60 * 24 * 7) {
-      const days = Math.floor(minutes / (60 * 24))
-      const remainingMinutes = minutes % (60 * 24)
-      const hours = Math.floor(remainingMinutes / 60)
-      const mins = remainingMinutes % 60
-      // Solo mostrar minutos si no hay horas o si hay minutos sin llegar a otra hora
-      if (hours === 0 && mins > 0) {
-        return `${days}d ${Math.round(mins)} min`
-      }
-      return hours > 0 ? `${days}d ${hours}h` : `${days}d`
-    }
-
-    // Si es menor a 30 días, mostrar semanas, días y horas
-    if (minutes < 60 * 24 * 30) {
-      const weeks = Math.floor(minutes / (60 * 24 * 7))
-      const remainingMinutes = minutes % (60 * 24 * 7)
-      const days = Math.floor(remainingMinutes / (60 * 24))
-      const remainingMinsAfterDays = remainingMinutes % (60 * 24)
-      const hours = Math.floor(remainingMinsAfterDays / 60)
-      const mins = remainingMinsAfterDays % 60
-
-      // Si no hay horas pero hay minutos, mostrar minutos
-      if (hours === 0 && mins > 0) {
-        if (days > 0) {
-          return `${weeks}s ${days}d ${Math.round(mins)} min`
-        }
-        return `${weeks}s ${Math.round(mins)} min`
-      }
-
-      if (hours > 0) {
-        return days > 0 ? `${weeks}s ${days}d ${hours}h` : `${weeks}s ${hours}h`
-      } else if (days > 0) {
-        return `${weeks}s ${days}d`
-      }
-      return `${weeks}s`
-    }
-
-    // Si es menor a 365 días, mostrar meses, días y horas
-    if (minutes < 60 * 24 * 365) {
-      const months = Math.floor(minutes / (60 * 24 * 30))
-      const remainingMinutes = minutes % (60 * 24 * 30)
-      const days = Math.floor(remainingMinutes / (60 * 24))
-      const remainingMinsAfterDays = remainingMinutes % (60 * 24)
-      const hours = Math.floor(remainingMinsAfterDays / 60)
-      const mins = remainingMinsAfterDays % 60
-
-      // Si no hay horas pero hay minutos, mostrar minutos
-      if (hours === 0 && mins > 0) {
-        if (days > 0) {
-          return `${months}m ${days}d ${Math.round(mins)} min`
-        }
-        return `${months}m ${Math.round(mins)} min`
-      }
-
-      if (hours > 0) {
-        return days > 0 ? `${months}m ${days}d ${hours}h` : `${months}m ${hours}h`
-      } else if (days > 0) {
-        return `${months}m ${days}d`
-      }
-      return `${months}m`
-    }
-
-    // Si es 365 días o más, mostrar años, meses, semanas y horas
-    const years = Math.floor(minutes / (60 * 24 * 365))
-    const remainingMinutes = minutes % (60 * 24 * 365)
-    const months = Math.floor(remainingMinutes / (60 * 24 * 30))
-    const remainingMinsAfterMonths = remainingMinutes % (60 * 24 * 30)
-    const weeks = Math.floor(remainingMinsAfterMonths / (60 * 24 * 7))
-    const remainingMinsAfterWeeks = remainingMinsAfterMonths % (60 * 24 * 7)
-    const days = Math.floor(remainingMinsAfterWeeks / (60 * 24))
-    const remainingMinsAfterDays = remainingMinsAfterWeeks % (60 * 24)
-    const hours = Math.floor(remainingMinsAfterDays / 60)
-    const mins = remainingMinsAfterDays % 60
-
-    // Si no hay horas pero hay minutos, mostrar minutos
-    if (hours === 0 && mins > 0) {
-      if (weeks > 0) {
-        return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d ${Math.round(mins)} min` : `${years}a ${months}m ${weeks}s ${Math.round(mins)} min`
-      } else if (days > 0) {
-        return `${years}a ${months}m ${days}d ${Math.round(mins)} min`
-      }
-      return `${years}a ${months}m ${Math.round(mins)} min`
-    }
-
-    if (hours > 0) {
-      if (weeks > 0) {
-        return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d ${hours}h` : `${years}a ${months}m ${weeks}s ${hours}h`
-      } else if (days > 0) {
-        return `${years}a ${months}m ${days}d ${hours}h`
-      }
-      return `${years}a ${months}m ${hours}h`
-    } else if (weeks > 0) {
-      return days > 0 ? `${years}a ${months}m ${weeks}s ${days}d` : `${years}a ${months}m ${weeks}s`
-    } else if (days > 0) {
-      return `${years}a ${months}m ${days}d`
-    } else if (months > 0) {
-      return `${years}a ${months}m`
-    }
-    return `${years}a`
-  }
 
   return (
     <Layout>

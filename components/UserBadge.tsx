@@ -142,12 +142,52 @@ interface UserBadgeProps {
   maxW?: string
 }
 
+/** Calcula el tamaño del contenedor del badge según el tamaño */
+function getBadgeContainerSize(size: 'sm' | 'md' | 'lg'): string {
+  if (size === 'sm') return '40px'
+  if (size === 'md') return '48px'
+  return '64px'
+}
+
+/** Calcula el tamaño del icono según el tamaño del badge */
+function getBadgeIconSize(size: 'sm' | 'md' | 'lg'): number {
+  if (size === 'sm') return 22
+  if (size === 'md') return 26
+  return 32
+}
+
+/** Construye el tooltip del VIP */
+function getVipTooltipLabel(vipInfo: VipInfo): string {
+  if (vipInfo.is_permanent) return 'Usuario VIP Permanente'
+  if (vipInfo.expires_at) return `VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
+  return 'Usuario VIP'
+}
+
+/** Crea un badge con o sin tooltip */
+function wrapWithTooltip(
+  key: string,
+  label: string,
+  showTooltip: boolean,
+  badge: React.ReactNode
+): React.ReactNode {
+  if (showTooltip) {
+    return (
+      <Tooltip key={`${key}-tooltip`} label={label} hasArrow>
+        {badge}
+      </Tooltip>
+    )
+  }
+  return badge
+}
+
 export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px, py, maxW }: UserBadgeProps) => {
-  const badges = []
+  const badges: React.ReactNode[] = []
 
   // Compatibilidad: usar vip_info o vip_status
   const vipInfo = user.vip_info || user.vip_status
   const isSubscriber = user.subscriber_status?.is_active || user.user_type === 'subscriber'
+  const containerSize = getBadgeContainerSize(size)
+  const iconSize = getBadgeIconSize(size)
 
   // Badge Suscriptor
   if (isSubscriber) {
@@ -156,29 +196,17 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         key="sub"
         align="center"
         justify="center"
-        w={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
-        h={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
+        w={containerSize}
+        h={containerSize}
         borderRadius="full"
         bg="transparent"
-        _hover={{
-          transform: 'scale(1.15)',
-          cursor: 'pointer'
-        }}
+        _hover={{ transform: 'scale(1.15)', cursor: 'pointer' }}
         transition="all 0.2s"
       >
-        <KickSubIcon size={size === 'sm' ? 22 : size === 'md' ? 26 : 32} />
+        <KickSubIcon size={iconSize} />
       </Flex>
     )
-
-    if (showTooltip) {
-      badges.push(
-        <Tooltip key="sub-tooltip" label="Suscriptor del canal" hasArrow>
-          {subBadge}
-        </Tooltip>
-      )
-    } else {
-      badges.push(subBadge)
-    }
+    badges.push(wrapWithTooltip('sub', 'Suscriptor del canal', showTooltip, subBadge))
   }
 
   // Badge VIP
@@ -188,39 +216,17 @@ export const UserBadge = ({ user, size = 'md', showTooltip = true, fontSize, px,
         key="vip"
         align="center"
         justify="center"
-        w={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
-        h={size === 'sm' ? '40px' : size === 'md' ? '48px' : '64px'}
+        w={containerSize}
+        h={containerSize}
         borderRadius="full"
         bg="transparent"
-        _hover={{
-          transform: 'scale(1.15)',
-          cursor: 'pointer'
-        }}
+        _hover={{ transform: 'scale(1.15)', cursor: 'pointer' }}
         transition="all 0.2s"
       >
-        <KickVipIcon size={size === 'sm' ? 22 : size === 'md' ? 26 : 32} />
+        <KickVipIcon size={iconSize} />
       </Flex>
     )
-
-    if (showTooltip) {
-      badges.push(
-        <Tooltip
-          key="vip-tooltip"
-          label={
-            vipInfo.is_permanent
-              ? 'Usuario VIP Permanente'
-              : vipInfo.expires_at
-                ? `VIP hasta ${new Date(vipInfo.expires_at).toLocaleDateString('es-ES')}`
-                : 'Usuario VIP'
-          }
-          hasArrow
-        >
-          {vipBadge}
-        </Tooltip>
-      )
-    } else {
-      badges.push(vipBadge)
-    }
+    badges.push(wrapWithTooltip('vip', getVipTooltipLabel(vipInfo), showTooltip, vipBadge))
   }
 
   // Badge migración Botrix

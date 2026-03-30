@@ -62,6 +62,94 @@ export const faqItems = [
 ]
 
 
+// ===================== Componentes de visualización =====================
+
+/** Animación del dashboard para la sección Hero */
+function DashboardAnimation({ animateCards, borderColor, sectionBg, cardBg, mutedColor, accentColor }: {
+  animateCards: boolean; borderColor: string; sectionBg: string; cardBg: string; mutedColor: string; accentColor: string
+}) {
+  const [displayValue, setDisplayValue] = useState(0)
+
+  useEffect(() => {
+    if (!animateCards) return
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setDisplayValue((prev) => {
+          if (prev >= 8450) return 8450
+          return prev + 100
+        })
+      }, 20)
+      return () => clearInterval(interval)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [animateCards])
+
+  const products = [
+    { name: 'VIP Mensual', price: 500, icon: MdCardGiftcard },
+    { name: 'Merchandising', price: 1000, icon: MdLocalOffer },
+    { name: 'Premium', price: 750, icon: MdVpnKey }
+  ]
+
+  return (
+    <Box
+      borderRadius="2xl"
+      border={`2px solid ${borderColor}`}
+      bg={sectionBg}
+      p={6}
+      display="flex"
+      flexDir="column"
+      gap={4}
+      opacity={animateCards ? 1 : 0}
+      transform={animateCards ? 'scale(1)' : 'scale(0.95)'}
+      transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      position="relative"
+      overflow="hidden"
+      sx={{
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(147, 197, 253, 0.05), rgba(59, 130, 246, 0.05))',
+          filter: 'blur(10px)',
+          zIndex: -1,
+          pointerEvents: 'none'
+        }
+      }}
+    >
+      <Text fontSize="sm" fontWeight="bold">Catálogo de tienda</Text>
+
+      <SimpleGrid columns={2} gap={3}>
+        {products.map((product, idx) => (
+          <Box
+            key={idx}
+            p={3}
+            bg={cardBg}
+            borderRadius="lg"
+            border={`1px solid ${borderColor}`}
+            opacity={animateCards ? 1 : 0}
+            transform={animateCards ? 'scale(1)' : 'scale(0.9)'}
+            transition={`all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s`}
+            cursor="pointer"
+            _hover={{
+              transform: 'scale(1.08)',
+              borderColor: accentColor,
+              boxShadow: `0 12px 24px rgba(59, 130, 246, 0.2)`
+            }}
+            textAlign="center"
+          >
+            <Icon as={product.icon} boxSize={8} color={accentColor} mb={2} />
+            <Text fontSize="10px" fontWeight="bold" mb={1}>{product.name}</Text>
+            <Text fontSize="10px" color={mutedColor}>{product.price} pts</Text>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Box>
+  )
+}
+
 // ===================== Hero Section =====================
 export function HeroSection() {
   const borderColor = useColorModeValue('gray.200', 'gray.800')
@@ -102,89 +190,6 @@ export function HeroSection() {
       </HStack>
     </Box>
   )
-
-  const DashboardAnimation = () => {
-    const [displayValue, setDisplayValue] = useState(0)
-
-    useEffect(() => {
-      if (!animateCards) return
-      const timer = setTimeout(() => {
-        const interval = setInterval(() => {
-          setDisplayValue((prev) => {
-            if (prev >= 8450) return 8450
-            return prev + 100
-          })
-        }, 20)
-        return () => clearInterval(interval)
-      }, 300)
-      return () => clearTimeout(timer)
-    }, [animateCards])
-
-    const products = [
-      { name: 'VIP Mensual', price: 500, icon: MdCardGiftcard },
-      { name: 'Merchandising', price: 1000, icon: MdLocalOffer },
-      { name: 'Premium', price: 750, icon: MdVpnKey }
-    ]
-
-    return (
-      <Box
-        borderRadius="2xl"
-        border={`2px solid ${borderColor}`}
-        bg={sectionBg}
-        p={6}
-        display="flex"
-        flexDir="column"
-        gap={4}
-        opacity={animateCards ? 1 : 0}
-        transform={animateCards ? 'scale(1)' : 'scale(0.95)'}
-        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        position="relative"
-        overflow="hidden"
-        sx={{
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(147, 197, 253, 0.05), rgba(59, 130, 246, 0.05))',
-            filter: 'blur(10px)',
-            zIndex: -1,
-            pointerEvents: 'none'
-          }
-        }}
-      >
-        <Text fontSize="sm" fontWeight="bold">Catálogo de tienda</Text>
-
-        <SimpleGrid columns={2} gap={3}>
-          {products.map((product, idx) => (
-            <Box
-              key={idx}
-              p={3}
-              bg={cardBg}
-              borderRadius="lg"
-              border={`1px solid ${borderColor}`}
-              opacity={animateCards ? 1 : 0}
-              transform={animateCards ? 'scale(1)' : 'scale(0.9)'}
-              transition={`all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s`}
-              cursor="pointer"
-              _hover={{
-                transform: 'scale(1.08)',
-                borderColor: accentColor,
-                boxShadow: `0 12px 24px rgba(59, 130, 246, 0.2)`
-              }}
-              textAlign="center"
-            >
-              <Icon as={product.icon} boxSize={8} color={accentColor} mb={2} />
-              <Text fontSize="10px" fontWeight="bold" mb={1}>{product.name}</Text>
-              <Text fontSize="10px" color={mutedColor}>{product.price} pts</Text>
-            </Box>
-          ))}
-        </SimpleGrid>
-      </Box>
-    )
-  }
 
   return (
     <Box borderBottom={`1px solid ${borderColor}`} suppressHydrationWarning>
@@ -256,7 +261,14 @@ export function HeroSection() {
           </VStack>
 
           {/* Right side - Animated dashboard */}
-          <DashboardAnimation />
+          <DashboardAnimation
+            animateCards={animateCards}
+            borderColor={borderColor}
+            sectionBg={sectionBg}
+            cardBg={cardBg}
+            mutedColor={mutedColor}
+            accentColor={accentColor}
+          />
         </Grid>
 
         {/* Quick features grid below hero */}
@@ -290,6 +302,242 @@ export function HeroSection() {
 }
 
 // ===================== Content Section Component =====================
+
+/** Props de tema compartidas para visualizaciones */
+interface VisualizationThemeProps {
+  borderColor: string; sectionBg: string; cardBg: string; accentColor: string; mutedColor: string
+}
+
+/** Visualización de historial de puntos */
+function HistorialVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+  const [animatedValue, setAnimatedValue] = useState(0)
+  const [displayPoints, setDisplayPoints] = useState(0)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimatedValue(85), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (animatedValue === 0) return
+    const interval = setInterval(() => {
+      setDisplayPoints((prev) => (prev >= 4250 ? 4250 : prev + 50))
+    }, 10)
+    return () => clearInterval(interval)
+  }, [animatedValue])
+
+  return (
+    <Box borderRadius="2xl" border={`2px solid ${borderColor}`} bg={sectionBg} p={8}
+      display="flex" flexDir="column" align="center" justify="center" gap={6}
+      opacity={animatedValue ? 1 : 0} transform={animatedValue ? 'scale(1)' : 'scale(0.95)'}
+      transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+    >
+      <VStack spacing={4} w="100%">
+        <HStack spacing={3} w="100%" p={4} bg={cardBg} borderRadius="lg"
+          borderLeft={`4px solid ${accentColor}`}
+          opacity={animatedValue ? 1 : 0} transform={animatedValue ? 'translateX(0)' : 'translateX(-20px)'}
+          transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)" suppressHydrationWarning
+        >
+          <Icon as={MdHistory} boxSize={6} color={accentColor} />
+          <VStack align="start" spacing={1} flex={1}>
+            <Text fontSize="sm" fontWeight="bold">Puntos disponibles</Text>
+            <Text fontSize="2xl" fontWeight="bold" suppressHydrationWarning>{displayPoints.toLocaleString()}</Text>
+          </VStack>
+        </HStack>
+
+        <Box w="100%" p={4} bg={cardBg} borderRadius="lg"
+          opacity={animatedValue ? 1 : 0} transform={animatedValue ? 'translateX(0)' : 'translateX(20px)'}
+          transition="all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
+        >
+          <HStack justify="space-between" mb={2}>
+            <Text fontSize="xs" mb={2} fontWeight="medium">Progreso semanal</Text>
+            <Text fontSize="sm" fontWeight="bold">{animatedValue}%</Text>
+          </HStack>
+          <Progress value={animatedValue} colorScheme="blue" borderRadius="full" size="md" transition="all 0.3s" />
+        </Box>
+
+        <VStack align="start" spacing={2} w="100%"
+          opacity={animatedValue ? 1 : 0} transform={animatedValue ? 'translateY(0)' : 'translateY(20px)'}
+          transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+        >
+          <HStack fontSize="sm" color={mutedColor} w="100%" p={3} bg={cardBg} borderRadius="lg"
+            _hover={{ borderColor: accentColor, borderWidth: 1 }} transition="all 0.2s"
+          >
+            <MdVerified color={accentColor} boxSize={5} />
+            <VStack align="start" spacing={0}>
+              <Text fontWeight="bold">Último canje</Text>
+              <Text fontSize="xs">Hace 2 días</Text>
+            </VStack>
+          </HStack>
+          <HStack fontSize="sm" color={mutedColor} w="100%" p={3} bg={cardBg} borderRadius="lg"
+            _hover={{ borderColor: accentColor, borderWidth: 1 }} transition="all 0.2s"
+          >
+            <MdTrendingUp color={accentColor} boxSize={5} />
+            <VStack align="start" spacing={0}>
+              <Text fontWeight="bold">Ganancia esta semana</Text>
+              <Text fontSize="xs">+450 puntos</Text>
+            </VStack>
+          </HStack>
+        </VStack>
+      </VStack>
+    </Box>
+  )
+}
+
+/** Visualización de leaderboard */
+function LeaderboardVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+  const [animate, setAnimate] = useState(false)
+  const highlightBg = useColorModeValue('blue.50', 'blue.900')
+  const positions = [
+    { name: 'Usuario1', puntos: 5000, position: 1 },
+    { name: 'Tu posición', puntos: 3500, position: 5, isYou: true },
+    { name: 'Usuario3', puntos: 2800, position: 8 }
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(true), 300)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <Box borderRadius="2xl" border={`2px solid ${borderColor}`} bg={sectionBg} p={8}
+      display="flex" flexDir="column" align="center" justify="center"
+      opacity={animate ? 1 : 0} transform={animate ? 'scale(1)' : 'scale(0.95)'}
+      transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+    >
+      <HStack spacing={3} mb={6}
+        opacity={animate ? 1 : 0} transform={animate ? 'translateY(0)' : 'translateY(-20px)'}
+        transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      >
+        <Icon as={MdLeaderboard} boxSize={8} color={accentColor} />
+        <Heading fontSize="lg" fontWeight="bold">Ranking Global</Heading>
+      </HStack>
+
+      <VStack spacing={3} w="100%">
+        {positions.map((pos, idx) => (
+          <HStack key={idx} w="100%" p={4}
+            bg={pos.isYou ? highlightBg : cardBg}
+            borderRadius="lg"
+            border={pos.isYou ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
+            justify="space-between"
+            opacity={animate ? 1 : 0} transform={animate ? 'translateX(0)' : 'translateX(-20px)'}
+            transition={`all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s`}
+            _hover={{ transform: 'translateX(8px)', boxShadow: `0 8px 16px rgba(59, 130, 246, 0.1)` }}
+            cursor="pointer" suppressHydrationWarning
+          >
+            <HStack spacing={4}>
+              <Box minW="10" h="10" bg={accentColor} borderRadius="full" display="flex"
+                align="center" justify="center" color="white" fontSize="sm" fontWeight="bold" flexShrink={0}
+              >
+                {pos.position}
+              </Box>
+              <VStack align="start" spacing={0.5}>
+                <Text fontSize="sm" fontWeight="bold">{pos.name}</Text>
+                <Text fontSize="xs" color={mutedColor} suppressHydrationWarning>{pos.puntos.toLocaleString()} pts</Text>
+              </VStack>
+            </HStack>
+            {pos.isYou && <Icon as={MdStar} color={accentColor} boxSize={6} />}
+          </HStack>
+        ))}
+      </VStack>
+
+      <Box w="100%" p={3} bg={cardBg} borderRadius="lg" mt={4} textAlign="center"
+        opacity={animate ? 1 : 0} transform={animate ? 'translateY(0)' : 'translateY(20px)'}
+        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      >
+        <Text fontSize="10px" color={mutedColor}>Actualizado hace 5 minutos</Text>
+      </Box>
+    </Box>
+  )
+}
+
+/** Visualización de canjes */
+function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [animate, setAnimate] = useState(false)
+  const canjes = [
+    { name: 'VIP Mensual', status: 'Entregado', color: 'green' },
+    { name: 'Merchandising', status: 'En envío', color: 'blue' },
+    { name: 'Acceso Premium', status: 'Procesando', color: 'orange' }
+  ]
+
+  const dotBg = useColorModeValue
+  const statusColors = canjes.map(c => ({
+    dot: useColorModeValue(`${c.color}.400`, `${c.color}.300`),
+    badgeBg: useColorModeValue(`${c.color}.100`, `${c.color}.900`),
+    badgeColor: useColorModeValue(`${c.color}.700`, `${c.color}.300`)
+  }))
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(true), 300)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % canjes.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [canjes.length])
+
+  return (
+    <Box borderRadius="2xl" border={`2px solid ${borderColor}`} bg={sectionBg} p={8}
+      display="flex" flexDir="column" align="center" justify="center"
+      opacity={animate ? 1 : 0} transform={animate ? 'scale(1)' : 'scale(0.95)'}
+      transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+    >
+      <HStack spacing={3} mb={6}
+        opacity={animate ? 1 : 0} transform={animate ? 'translateY(0)' : 'translateY(-20px)'}
+        transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      >
+        <Icon as={MdShoppingCart} boxSize={8} color={accentColor} />
+        <Heading fontSize="lg" fontWeight="bold">Mis Canjes</Heading>
+      </HStack>
+
+      <VStack spacing={3} w="100%">
+        {canjes.map((canje, idx) => (
+          <Box key={idx} w="100%" p={4} bg={cardBg} borderRadius="lg"
+            border={idx === activeIndex ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
+            opacity={idx === activeIndex ? 1 : 0.6}
+            transform={idx === activeIndex ? 'scale(1.02)' : 'scale(1)'}
+            transition="all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            boxShadow={idx === activeIndex ? `0 12px 24px rgba(59, 130, 246, 0.15)` : 'none'}
+            cursor="pointer" _hover={{ transform: 'scale(1.01)', borderColor: accentColor }}
+          >
+            <HStack justify="space-between" align="start">
+              <VStack align="start" spacing={1} flex={1}>
+                <Text fontSize="sm" fontWeight="bold">{canje.name}</Text>
+                <HStack spacing={2}>
+                  <Box w={2} h={2} borderRadius="full" bg={statusColors[idx].dot}
+                    animation={idx === activeIndex ? 'pulse 2s infinite' : 'none'} />
+                  <Text fontSize="xs" color={mutedColor}>{canje.status}</Text>
+                </HStack>
+              </VStack>
+              <Box px={3} py={1} borderRadius="full"
+                bg={statusColors[idx].badgeBg} fontSize="10px" fontWeight="bold"
+                color={statusColors[idx].badgeColor}
+              >
+                {canje.status}
+              </Box>
+            </HStack>
+            {idx === activeIndex && <Box w="100%" h="1px" bg={accentColor} mt={3} opacity={0.3} />}
+          </Box>
+        ))}
+      </VStack>
+
+      <HStack spacing={2} mt={4}
+        opacity={animate ? 1 : 0} transform={animate ? 'translateY(0)' : 'translateY(20px)'}
+        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      >
+        {canjes.map((_, idx) => (
+          <Box key={idx} w={2} h={2} borderRadius="full"
+            bg={idx === activeIndex ? accentColor : borderColor} transition="all 0.3s" />
+        ))}
+      </HStack>
+    </Box>
+  )
+}
+
 export function ContentSection({
   id,
   label,
@@ -314,371 +562,17 @@ export function ContentSection({
   const cardBg = useColorModeValue('white', 'gray.900')
   const accentColor = useColorModeValue('rgb(59, 130, 246)', 'rgb(96, 165, 250)')
 
-  // Componente para historial de puntos
-  const HistorialVisualizacion = () => {
-    const [animatedValue, setAnimatedValue] = useState(0)
-    const [displayPoints, setDisplayPoints] = useState(0)
-
-    useEffect(() => {
-      const timer = setTimeout(() => setAnimatedValue(85), 500)
-      return () => clearTimeout(timer)
-    }, [])
-
-    useEffect(() => {
-      if (animatedValue === 0) return
-      const interval = setInterval(() => {
-        setDisplayPoints((prev) => {
-          if (prev >= 4250) return 4250
-          return prev + 50
-        })
-      }, 10)
-      return () => clearInterval(interval)
-    }, [animatedValue])
-
-    return (
-      <Box
-        borderRadius="2xl"
-        border={`2px solid ${borderColor}`}
-        bg={sectionBg}
-        p={8}
-        display="flex"
-        flexDir="column"
-        align="center"
-        justify="center"
-        gap={6}
-        opacity={animatedValue ? 1 : 0}
-        transform={animatedValue ? 'scale(1)' : 'scale(0.95)'}
-        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-      >
-        <VStack spacing={4} w="100%">
-          <HStack
-            spacing={3}
-            w="100%"
-            p={4}
-            bg={cardBg}
-            borderRadius="lg"
-            borderLeft={`4px solid ${accentColor}`}
-            opacity={animatedValue ? 1 : 0}
-            transform={animatedValue ? 'translateX(0)' : 'translateX(-20px)'}
-            transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
-            suppressHydrationWarning
-          >
-            <Icon as={MdHistory} boxSize={6} color={accentColor} />
-            <VStack align="start" spacing={1} flex={1}>
-              <Text fontSize="sm" fontWeight="bold">Puntos disponibles</Text>
-              <Text fontSize="2xl" fontWeight="bold" suppressHydrationWarning>{displayPoints.toLocaleString()}</Text>
-            </VStack>
-          </HStack>
-
-          <Box
-            w="100%"
-            p={4}
-            bg={cardBg}
-            borderRadius="lg"
-            opacity={animatedValue ? 1 : 0}
-            transform={animatedValue ? 'translateX(0)' : 'translateX(20px)'}
-            transition="all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
-          >
-            <HStack justify="space-between" mb={2}>
-              <Text fontSize="xs" mb={2} fontWeight="medium">Progreso semanal</Text>
-              <Text fontSize="sm" fontWeight="bold">{animatedValue}%</Text>
-            </HStack>
-            <Progress
-              value={animatedValue}
-              colorScheme="blue"
-              borderRadius="full"
-              size="md"
-              transition="all 0.3s"
-            />
-          </Box>
-
-          <VStack
-            align="start"
-            spacing={2}
-            w="100%"
-            opacity={animatedValue ? 1 : 0}
-            transform={animatedValue ? 'translateY(0)' : 'translateY(20px)'}
-            transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-          >
-            <HStack
-              fontSize="sm"
-              color={mutedColor}
-              w="100%"
-              p={3}
-              bg={cardBg}
-              borderRadius="lg"
-              _hover={{ borderColor: accentColor, borderWidth: 1 }}
-              transition="all 0.2s"
-            >
-              <MdVerified color={accentColor} boxSize={5} />
-              <VStack align="start" spacing={0}>
-                <Text fontWeight="bold">Último canje</Text>
-                <Text fontSize="xs">Hace 2 días</Text>
-              </VStack>
-            </HStack>
-            <HStack
-              fontSize="sm"
-              color={mutedColor}
-              w="100%"
-              p={3}
-              bg={cardBg}
-              borderRadius="lg"
-              _hover={{ borderColor: accentColor, borderWidth: 1 }}
-              transition="all 0.2s"
-            >
-              <MdTrendingUp color={accentColor} boxSize={5} />
-              <VStack align="start" spacing={0}>
-                <Text fontWeight="bold">Ganancia esta semana</Text>
-                <Text fontSize="xs">+450 puntos</Text>
-              </VStack>
-            </HStack>
-          </VStack>
-        </VStack>
-      </Box>
-    )
-  }
-
-  // Componente para leaderboard
-  const LeaderboardVisualizacion = () => {
-    const [animate, setAnimate] = useState(false)
-    const positions = [
-      { name: 'Usuario1', puntos: 5000, position: 1 },
-      { name: 'Tu posición', puntos: 3500, position: 5, isYou: true },
-      { name: 'Usuario3', puntos: 2800, position: 8 }
-    ]
-
-    useEffect(() => {
-      const timer = setTimeout(() => setAnimate(true), 300)
-      return () => clearTimeout(timer)
-    }, [])
-
-    return (
-      <Box
-        borderRadius="2xl"
-        border={`2px solid ${borderColor}`}
-        bg={sectionBg}
-        p={8}
-        display="flex"
-        flexDir="column"
-        align="center"
-        justify="center"
-        opacity={animate ? 1 : 0}
-        transform={animate ? 'scale(1)' : 'scale(0.95)'}
-        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-      >
-        <HStack
-          spacing={3}
-          mb={6}
-          opacity={animate ? 1 : 0}
-          transform={animate ? 'translateY(0)' : 'translateY(-20px)'}
-          transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        >
-          <Icon as={MdLeaderboard} boxSize={8} color={accentColor} />
-          <Heading fontSize="lg" fontWeight="bold">Ranking Global</Heading>
-        </HStack>
-
-        <VStack spacing={3} w="100%">
-          {positions.map((pos, idx) => (
-            <HStack
-              key={idx}
-              w="100%"
-              p={4}
-              bg={pos.isYou ? useColorModeValue('blue.50', 'blue.900') : cardBg}
-              borderRadius="lg"
-              border={pos.isYou ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
-              justify="space-between"
-              opacity={animate ? 1 : 0}
-              transform={animate ? 'translateX(0)' : 'translateX(-20px)'}
-              transition={`all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s`}
-              _hover={{
-                transform: 'translateX(8px)',
-                boxShadow: `0 8px 16px rgba(59, 130, 246, 0.1)`
-              }}
-              cursor="pointer"
-              suppressHydrationWarning
-            >
-              <HStack spacing={4}>
-                <Box
-                  minW="10"
-                  h="10"
-                  bg={accentColor}
-                  borderRadius="full"
-                  display="flex"
-                  align="center"
-                  justify="center"
-                  color="white"
-                  fontSize="sm"
-                  fontWeight="bold"
-                  flexShrink={0}
-                >
-                  {pos.position}
-                </Box>
-                <VStack align="start" spacing={0.5}>
-                  <Text fontSize="sm" fontWeight="bold">{pos.name}</Text>
-                  <Text fontSize="xs" color={mutedColor} suppressHydrationWarning>{pos.puntos.toLocaleString()} pts</Text>
-                </VStack>
-              </HStack>
-              {pos.isYou && (
-                <Icon as={MdStar} color={accentColor} boxSize={6} />
-              )}
-            </HStack>
-          ))}
-        </VStack>
-
-        <Box
-          w="100%"
-          p={3}
-          bg={cardBg}
-          borderRadius="lg"
-          mt={4}
-          textAlign="center"
-          opacity={animate ? 1 : 0}
-          transform={animate ? 'translateY(0)' : 'translateY(20px)'}
-          transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        >
-          <Text fontSize="10px" color={mutedColor}>Actualizado hace 5 minutos</Text>
-        </Box>
-      </Box>
-    )
-  }
-
-  // Componente para canjes
-  const CanjesVisualizacion = () => {
-    const [activeIndex, setActiveIndex] = useState(0)
-    const [animate, setAnimate] = useState(false)
-    const canjes = [
-      { name: 'VIP Mensual', status: 'Entregado', color: 'green' },
-      { name: 'Merchandising', status: 'En envío', color: 'blue' },
-      { name: 'Acceso Premium', status: 'Procesando', color: 'orange' }
-    ]
-
-    useEffect(() => {
-      const timer = setTimeout(() => setAnimate(true), 300)
-      return () => clearTimeout(timer)
-    }, [])
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setActiveIndex((prev) => (prev + 1) % canjes.length)
-      }, 3000)
-      return () => clearInterval(interval)
-    }, [canjes.length])
-
-    return (
-      <Box
-        borderRadius="2xl"
-        border={`2px solid ${borderColor}`}
-        bg={sectionBg}
-        p={8}
-        display="flex"
-        flexDir="column"
-        align="center"
-        justify="center"
-        opacity={animate ? 1 : 0}
-        transform={animate ? 'scale(1)' : 'scale(0.95)'}
-        transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-      >
-        <HStack
-          spacing={3}
-          mb={6}
-          opacity={animate ? 1 : 0}
-          transform={animate ? 'translateY(0)' : 'translateY(-20px)'}
-          transition="all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        >
-          <Icon as={MdShoppingCart} boxSize={8} color={accentColor} />
-          <Heading fontSize="lg" fontWeight="bold">Mis Canjes</Heading>
-        </HStack>
-
-        <VStack spacing={3} w="100%">
-          {canjes.map((canje, idx) => (
-            <Box
-              key={idx}
-              w="100%"
-              p={4}
-              bg={cardBg}
-              borderRadius="lg"
-              border={idx === activeIndex ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
-              opacity={idx === activeIndex ? 1 : 0.6}
-              transform={idx === activeIndex ? 'scale(1.02)' : 'scale(1)'}
-              transition="all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
-              boxShadow={idx === activeIndex ? `0 12px 24px rgba(59, 130, 246, 0.15)` : 'none'}
-              cursor="pointer"
-              _hover={{
-                transform: 'scale(1.01)',
-                borderColor: accentColor
-              }}
-            >
-              <HStack justify="space-between" align="start">
-                <VStack align="start" spacing={1} flex={1}>
-                  <Text fontSize="sm" fontWeight="bold">{canje.name}</Text>
-                  <HStack spacing={2}>
-                    <Box
-                      w={2}
-                      h={2}
-                      borderRadius="full"
-                      bg={useColorModeValue(`${canje.color}.400`, `${canje.color}.300`)}
-                      animation={idx === activeIndex ? 'pulse 2s infinite' : 'none'}
-                    />
-                    <Text fontSize="xs" color={mutedColor}>{canje.status}</Text>
-                  </HStack>
-                </VStack>
-                <Box
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  bg={useColorModeValue(`${canje.color}.100`, `${canje.color}.900`)}
-                  fontSize="10px"
-                  fontWeight="bold"
-                  color={useColorModeValue(`${canje.color}.700`, `${canje.color}.300`)}
-                >
-                  {canje.status}
-                </Box>
-              </HStack>
-
-              {idx === activeIndex && (
-                <Box
-                  w="100%"
-                  h="1px"
-                  bg={accentColor}
-                  mt={3}
-                  opacity={0.3}
-                />
-              )}
-            </Box>
-          ))}
-        </VStack>
-
-        <HStack
-          spacing={2}
-          mt={4}
-          opacity={animate ? 1 : 0}
-          transform={animate ? 'translateY(0)' : 'translateY(20px)'}
-          transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
-        >
-          {canjes.map((_, idx) => (
-            <Box
-              key={idx}
-              w={2}
-              h={2}
-              borderRadius="full"
-              bg={idx === activeIndex ? accentColor : borderColor}
-              transition="all 0.3s"
-            />
-          ))}
-        </HStack>
-      </Box>
-    )
-  }
+  const themeProps = { borderColor, sectionBg, cardBg, accentColor, mutedColor }
 
   // Seleccionar componente según el ID
   const getVisualization = () => {
     switch (id) {
       case 'people':
-        return <HistorialVisualizacion />
+        return <HistorialVisualizacion {...themeProps} />
       case 'performance':
-        return <LeaderboardVisualizacion />
+        return <LeaderboardVisualizacion {...themeProps} />
       case 'realtime':
-        return <CanjesVisualizacion />
+        return <CanjesVisualizacion {...themeProps} />
       default:
         return (
           <Box

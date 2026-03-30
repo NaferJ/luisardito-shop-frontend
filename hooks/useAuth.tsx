@@ -77,67 +77,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const fetchUser = async () => {
+    const { data } = await api.get('/api/usuarios/me')
+    setUser(data)
+  }
+
+  const logout = async () => {
+    try {
+      const refreshToken = getRefreshCookie()
+      if (refreshToken) {
+        // Llamar al endpoint de logout para revocar el refresh token
+        await api.post('/api/auth/logout', { refreshToken }).catch(() => {
+          // Ignorar errores del logout en el backend
+        })
+      }
+    } finally {
+      setToken(null)
+      setUser(null)
+      clearAuthCookies()
+      router.push('/login')
+    }
+  }
+
+  /** Intenta refrescar el token y actualizar el estado */
+  const attemptRefreshRecovery = async (): Promise<boolean> => {
+    const refreshToken = getRefreshCookie()
+    if (!refreshToken) return false
+
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 [Auth] fetchUser falló, intentando recuperar con refresh token...')
+      }
+
+      const { data } = await api.post('/api/auth/refresh', { refreshToken })
+      const accessToken = data.accessToken || data.token
+      if (!accessToken) return false
+
+      setAuthCookie(accessToken)
+      setToken(accessToken)
+      if (data.refreshToken) {
+        setRefreshCookie(data.refreshToken)
+      }
+
+      return true
+    } catch {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [Auth] Refresh falló en initAuth')
+      }
+      return false
+    }
+  }
+
+  /** Intenta cargar el usuario tras un refresh exitoso */
+  const retryFetchUserOrLogout = async () => {
+    try {
+      await fetchUser()
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ [Auth] Recuperación exitosa')
+      }
+    } catch {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [Auth] fetchUser falló después de refresh, haciendo logout')
+      }
+      logout()
+    }
+  }
+
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = getAuthCookie()
 
-      if (savedToken) {
-        setToken(savedToken)
-        try {
-          // Solo validar que el token funcione obteniendo el usuario
-          await fetchUser()
+      if (!savedToken) {
+        setIsLoading(false)
+        return
+      }
 
-          // FIX: NO hacer refresh proactivo aquí
-          // Si el token es nuevo (del callback de OAuth), puede no estar listo en el backend
-          // El interceptor se encargará de refrescar cuando expire naturalmente
+      setToken(savedToken)
 
-        } catch (error) {
-          // FIX: Si falla fetchUser, intentar recuperar antes de hacer logout
-          // El token podría estar válido pero el backend temporalmente no responde
-          const refreshToken = getRefreshCookie()
-
-          if (refreshToken) {
-            try {
-              if (process.env.NODE_ENV === 'development') {
-                console.log('🔄 [Auth] fetchUser falló, intentando recuperar con refresh token...')
-              }
-
-              const { data } = await api.post('/api/auth/refresh', { refreshToken })
-              const accessToken = data.accessToken || data.token
-
-              if (accessToken) {
-                setAuthCookie(accessToken)
-                setToken(accessToken)
-
-                if (data.refreshToken) {
-                  setRefreshCookie(data.refreshToken)
-                }
-
-                // Reintentar fetchUser
-                try {
-                  await fetchUser()
-                  if (process.env.NODE_ENV === 'development') {
-                    console.log('✅ [Auth] Recuperación exitosa')
-                  }
-                } catch (retryError) {
-                  // Si aún falla después del refresh, entonces sí hacer logout
-                  if (process.env.NODE_ENV === 'development') {
-                    console.error('❌ [Auth] fetchUser falló después de refresh, haciendo logout')
-                  }
-                  logout()
-                }
-              }
-            } catch (refreshError) {
-              // El refresh falló, hacer logout
-              if (process.env.NODE_ENV === 'development') {
-                console.error('❌ [Auth] Refresh falló en initAuth, haciendo logout')
-              }
-              logout()
-            }
-          } else {
-            // No hay refresh token, logout directo
-            logout()
-          }
+      try {
+        await fetchUser()
+      } catch {
+        const recovered = await attemptRefreshRecovery()
+        if (recovered) {
+          await retryFetchUserOrLogout()
+        } else {
+          logout()
         }
       }
 
@@ -192,14 +216,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval)
   }, [token])
 
-  const fetchUser = async () => {
-    try {
-      const { data } = await api.get('/api/usuarios/me')
-      setUser(data)
-    } catch (error) {
-      throw error
-    }
-  }
 
   // Función para actualizar la información del usuario incluyendo avatar de Kick
   const updateUserKickInfo = async () => {
@@ -296,22 +312,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const logout = async () => {
-    try {
-      const refreshToken = getRefreshCookie()
-      if (refreshToken) {
-        // Llamar al endpoint de logout para revocar el refresh token
-        await api.post('/api/auth/logout', { refreshToken }).catch(() => {
-          // Ignorar errores del logout en el backend
-        })
-      }
-    } finally {
-      setToken(null)
-      setUser(null)
-      clearAuthCookies()
-      router.push('/login')
-    }
-  }
 
   return (
     <AuthContext.Provider

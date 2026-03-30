@@ -59,6 +59,61 @@ import { MdPeople, MdStar, MdSwapHoriz, MdTrendingUp } from 'react-icons/md'
 import { FaTrophy, FaUserCheck, FaCoins, FaExchangeAlt } from 'react-icons/fa'
 import Head from 'next/head'
 
+/** Vista previa del cambio de puntos de un usuario */
+function PuntosPreview({ puntos, puntosMode, puntosActuales, mutedColor }: {
+  puntos: number; puntosMode: 'add' | 'set'; puntosActuales: number; mutedColor: string
+}) {
+  if (puntos === 0) return null
+  const resultado = puntosMode === 'add' ? puntosActuales + puntos : puntos
+  const cambio = puntosMode === 'add' ? puntos : puntos - puntosActuales
+
+  return (
+    <Box
+      bg={cambio > 0 ? 'green.50' : cambio < 0 ? 'red.50' : 'blue.50'}
+      _dark={{
+        bg: cambio > 0 ? 'green.900' : cambio < 0 ? 'red.900' : 'blue.900',
+        borderColor: cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'
+      }}
+      p={4} borderRadius="xl" borderWidth="2px"
+      borderColor={cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300'}
+    >
+      <VStack spacing={2}>
+        <HStack justify="space-between" w="full">
+          <Text fontSize="xs" fontWeight="semibold" color={mutedColor} textTransform="uppercase">
+            Vista previa
+          </Text>
+          {cambio !== 0 && (
+            <Badge colorScheme={cambio > 0 ? 'green' : 'red'} fontSize="xs" px={2} py={1}>
+              {cambio > 0 ? '+' : ''}{cambio.toLocaleString()} puntos
+            </Badge>
+          )}
+        </HStack>
+        <HStack spacing={4} w="full" justify="center">
+          <VStack spacing={0}>
+            <Text fontSize="xs" color={mutedColor}>Actual</Text>
+            <Text fontSize="lg" fontWeight="semibold" color={mutedColor} textDecoration="line-through">
+              {puntosActuales.toLocaleString()}
+            </Text>
+          </VStack>
+          <Icon
+            as={FaExchangeAlt} boxSize={5}
+            color={cambio > 0 ? 'green.500' : cambio < 0 ? 'red.500' : 'blue.500'}
+          />
+          <VStack spacing={0}>
+            <Text fontSize="xs" color={mutedColor}>Nuevo</Text>
+            <Text fontSize="2xl" fontWeight="bold"
+              color={cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'}
+              _dark={{ color: cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300' }}
+            >
+              {resultado.toLocaleString()}
+            </Text>
+          </VStack>
+        </HStack>
+      </VStack>
+    </Box>
+  )
+}
+
 export default function AdminUsuariosPage() {
   const router = useRouter()
   const toast = useToast()
@@ -835,7 +890,7 @@ export default function AdminUsuariosPage() {
                 </Button>
                 <Button
                   colorScheme={(() => {
-                    if (puntosMode === 'add') return puntos > 0 ? 'green' : puntos < 0 ? 'red' : 'gray'
+                    if (puntosMode === 'add') return puntos > 0 ? 'green' : puntos < 0 ? 'red' : 'blue'
                     return 'blue'
                   })()}
                   onClick={savePuntos}
@@ -850,7 +905,7 @@ export default function AdminUsuariosPage() {
           >
             <VStack spacing={4} align="stretch">
               {/* Puntos actuales */}
-              <HStack bg={statBg} p={4} borderRadius="xl" justify="space-between" borderWidth="1px" borderColor={borderColor}>
+              <HStack bg={statBg} p={4} borderRadius="xl" justify="space-between" borderWidth="1px" borderColor={borderColor} _dark={{ bg: 'whiteAlpha.100', borderColor: 'gray.600' }}>
                 <HStack spacing={2}>
                   <Icon as={FaCoins} color="green.500" />
                   <Text fontSize="sm" color={mutedColor} fontWeight="medium">
@@ -925,76 +980,12 @@ export default function AdminUsuariosPage() {
                 </VStack>
 
                 {/* Vista previa del resultado */}
-                {puntos !== 0 && (() => {
-                  const resultado = puntosMode === 'add'
-                    ? (selectedUser?.puntos || 0) + puntos
-                    : puntos
-                  const cambio = puntosMode === 'add' ? puntos : puntos - (selectedUser?.puntos || 0)
-
-                  return (
-                    <Box
-                      bg={cambio > 0 ? 'green.50' : cambio < 0 ? 'red.50' : 'blue.50'}
-                      _dark={{
-                        bg: cambio > 0 ? 'green.900' : cambio < 0 ? 'red.900' : 'blue.900'
-                      }}
-                      p={4}
-                      borderRadius="xl"
-                      borderWidth="2px"
-                      borderColor={cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300'}
-                    >
-                      <VStack spacing={2}>
-                        <HStack justify="space-between" w="full">
-                          <Text fontSize="xs" fontWeight="semibold" color={mutedColor} textTransform="uppercase">
-                            Vista previa
-                          </Text>
-                          {cambio !== 0 && (
-                            <Badge
-                              colorScheme={cambio > 0 ? 'green' : 'red'}
-                              fontSize="xs"
-                              px={2}
-                              py={1}
-                            >
-                              {cambio > 0 ? '+' : ''}
-                              {cambio.toLocaleString()} puntos
-                            </Badge>
-                          )}
-                        </HStack>
-                        <HStack spacing={4} w="full" justify="center">
-                          <VStack spacing={0}>
-                            <Text fontSize="xs" color={mutedColor}>
-                              Actual
-                            </Text>
-                            <Text
-                              fontSize="lg"
-                              fontWeight="semibold"
-                              color={mutedColor}
-                              textDecoration="line-through"
-                            >
-                              {(selectedUser?.puntos || 0).toLocaleString()}
-                            </Text>
-                          </VStack>
-                          <Icon
-                            as={FaExchangeAlt}
-                            boxSize={5}
-                            color={cambio > 0 ? 'green.500' : cambio < 0 ? 'red.500' : 'blue.500'}
-                          />
-                          <VStack spacing={0}>
-                            <Text fontSize="xs" color={mutedColor}>
-                              Nuevo
-                            </Text>
-                            <Text
-                              fontSize="2xl"
-                              fontWeight="bold"
-                              color={cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'}
-                            >
-                              {resultado.toLocaleString()}
-                            </Text>
-                          </VStack>
-                        </HStack>
-                      </VStack>
-                    </Box>
-                  )
-                })()}
+                <PuntosPreview
+                  puntos={puntos}
+                  puntosMode={puntosMode}
+                  puntosActuales={selectedUser?.puntos || 0}
+                  mutedColor={mutedColor}
+                />
               </VStack>
 
               {/* Motivo */}

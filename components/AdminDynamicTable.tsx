@@ -55,6 +55,91 @@ function detectType(value: unknown): DataType {
   return 'unknown'
 }
 
+
+function matchesColumnFilter(v: unknown, f: unknown, type: DataType): boolean {
+  if (f === undefined || f === '') return true
+  switch (type) {
+    case 'number':
+      return Number(v) === Number(f)
+    case 'boolean':
+      if (f === 'all') return true
+      return String(v) === f
+    case 'date':
+      try {
+        const d = new Date(v as string | number | Date)
+        const fDate = new Date(f as string | number | Date)
+        return d.toDateString() === fDate.toDateString()
+      } catch {
+        return false
+      }
+    case 'array':
+      return (
+        Array.isArray(v) &&
+        String((v as unknown[]).join(','))
+          .toLowerCase()
+          .includes(String(f).toLowerCase())
+      )
+    default:
+      return String(v ?? '')
+        .toLowerCase()
+        .includes(String(f).toLowerCase())
+  }
+}
+/** Renderiza el filtro de una columna */
+function renderColumnFilter<T>(
+  col: { key: string; label: string; type?: string; filterable?: boolean },
+  filters: Record<string, unknown>,
+  setFilters: React.Dispatch<React.SetStateAction<Record<string, unknown>>>,
+  setPage: React.Dispatch<React.SetStateAction<number>>
+): React.ReactNode {
+  if (col.filterable === false) return null
+
+  const handleChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, [col.key]: value }))
+    setPage(1)
+  }
+
+  if (col.type === 'boolean') {
+    return (
+      <ChakraSelect
+        size="xs"
+        value={(filters[col.key] as string) ?? 'all'}
+        onChange={(e) => handleChange(e.target.value)}
+      >
+        <option value="all">Todos</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </ChakraSelect>
+    )
+  }
+
+  return (
+    <Input
+      size="xs"
+      type={col.type === 'date' ? 'date' : 'text'}
+      placeholder={col.type === 'date' ? undefined : `Filtrar ${col.label}`}
+      value={(filters[col.key] as string) ?? ''}
+      onChange={(e) => handleChange(e.target.value)}
+    />
+  )
+}
+
+/** Renderiza el valor de una celda según la configuración de la columna */
+function renderCellValue<T>(row: T, col: ColumnConfig<T>): React.ReactNode {
+  const cellValue = (row as Record<string, unknown>)[col.key as string]
+  if (col.render) return col.render(row)
+  if (col.format) return col.format(cellValue, row)
+  const v = cellValue as unknown
+  if (v === null || v === undefined) return null
+  if (col.type === 'array') return Array.isArray(v) ? (v as unknown[]).join(', ') : String(v)
+  if (col.type === 'object') return JSON.stringify(v)
+  if (col.type === 'date') {
+    const d = new Date(v as string | number | Date)
+    return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString()
+  }
+  return String(v)
+}
+
 export default function AdminDynamicTable<T = unknown>({
   data = [],
   columns,
@@ -134,33 +219,7 @@ export default function AdminDynamicTable<T = unknown>({
           const v = (row as Record<string, unknown>)[k]
           const f = (filters as Record<string, unknown>)[k]
           const type = col.type || detectType(v)
-          if (f === undefined || f === '') return true
-          switch (type) {
-            case 'number':
-              return Number(v) === Number(f)
-            case 'boolean':
-              if (f === 'all') return true
-              return String(v) === f
-            case 'date':
-              try {
-                const d = new Date(v as string | number | Date)
-                const fDate = new Date(f as string | number | Date)
-                return d.toDateString() === fDate.toDateString()
-              } catch {
-                return false
-              }
-            case 'array':
-              return (
-                Array.isArray(v) &&
-                String((v as unknown[]).join(','))
-                  .toLowerCase()
-                  .includes(String(f).toLowerCase())
-              )
-            default:
-              return String(v ?? '')
-                .toLowerCase()
-                .includes(String(f).toLowerCase())
-          }
+          return matchesColumnFilter(v, f, type)
         })
       })
     }
@@ -263,43 +322,7 @@ export default function AdminDynamicTable<T = unknown>({
               <Tr>
                 {autoColumns.map((col) => (
                   <Th key={`filter-${col.key}`}>
-                    {col.filterable === false ? null : col.type === 'boolean' ? (
-                      <ChakraSelect
-                        size="xs"
-                        value={filters[col.key] ?? 'all'}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          setFilters((prev) => ({ ...prev, [col.key]: v }))
-                          setPage(1)
-                        }}
-                      >
-                        <option value="all">Todos</option>
-                        <option value="true">Sí</option>
-                        <option value="false">No</option>
-                      </ChakraSelect>
-                    ) : col.type === 'date' ? (
-                      <Input
-                        size="xs"
-                        type="date"
-                        value={filters[col.key] ?? ''}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          setFilters((prev) => ({ ...prev, [col.key]: v }))
-                          setPage(1)
-                        }}
-                      />
-                    ) : (
-                      <Input
-                        size="xs"
-                        placeholder={`Filtrar ${col.label}`}
-                        value={filters[col.key] ?? ''}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          setFilters((prev) => ({ ...prev, [col.key]: v }))
-                          setPage(1)
-                        }}
-                      />
-                    )}
+                    {renderColumnFilter(col, filters, setFilters, setPage)}
                   </Th>
                 ))}
               </Tr>
@@ -310,21 +333,7 @@ export default function AdminDynamicTable<T = unknown>({
               <Tr key={ri}>
                 {autoColumns.map((col) => (
                   <Td key={`${ri}-${col.key}`}>
-                    {(() => {
-                      const cellValue = (row as Record<string, unknown>)[col.key as string]
-                      if (col.render) return col.render(row as T)
-                      if (col.format) return col.format(cellValue, row as T)
-                      const v = cellValue as unknown
-                      if (v === null || v === undefined) return null
-                      if (col.type === 'array')
-                        return Array.isArray(v) ? (v as unknown[]).join(', ') : String(v)
-                      if (col.type === 'object') return JSON.stringify(v)
-                      if (col.type === 'date') {
-                        const d = new Date(v as string | number | Date)
-                        return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString()
-                      }
-                      return String(v)
-                    })()}
+                    {renderCellValue(row, col)}
                   </Td>
                 ))}
               </Tr>

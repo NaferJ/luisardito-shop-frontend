@@ -33,6 +33,14 @@ import { useAuth } from '../../../hooks/useAuth'
 import { useAdminUsuarios } from '../../../hooks/useAdminUsuarios'
 import Head from 'next/head'
 
+/** Función auxiliar para extraer mensajes de error de API de manera consistente */
+function extractApiErrorMessage(error: any, defaultMessage: string): string {
+  if (error?.response?.status === 401) return 'Error de autenticación. Verifica tu sesión.'
+  if (error?.response?.status === 403) return 'No tienes permisos para realizar esta acción.'
+  if (error?.response?.status === 404) return 'Recurso no encontrado. Puede que el endpoint no esté disponible.'
+  return error?.response?.data?.message || error?.message || defaultMessage
+}
+
 export default function KickAdminPage() {
   const router = useRouter()
   const toast = useToast()
@@ -84,28 +92,6 @@ export default function KickAdminPage() {
     )
   }
 
-  // Función auxiliar para manejar errores de manera consistente
-  const handleApiError = (error: any, defaultMessage: string) => {
-    console.error('Error de API:', error)
-
-    let errorMessage = defaultMessage
-
-    // Detectar errores específicos pero NO redirigir automáticamente
-    if (error?.response?.status === 401) {
-      errorMessage = 'Error de autenticación. Verifica tu sesión.'
-    } else if (error?.response?.status === 403) {
-      errorMessage = 'No tienes permisos para realizar esta acción.'
-    } else if (error?.response?.status === 404) {
-      errorMessage = 'Recurso no encontrado. Puede que el endpoint no esté disponible.'
-    } else if (error?.response?.data?.message) {
-      errorMessage = error.response.data.message
-    } else if (error?.message) {
-      errorMessage = error.message
-    }
-
-    return errorMessage
-  }
-
   // Theme colors con mejor contraste en modo oscuro
   const cardBg = useColorModeValue('white', 'gray.700')
   const borderColor = useColorModeValue('gray.200', 'gray.500')
@@ -127,7 +113,7 @@ export default function KickAdminPage() {
         duration: 3000
       })
     } catch (error: any) {
-      const errorMessage = handleApiError(
+      const errorMessage = extractApiErrorMessage(
         error,
         'No se pudo actualizar la configuración de migración'
       )
@@ -154,7 +140,7 @@ export default function KickAdminPage() {
         duration: 3000
       })
     } catch (error: any) {
-      const errorMessage = handleApiError(error, 'No se pudo actualizar la configuración VIP')
+      const errorMessage = extractApiErrorMessage(error, 'No se pudo actualizar la configuración VIP')
 
       toast({
         title: 'Error',
@@ -178,7 +164,7 @@ export default function KickAdminPage() {
         duration: 3000
       })
     } catch (error: any) {
-      const errorMessage = handleApiError(
+      const errorMessage = extractApiErrorMessage(
         error,
         'No se pudo actualizar la configuración de migración de watchtime'
       )
@@ -207,7 +193,7 @@ export default function KickAdminPage() {
         duration: 3000
       })
     } catch (error: any) {
-      const errorMessage = handleApiError(error, 'No se pudo limpiar los VIPs expirados')
+      const errorMessage = extractApiErrorMessage(error, 'No se pudo limpiar los VIPs expirados')
 
       toast({
         title: 'Error',

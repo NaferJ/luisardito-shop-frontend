@@ -58,6 +58,77 @@ import { ProductFormPreview } from './ProductFormPreview'
 import { generateSlug } from '../utils/slug'
 import { usePromocionesActivas } from '../hooks/usePromociones'
 
+/** Tarjeta individual de promoción seleccionable */
+function PromocionCard({ promo, isSelected, precioProducto, borderColor, mutedColor, selectedBgColor, onToggle }: {
+  promo: any
+  isSelected: boolean
+  precioProducto: number
+  borderColor: string
+  mutedColor: string
+  selectedBgColor: string
+  onToggle: () => void
+}) {
+  const precioFinal = promo.tipo_descuento === 'porcentaje'
+    ? precioProducto * (1 - promo.valor_descuento / 100)
+    : precioProducto - promo.valor_descuento
+
+  return (
+    <Box
+      p={4}
+      borderWidth="2px"
+      borderColor={isSelected ? 'blue.500' : borderColor}
+      borderRadius="lg"
+      cursor="pointer"
+      onClick={onToggle}
+      transition="all 0.2s"
+      _hover={{
+        borderColor: isSelected ? 'blue.600' : 'gray.400',
+        transform: 'translateY(-2px)',
+        boxShadow: 'md'
+      }}
+      bg={isSelected ? selectedBgColor : 'transparent'}
+    >
+      <HStack spacing={4} align="start">
+        <Checkbox
+          isChecked={isSelected}
+          onChange={() => {}}
+          pointerEvents="none"
+          size="lg"
+        />
+        <VStack align="start" spacing={2} flex={1}>
+          <HStack>
+            <Text fontWeight="bold" fontSize="md">
+              {promo.titulo}
+            </Text>
+            <Badge colorScheme="green" fontSize="sm">
+              {promo.tipo_descuento === 'porcentaje' 
+                ? `-${promo.valor_descuento}%` 
+                : `-${promo.valor_descuento} pts`}
+            </Badge>
+          </HStack>
+          
+          {promo.descripcion && (
+            <Text fontSize="sm" color={mutedColor} noOfLines={2}>
+              {promo.descripcion}
+            </Text>
+          )}
+          
+          {isSelected && (
+            <HStack spacing={3} fontSize="sm" flexWrap="wrap">
+              <Text color={mutedColor}>
+                Precio: <Text as="span" textDecoration="line-through">{precioProducto}</Text> → <Text as="span" fontWeight="bold" color="green.500">{Math.max(0, Math.round(precioFinal))} pts</Text>
+              </Text>
+              <Text color="green.500" fontWeight="medium">
+                Ahorras {Math.round(precioProducto - precioFinal)} pts
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+      </HStack>
+    </Box>
+  )
+}
+
 interface ProductFormProps {
   mode: 'create' | 'edit'
   initialData?: Producto
@@ -595,75 +666,24 @@ export function ProductForm({ mode, initialData, onSubmit, isLoading }: ProductF
                             </AlertDescription>
                           </Alert>
                           
-                          {promocionesDisponibles.map((promo) => {
-                            const isSelected = selectedPromociones.includes(promo.id)
-                            const precioFinal = promo.tipo_descuento === 'porcentaje'
-                              ? formData.precio * (1 - promo.valor_descuento / 100)
-                              : formData.precio - promo.valor_descuento
-                            
-                            return (
-                              <Box
-                                key={promo.id}
-                                p={4}
-                                borderWidth="2px"
-                                borderColor={isSelected ? 'blue.500' : borderColor}
-                                borderRadius="lg"
-                                cursor="pointer"
-                                onClick={() => {
-                                  setSelectedPromociones(prev => 
-                                    isSelected 
-                                      ? prev.filter(id => id !== promo.id)
-                                      : [...prev, promo.id]
-                                  )
-                                }}
-                                transition="all 0.2s"
-                                _hover={{
-                                  borderColor: isSelected ? 'blue.600' : 'gray.400',
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: 'md'
-                                }}
-                                bg={isSelected ? selectedBgColor : 'transparent'}
-                              >
-                                <HStack spacing={4} align="start">
-                                  <Checkbox
-                                    isChecked={isSelected}
-                                    onChange={() => {}}
-                                    pointerEvents="none"
-                                    size="lg"
-                                  />
-                                  <VStack align="start" spacing={2} flex={1}>
-                                    <HStack>
-                                      <Text fontWeight="bold" fontSize="md">
-                                        {promo.titulo}
-                                      </Text>
-                                      <Badge colorScheme="green" fontSize="sm">
-                                        {promo.tipo_descuento === 'porcentaje' 
-                                          ? `-${promo.valor_descuento}%` 
-                                          : `-${promo.valor_descuento} pts`}
-                                      </Badge>
-                                    </HStack>
-                                    
-                                    {promo.descripcion && (
-                                      <Text fontSize="sm" color={mutedColor} noOfLines={2}>
-                                        {promo.descripcion}
-                                      </Text>
-                                    )}
-                                    
-                                    {isSelected && (
-                                      <HStack spacing={3} fontSize="sm" flexWrap="wrap">
-                                        <Text color={mutedColor}>
-                                          Precio: <Text as="span" textDecoration="line-through">{formData.precio}</Text> → <Text as="span" fontWeight="bold" color="green.500">{Math.max(0, Math.round(precioFinal))} pts</Text>
-                                        </Text>
-                                        <Text color="green.500" fontWeight="medium">
-                                          Ahorras {Math.round(formData.precio - precioFinal)} pts
-                                        </Text>
-                                      </HStack>
-                                    )}
-                                  </VStack>
-                                </HStack>
-                              </Box>
-                            )
-                          })}
+                          {promocionesDisponibles.map((promo) => (
+                            <PromocionCard
+                              key={promo.id}
+                              promo={promo}
+                              isSelected={selectedPromociones.includes(promo.id)}
+                              precioProducto={formData.precio}
+                              borderColor={borderColor}
+                              mutedColor={mutedColor}
+                              selectedBgColor={selectedBgColor}
+                              onToggle={() => {
+                                setSelectedPromociones(prev =>
+                                  prev.includes(promo.id)
+                                    ? prev.filter(id => id !== promo.id)
+                                    : [...prev, promo.id]
+                                )
+                              }}
+                            />
+                          ))}
                         </>
                       ) : (
                         <Box textAlign="center" py={6}>

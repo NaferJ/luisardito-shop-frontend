@@ -127,53 +127,45 @@ export class CookieManager {
     }
   }
 
+  /**
+   * Migra un token individual de localStorage a cookies si es válido
+   */
+  private static migrateToken(name: string, maxAge: number): void {
+    const token = localStorage.getItem(name)
+    const existingCookie = this.getCookie(name)
+
+    if (!token || existingCookie) return
+
+    if (this.isValidJWT(token)) {
+      this.setCookie(name, token, { maxAge })
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ [CookieManager] Migrado ${name} desde localStorage`)
+      }
+    } else if (process.env.NODE_ENV === 'development') {
+      console.warn(`⚠️ [CookieManager] ${name} en localStorage no es válido, omitiendo migración`)
+    }
+  }
+
+  /**
+   * Limpia un token de localStorage si ya existe como cookie
+   */
+  private static cleanupLocalStorage(name: string): void {
+    if (this.getCookie(name)) {
+      localStorage.removeItem(name)
+    }
+  }
+
   // Migrar de localStorage a cookies con validación
   static migrateFromLocalStorage(): void {
     if (typeof window === 'undefined') return
 
     try {
-      const authToken = localStorage.getItem('auth_token')
-      const refreshToken = localStorage.getItem('refresh_token')
-
-      // Solo migrar si NO existen cookies ya (no sobrescribir cookies válidas)
-      const existingAuthCookie = this.getCookie('auth_token')
-      const existingRefreshCookie = this.getCookie('refresh_token')
-
-      if (authToken && !existingAuthCookie) {
-        // Validar formato del token antes de migrar
-        if (this.isValidJWT(authToken)) {
-          this.setCookie('auth_token', authToken, {
-            maxAge: 30 * 24 * 60 * 60 // 30 días
-          })
-          if (process.env.NODE_ENV === 'development') {
-            console.log('✅ [CookieManager] Migrado auth_token desde localStorage')
-          }
-        } else if (process.env.NODE_ENV === 'development') {
-          console.warn('⚠️ [CookieManager] auth_token en localStorage no es válido, omitiendo migración')
-        }
-      }
-
-      if (refreshToken && !existingRefreshCookie) {
-        if (this.isValidJWT(refreshToken)) {
-          this.setCookie('refresh_token', refreshToken, {
-            maxAge: 90 * 24 * 60 * 60 // 90 días
-          })
-          if (process.env.NODE_ENV === 'development') {
-            console.log('✅ [CookieManager] Migrado refresh_token desde localStorage')
-          }
-        } else if (process.env.NODE_ENV === 'development') {
-          console.warn('⚠️ [CookieManager] refresh_token en localStorage no es válido, omitiendo migración')
-        }
-      }
+      this.migrateToken('auth_token', 30 * 24 * 60 * 60)
+      this.migrateToken('refresh_token', 90 * 24 * 60 * 60)
 
       // Limpiar localStorage solo después de verificar migración exitosa
-      if (this.getCookie('auth_token')) {
-        localStorage.removeItem('auth_token')
-      }
-      if (this.getCookie('refresh_token')) {
-        localStorage.removeItem('refresh_token')
-      }
-
+      this.cleanupLocalStorage('auth_token')
+      this.cleanupLocalStorage('refresh_token')
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('❌ [CookieManager] Error en migración de localStorage:', error)

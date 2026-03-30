@@ -60,6 +60,100 @@ import { FaTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa'
 import NextLink from 'next/link'
 import { Countdown } from '../../components/Countdown'
 
+/** Calcula la luminancia relativa de un color RGB */
+function getLuminance(r: number, g: number, b: number): number {
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    c = c / 255
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+}
+
+/** Devuelve color de texto adecuado según el fondo */
+function getButtonTextColor(bgColor: number[]): string {
+  return getLuminance(bgColor[0], bgColor[1], bgColor[2]) > 0.5 ? 'gray.800' : 'white'
+}
+
+/** Genera las funciones de compartir para redes sociales */
+function createShareHandlers(productUrl: string, nombre: string, precio: number) {
+  return {
+    shareOnTwitter: () => {
+      const text = `Mira este producto: ${nombre} - ${precio} puntos`
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(productUrl)}`,
+        '_blank'
+      )
+    },
+    shareOnFacebook: () => {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`,
+        '_blank'
+      )
+    },
+    shareOnWhatsApp: () => {
+      const text = `Mira este producto: ${nombre} - ${precio} puntos`
+      window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + productUrl)}`, '_blank')
+    }
+  }
+}
+
+/** Calcula el estado del botón de canje según el contexto */
+function getButtonState(
+  isAuthenticated: boolean,
+  producto: any,
+  user: any,
+  dominantColor: number[] | null,
+  isPending: boolean
+) {
+  if (!isAuthenticated) {
+    return {
+      text: 'Iniciar sesión para canjear',
+      colorScheme: dominantColor ? undefined : 'blue',
+      disabled: false,
+      isLoading: false,
+      variant: 'solid',
+      bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
+      textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
+    }
+  }
+
+  if (producto.stock <= 0) {
+    return {
+      text: 'Sin stock',
+      colorScheme: 'gray',
+      disabled: true,
+      isLoading: false,
+      variant: 'outline',
+      bgColor: undefined,
+      textColor: undefined
+    }
+  }
+
+  const precioFinal = producto.descuento?.tieneDescuento ? producto.descuento.precioFinal : producto.precio
+
+  if (!user || user.puntos < precioFinal) {
+    return {
+      text: `Faltan ${precioFinal - (user?.puntos || 0)} puntos`,
+      colorScheme: 'orange',
+      disabled: true,
+      isLoading: false,
+      variant: 'outline',
+      bgColor: undefined,
+      textColor: undefined
+    }
+  }
+
+  return {
+    text: isPending ? 'Procesando...' : 'Canjear ahora',
+    colorScheme: dominantColor ? undefined : 'blue',
+    disabled: isPending,
+    isLoading: isPending,
+    variant: 'solid',
+    bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
+    textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
+  }
+}
+
 export default function ProductoDetallePage() {
   const router = useRouter()
   const { slug } = router.query
@@ -217,91 +311,13 @@ export default function ProductoDetallePage() {
     })
   }
 
-  // Función para calcular luminancia
-  const getLuminance = (r: number, g: number, b: number): number => {
-    const [rs, gs, bs] = [r, g, b].map(c => {
-      c = c / 255
-      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-    })
-    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
-  }
+  const { shareOnTwitter, shareOnFacebook, shareOnWhatsApp } = createShareHandlers(
+    productUrl, producto.nombre, producto.precio
+  )
 
-  // Función para obtener color de texto basado en contraste
-  const getButtonTextColor = (bgColor: number[]): string => {
-    return getLuminance(bgColor[0], bgColor[1], bgColor[2]) > 0.5 ? 'gray.800' : 'white'
-  }
-
-  const shareOnTwitter = () => {
-    const text = `Mira este producto: ${producto.nombre} - ${producto.precio} puntos`
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(productUrl)}`,
-      '_blank'
-    )
-  }
-
-  const shareOnFacebook = () => {
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`,
-      '_blank'
-    )
-  }
-
-  const shareOnWhatsApp = () => {
-    const text = `Mira este producto: ${producto.nombre} - ${producto.precio} puntos`
-    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + productUrl)}`, '_blank')
-  }
-
-  const getButtonState = () => {
-    if (!isAuthenticated) {
-      return {
-        text: 'Iniciar sesión para canjear',
-        colorScheme: dominantColor ? undefined : 'blue',
-        disabled: false,
-        isLoading: false,
-        variant: 'solid',
-        bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
-        textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
-      }
-    }
-
-    if (producto.stock <= 0) {
-      return {
-        text: 'Sin stock',
-        colorScheme: 'gray',
-        disabled: true,
-        isLoading: false,
-        variant: 'outline',
-        bgColor: undefined,
-        textColor: undefined
-      }
-    }
-
-    const precioFinal = producto.descuento?.tieneDescuento ? producto.descuento.precioFinal : producto.precio
-    
-    if (!user || user.puntos < precioFinal) {
-      return {
-        text: `Faltan ${precioFinal - (user?.puntos || 0)} puntos`,
-        colorScheme: 'orange',
-        disabled: true,
-        isLoading: false,
-        variant: 'outline',
-        bgColor: undefined,
-        textColor: undefined
-      }
-    }
-
-    return {
-      text: createCanjeMutation.isPending ? 'Procesando...' : 'Canjear ahora',
-      colorScheme: dominantColor ? undefined : 'blue',
-      disabled: createCanjeMutation.isPending,
-      isLoading: createCanjeMutation.isPending,
-      variant: 'solid',
-      bgColor: dominantColor ? `rgb(${dominantColor.join(',')})` : undefined,
-      textColor: dominantColor ? getButtonTextColor(dominantColor) : 'white'
-    }
-  }
-
-  const buttonState = getButtonState()
+  const buttonState = getButtonState(
+    isAuthenticated, producto, user, dominantColor, createCanjeMutation.isPending
+  )
 
   const productosSimilares =
     productos

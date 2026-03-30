@@ -100,6 +100,33 @@ function getJWTPayload(token: string): any {
 }
 
 /**
+ * Valida un token individual y agrega problemas encontrados al array de issues
+ */
+function validateTokenHealth(
+  token: string | null,
+  name: string,
+  issues: string[]
+): { hasToken: boolean; isValid: boolean; isExpired: boolean } {
+  if (!token) {
+    issues.push(`No se encontró ${name} en cookies`)
+    return { hasToken: false, isValid: false, isExpired: false }
+  }
+
+  const isValid = isValidToken(token)
+  if (!isValid) {
+    issues.push(`${name} no es válido`)
+  }
+
+  // Solo verificar expiración en JWTs (los tokens opacos no tienen fecha visible)
+  const isExpired = isValidJWT(token) ? isJWTExpired(token) : false
+  if (isExpired) {
+    issues.push(`${name} está expirado`)
+  }
+
+  return { hasToken: true, isValid, isExpired }
+}
+
+/**
  * Verifica el estado de salud de la autenticación
  * Útil para diagnosticar problemas
  */
@@ -124,64 +151,57 @@ export function verifyAuthHealth(): AuthHealthResult {
     }
   }
 
-  // Verificar que las cookies existen
   const authToken = getAuthCookie()
   const refreshToken = getRefreshCookie()
 
-  const hasAuthToken = !!authToken
-  const hasRefreshToken = !!refreshToken
+  const authResult = validateTokenHealth(authToken, 'auth_token', issues)
+  const refreshResult = validateTokenHealth(refreshToken, 'refresh_token', issues)
 
-  if (!authToken) {
-    issues.push('No se encontró auth_token en cookies')
-  }
-
-  if (!refreshToken) {
-    issues.push('No se encontró refresh_token en cookies')
-  }
-
-  // Verificar que los tokens son válidos (JWT o token opaco)
-  const authTokenValid = authToken ? isValidToken(authToken) : false
-  const refreshTokenValid = refreshToken ? isValidToken(refreshToken) : false
-
-  if (authToken && !authTokenValid) {
-    issues.push('auth_token no es válido')
-  }
-
-  if (refreshToken && !refreshTokenValid) {
-    issues.push('refresh_token no es válido')
-  }
-
-  // Verificar que no están expirados (solo aplicable a JWT)
-  // Los tokens opacos no tienen fecha de expiración visible
-  const authTokenExpired = authToken && isValidJWT(authToken) ? isJWTExpired(authToken) : false
-  const refreshTokenExpired = refreshToken && isValidJWT(refreshToken) ? isJWTExpired(refreshToken) : false
-
-  if (authToken && authTokenExpired) {
-    issues.push('auth_token está expirado')
-  }
-
-  if (refreshToken && refreshTokenExpired) {
-    issues.push('refresh_token está expirado')
-  }
-
-  // Contar cookies totales
   const cookiesCount = document.cookie.split(';').filter(c => c.trim()).length
 
   return {
     isHealthy: issues.length === 0,
     issues,
     details: {
-      hasAuthToken,
-      hasRefreshToken,
-      authTokenValid,
-      refreshTokenValid,
-      authTokenExpired,
-      refreshTokenExpired,
+      hasAuthToken: authResult.hasToken,
+      hasRefreshToken: refreshResult.hasToken,
+      authTokenValid: authResult.isValid,
+      refreshTokenValid: refreshResult.isValid,
+      authTokenExpired: authResult.isExpired,
+      refreshTokenExpired: refreshResult.isExpired,
       cookiesCount,
       domain: window.location.hostname,
       protocol: window.location.protocol
     }
   }
+}
+
+/** Imprime los detalles de salud en consola */
+function logHealthDetails(health: AuthHealthResult): void {
+  console.group('📋 Detalles')
+  console.log('  Auth Token presente:', health.details.hasAuthToken ? '✅' : '❌')
+  console.log('  Refresh Token presente:', health.details.hasRefreshToken ? '✅' : '❌')
+  console.log('  Auth Token válido:', health.details.authTokenValid ? '✅' : '❌')
+  console.log('  Refresh Token válido:', health.details.refreshTokenValid ? '✅' : '❌')
+  console.log('  Auth Token expirado:', health.details.authTokenExpired ? '⚠️ SÍ' : '✅ NO')
+  console.log('  Refresh Token expirado:', health.details.refreshTokenExpired ? '⚠️ SÍ' : '✅ NO')
+  console.log('  Total de cookies:', health.details.cookiesCount)
+  console.log('  Dominio:', health.details.domain)
+  console.log('  Protocolo:', health.details.protocol)
+  console.groupEnd()
+}
+
+/** Imprime el payload de un token JWT en consola */
+function logTokenPayload(label: string, token: string | null): void {
+  if (!token) return
+  const payload = getJWTPayload(token)
+  if (!payload) return
+
+  console.group(label)
+  console.log('  User ID:', payload.sub || payload.userId || 'N/A')
+  console.log('  Expira en:', new Date(payload.exp * 1000).toLocaleString())
+  console.log('  Emitido en:', payload.iat ? new Date(payload.iat * 1000).toLocaleString() : 'N/A')
+  console.groupEnd()
 }
 
 /**
@@ -206,43 +226,10 @@ export function debugAuth(): void {
     console.groupEnd()
   }
 
-  console.group('📋 Detalles')
-  console.log('  Auth Token presente:', health.details.hasAuthToken ? '✅' : '❌')
-  console.log('  Refresh Token presente:', health.details.hasRefreshToken ? '✅' : '❌')
-  console.log('  Auth Token válido:', health.details.authTokenValid ? '✅' : '❌')
-  console.log('  Refresh Token válido:', health.details.refreshTokenValid ? '✅' : '❌')
-  console.log('  Auth Token expirado:', health.details.authTokenExpired ? '⚠️ SÍ' : '✅ NO')
-  console.log('  Refresh Token expirado:', health.details.refreshTokenExpired ? '⚠️ SÍ' : '✅ NO')
-  console.log('  Total de cookies:', health.details.cookiesCount)
-  console.log('  Dominio:', health.details.domain)
-  console.log('  Protocolo:', health.details.protocol)
-  console.groupEnd()
+  logHealthDetails(health)
 
-  // Mostrar payloads de los tokens si existen
-  const authToken = getAuthCookie()
-  const refreshToken = getRefreshCookie()
-
-  if (authToken) {
-    const authPayload = getJWTPayload(authToken)
-    if (authPayload) {
-      console.group('🎫 Auth Token Payload')
-      console.log('  User ID:', authPayload.sub || authPayload.userId || 'N/A')
-      console.log('  Expira en:', new Date(authPayload.exp * 1000).toLocaleString())
-      console.log('  Emitido en:', authPayload.iat ? new Date(authPayload.iat * 1000).toLocaleString() : 'N/A')
-      console.groupEnd()
-    }
-  }
-
-  if (refreshToken) {
-    const refreshPayload = getJWTPayload(refreshToken)
-    if (refreshPayload) {
-      console.group('🔄 Refresh Token Payload')
-      console.log('  User ID:', refreshPayload.sub || refreshPayload.userId || 'N/A')
-      console.log('  Expira en:', new Date(refreshPayload.exp * 1000).toLocaleString())
-      console.log('  Emitido en:', refreshPayload.iat ? new Date(refreshPayload.iat * 1000).toLocaleString() : 'N/A')
-      console.groupEnd()
-    }
-  }
+  logTokenPayload('🎫 Auth Token Payload', getAuthCookie())
+  logTokenPayload('🔄 Refresh Token Payload', getRefreshCookie())
 
   console.group('🍪 Todas las Cookies')
   const allCookies = document.cookie.split(';').map(c => c.trim())

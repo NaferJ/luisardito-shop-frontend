@@ -5,18 +5,56 @@ import { Layout } from '../../components/Layout'
 import api from '../../lib/api'
 import { setAuthCookie, setRefreshCookie } from '../../lib/cookies'
 
+
+/** Guarda tokens en cookies y redirige al home */
+async function saveTokensAndRedirect(
+  accessToken: string,
+  refreshToken: string | undefined,
+  router: any,
+  setError: (e: string) => void
+): Promise<void> {
+  setAuthCookie(accessToken)
+  if (refreshToken) {
+    setRefreshCookie(refreshToken)
+  }
+  // Esperar para asegurar que las cookies se escriban
+  await new Promise(resolve => setTimeout(resolve, 300))
+  const cookiesVerified = document.cookie.includes('auth_token')
+  if (cookiesVerified) {
+    router.replace('/')
+  } else {
+    setError('Error al guardar cookies de autenticación. Por favor intenta de nuevo.')
+  }
+}
 export default function AuthCallbackPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
+    const extractTokensFromEncodedData = (encodedData: string) => {
+      const decodedData = JSON.parse(atob(encodedData))
+      return {
+        accessToken: decodedData.accessToken || decodedData.token,
+        refreshToken: decodedData.refreshToken
+      }
+    }
+
+    const exchangeCodeForTokens = async (code: string, state: string) => {
+      const { data } = await api.get('/api/auth/kick-callback', {
+        params: { code, state }
+      })
+      return {
+        accessToken: data.accessToken || data.token,
+        refreshToken: data.refreshToken
+      }
+    }
+
     const processCallback = async () => {
       if (hasProcessedRef.current) return
 
       const { code, state, data: encodedData, error: oauthError } = router.query
 
-      // Si hay error de OAuth
       if (oauthError) {
         setError(`Error de autorización: ${oauthError}`)
         hasProcessedRef.current = true
@@ -29,74 +67,18 @@ export default function AuthCallbackPage() {
       hasProcessedRef.current = true
 
       try {
-        // Caso 1: El backend ya procesó todo y envió los datos codificados
+        let tokens: { accessToken?: string; refreshToken?: string } = {}
+
         if (encodedData) {
-          const decodedData = JSON.parse(atob(String(encodedData)))
-
-          // Guardar tokens en cookies cross-domain
-          if (decodedData.accessToken || decodedData.token) {
-            const accessToken = decodedData.accessToken || decodedData.token
-
-            setAuthCookie(accessToken)
-
-            if (decodedData.refreshToken) {
-              setRefreshCookie(decodedData.refreshToken)
-            }
-
-            // FIX: Esperar un poco más para asegurar que las cookies se escriban
-            // Y verificar que realmente se guardaron antes de redirigir
-            await new Promise(resolve => setTimeout(resolve, 300))
-
-            const cookiesVerified = document.cookie.includes('auth_token')
-
-            if (cookiesVerified) {
-              // Usar router.replace para navegación más controlada
-              // Esto previene race conditions con el AuthProvider
-              router.replace('/')
-            } else {
-              // Fallback: Si las cookies no se guardaron, mostrar error
-              setError('Error al guardar cookies de autenticación. Por favor intenta de nuevo.')
-            }
-
-            return
-          } else {
-            setError('No se recibió token del servidor')
-          }
-          return
+          tokens = extractTokensFromEncodedData(String(encodedData))
+        } else if (code && state) {
+          tokens = await exchangeCodeForTokens(String(code), String(state))
         }
 
-        // Caso 2: Flujo original - intercambiar code/state por token
-        if (code && state) {
-          const { data } = await api.get('/api/auth/kick-callback', {
-            params: {
-              code: String(code),
-              state: String(state)
-            }
-          })
-
-          // Guardar tokens en cookies cross-domain
-          if (data.accessToken || data.token) {
-            const accessToken = data.accessToken || data.token
-            setAuthCookie(accessToken)
-
-            if (data.refreshToken) {
-              setRefreshCookie(data.refreshToken)
-            }
-
-            // FIX: Esperar y verificar que las cookies se guardaron
-            await new Promise(resolve => setTimeout(resolve, 300))
-
-            const cookiesVerified = document.cookie.includes('auth_token')
-
-            if (cookiesVerified) {
-              // Usar router.replace para navegación más controlada
-              router.replace('/')
-            } else {
-              setError('Error al guardar cookies de autenticación. Por favor intenta de nuevo.')
-            }
-          } else {
-            setError('No se recibió token del servidor')
-          }
+        if (tokens.accessToken) {
+          await saveTokensAndRedirect(tokens.accessToken, tokens.refreshToken, router, setError)
+        } else {
+          setError('No se recibió token del servidor')
         }
       } catch (err: any) {
         console.error('Error procesando callback de Kick:', err)

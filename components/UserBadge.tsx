@@ -132,9 +132,11 @@ interface Usuario {
   }
 }
 
+type BadgeSize = 'sm' | 'md' | 'lg'
+
 interface UserBadgeProps {
   user: Usuario
-  size?: 'sm' | 'md' | 'lg'
+  size?: BadgeSize
   showTooltip?: boolean
   fontSize?: string
   px?: number
@@ -143,14 +145,14 @@ interface UserBadgeProps {
 }
 
 /** Calcula el tamaño del contenedor del badge según el tamaño */
-function getBadgeContainerSize(size: 'sm' | 'md' | 'lg'): string {
+function getBadgeContainerSize(size: BadgeSize): string {
   if (size === 'sm') return '40px'
   if (size === 'md') return '48px'
   return '64px'
 }
 
 /** Calcula el tamaño del icono según el tamaño del badge */
-function getBadgeIconSize(size: 'sm' | 'md' | 'lg'): number {
+function getBadgeIconSize(size: BadgeSize): number {
   if (size === 'sm') return 22
   if (size === 'md') return 26
   return 32

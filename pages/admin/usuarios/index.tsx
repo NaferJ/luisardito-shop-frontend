@@ -59,23 +59,36 @@ import { MdPeople, MdStar, MdSwapHoriz, MdTrendingUp } from 'react-icons/md'
 import { FaTrophy, FaUserCheck, FaCoins, FaExchangeAlt } from 'react-icons/fa'
 import Head from 'next/head'
 
+/** Selecciona color según signo del cambio */
+function colorBySign(cambio: number, positive: string, negative: string, neutral: string): string {
+  if (cambio > 0) return positive
+  if (cambio < 0) return negative
+  return neutral
+}
+
 /** Vista previa del cambio de puntos de un usuario */
-function PuntosPreview({ puntos, puntosMode, puntosActuales, mutedColor }: {
+function PuntosPreview({ puntos, puntosMode, puntosActuales, mutedColor }: Readonly<{
   puntos: number; puntosMode: 'add' | 'set'; puntosActuales: number; mutedColor: string
-}) {
+}>) {
   if (puntos === 0) return null
   const resultado = puntosMode === 'add' ? puntosActuales + puntos : puntos
   const cambio = puntosMode === 'add' ? puntos : puntos - puntosActuales
 
+  const bgLight = colorBySign(cambio, 'green.50', 'red.50', 'blue.50')
+  const bgDark = colorBySign(cambio, 'green.900', 'red.900', 'blue.900')
+  const borderLight = colorBySign(cambio, 'green.300', 'red.300', 'blue.300')
+  const borderDark = colorBySign(cambio, 'green.600', 'red.600', 'blue.600')
+  const iconColor = colorBySign(cambio, 'green.500', 'red.500', 'blue.500')
+  const textLight = colorBySign(cambio, 'green.600', 'red.600', 'blue.600')
+  const textDark = colorBySign(cambio, 'green.300', 'red.300', 'blue.300')
+  const badgeScheme = cambio > 0 ? 'green' : 'red'
+
   return (
     <Box
-      bg={cambio > 0 ? 'green.50' : cambio < 0 ? 'red.50' : 'blue.50'}
-      _dark={{
-        bg: cambio > 0 ? 'green.900' : cambio < 0 ? 'red.900' : 'blue.900',
-        borderColor: cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'
-      }}
+      bg={bgLight}
+      _dark={{ bg: bgDark, borderColor: borderDark }}
       p={4} borderRadius="xl" borderWidth="2px"
-      borderColor={cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300'}
+      borderColor={borderLight}
     >
       <VStack spacing={2}>
         <HStack justify="space-between" w="full">
@@ -83,7 +96,7 @@ function PuntosPreview({ puntos, puntosMode, puntosActuales, mutedColor }: {
             Vista previa
           </Text>
           {cambio !== 0 && (
-            <Badge colorScheme={cambio > 0 ? 'green' : 'red'} fontSize="xs" px={2} py={1}>
+            <Badge colorScheme={badgeScheme} fontSize="xs" px={2} py={1}>
               {cambio > 0 ? '+' : ''}{cambio.toLocaleString()} puntos
             </Badge>
           )}
@@ -97,13 +110,13 @@ function PuntosPreview({ puntos, puntosMode, puntosActuales, mutedColor }: {
           </VStack>
           <Icon
             as={FaExchangeAlt} boxSize={5}
-            color={cambio > 0 ? 'green.500' : cambio < 0 ? 'red.500' : 'blue.500'}
+            color={iconColor}
           />
           <VStack spacing={0}>
             <Text fontSize="xs" color={mutedColor}>Nuevo</Text>
             <Text fontSize="2xl" fontWeight="bold"
-              color={cambio > 0 ? 'green.600' : cambio < 0 ? 'red.600' : 'blue.600'}
-              _dark={{ color: cambio > 0 ? 'green.300' : cambio < 0 ? 'red.300' : 'blue.300' }}
+              color={textLight}
+              _dark={{ color: textDark }}
             >
               {resultado.toLocaleString()}
             </Text>
@@ -889,10 +902,7 @@ export default function AdminUsuariosPage() {
                   Cancelar
                 </Button>
                 <Button
-                  colorScheme={(() => {
-                    if (puntosMode === 'add') return puntos > 0 ? 'green' : puntos < 0 ? 'red' : 'blue'
-                    return 'blue'
-                  })()}
+                  colorScheme={puntosMode === 'set' ? 'blue' : colorBySign(puntos, 'green', 'red', 'blue')}
                   onClick={savePuntos}
                   isLoading={updatePuntos.isPending}
                   isDisabled={!motivo.trim() || puntos === 0}

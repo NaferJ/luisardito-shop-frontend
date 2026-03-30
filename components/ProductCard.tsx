@@ -169,7 +169,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                 boxShadow="lg"
                 minW="44px"
               >
-                <Text fontSize="md" fontWeight="900" lineHeight="1">{descuento!.porcentajeDescuento}%</Text>
+                <Text fontSize="md" fontWeight="900" lineHeight="1">{descuento?.porcentajeDescuento}%</Text>
                 <Text fontSize="7px" fontWeight="black" letterSpacing="0.5px">OFF</Text>
               </VStack>
             </Box>
@@ -251,7 +251,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                         textDecoration="line-through"
                         fontWeight="bold"
                       >
-                        {formatNumber(descuento!.precioOriginal)} PTS
+                        {formatNumber(descuento?.precioOriginal ?? producto.precio)} PTS
                       </Text>
                     )}
                     {/* Badge de Precio — Solid Glass */}
@@ -266,7 +266,7 @@ export function ProductCard({ producto, isAdmin = false }: ProductCardProps) {
                     >
                       <Icon as={FiTag} boxSize={3} />
                       <Text fontWeight="900" fontSize="sm">
-                        {formatNumber(tieneDescuento ? descuento!.precioFinal : producto.precio)}
+                        {formatNumber(tieneDescuento ? (descuento?.precioFinal ?? producto.precio) : producto.precio)}
                         <Text as="span" fontSize="10px" ml={1} fontWeight="700" opacity={0.85}>PTS</Text>
                       </Text>
                     </HStack>

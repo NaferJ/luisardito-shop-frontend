@@ -75,8 +75,8 @@ function enqueueFailedRequest(originalRequest: any): Promise<any> {
 function handleMissingRefreshToken(originalRequest: any, error: any): never {
   clearAuthCookies()
   refreshManager.reset()
-  if (!isKickRelatedUrl(originalRequest?.url) && window.location.pathname !== '/login') {
-    window.location.href = '/login'
+  if (!isKickRelatedUrl(originalRequest?.url) && globalThis.location.pathname !== '/login') {
+    globalThis.location.href = '/login'
   }
   throw error
 }
@@ -116,8 +116,8 @@ function handleRefreshFailure(originalRequest: any, refreshError: any): never {
   refreshManager.processQueue(refreshError, null)
   clearAuthCookies()
   refreshManager.reset()
-  if (!isKickRelatedUrl(originalRequest?.url) && window.location.pathname !== '/login') {
-    window.location.href = '/login'
+  if (!isKickRelatedUrl(originalRequest?.url) && globalThis.location.pathname !== '/login') {
+    globalThis.location.href = '/login'
   }
   throw refreshError
 }
@@ -168,7 +168,7 @@ api.interceptors.response.use(
       handleMissingRefreshToken(originalRequest, error)
     }
     try {
-      return await attemptTokenRefresh(originalRequest, refreshToken!)
+      return await attemptTokenRefresh(originalRequest, refreshToken)
     } catch (refreshError: any) {
       handleRefreshFailure(originalRequest, refreshError)
     } finally {

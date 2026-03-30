@@ -129,15 +129,15 @@ function renderCellValue<T>(row: T, col: ColumnConfig<T>): React.ReactNode {
   const cellValue = (row as Record<string, unknown>)[col.key as string]
   if (col.render) return col.render(row)
   if (col.format) return col.format(cellValue, row)
-  const v = cellValue as unknown
-  if (v === null || v === undefined) return null
-  if (col.type === 'array') return Array.isArray(v) ? (v as unknown[]).join(', ') : String(v)
-  if (col.type === 'object') return JSON.stringify(v)
+  if (cellValue === null || cellValue === undefined) return null
+  if (col.type === 'array') return Array.isArray(cellValue) ? cellValue.map(String).join(', ') : String(cellValue)
+  if (col.type === 'object') return JSON.stringify(cellValue)
+  if (typeof cellValue === 'object') return JSON.stringify(cellValue)
   if (col.type === 'date') {
-    const d = new Date(v as string | number | Date)
-    return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString()
+    const d = new Date(cellValue as string | number | Date)
+    return isNaN(d.getTime()) ? String(cellValue) : d.toLocaleDateString()
   }
-  return String(v)
+  return String(cellValue)
 }
 
 export default function AdminDynamicTable<T = unknown>({

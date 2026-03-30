@@ -50,6 +50,38 @@ const fadeInUp = keyframes`
   100% { opacity: 1; transform: translateY(0); }
 `
 const SKELETON_COUNT = 8
+/** Botón de filtro/ordenamiento individual */
+function SortButton({ icon, label, isActive, filterActiveBg, filterActiveColor, filterActiveBorder, filterBorder, textColor, hoverBg, onSort }: Readonly<{
+  icon: any; label: string; isActive: boolean
+  filterActiveBg: string; filterActiveColor: string; filterActiveBorder: string
+  filterBorder: string; textColor: string; hoverBg: string
+  onSort: () => void
+}>) {
+  return (
+    <Button
+      leftIcon={<Icon as={icon} boxSize={3.5} />}
+      onClick={onSort}
+      size="sm"
+      h="36px"
+      px={4}
+      fontSize="xs"
+      fontWeight={isActive ? '700' : '500'}
+      bg={isActive ? filterActiveBg : 'transparent'}
+      color={isActive ? filterActiveColor : textColor}
+      border="1.5px solid"
+      borderColor={isActive ? filterActiveBorder : 'transparent'}
+      borderRadius="full"
+      _hover={{
+        bg: isActive ? filterActiveBg : hoverBg,
+        borderColor: isActive ? filterActiveBorder : filterBorder,
+      }}
+      transition="all 0.2s"
+    >
+      <Text display={{ base: 'none', md: 'block' }}>{label}</Text>
+    </Button>
+  )
+}
+
 export default function Tienda() {
   const { data: productos, isLoading, error, refetch } = useProductos()
   const { user } = useAuth()
@@ -72,6 +104,7 @@ export default function Tienda() {
   const emptyIconColor = useColorModeValue('gray.300', 'gray.600')
   const errorBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)')
   const errorBorder = useColorModeValue('red.200', 'red.800')
+  const sortHoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
   const bannerItems = [
     {
       title: 'Duplicación de Donaciones',
@@ -118,33 +151,6 @@ export default function Tienda() {
       producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     )
   }, [sortedProductos, searchTerm])
-  // ── Componente de filtro individual ──
-  const SortButton = ({ value, icon, label }: { value: typeof sortBy; icon: any; label: string }) => {
-    const isActive = sortBy === value
-    return (
-      <Button
-        leftIcon={<Icon as={icon} boxSize={3.5} />}
-        onClick={() => setSortBy(value)}
-        size="sm"
-        h="36px"
-        px={4}
-        fontSize="xs"
-        fontWeight={isActive ? '700' : '500'}
-        bg={isActive ? filterActiveBg : 'transparent'}
-        color={isActive ? filterActiveColor : textColor}
-        border="1.5px solid"
-        borderColor={isActive ? filterActiveBorder : 'transparent'}
-        borderRadius="full"
-        _hover={{
-          bg: isActive ? filterActiveBg : useColorModeValue('gray.50', 'whiteAlpha.50'),
-          borderColor: isActive ? filterActiveBorder : filterBorder,
-        }}
-        transition="all 0.2s"
-      >
-        <Text display={{ base: 'none', md: 'block' }}>{label}</Text>
-      </Button>
-    )
-  }
   return (
     <>
       <Head>
@@ -208,7 +214,7 @@ export default function Tienda() {
               <Box flex={1} position="relative" minH="60px">
                 {bannerItems.map((item, index) => (
                   <Flex
-                    key={index}
+                    key={item.title}
                     align="center" justify="center" direction="column" gap={1}
                     position="absolute" w="full"
                     opacity={index === currentIndex ? 1 : 0}
@@ -239,9 +245,9 @@ export default function Tienda() {
               />
             </Flex>
             <HStack spacing={1} justify="center" pb={2}>
-              {bannerItems.map((_, index) => (
+              {bannerItems.map((item, index) => (
                 <Box
-                  key={index}
+                  key={item.title}
                   w={index === currentIndex ? '20px' : '6px'}
                   h="6px"
                   borderRadius="full"
@@ -331,10 +337,10 @@ export default function Tienda() {
                   scrollbarWidth: 'none',
                 }}
               >
-                <SortButton value="precio_desc" icon={TriangleUpIcon} label="Mayor precio" />
-                <SortButton value="precio_asc" icon={TriangleDownIcon} label="Menor precio" />
-                <SortButton value="stock_desc" icon={FiPackage} label="Más stock" />
-                <SortButton value="canjes_desc" icon={MdPeople} label="Más canjeados" />
+                <SortButton icon={TriangleUpIcon} label="Mayor precio" isActive={sortBy === 'precio_desc'} filterActiveBg={filterActiveBg} filterActiveColor={filterActiveColor} filterActiveBorder={filterActiveBorder} filterBorder={filterBorder} textColor={textColor} hoverBg={sortHoverBg} onSort={() => setSortBy('precio_desc')} />
+                <SortButton icon={TriangleDownIcon} label="Menor precio" isActive={sortBy === 'precio_asc'} filterActiveBg={filterActiveBg} filterActiveColor={filterActiveColor} filterActiveBorder={filterActiveBorder} filterBorder={filterBorder} textColor={textColor} hoverBg={sortHoverBg} onSort={() => setSortBy('precio_asc')} />
+                <SortButton icon={FiPackage} label="Más stock" isActive={sortBy === 'stock_desc'} filterActiveBg={filterActiveBg} filterActiveColor={filterActiveColor} filterActiveBorder={filterActiveBorder} filterBorder={filterBorder} textColor={textColor} hoverBg={sortHoverBg} onSort={() => setSortBy('stock_desc')} />
+                <SortButton icon={MdPeople} label="Más canjeados" isActive={sortBy === 'canjes_desc'} filterActiveBg={filterActiveBg} filterActiveColor={filterActiveColor} filterActiveBorder={filterActiveBorder} filterBorder={filterBorder} textColor={textColor} hoverBg={sortHoverBg} onSort={() => setSortBy('canjes_desc')} />
               </HStack>
               {/* Contador de resultados */}
               {!isLoading && productos && (
@@ -349,7 +355,7 @@ export default function Tienda() {
                   flexShrink={0}
                   alignSelf="center"
                 >
-                  {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''}
+                  {filteredProductos.length} producto{filteredProductos.length === 1 ? '' : 's'}
                 </Badge>
               )}
             </Flex>

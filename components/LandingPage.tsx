@@ -65,23 +65,20 @@ export const faqItems = [
 // ===================== Componentes de visualización =====================
 
 /** Animación del dashboard para la sección Hero */
-function DashboardAnimation({ animateCards, borderColor, sectionBg, cardBg, mutedColor, accentColor }: {
+function DashboardAnimation({ animateCards, borderColor, sectionBg, cardBg, mutedColor, accentColor }: Readonly<{
   animateCards: boolean; borderColor: string; sectionBg: string; cardBg: string; mutedColor: string; accentColor: string
-}) {
+}>) {
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
     if (!animateCards) return
+    let interval: ReturnType<typeof setInterval>
     const timer = setTimeout(() => {
-      const interval = setInterval(() => {
-        setDisplayValue((prev) => {
-          if (prev >= 8450) return 8450
-          return prev + 100
-        })
+      interval = setInterval(() => {
+        setDisplayValue((prev) => Math.min(prev + 100, 8450))
       }, 20)
-      return () => clearInterval(interval)
     }, 300)
-    return () => clearTimeout(timer)
+    return () => { clearTimeout(timer); clearInterval(interval) }
   }, [animateCards])
 
   const products = [
@@ -309,7 +306,7 @@ interface VisualizationThemeProps {
 }
 
 /** Visualización de historial de puntos */
-function HistorialVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+function HistorialVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: Readonly<VisualizationThemeProps>) {
   const [animatedValue, setAnimatedValue] = useState(0)
   const [displayPoints, setDisplayPoints] = useState(0)
 
@@ -385,7 +382,7 @@ function HistorialVisualizacion({ borderColor, sectionBg, cardBg, accentColor, m
 }
 
 /** Visualización de leaderboard */
-function LeaderboardVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+function LeaderboardVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: Readonly<VisualizationThemeProps>) {
   const [animate, setAnimate] = useState(false)
   const highlightBg = useColorModeValue('blue.50', 'blue.900')
   const positions = [
@@ -415,7 +412,7 @@ function LeaderboardVisualizacion({ borderColor, sectionBg, cardBg, accentColor,
 
       <VStack spacing={3} w="100%">
         {positions.map((pos, idx) => (
-          <HStack key={idx} w="100%" p={4}
+          <HStack key={pos.position} w="100%" p={4}
             bg={pos.isYou ? highlightBg : cardBg}
             borderRadius="lg"
             border={pos.isYou ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
@@ -452,21 +449,26 @@ function LeaderboardVisualizacion({ borderColor, sectionBg, cardBg, accentColor,
 }
 
 /** Visualización de canjes */
-function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: VisualizationThemeProps) {
+function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mutedColor }: Readonly<VisualizationThemeProps>) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [animate, setAnimate] = useState(false)
-  const canjes = [
-    { name: 'VIP Mensual', status: 'Entregado', color: 'green' },
-    { name: 'Merchandising', status: 'En envío', color: 'blue' },
-    { name: 'Acceso Premium', status: 'Procesando', color: 'orange' }
-  ]
 
-  const dotBg = useColorModeValue
-  const statusColors = canjes.map(c => ({
-    dot: useColorModeValue(`${c.color}.400`, `${c.color}.300`),
-    badgeBg: useColorModeValue(`${c.color}.100`, `${c.color}.900`),
-    badgeColor: useColorModeValue(`${c.color}.700`, `${c.color}.300`)
-  }))
+  // Hooks de color al nivel del componente (no dentro de callbacks)
+  const greenDot = useColorModeValue('green.400', 'green.300')
+  const greenBadgeBg = useColorModeValue('green.100', 'green.900')
+  const greenBadgeColor = useColorModeValue('green.700', 'green.300')
+  const blueDot = useColorModeValue('blue.400', 'blue.300')
+  const blueBadgeBg = useColorModeValue('blue.100', 'blue.900')
+  const blueBadgeColor = useColorModeValue('blue.700', 'blue.300')
+  const orangeDot = useColorModeValue('orange.400', 'orange.300')
+  const orangeBadgeBg = useColorModeValue('orange.100', 'orange.900')
+  const orangeBadgeColor = useColorModeValue('orange.700', 'orange.300')
+
+  const canjes = [
+    { name: 'VIP Mensual', status: 'Entregado', dot: greenDot, badgeBg: greenBadgeBg, badgeColor: greenBadgeColor },
+    { name: 'Merchandising', status: 'En envío', dot: blueDot, badgeBg: blueBadgeBg, badgeColor: blueBadgeColor },
+    { name: 'Acceso Premium', status: 'Procesando', dot: orangeDot, badgeBg: orangeBadgeBg, badgeColor: orangeBadgeColor }
+  ]
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimate(true), 300)
@@ -496,7 +498,7 @@ function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mute
 
       <VStack spacing={3} w="100%">
         {canjes.map((canje, idx) => (
-          <Box key={idx} w="100%" p={4} bg={cardBg} borderRadius="lg"
+          <Box key={canje.name} w="100%" p={4} bg={cardBg} borderRadius="lg"
             border={idx === activeIndex ? `2px solid ${accentColor}` : `1px solid ${borderColor}`}
             opacity={idx === activeIndex ? 1 : 0.6}
             transform={idx === activeIndex ? 'scale(1.02)' : 'scale(1)'}
@@ -508,14 +510,14 @@ function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mute
               <VStack align="start" spacing={1} flex={1}>
                 <Text fontSize="sm" fontWeight="bold">{canje.name}</Text>
                 <HStack spacing={2}>
-                  <Box w={2} h={2} borderRadius="full" bg={statusColors[idx].dot}
+                  <Box w={2} h={2} borderRadius="full" bg={canje.dot}
                     animation={idx === activeIndex ? 'pulse 2s infinite' : 'none'} />
                   <Text fontSize="xs" color={mutedColor}>{canje.status}</Text>
                 </HStack>
               </VStack>
               <Box px={3} py={1} borderRadius="full"
-                bg={statusColors[idx].badgeBg} fontSize="10px" fontWeight="bold"
-                color={statusColors[idx].badgeColor}
+                bg={canje.badgeBg} fontSize="10px" fontWeight="bold"
+                color={canje.badgeColor}
               >
                 {canje.status}
               </Box>
@@ -529,9 +531,9 @@ function CanjesVisualizacion({ borderColor, sectionBg, cardBg, accentColor, mute
         opacity={animate ? 1 : 0} transform={animate ? 'translateY(0)' : 'translateY(20px)'}
         transition="all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)"
       >
-        {canjes.map((_, idx) => (
-          <Box key={idx} w={2} h={2} borderRadius="full"
-            bg={idx === activeIndex ? accentColor : borderColor} transition="all 0.3s" />
+        {canjes.map((canje) => (
+          <Box key={canje.name} w={2} h={2} borderRadius="full"
+            bg={canjes.indexOf(canje) === activeIndex ? accentColor : borderColor} transition="all 0.3s" />
         ))}
       </HStack>
     </Box>

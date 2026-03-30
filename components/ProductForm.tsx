@@ -59,7 +59,7 @@ import { generateSlug } from '../utils/slug'
 import { usePromocionesActivas } from '../hooks/usePromociones'
 
 /** Tarjeta individual de promoción seleccionable */
-function PromocionCard({ promo, isSelected, precioProducto, borderColor, mutedColor, selectedBgColor, onToggle }: {
+function PromocionCard({ promo, isSelected, precioProducto, borderColor, mutedColor, selectedBgColor, onToggle }: Readonly<{
   promo: any
   isSelected: boolean
   precioProducto: number
@@ -67,7 +67,7 @@ function PromocionCard({ promo, isSelected, precioProducto, borderColor, mutedCo
   mutedColor: string
   selectedBgColor: string
   onToggle: () => void
-}) {
+}>) {
   const precioFinal = promo.tipo_descuento === 'porcentaje'
     ? precioProducto * (1 - promo.valor_descuento / 100)
     : precioProducto - promo.valor_descuento

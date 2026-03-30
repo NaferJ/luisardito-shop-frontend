@@ -41,9 +41,9 @@ function backgroundSx(isLive: boolean) {
 }
 
 /** Componente de foto de perfil con indicador de estado */
-function ProfileImage({ src, username, isLive, onlineBg, offlineBg, size }: {
+function ProfileImage({ src, username, isLive, onlineBg, offlineBg, size }: Readonly<{
   src: string; username: string; isLive: boolean; onlineBg: string; offlineBg: string; size: string
-}) {
+}>) {
   const boxSize = size === 'sm' ? '60px' : '80px'
   const indicatorSize = size === 'sm' ? '12px' : '16px'
   return (
@@ -78,7 +78,7 @@ function ProfileImage({ src, username, isLive, onlineBg, offlineBg, size }: {
 }
 
 /** Badge de estado (ONLINE/OFFLINE) */
-function StatusBadge({ isLive, size = 'md' }: { isLive: boolean; size?: 'sm' | 'md' }) {
+function StatusBadge({ isLive, size = 'md' }: Readonly<{ isLive: boolean; size?: 'sm' | 'md' }>) {
   return (
     <Flex justify="center">
       <Badge
@@ -102,9 +102,9 @@ function StatusBadge({ isLive, size = 'md' }: { isLive: boolean; size?: 'sm' | '
 }
 
 /** Nombre del usuario con verificación */
-function UsernameDisplay({ username, isVerified, fontSize = 'lg' }: {
+function UsernameDisplay({ username, isVerified, fontSize = 'lg' }: Readonly<{
   username: string; isVerified: boolean; fontSize?: string
-}) {
+}>) {
   return (
     <VStack spacing={0.5} align="center">
       <HStack spacing={fontSize === 'sm' ? 1 : 1.5}>
@@ -120,9 +120,10 @@ function UsernameDisplay({ username, isVerified, fontSize = 'lg' }: {
 }
 
 /** Botón para ir al canal */
-function ChannelButton({ channelUrl, isLive, onlineBg, buttonOfflineBg, textColor, compact = false }: {
+function ChannelButton({ channelUrl, isLive, onlineBg, buttonOfflineBg, textColor, compact = false }: Readonly<{
   channelUrl: string; isLive: boolean; onlineBg: string; buttonOfflineBg: string; textColor: string; compact?: boolean
-}) {
+}>) {
+  const buttonLabel = isLive ? 'VER EN VIVO' : (compact ? 'VISITAR' : 'VISITAR CANAL')
   return (
     <Link href={channelUrl} isExternal _hover={{ textDecoration: 'none' }} w="full">
       <Box
@@ -140,7 +141,7 @@ function ChannelButton({ channelUrl, isLive, onlineBg, buttonOfflineBg, textColo
         _active={{ transform: 'translateY(0)' }}
       >
         <HStack justify="center" spacing={compact ? 1 : 1.5}>
-          <Text>{isLive ? 'VER EN VIVO' : (compact ? 'VISITAR' : 'VISITAR CANAL')}</Text>
+          <Text>{buttonLabel}</Text>
           <Icon as={ExternalLinkIcon} boxSize={compact ? 2.5 : 3} />
         </HStack>
       </Box>
@@ -149,9 +150,9 @@ function ChannelButton({ channelUrl, isLive, onlineBg, buttonOfflineBg, textColo
 }
 
 /** Información del stream (título, categoría, tiempo en vivo) */
-function StreamInfo({ stream, isLive, textColor, mutedColor }: {
+function StreamInfo({ stream, isLive, textColor, mutedColor }: Readonly<{
   stream: any; isLive: boolean; textColor: string; mutedColor: string
-}) {
+}>) {
   return (
     <VStack spacing={1.5} align="stretch" pt={1}>
       {isLive ? (
@@ -197,7 +198,7 @@ function StreamInfo({ stream, isLive, textColor, mutedColor }: {
 }
 
 /** Esqueleto de carga para el panel */
-function PanelSkeleton({ borderColor }: { borderColor: string }) {
+function PanelSkeleton({ borderColor }: Readonly<{ borderColor: string }>) {
   return (
     <>
       {/* Desktop - Flotante */}
@@ -253,7 +254,7 @@ function PanelSkeleton({ borderColor }: { borderColor: string }) {
 }
 
 /** Mensaje de error para el panel */
-function PanelError({ borderColor, errorMessage }: { borderColor: string; errorMessage: string }) {
+function PanelError({ borderColor, errorMessage }: Readonly<{ borderColor: string; errorMessage: string }>) {
   return (
     <>
       {/* Desktop */}

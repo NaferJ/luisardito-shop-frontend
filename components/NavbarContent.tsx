@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Button,
   HStack,
@@ -148,19 +148,45 @@ export default function NavbarContent() {
     )
   }
 
-  // --- SKELETON MODERN ---
+  // --- SKELETON LOADING ---
   if (isLoading) {
     return (
-      <Box position="fixed" top={{ base: 2, md: 4 }} left="50%" transform="translateX(-50%)" zIndex={1000} w="full" px={{ base: 4, md: 8 }} maxW="1200px">
-        <Flex bg={glassBg} backdropFilter="blur(20px)" border="1px solid" borderColor={glassBorder} borderRadius="2xl" h="54px" px={4} align="center" justify="space-between" boxShadow={shadowFloating}>
-          <HStack spacing={3}>
-            <Skeleton borderRadius="lg" width="28px" height="28px" />
-            <Skeleton height="14px" width="80px" borderRadius="full" />
+      <Box position="fixed" top={{ base: 2, md: 4 }} left="50%" transform="translateX(-50%)" zIndex={1000} w="full" px={{ base: 3, md: 8 }} maxW="800px">
+        <Flex
+          bg={glassBg}
+          backdropFilter="blur(20px) saturate(180%)"
+          border="1px solid"
+          borderColor={glassBorder}
+          borderRadius={{ base: 'xl', md: '2xl' }}
+          boxShadow={shadowFloating}
+          h={{ base: '54px', md: '60px' }}
+          px={{ base: 3, md: 4 }}
+          align="center"
+          justify="space-between"
+        >
+          {/* LEFT: Logo + nombre */}
+          <HStack spacing={2.5} flex={1}>
+            <Skeleton borderRadius="lg" width="32px" height="32px" />
+            <VStack align="start" spacing={1} display={{ base: 'none', sm: 'flex' }}>
+              <Skeleton height="11px" width="72px" borderRadius="sm" />
+              <Skeleton height="8px" width="28px" borderRadius="sm" />
+            </VStack>
           </HStack>
-          <HStack spacing={3}>
-            <Skeleton height="28px" width="100px" borderRadius="lg" display={{ base: 'none', lg: 'block' }} />
-            <Skeleton borderRadius="full" width="28px" height="28px" />
-            <Skeleton borderRadius="full" width="28px" height="28px" />
+
+          {/* CENTER: Nav items simulados */}
+          <HStack spacing={1} display={{ base: 'none', lg: 'flex' }} bg={useColorModeValue('rgba(0,0,0,0.02)', 'rgba(255,255,255,0.04)')} p={1} borderRadius="xl">
+            <Skeleton borderRadius="lg" width="36px" height="36px" />
+            <Skeleton borderRadius="lg" width="36px" height="36px" />
+            <Skeleton borderRadius="lg" width="36px" height="36px" />
+          </HStack>
+
+          {/* RIGHT: Puntos + toggles + avatar */}
+          <HStack spacing={2} flex={1} justify="flex-end">
+            <Skeleton borderRadius="full" width="90px" height="32px" display={{ base: 'none', md: 'block' }} />
+            <Skeleton borderRadius="lg" width="28px" height="28px" />
+            <Skeleton borderRadius="lg" width="28px" height="28px" />
+            <Skeleton borderRadius="full" width="32px" height="32px" display={{ base: 'none', lg: 'block' }} />
+            <Skeleton borderRadius="lg" width="32px" height="32px" display={{ base: 'block', lg: 'none' }} />
           </HStack>
         </Flex>
       </Box>

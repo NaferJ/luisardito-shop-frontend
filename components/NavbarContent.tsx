@@ -1,4 +1,4 @@
-﻿import {
+import {
   Box,
   Button,
   HStack,
@@ -298,7 +298,7 @@ export default function NavbarContent() {
                 h="32px"
                 mr={2}
                 borderRadius="lg"
-                onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank')}
+                onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank', 'noopener,noreferrer')}
                 _hover={{ bg: navHoverBg }}
               />
               <ColorModeToggle />
@@ -471,7 +471,7 @@ export default function NavbarContent() {
                 borderRadius="lg"
                 fontSize="xs"
                 h="40px"
-                onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank')}
+                onClick={() => window.open('https://form.typeform.com/to/In8zTBm6', '_blank', 'noopener,noreferrer')}
               >
                 Sugerencia
               </Button>

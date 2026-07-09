@@ -156,7 +156,7 @@ export default function LeaderboardPage() {
       const response = await fetch(`${API_BASE_URL}/api/leaderboard?limit=100`)
       const data = await response.json()
 
-      if (data.success && data.data) {
+      if (response.ok && data.success && data.data) {
         setLeaderboard(data.data)
         // Capturar información de reset si está disponible
         if (data.meta) {
@@ -164,7 +164,7 @@ export default function LeaderboardPage() {
           setHoursUntilReset(data.meta.hours_until_reset ?? null)
         }
       } else {
-        setError(data.message || 'Error al cargar el leaderboard')
+        setError(data.error || 'Error al cargar el leaderboard')
         console.error('Error en respuesta:', data)
       }
     } catch (err) {

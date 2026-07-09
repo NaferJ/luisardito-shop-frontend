@@ -1,4 +1,4 @@
-﻿import { Layout } from '../../components/Layout'
+import { Layout } from '../../components/Layout'
 import { ActionsMenu } from '../../components/ActionsMenu'
 import { TransparentCard } from '../../components/TransparentCard'
 import { BroadcasterPanel } from '../../components/BroadcasterPanel'
@@ -105,6 +105,7 @@ export default function Tienda() {
   const errorBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)')
   const errorBorder = useColorModeValue('red.200', 'red.800')
   const sortHoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const dotInactiveColor = useColorModeValue('gray.400', 'gray.600')
   const bannerItems = [
     {
       title: 'Duplicación de Donaciones',
@@ -251,7 +252,7 @@ export default function Tienda() {
                   w={index === currentIndex ? '20px' : '6px'}
                   h="6px"
                   borderRadius="full"
-                  bg={index === currentIndex ? accentColor : useColorModeValue('gray.400', 'gray.600')}
+                  bg={index === currentIndex ? accentColor : dotInactiveColor}
                   cursor="pointer"
                   onClick={() => setCurrentIndex(index)}
                   transition="all 0.3s"

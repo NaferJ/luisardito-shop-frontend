@@ -1,10 +1,11 @@
+# syntax=docker/dockerfile:1.7
 # Multi-stage Dockerfile for Next.js 15 app
 # 1) Install deps
 FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 # Install all deps (including dev) for building
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 # 2) Build
 FROM node:20-bookworm-slim AS builder

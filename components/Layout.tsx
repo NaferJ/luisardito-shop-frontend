@@ -29,6 +29,11 @@ export function Layout({ children, productImageUrl }: LayoutProps) {
   )
   const defaultBgColor = useColorModeValue('white', 'brand.900')
 
+  // Valores de color para el gradiente del producto (hoisted para cumplir rules-of-hooks)
+  const productOpacityHigh = useColorModeValue('0.55', '0.45')
+  const productOpacityMid = useColorModeValue('0.3', '0.2')
+  const productBgSolid = useColorModeValue('#ffffff', '#0d1117')
+
   // Extraer color dominante de la imagen del producto (misma lógica que ProductCard)
   useEffect(() => {
     if (!productImageUrl) {
@@ -55,10 +60,10 @@ export function Layout({ children, productImageUrl }: LayoutProps) {
 
   // Generar gradiente con el color dominante o usar el default
   const productBgGradient = dominantColor
-    ? `radial-gradient(ellipse 100% 80% at 50% 0%, rgba(${dominantColor.join(',')}, ${useColorModeValue('0.55', '0.45')}), rgba(${dominantColor.join(',')}, ${useColorModeValue('0.3', '0.2')}) 50%, transparent 80%), ${useColorModeValue('#ffffff', '#0d1117')}`
+    ? `radial-gradient(ellipse 100% 80% at 50% 0%, rgba(${dominantColor.join(',')}, ${productOpacityHigh}), rgba(${dominantColor.join(',')}, ${productOpacityMid}) 50%, transparent 80%), ${productBgSolid}`
     : defaultBgGradient
   const bgGradient = dominantColor ? productBgGradient : defaultBgGradient
-  const bgColor = dominantColor ? useColorModeValue('white', 'brand.900') : defaultBgColor
+  const bgColor = defaultBgColor
 
   const animationVariants = {
     exit: {

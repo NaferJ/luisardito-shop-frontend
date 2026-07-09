@@ -74,6 +74,16 @@ export default function KickAdminPage() {
   // Solo desarrolladores (rol_id 4) pueden ver información completa
   const isDeveloper = user?.rol_id === 4
 
+  // Theme colors con mejor contraste en modo oscuro (hoisted antes de retornos condicionales)
+  const cardBg = useColorModeValue('white', 'gray.700')
+  const borderColor = useColorModeValue('gray.200', 'gray.500')
+  const enabledBg = useColorModeValue('green.50', 'green.700')
+  const enabledBorder = useColorModeValue('green.200', 'green.400')
+  const disabledBg = useColorModeValue('gray.50', 'gray.600')
+  const disabledBorder = useColorModeValue('gray.200', 'gray.500')
+  const textPrimary = useColorModeValue('gray.800', 'gray.100')
+  const textSecondary = useColorModeValue('gray.600', 'gray.300')
+
   // Si aún se está cargando la autenticación, mostrar loading
   if (authLoading) {
     return (
@@ -91,16 +101,6 @@ export default function KickAdminPage() {
       </RequireAdmin>
     )
   }
-
-  // Theme colors con mejor contraste en modo oscuro
-  const cardBg = useColorModeValue('white', 'gray.700')
-  const borderColor = useColorModeValue('gray.200', 'gray.500')
-  const enabledBg = useColorModeValue('green.50', 'green.700')
-  const enabledBorder = useColorModeValue('green.200', 'green.400')
-  const disabledBg = useColorModeValue('gray.50', 'gray.600')
-  const disabledBorder = useColorModeValue('gray.200', 'gray.500')
-  const textPrimary = useColorModeValue('gray.800', 'gray.100')
-  const textSecondary = useColorModeValue('gray.600', 'gray.300')
 
   const handleMigrationToggle = async (enabled: boolean) => {
     try {

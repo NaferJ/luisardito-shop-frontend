@@ -14,7 +14,7 @@ const api = axios.create({
  */
 class RefreshTokenManager {
   private isRefreshing: boolean = false
-  private failedQueue: Array<{ resolve: Function; reject: Function }> = []
+  private failedQueue: Array<{ resolve: (value: string | null) => void; reject: (reason?: unknown) => void }> = []
   reset(): void {
     if (process.env.NODE_ENV === 'development') {
       console.log('🔄 [RefreshManager] Reseteando estado')
@@ -28,7 +28,7 @@ class RefreshTokenManager {
   isCurrentlyRefreshing(): boolean {
     return this.isRefreshing
   }
-  addToQueue(resolve: Function, reject: Function): void {
+  addToQueue(resolve: (value: string | null) => void, reject: (reason?: unknown) => void): void {
     this.failedQueue.push({ resolve, reject })
   }
   processQueue(error: any, token: string | null = null): void {

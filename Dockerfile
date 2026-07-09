@@ -63,5 +63,9 @@ COPY --from=builder /app/public ./public
 # Some Next.js configs may be read at runtime (headers/rewrites in server)
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
+# Run as the built-in non-root node user (not root)
+RUN chown -R node:node /app
+USER node
+
 EXPOSE 3000
 CMD ["npm", "run", "start"]

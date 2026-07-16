@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/tailwind-v2.css";
 import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '../hooks/useAuth'

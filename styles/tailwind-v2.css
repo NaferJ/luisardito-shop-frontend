@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Test rule to verify the CSS file is loaded */
+.tailwind-test-marker {
+  background-color: #ff0000;
+  color: #00ff00;
+}

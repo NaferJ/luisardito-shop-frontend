@@ -2,7 +2,7 @@
 import { getAuthCookie, getRefreshCookie, setAuthCookie, setRefreshCookie, clearAuthCookies } from './cookies'
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: typeof window === 'undefined' ? API_BASE_URL : '',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
@@ -85,7 +85,10 @@ async function attemptTokenRefresh(originalRequest: any, refreshToken: string): 
   if (process.env.NODE_ENV === 'development') {
     console.log('🔄 [RefreshManager] Intentando refrescar token...')
   }
-  const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, { refreshToken })
+  // Relative path -> goes through the Next.js rewrite proxy (same-origin, no CORS).
+  // This only runs on the client (the response interceptor throws early on SSR),
+  // so a relative URL is safe here.
+  const { data } = await axios.post('/api/auth/refresh', { refreshToken })
   const { accessToken, refreshToken: newRefreshToken, expiresIn } = data
   if (!accessToken) {
     throw new Error('No se recibió access token del servidor')

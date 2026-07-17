@@ -41,8 +41,23 @@
   }
 }
 
+@keyframes megaMenuFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .mega-menu-dropdown {
   animation: megaMenuFadeIn 0.2s ease-out forwards;
+}
+
+.mega-menu-dropdown-right {
+  animation: megaMenuFadeInRight 0.2s ease-out forwards;
 }
 
 /* Grayout overlay fade-in */

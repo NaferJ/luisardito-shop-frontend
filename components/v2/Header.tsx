@@ -29,6 +29,9 @@ import {
   PiGift,
   PiGear,
   PiMonitorPlay,
+  PiUser,
+  PiClockCounterClockwise,
+  PiSignOut,
   IconType,
 } from 'react-icons/pi'
 
@@ -63,6 +66,7 @@ const PUNTOS_MENU: MegaMenuSection[] = [
       { icon: PiShoppingCart, title: 'Tienda', sublabel: 'Explora los productos disponibles.', href: '/productos' },
       { icon: PiGift, title: 'Canjes', sublabel: 'Revisa y gestiona tus canjes.', href: '/canjes' },
       { icon: PiTrophy, title: 'Ranking', sublabel: 'Mira tu posición en el ranking de puntos.', href: '/leaderboard' },
+      { icon: PiClockCounterClockwise, title: 'Historial', sublabel: 'Revisa tu actividad reciente.', href: '/historial' },
     ],
   },
   {
@@ -197,30 +201,20 @@ function MegaMenuDropdown({
 /*  User avatar dropdown (authenticated state)                         */
 /* ------------------------------------------------------------------ */
 
-function UserMenu({ user, onLogout }: { user: any; onLogout: () => void }) {
-  const [open, setOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
+function UserMenu({ user, onLogout, isOpen, onToggle }: { user: any; onLogout: () => void; isOpen: boolean; onToggle: () => void }) {
   const avatarSrc = user?.kick_data?.avatar_url || user?.avatar_url || user?.kick_avatar || undefined
   const avatarName = user?.nickname || user?.kick_username || user?.display_name || user?.nombre || user?.email || ''
 
+  const menuItems = [
+    { icon: PiUser, title: 'Mi Perfil', sublabel: 'Edita tu información personal.', href: '/perfil' },
+  ]
+
   return (
-    <div ref={menuRef} className="relative">
+    <div className="relative">
       <button
         type="button"
         className="focus_header flex items-center cursor-pointer rounded"
-        onClick={() => setOpen(!open)}
+        onClick={onToggle}
       >
         {avatarSrc ? (
           <img
@@ -234,37 +228,61 @@ function UserMenu({ user, onLogout }: { user: any; onLogout: () => void }) {
           </span>
         )}
       </button>
-      {open && (
-        <div className="absolute top-full right-0 z-50 mt-2 mega-menu-dropdown">
-          <div className="bg-white rounded-lg shadow-dropdown p-2 min-w-[12rem]">
-            <div className="px-3 py-2.5 mb-1">
-              <p className="font-bold text-sm text-[#1A1A1A] truncate">{avatarName}</p>
+      {isOpen && (
+        <div className="absolute top-full right-0 z-50 mt-0 mega-menu-dropdown-right">
+          <div className="bg-white rounded-lg shadow-dropdown p-6 min-w-[20rem]">
+            {/* Header row: avatar + name + points */}
+            <div className="flex items-center gap-4 pb-4 mb-2 border-b border-border">
+              {avatarSrc ? (
+                <img src={avatarSrc} alt={avatarName} className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <span className="w-12 h-12 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-lg font-bold">
+                  {avatarName.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <div className="flex flex-col">
+                <span className="font-bold text-base text-[#1A1A1A] truncate">{avatarName}</span>
+                {user?.puntos != null && (
+                  <span className="text-sm text-brand-400 font-semibold mt-0.5">
+                    {user.puntos.toLocaleString()} <span className="text-[10px] font-bold tracking-wider">PTS</span>
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="border-t border-border mb-1" />
-            <ul>
-              <li>
-                <a href="/perfil" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
-                  Mi Perfil
-                </a>
-              </li>
-              <li>
-                <a href="/historial" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
-                  Historial
-                </a>
-              </li>
-              <li>
-                <a href="/canjes" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
-                  Mis Canjes
-                </a>
-              </li>
-            </ul>
-            <div className="border-t border-border mt-1 pt-1">
+            {/* Menu items */}
+            <div className="flex flex-col">
+              {menuItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <a
+                    key={item.title}
+                    href={item.href}
+                    className="group flex items-start gap-4 py-3 px-3 rounded-lg hover:bg-brand-50/60 transition-colors duration-200 cursor-pointer"
+                  >
+                    <span className="flex items-center justify-center w-5 h-5 shrink-0 text-[#1A1A1A] mt-0.5 group-hover:text-accent transition-colors duration-200">
+                      <Icon style={{ width: '20px', height: '20px' }} />
+                    </span>
+                    <span className="flex flex-col">
+                      <span className="font-normal text-sm text-[#1A1A1A] group-hover:text-accent transition-colors duration-200">
+                        {item.title}
+                      </span>
+                      <span className="text-xs text-brand-600 mt-0.5">{item.sublabel}</span>
+                    </span>
+                  </a>
+                )
+              })}
+            </div>
+            {/* Logout */}
+            <div className="border-t border-border mt-2 pt-3">
               <button
                 type="button"
                 onClick={onLogout}
-                className="block w-full text-left py-2 px-3 rounded-lg hover:bg-red-50 text-sm text-red-500 font-semibold transition-colors duration-200"
+                className="group flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-red-50 transition-colors duration-200 w-full"
               >
-                Cerrar Sesión
+                <span className="flex items-center justify-center w-5 h-5 shrink-0 text-red-500 mt-0.5">
+                  <PiSignOut style={{ width: '20px', height: '20px' }} />
+                </span>
+                <span className="text-sm text-red-500 font-semibold">Cerrar Sesión</span>
               </button>
             </div>
           </div>
@@ -282,20 +300,34 @@ export default function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [puntosOpen, setPuntosOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
 
   const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))
 
+  const anyMenuOpen = puntosOpen || profileOpen
+
   useEffect(() => {
-    if (!puntosOpen) return
+    if (!anyMenuOpen) return
     const handleClickOutside = (e: MouseEvent) => {
       if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
         setPuntosOpen(false)
+        setProfileOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [puntosOpen])
+  }, [anyMenuOpen])
+
+  // Only one menu can be open at a time
+  const togglePuntos = () => {
+    setProfileOpen(false)
+    setPuntosOpen(!puntosOpen)
+  }
+  const toggleProfile = () => {
+    setPuntosOpen(false)
+    setProfileOpen(!profileOpen)
+  }
 
   const handleLogout = () => {
     logout()
@@ -313,7 +345,7 @@ export default function Header() {
       </div>
 
       {/* Grayout overlay behind open mega-menus */}
-      {puntosOpen && (
+      {anyMenuOpen && (
         <div className="fixed inset-0 top-[72px] bg-black/5 z-20 mega-menu-overlay" />
       )}
 
@@ -334,7 +366,7 @@ export default function Header() {
                 label="Puntos"
                 sections={PUNTOS_MENU}
                 isOpen={puntosOpen}
-                onToggle={() => setPuntosOpen(!puntosOpen)}
+                onToggle={togglePuntos}
                 isAdmin={isAdmin}
               />
             </div>
@@ -346,11 +378,12 @@ export default function Header() {
             {isLoading ? null : isAuthenticated && user ? (
               <>
                 {user.puntos != null && (
-                  <span className="font-extrabold text-xs text-[#1A1A1A] bg-brand-50 px-4 py-1.5 rounded-full whitespace-nowrap">
-                    {user.puntos.toLocaleString()} <span className="text-[9px] font-black">PTS</span>
+                  <span className="flex flex-col items-end leading-none whitespace-nowrap">
+                    <span className="font-extrabold text-base text-[#1A1A1A]">{user.puntos.toLocaleString()}</span>
+                    <span className="text-[9px] font-bold text-brand-400 tracking-wider mt-0.5">PTS</span>
                   </span>
                 )}
-                <UserMenu user={user} onLogout={handleLogout} />
+                <UserMenu user={user} onLogout={handleLogout} isOpen={profileOpen} onToggle={toggleProfile} />
               </>
             ) : (
               <Link

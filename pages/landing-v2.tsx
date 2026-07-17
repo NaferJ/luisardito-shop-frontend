@@ -9,7 +9,6 @@ export default function LandingV2() {
       </Head>
 
       <div className="home-template bg-background min-h-screen">
-        <h1 className="visually-hidden">Bubble Blog | What you need to know about building with no-code</h1>
         <Header />
         <main className="px-4 lg:px-9 flex flex-col gap-10 xs:gap-12 sm:gap-16 lg:gap-20">
           {/* Landing page sections will be added here in subsequent tasks */}

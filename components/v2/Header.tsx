@@ -1,226 +1,276 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useAuth } from '../../hooks/useAuth'
+import {
+  PiStack,
+  PiDeviceMobileSpeaker,
+  PiMagicWand,
+  PiLightbulb,
+  PiLaptop,
+  PiBuildings,
+  PiSparkle,
+  PiLayout,
+  PiPlug,
+  PiUsers,
+  PiStorefront,
+  PiBookOpenText,
+  PiBook,
+  PiArticle,
+  PiUsersThree,
+  PiChatText,
+  PiCursorClick,
+  PiConfetti,
+  PiSquaresFour,
+  PiListChecks,
+  PiCaretDown,
+  PiArrowRight,
+  PiShoppingCart,
+  PiTrophy,
+  PiGift,
+  PiGear,
+  PiMonitorPlay,
+  IconType,
+} from 'react-icons/pi'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
 interface MegaMenuItem {
-  icon?: string
+  icon: IconType
   title: string
   sublabel: string
   href: string
-  isNew?: boolean
+  adminOnly?: boolean
 }
 
 interface MegaMenuSection {
   header: string
   items: MegaMenuItem[]
-}
-
-interface MegaMenuConfig {
-  label: string
-  sections: MegaMenuSection[]
+  column?: number
 }
 
 /* ------------------------------------------------------------------ */
-/*  Menu data (copied literally from Bubble blog)                      */
+/*  Menu data — "Puntos" mega-menu                                     */
+/*  column 0 = left column, column 1 = right column (stacked)         */
 /* ------------------------------------------------------------------ */
 
-const MEGA_MENUS: MegaMenuConfig[] = [
+const PUNTOS_MENU: MegaMenuSection[] = [
   {
-    label: 'Product',
-    sections: [
-      {
-        header: 'Meet Bubble',
-        items: [
-          { icon: 'stack', title: 'How Bubble works', sublabel: 'Platform overview and key features.', href: 'https://bubble.io/features' },
-          { icon: 'device-mobile-speaker', title: 'Native mobile', sublabel: 'Build native iOS and Android apps, without code.', href: 'https://bubble.io/mobile', isNew: true },
-          { icon: 'magic-wand', title: 'Get started with AI prompts', sublabel: 'Use AI to build a full-stack product in minutes.', href: 'https://bubble.io/ai-features', isNew: true },
-        ],
-      },
-      {
-        header: 'Bubble for',
-        items: [
-          { icon: 'lightbulb', title: 'Founders', sublabel: 'Go from idea to launch, fast.', href: 'https://bubble.io/for-founders' },
-          { icon: 'laptop', title: 'Developers', sublabel: 'Build professionally for clients.', href: 'https://bubble.io/for-developers' },
-          { icon: 'buildings', title: 'Enterprise', sublabel: 'Create powerful, custom apps that scale.', href: 'https://bubble.io/for-enterprise' },
-        ],
-      },
+    header: 'Puntos',
+    column: 0,
+    items: [
+      { icon: PiShoppingCart, title: 'Tienda', sublabel: 'Explora los productos disponibles.', href: '/productos' },
+      { icon: PiGift, title: 'Canjes', sublabel: 'Revisa y gestiona tus canjes.', href: '/canjes' },
+      { icon: PiTrophy, title: 'Ranking', sublabel: 'Mira tu posición en el ranking de puntos.', href: '/leaderboard' },
     ],
   },
   {
-    label: 'Resources',
-    sections: [
-      {
-        header: 'Build',
-        items: [
-          { icon: 'sparkle', title: 'Connect to AI', sublabel: 'Build, test, and scale with your favorite AI models.', href: 'https://bubble.io/ai-integrations', isNew: true },
-          { icon: 'layout', title: 'Templates', sublabel: 'Start faster with pre-built templates.', href: 'https://bubble.io/templates' },
-          { icon: 'plug', title: 'Plugins', sublabel: 'Add more features with plugins.', href: 'https://bubble.io/plugins' },
-          { icon: 'users', title: 'Get help building', sublabel: 'Find Bubble experts to help with your project.', href: 'https://bubble.io/hire-a-developer' },
-          { icon: 'storefront', title: 'Marketplace', sublabel: 'Discover more tools on our marketplace.', href: 'https://bubble.io/marketplace' },
-        ],
-      },
-      {
-        header: 'Learn',
-        items: [
-          { icon: 'book-open-text', title: 'Academy', sublabel: 'Learn to build on Bubble with step-by-step guides.', href: 'https://bubble.io/academy' },
-          { icon: 'book', title: 'Technical guides', sublabel: 'Detailed documentation for builders.', href: 'https://manual.bubble.io/' },
-          { icon: 'article', title: 'Bubble blog', sublabel: 'Learn from our team with tips and tutorials.', href: 'https://bubble.io/blog/' },
-        ],
-      },
+    header: 'Gestión',
+    column: 1,
+    items: [
+      { icon: PiUsers, title: 'Usuarios', sublabel: 'Gestiona los usuarios de la plataforma.', href: '/admin/usuarios', adminOnly: true },
+      { icon: PiStack, title: 'Inventario', sublabel: 'Administra el inventario de canjes.', href: '/admin/canjes', adminOnly: true },
     ],
   },
   {
-    label: 'Community',
-    sections: [
-      {
-        header: 'Get Involved',
-        items: [
-          { icon: 'users-three', title: 'Bubble community', sublabel: 'Join thousands of builders worldwide.', href: 'https://bubble.io/community' },
-          { icon: 'chat-text', title: 'Forum', sublabel: 'Ask questions, share ideas, and discuss all things Bubble.', href: 'https://forum.bubble.io/' },
-          { icon: 'cursor-click', title: 'Early access', sublabel: "Test new features and shape what's next for Bubble.", href: 'https://bubble.io/beta-testing' },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Examples',
-    sections: [
-      {
-        header: 'Built on Bubble',
-        items: [
-          { icon: 'confetti', title: 'Success stories', sublabel: 'Read how Bubble builders are redefining what is possible.', href: 'https://bubble.io/showcase' },
-          { icon: 'squares-four', title: 'App gallery', sublabel: 'Get inspired by real-life Bubble apps', href: 'https://bubble.io/app-gallery', isNew: true },
-          { icon: 'list-checks', title: 'Use cases', sublabel: 'Explore the wide range of what is possible on Bubble.', href: 'https://bubble.io/solutions-overview', isNew: true },
-        ],
-      },
+    header: 'Integraciones',
+    column: 1,
+    items: [
+      { icon: PiMonitorPlay, title: 'Kick', sublabel: 'Configuración de la integración con Kick.', href: '/admin/kick', adminOnly: true },
     ],
   },
 ]
 
-const SECONDARY_NAV = [
-  { label: 'Blog Home', href: 'https://bubble.io/blog/' },
-  { label: 'Guides', href: 'https://bubble.io/blog/tag/guides/' },
-  { label: 'Podcast', href: 'https://bubble.io/blog/tag/the-new-build-podcast/' },
-  { label: 'Community', href: 'https://bubble.io/blog/tag/community/' },
-  { label: 'Case Studies', href: 'https://bubble.io/blog/tag/case-studies/' },
-]
-
-const SECONDARY_NAV_MORE = [
-  { label: 'Explore authors', href: 'https://bubble.io/blog/authors/' },
-  { label: 'Explore topics', href: 'https://bubble.io/blog/topics/' },
-]
-
 /* ------------------------------------------------------------------ */
-/*  Chevron icon                                                       */
+/*  Phosphor caret-down icon (matches Bubble's icon set exactly)      */
 /* ------------------------------------------------------------------ */
 
-function ChevronDown() {
+function CaretDown({ rotate }: { rotate: boolean }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="inline-block w-4 h-4">
-      <rect width="256" height="256" fill="none" />
-      <polyline points="208 96 128 176 48 96" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" />
-    </svg>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Mega menu item icon (placeholder SVG path per icon name)           */
-/* ------------------------------------------------------------------ */
-
-function MegaIcon({ name }: { name: string }) {
-  // Simple placeholder icon - a rounded square with the first letter.
-  // Real icons will be added later when adapting to Luisardito content.
-  return (
-    <span className="flex items-center justify-center w-6 h-6 rounded bg-brand-100 text-brand-600 text-xs font-bold shrink-0">
-      {name.charAt(0).toUpperCase()}
+    <span
+      className="icon-item inline-flex items-center justify-center w-4 h-4"
+      style={{ transition: 'transform 0.3s ease', transform: rotate ? 'rotate(180deg)' : 'rotate(0deg)' }}
+    >
+      <PiCaretDown style={{ width: '100%', height: '100%' }} />
     </span>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/*  Primary nav mega-menu item                                         */
+/*  Mega menu dropdown panel                                           */
 /* ------------------------------------------------------------------ */
 
 function MegaMenuItemComponent({ item }: { item: MegaMenuItem }) {
+  const Icon = item.icon
   return (
-    <li className="sublevel child subitem">
-      <a href={item.href} className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-brand-50 transition-colors">
-        <MegaIcon name={item.icon || ''} />
+    <li>
+      <a
+        href={item.href}
+        className="group flex items-start gap-4 py-3 px-3 rounded-lg hover:bg-brand-50/60 transition-colors duration-200 cursor-pointer"
+      >
+        <span className="flex items-center justify-center w-5 h-5 shrink-0 text-[#1A1A1A] mt-0.5 group-hover:text-accent transition-colors duration-200">
+          <Icon style={{ width: '20px', height: '20px' }} />
+        </span>
         <span className="flex flex-col">
-          <span className="menu-title font-semibold text-sm text-brand-700">
+          <span className="font-normal text-sm text-[#1A1A1A] group-hover:text-accent transition-colors duration-200">
             {item.title}
-            {item.isNew && <span className="new ml-1 text-xs font-bold text-accent">new</span>}
           </span>
-          <span className="sublabel text-xs text-brand-400">{item.sublabel}</span>
+          <span className="text-xs text-brand-600 mt-0.5">{item.sublabel}</span>
         </span>
       </a>
     </li>
   )
 }
 
-function MegaMenu({ menu }: { menu: MegaMenuConfig }) {
-  const [open, setOpen] = useState(false)
+function MegaMenuDropdown({
+  label,
+  sections,
+  isOpen,
+  onToggle,
+  alignRight,
+  isAdmin,
+}: {
+  label: string
+  sections: MegaMenuSection[]
+  isOpen: boolean
+  onToggle: () => void
+  alignRight?: boolean
+  isAdmin?: boolean
+}) {
+  // Filter out admin-only items/sections when user is not admin
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !item.adminOnly || isAdmin),
+    }))
+    .filter((section) => section.items.length > 0)
+
+  // Group sections into columns (sections without a `column` each get their own column)
+  const columns = new Map<number, MegaMenuSection[]>()
+  visibleSections.forEach((section, index) => {
+    const col = section.column ?? index
+    if (!columns.has(col)) columns.set(col, [])
+    columns.get(col)!.push(section)
+  })
+  const columnList = Array.from(columns.values())
 
   return (
-    <li
-      className="nav-current toplevel menu-item-has-children relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <button className="flex items-center gap-1 font-bold text-base text-brand-700 hover:text-accent py-3 cursor-pointer">
-        {menu.label}
-        <ChevronDown />
+    <div className="relative">
+      <button
+        type="button"
+        className="focus_header flex items-center gap-1.5 font-bold text-base text-[#1A1A1A] hover:text-accent py-3 cursor-pointer rounded"
+        onClick={onToggle}
+      >
+        <span className="label-item">{label}</span>
+        <CaretDown rotate={isOpen} />
       </button>
-      {open && (
-        <ul className="ghost-submenu absolute top-full left-0 z-50 bg-background border border-border rounded-lg shadow-card-hover p-3 min-w-[28rem] grid grid-cols-2 gap-x-6">
-          {menu.sections.map((section) => (
-            <div key={section.header}>
-              <li className="sublevel header subitem mb-1">
-                <span className="menu-header text-xs font-bold uppercase text-brand-400 tracking-wide">{section.header}</span>
-              </li>
-              {section.items.map((item) => (
-                <MegaMenuItemComponent key={item.title} item={item} />
+      {isOpen && (
+        <div className={`absolute top-full z-50 mt-0 mega-menu-dropdown ${alignRight ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}>
+          <div className="bg-white rounded-lg shadow-dropdown p-6 min-w-[40rem]">
+            <div className={`grid ${columnList.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-12`}>
+              {columnList.map((columnSections, colIndex) => (
+                <div key={colIndex} className="flex flex-col gap-4">
+                  {columnSections.map((section) => (
+                    <div key={section.header}>
+                      <span className="block text-xs font-bold uppercase text-brand-600 tracking-wide mb-2 px-3">
+                        {section.header}
+                      </span>
+                      <ul>
+                        {section.items.map((item) => (
+                          <MegaMenuItemComponent key={item.title} item={item} />
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
-        </ul>
+          </div>
+        </div>
       )}
-    </li>
+    </div>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/*  Secondary nav "More" dropdown                                      */
+/*  User avatar dropdown (authenticated state)                         */
 /* ------------------------------------------------------------------ */
 
-function SecondaryMoreDropdown() {
+function UserMenu({ user, onLogout }: { user: any; onLogout: () => void }) {
   const [open, setOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
+  const avatarSrc = user?.kick_data?.avatar_url || user?.avatar_url || user?.kick_avatar || undefined
+  const avatarName = user?.nickname || user?.kick_username || user?.display_name || user?.nombre || user?.email || ''
 
   return (
-    <li
-      className="nav-more nav-current menu-item-has-children relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <button className="flex items-center gap-1 cursor-pointer">
-        More
-        <ChevronDown />
+    <div ref={menuRef} className="relative">
+      <button
+        type="button"
+        className="focus_header flex items-center cursor-pointer rounded"
+        onClick={() => setOpen(!open)}
+      >
+        {avatarSrc ? (
+          <img
+            src={avatarSrc}
+            alt={avatarName}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+        ) : (
+          <span className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold">
+            {avatarName.charAt(0).toUpperCase()}
+          </span>
+        )}
       </button>
       {open && (
-        <ul className="ghost-submenu absolute top-full right-0 z-50 bg-background border border-border rounded-lg shadow-card-hover p-2 min-w-[12rem]">
-          {SECONDARY_NAV_MORE.map((item) => (
-            <li key={item.label} className="subitem">
-              <a href={item.href} className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm">
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="absolute top-full right-0 z-50 mt-2 mega-menu-dropdown">
+          <div className="bg-white rounded-lg shadow-dropdown p-2 min-w-[12rem]">
+            <div className="px-3 py-2.5 mb-1">
+              <p className="font-bold text-sm text-[#1A1A1A] truncate">{avatarName}</p>
+            </div>
+            <div className="border-t border-border mb-1" />
+            <ul>
+              <li>
+                <a href="/perfil" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
+                  Mi Perfil
+                </a>
+              </li>
+              <li>
+                <a href="/historial" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
+                  Historial
+                </a>
+              </li>
+              <li>
+                <a href="/canjes" className="block py-2 px-3 rounded-lg hover:bg-brand-50 text-sm text-[#1A1A1A] transition-colors duration-200">
+                  Mis Canjes
+                </a>
+              </li>
+            </ul>
+            <div className="border-t border-border mt-1 pt-1">
+              <button
+                type="button"
+                onClick={onLogout}
+                className="block w-full text-left py-2 px-3 rounded-lg hover:bg-red-50 text-sm text-red-500 font-semibold transition-colors duration-200"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-    </li>
+    </div>
   )
 }
 
@@ -229,127 +279,138 @@ function SecondaryMoreDropdown() {
 /* ------------------------------------------------------------------ */
 
 export default function Header() {
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [puntosOpen, setPuntosOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+
+  const isAdmin = !!(user?.rol_id && [3, 4, 5].includes(user.rol_id))
+
+  useEffect(() => {
+    if (!puntosOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setPuntosOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [puntosOpen])
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
-    <header className="sticky top-0 px-px bg-background z-30 header-shadow">
-      {/* Primary nav */}
-      <nav className="bg-background px-4 lg:px-9 flex items-center">
-        {/* Logo */}
-        <Link href="/landing-v2">
-          <span className="flex items-center cursor-pointer">
-            <span className="full-logo text-xl font-black text-brand-700 hidden lg:inline">Bubble</span>
-            <span className="logo-mini text-xl font-black text-brand-700 lg:hidden">B</span>
-          </span>
-        </Link>
+    <header ref={headerRef} className="v2-header sticky top-0 z-30 bg-white/70 backdrop-blur-md font-sans">
+      {/* Animated watercolor circles background */}
+      <div className="absolute inset-0 z-0 pointer-events-none aquarela-bg overflow-hidden">
+        <span className="aquarela-circle aquarela-c1" />
+        <span className="aquarela-circle aquarela-c2" />
+        <span className="aquarela-circle aquarela-c3" />
+        <span className="aquarela-circle aquarela-c4" />
+        <span className="aquarela-circle aquarela-c5" />
+      </div>
 
-        {/* Mega-menu nav */}
-        <div className="px-5 gh-head-menu flex flex-row gap-x-5 hidden lg:flex">
-          <ul className="nav flex flex-row flex-grow items-start gap-x-2 font-bold text-base">
-            {MEGA_MENUS.map((menu) => (
-              <MegaMenu key={menu.label} menu={menu} />
-            ))}
-            <li className="nav-pricing toplevel">
-              <a href="https://bubble.io/pricing" className="block py-3 hover:text-accent">Pricing</a>
-            </li>
-            <li className="nav-enterprise toplevel">
-              <a href="https://bubble.io/for-enterprise" className="block py-3 hover:text-accent">Enterprise</a>
-            </li>
-          </ul>
-        </div>
+      {/* Grayout overlay behind open mega-menus */}
+      {puntosOpen && (
+        <div className="fixed inset-0 top-[72px] bg-black/5 z-20 mega-menu-overlay" />
+      )}
 
-        {/* Action buttons */}
-        <div className="pl-5 gh-head-menu flex flex-row-reverse justify-between gap-x-5 ml-auto">
-          <ul className="flex flex-row items-center lg:gap-x-5 font-bold text-base justify-end">
-            <li className="static-menu py-3 lg:py-0 contact-sales hidden lg:block">
-              <a href="https://bubble.io/contact-sales" className="text-brand-500 hover:text-accent outline-none focus:text-accent">
-                Contact sales
-              </a>
-            </li>
-            <li className="static-menu py-3 lg:py-0 lg:block login">
-              <a
-                href="https://bubble.io/login?mode=login"
-                className="text-accent-dark hover:text-accent-light focus:text-accent-light lg:text-accent lg:hover:text-accent-dark lg:focus:text-accent-dark hover:underline focus:underline outline-solid rounded-full"
+      {/* Primary nav row */}
+      <div className="relative z-30">
+        <div className="flex items-center justify-between px-8 lg:px-40 h-[72px]">
+          {/* Left group: logo + nav items */}
+          <div className="flex items-center gap-0 lg:gap-14">
+            {/* Logo */}
+            <Link href="/landing-v2" className="flex items-center cursor-pointer shrink-0">
+              <span className="hidden lg:inline text-2xl font-extrabold text-[#1A1A1A] tracking-tight">Luisardito</span>
+              <span className="lg:hidden text-2xl font-extrabold text-[#1A1A1A]">L</span>
+            </Link>
+
+            {/* Nav items — hidden on mobile */}
+            <div className="hidden lg:flex items-center gap-6">
+              <MegaMenuDropdown
+                label="Puntos"
+                sections={PUNTOS_MENU}
+                isOpen={puntosOpen}
+                onToggle={() => setPuntosOpen(!puntosOpen)}
+                isAdmin={isAdmin}
+              />
+            </div>
+          </div>
+
+          {/* Right group: auth */}
+          <div className="hidden lg:flex items-center gap-6">
+            {/* Auth */}
+            {isLoading ? null : isAuthenticated && user ? (
+              <>
+                {user.puntos != null && (
+                  <span className="font-extrabold text-xs text-[#1A1A1A] bg-brand-50 px-4 py-1.5 rounded-full whitespace-nowrap">
+                    {user.puntos.toLocaleString()} <span className="text-[9px] font-black">PTS</span>
+                  </span>
+                )}
+                <UserMenu user={user} onLogout={handleLogout} />
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="focus_header font-bold text-base text-[#1A1A1A] hover:text-accent cursor-pointer transition-colors duration-200 rounded"
               >
-                Log in
-              </a>
-            </li>
-            <li className="static-menu lg:block py-3 lg:py-0">
-              <a
-                href="https://bubble.io/login?mode=signup"
-                className="outline-none flex h-[2.625rem] px-5 items-center justify-center text-white bg-accent hover:bg-accent-dark focus:bg-accent-dark rounded-full font-semibold"
-              >
-                Get started
-              </a>
-            </li>
-          </ul>
-        </div>
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
 
-        {/* Mobile menu toggle */}
-        <button
-          className="outline-none lg:hidden ml-2 p-2"
-          aria-label="mobile menu"
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" className="w-6 h-6 fill-brand-500">
-            <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
-          </svg>
-        </button>
-      </nav>
+          {/* Mobile menu toggle */}
+          <button
+            className="lg:hidden ml-2 p-2"
+            aria-label="menu"
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            <svg viewBox="0 0 24 24" className="w-6 h-6 fill-[#1A1A1A]">
+              <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {/* Mobile menu panel */}
       {mobileOpen && (
-        <div className="lg:hidden bg-background border-t border-border px-4 py-4 flex flex-col gap-4">
-          {MEGA_MENUS.map((menu) => (
-            <div key={menu.label} className="flex flex-col gap-2">
-              <span className="font-bold text-brand-700">{menu.label}</span>
-              {menu.sections.map((section) => (
-                <div key={section.header} className="pl-3 flex flex-col gap-1">
-                  <span className="text-xs font-bold uppercase text-brand-400">{section.header}</span>
-                  {section.items.map((item) => (
-                    <a key={item.title} href={item.href} className="text-sm text-brand-600 hover:text-accent">
+        <div className="lg:hidden bg-white border-t border-border px-4 py-4 flex flex-col gap-4">
+          {PUNTOS_MENU.map((section) => {
+            const visibleItems = section.items.filter((item) => !item.adminOnly || isAdmin)
+            if (visibleItems.length === 0) return null
+            return (
+              <div key={section.header} className="flex flex-col gap-2">
+                <span className="text-xs font-bold uppercase text-brand-600">{section.header}</span>
+                {visibleItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <a key={item.title} href={item.href} className="flex items-center gap-2 text-sm text-[#1A1A1A] hover:text-accent pl-3">
+                      <Icon style={{ width: '16px', height: '16px' }} />
                       {item.title}
                     </a>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
+                  )
+                })}
+              </div>
+            )
+          })}
           <div className="flex flex-col gap-2 border-t border-border pt-4">
-            <a href="https://bubble.io/pricing" className="font-bold text-brand-700">Pricing</a>
-            <a href="https://bubble.io/for-enterprise" className="font-bold text-brand-700">Enterprise</a>
-            <a href="https://bubble.io/contact-sales" className="text-brand-500">Contact sales</a>
-            <a href="https://bubble.io/login?mode=login" className="text-accent">Log in</a>
-            <a
-              href="https://bubble.io/login?mode=signup"
-              className="flex h-[2.625rem] px-5 items-center justify-center text-white bg-accent hover:bg-accent-dark rounded-full font-semibold"
-            >
-              Get started
-            </a>
+            {isAuthenticated && user ? (
+              <>
+                <a href="/perfil" className="font-bold text-[#1A1A1A]">Mi Perfil</a>
+                <a href="/historial" className="font-bold text-[#1A1A1A]">Historial</a>
+                <a href="/canjes" className="font-bold text-[#1A1A1A]">Mis Canjes</a>
+                <button type="button" onClick={handleLogout} className="text-left text-red-500 font-bold">Cerrar Sesión</button>
+              </>
+            ) : (
+              <a href="/login" className="font-bold text-[#1A1A1A]">Iniciar sesión</a>
+            )}
           </div>
         </div>
       )}
-
-      {/* Secondary nav */}
-      <div className="relative border-t border-border">
-        <nav className="px-4 lg:px-9 bg-background h-14 flex items-center lg:justify-center gap-6 text-sm lg:text-base font-bold [&>*]:shrink-0">
-          <ul className="nav flex items-center gap-6">
-            {SECONDARY_NAV.map((item) => (
-              <li key={item.label}>
-                <a href={item.href} className="hover:text-accent">{item.label}</a>
-              </li>
-            ))}
-            <SecondaryMoreDropdown />
-            <li className="nav-search">
-              <a href="#/search" className="hover:text-accent">Search</a>
-            </li>
-            <li className="nav-subscribe">
-              <a href="https://bubble.io/newsletter" className="hover:text-accent">Subscribe</a>
-            </li>
-          </ul>
-        </nav>
-      </div>
     </header>
   )
 }

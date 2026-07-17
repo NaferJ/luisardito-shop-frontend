@@ -2,8 +2,156 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Test rule to verify the CSS file is loaded */
-.tailwind-test-marker {
-  background-color: #ff0000;
-  color: #00ff00;
+/* Remove default list markers in v2 components (preflight is disabled) */
+.v2-header ul,
+.v2-header li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove Chakra's default <a> underline on hover in v2 header */
+.v2-header a,
+.v2-header a:hover,
+.v2-header a:focus {
+  text-decoration: none;
+}
+
+/* Applies focus style to header (copied literally from Bubble) */
+.focus_header:focus {
+  outline: none;
+}
+.focus_header:focus-visible {
+  outline: 2px solid #61CAFF !important;
+  outline-offset: 2px !important;
+}
+.focus_header:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Mega-menu dropdown fade + slide-down animation (matches Bubble) */
+@keyframes megaMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.mega-menu-dropdown {
+  animation: megaMenuFadeIn 0.2s ease-out forwards;
+}
+
+/* Grayout overlay fade-in */
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mega-menu-overlay {
+  animation: overlayFadeIn 0.2s ease-out forwards;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated watercolor circles inside the header                      */
+/* ------------------------------------------------------------------ */
+
+.aquarela-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.aquarela-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.35;
+  will-change: transform;
+}
+
+/* Circle 1 — light blue, top-left area */
+.aquarela-c1 {
+  width: 120px;
+  height: 120px;
+  background: #93c5fd;
+  top: -30px;
+  left: 15%;
+  animation: aquarelaFloat1 18s ease-in-out infinite;
+}
+
+/* Circle 2 — medium blue, center area */
+.aquarela-c2 {
+  width: 90px;
+  height: 90px;
+  background: #60a5fa;
+  top: -10px;
+  left: 45%;
+  animation: aquarelaFloat2 22s ease-in-out infinite;
+}
+
+/* Circle 3 — indigo blue, right area */
+.aquarela-c3 {
+  width: 140px;
+  height: 140px;
+  background: #818cf8;
+  top: -40px;
+  left: 70%;
+  animation: aquarelaFloat3 20s ease-in-out infinite;
+}
+
+/* Circle 4 — sky blue, far left */
+.aquarela-c4 {
+  width: 70px;
+  height: 70px;
+  background: #bae6fd;
+  top: 10px;
+  left: 5%;
+  animation: aquarelaFloat4 25s ease-in-out infinite;
+}
+
+/* Circle 5 — periwinkle, far right */
+.aquarela-c5 {
+  width: 100px;
+  height: 100px;
+  background: #a5b4fc;
+  top: -20px;
+  left: 85%;
+  animation: aquarelaFloat5 16s ease-in-out infinite;
+}
+
+@keyframes aquarelaFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 20px) scale(1.15); }
+  66% { transform: translate(-20px, 30px) scale(0.9); }
+}
+
+@keyframes aquarelaFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-50px, 15px) scale(1.2); }
+  66% { transform: translate(30px, -10px) scale(0.85); }
+}
+
+@keyframes aquarelaFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 25px) scale(1.1); }
+  66% { transform: translate(20px, -15px) scale(1.25); }
+}
+
+@keyframes aquarelaFloat4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, -20px) scale(1.3); }
+}
+
+@keyframes aquarelaFloat5 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-40px, 20px) scale(0.8); }
+  66% { transform: translate(10px, -25px) scale(1.2); }
 }
